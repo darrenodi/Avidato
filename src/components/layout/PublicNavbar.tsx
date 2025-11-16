@@ -15,6 +15,7 @@ const PublicNavbar: React.FC = () => {
     { href: "/#features", label: "Features" },
     { href: "/#pedagogy", label: "Pedagogy" },
     { href: "/#pricing", label: "Pricing" },
+    { href: "/blog", label: "Blog" },
     { href: "/#faq", label: "FAQ" },
   ];
 
