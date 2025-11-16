@@ -52,27 +52,48 @@ async function generateBlogPost() {
         });
 
         const prompt = `You are a professional education blogger writing for language teachers and tutors. 
-Your tone is warm, knowledgeable, and practical. You provide actionable insights and real-world examples. 
-Write in a conversational yet professional style. Use headings (##), bullet points, and clear structure.
-Include practical tips, examples, and a conclusion. Make the content between 800-1200 words.
-
 Write a comprehensive blog post about: "${topic}". 
-Include:
-- An engaging introduction
-- 3-4 main sections with practical insights
-- Real-world examples or scenarios
-- Actionable tips teachers can implement
-- A conclusion with key takeaways
 
-Format using markdown with ## for headings.`;
+CRITICAL INSTRUCTIONS:
+- DO NOT include any preamble, introduction, or commentary about the task
+- DO NOT say "Here is a blog post" or "Of course!" or similar phrases
+- Start DIRECTLY with the blog post title as an H1 (# Title)
+- Your tone is warm, knowledgeable, and practical
+- Provide actionable insights and real-world examples
+- Use a conversational yet professional style
+- Use headings (##), bullet points, and clear structure
+- Make the content between 800-1200 words
+
+REQUIRED STRUCTURE:
+1. Start with # [compelling title]
+2. An engaging introduction (2-3 paragraphs)
+3. 3-4 main sections with ## headings and practical insights
+4. Real-world examples or scenarios in each section
+5. Actionable tips teachers can implement
+6. A conclusion with key takeaways
+
+OUTPUT FORMAT:
+Return ONLY the markdown blog post content. No preamble. No comments. Just the blog post starting with the title.`;
 
         const result = await model.generateContent(prompt);
-        content = result.response.text();
+        let rawContent = result.response.text();
         
-        if (content) {
+        // Clean up any AI commentary that might slip through
+        rawContent = rawContent
+          .replace(/^(Of course!?|Sure!?|Here (?:is|'s)|Certainly!?).*?\n+/i, '')
+          .replace(/^.*?comprehensive blog post.*?\n+/i, '')
+          .trim();
+        
+        content = rawContent;
+        
+        if (content && content.length > 200) {
           modelUsed = modelName;
-          console.log(`✅ Successfully generated content with ${modelName}`);
+          console.log(`✅ Successfully generated content with ${modelName} (${content.length} characters)`);
           break;
+        } else {
+          console.log(`❌ ${modelName} returned incomplete content (${content?.length || 0} characters)`);
+          content = null;
+          continue;
         }
       } catch (error) {
         console.log(`❌ ${modelName} failed: ${error.message}`);
@@ -81,9 +102,11 @@ Format using markdown with ## for headings.`;
       }
     }
 
-    if (!content) {
-      throw new Error("All models failed to generate content. Please check your API quota.");
+    if (!content || content.length < 200) {
+      throw new Error("All models failed to generate sufficient content. Please check your API quota.");
     }
+
+    console.log(`📊 Content stats: ${content.length} characters, ~${Math.round(content.split(' ').length)} words`);
 
     // Use placeholder image (Imagen API not yet implemented)
     console.log("🎨 Using placeholder image...");
