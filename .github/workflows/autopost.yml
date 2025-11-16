@@ -1,0 +1,48 @@
+name: Auto Generate Blog Post
+
+on:
+  schedule:
+    # Run every day at 18:25 GMT+1 (17:25 UTC)
+    - cron: '25 17 * * *'
+  workflow_dispatch: # Allow manual triggering
+
+jobs:
+  autopost:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          npm install openai slugify date-fns gray-matter next-mdx-remote
+
+      - name: Generate Blog Post
+        env:
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+        run: npm run generate:blog
+
+      - name: Commit and push changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: '🤖 Auto-generated blog post'
+          commit_user_name: 'Avidato Bot'
+          commit_user_email: 'bot@avidato.com'
+          commit_author: 'Avidato Bot <bot@avidato.com>'
+
+      - name: Notify on success
+        if: success()
+        run: echo "✅ Blog post generated and committed successfully!"
+
+      - name: Notify on failure
+        if: failure()
+        run: echo "❌ Blog post generation failed. Check logs for details."
