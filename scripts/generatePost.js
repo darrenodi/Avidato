@@ -5,12 +5,13 @@ import { format } from "date-fns";
 
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
 
-// Models to try in order of preference (fallback strategy)
+// Models to try in order of preference (from geminiFailover.ts)
 const MODELS = [
-  'gemini-2.0-flash-exp',
-  'gemini-1.5-flash',
-  'gemini-1.5-pro',
-  'gemini-pro'
+  'gemini-2.5-pro',
+  'gemini-2.5-flash',
+  'gemini-2.5-flash-lite',
+  'gemini-2.0-flash',
+  'gemini-2.0-flash-lite',
 ];
 
 // Topics for language learning blog
