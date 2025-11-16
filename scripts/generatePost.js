@@ -85,37 +85,9 @@ Format using markdown with ## for headings.`;
       throw new Error("All models failed to generate content. Please check your API quota.");
     }
 
-    // Generate featured image with Imagen 3
-    console.log("🎨 Generating featured image with Imagen 3...");
-    const imageModel = genAI.getGenerativeModel({ model: "imagen-3.0-generate-001" });
-    
-    const imagePrompt = `A professional, modern, and inspiring header image for an educational blog post about "${topic}". 
-Style: Clean, minimalist, professional education theme. Colors: warm and inviting with touches of blue and green. 
-Include subtle elements related to language learning, teaching, or education. No text in the image.`;
-    
-    const imageResult = await imageModel.generateContent({
-      prompt: imagePrompt,
-    });
-
-    // Get the generated image data
-    const imageData = imageResult.response.candidates[0].content.parts[0].inlineData;
-    const imageBase64 = imageData.data;
-    
-    // Save image to public/images/blog directory
-    const imageFileName = `${slugify(topic, { lower: true, strict: true })}.png`;
-    const imageDir = './public/images/blog';
-    const imagePath = `${imageDir}/${imageFileName}`;
-    
-    // Create directory if it doesn't exist
-    if (!fs.existsSync(imageDir)) {
-      fs.mkdirSync(imageDir, { recursive: true });
-    }
-    
-    // Save base64 image to file
-    fs.writeFileSync(imagePath, Buffer.from(imageBase64, 'base64'));
-    
-    const imageUrl = `/images/blog/${imageFileName}`;
-    console.log(`🖼️  Image saved: ${imagePath}`);
+    // Use placeholder image (Imagen API not yet implemented)
+    console.log("🎨 Using placeholder image...");
+    const imageUrl = "https://placehold.co/1792x1024/4F46E5/FFFFFF/png?text=Avidato+Blog";
 
     // Create slug and metadata
     const slug = slugify(topic, { lower: true, strict: true });
@@ -154,7 +126,6 @@ ${content}
     console.log(`✅ Successfully created blog post!`);
     console.log(`📄 File: ${filePath}`);
     console.log(`🔗 Slug: ${slug}`);
-    console.log(`🖼️  Image: ${imageUrl}`);
     console.log(`🤖 Model used: ${modelUsed}`);
     
     return {
