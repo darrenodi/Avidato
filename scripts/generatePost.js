@@ -5,6 +5,14 @@ import { format } from "date-fns";
 
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
 
+// Models to try in order of preference (fallback strategy)
+const MODELS = [
+  'gemini-2.0-flash-exp',
+  'gemini-1.5-flash',
+  'gemini-1.5-pro',
+  'gemini-pro'
+];
+
 // Topics for language learning blog
 const TOPICS = [
   "Effective Strategies for Teaching English Grammar to Adult Learners",
@@ -25,19 +33,24 @@ async function generateBlogPost() {
     const topic = TOPICS[Math.floor(Math.random() * TOPICS.length)];
     console.log(`📝 Generating blog post about: "${topic}"`);
 
-    // Generate blog content with Gemini
-    console.log("🤖 Generating content with Gemini...");
-    const model = genAI.getGenerativeModel({ 
-      model: "gemini-2.0-flash-exp",
-      generationConfig: {
-        temperature: 0.8,
-        topK: 40,
-        topP: 0.95,
-        maxOutputTokens: 2048,
-      },
-    });
+    // Try models in order until one works
+    let content = null;
+    let modelUsed = null;
+    
+    for (const modelName of MODELS) {
+      try {
+        console.log(`🤖 Trying to generate content with ${modelName}...`);
+        const model = genAI.getGenerativeModel({ 
+          model: modelName,
+          generationConfig: {
+            temperature: 0.8,
+            topK: 40,
+            topP: 0.95,
+            maxOutputTokens: 2048,
+          },
+        });
 
-    const prompt = `You are a professional education blogger writing for language teachers and tutors. 
+        const prompt = `You are a professional education blogger writing for language teachers and tutors. 
 Your tone is warm, knowledgeable, and practical. You provide actionable insights and real-world examples. 
 Write in a conversational yet professional style. Use headings (##), bullet points, and clear structure.
 Include practical tips, examples, and a conclusion. Make the content between 800-1200 words.
@@ -52,11 +65,23 @@ Include:
 
 Format using markdown with ## for headings.`;
 
-    const result = await model.generateContent(prompt);
-    const content = result.response.text();
+        const result = await model.generateContent(prompt);
+        content = result.response.text();
+        
+        if (content) {
+          modelUsed = modelName;
+          console.log(`✅ Successfully generated content with ${modelName}`);
+          break;
+        }
+      } catch (error) {
+        console.log(`❌ ${modelName} failed: ${error.message}`);
+        // Continue to next model
+        continue;
+      }
+    }
 
     if (!content) {
-      throw new Error("Failed to generate content");
+      throw new Error("All models failed to generate content. Please check your API quota.");
     }
 
     // Generate featured image with Imagen 3
@@ -74,7 +99,6 @@ Include subtle elements related to language learning, teaching, or education. No
     // Get the generated image data
     const imageData = imageResult.response.candidates[0].content.parts[0].inlineData;
     const imageBase64 = imageData.data;
-    const imageMimeType = imageData.mimeType;
     
     // Save image to public/images/blog directory
     const imageFileName = `${slugify(topic, { lower: true, strict: true })}.png`;
@@ -130,11 +154,13 @@ ${content}
     console.log(`📄 File: ${filePath}`);
     console.log(`🔗 Slug: ${slug}`);
     console.log(`🖼️  Image: ${imageUrl}`);
+    console.log(`🤖 Model used: ${modelUsed}`);
     
     return {
       success: true,
       slug,
       filePath,
+      modelUsed,
     };
   } catch (error) {
     console.error("❌ Error generating blog post:", error);
@@ -144,7 +170,7 @@ ${content}
 
 // Run the script
 generateBlogPost()
-  .then((result) => {
+  .then(() => {
     console.log("\n🎉 Blog post generation complete!");
     process.exit(0);
   })
