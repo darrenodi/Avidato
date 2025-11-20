@@ -62,7 +62,6 @@ export default function PublicFooter() {
               <FooterLink href="/#pedagogy">Pedagogy</FooterLink>
               <FooterLink href="/#pricing">Pricing</FooterLink>
               <FooterLink href="/#faq">FAQ</FooterLink>
-              <FooterLink href="/blog">Blog</FooterLink>
               <FooterLink href="/careers">Careers</FooterLink>
             </div>
           </div>
@@ -81,6 +80,7 @@ export default function PublicFooter() {
           <div className="col-span-1 md:col-span-2">
             <h3 className="font-semibold text-white mb-4">Get Started</h3>
             <div className="flex flex-col space-y-3 text-sm">
+              <FooterLink href="/blog">Blog</FooterLink>
               <FooterLink href="/login">Log In</FooterLink>
               <FooterLink href="/signup">Create an Account</FooterLink>
             </div>
