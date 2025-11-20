@@ -152,10 +152,24 @@ export default function StudentProfilePage() {
     }
   }, [studentId])
 
+  // Prevent refetching on window focus (Issue #58)
+  useEffect(() => {
+    const handleFocus = () => {
+      // Do nothing - prevent refetching when tab regains focus
+    }
+    window.addEventListener('focus', handleFocus)
+    return () => window.removeEventListener('focus', handleFocus)
+  }, [])
+
   // Fetch student data
   useEffect(() => {
     const fetchStudent = async () => {
       if (session && studentId) {
+        // Skip if student is already loaded
+        if (student?.id === studentId) {
+          return
+        }
+
         try {
           setLoading(true)
           setError(null)
@@ -182,6 +196,7 @@ export default function StudentProfilePage() {
     }
 
     fetchStudent()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session, studentId, fetchLessons, fetchExistingLearningPlan])
 
   // Fetch generation stats

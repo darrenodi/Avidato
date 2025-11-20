@@ -68,12 +68,22 @@ export default function StudentsPage() {
     sortOrder: 'desc',
     archived: false
   })
+  const [lastFetchParams, setLastFetchParams] = useState<{ page: number; filters: StudentFilters; activeTab: TabType } | null>(null)
 
   // Fetch students data
   // Fetch students with pagination
   useEffect(() => {
     const fetchStudents = async () => {
       if (session) {
+        // Skip if already fetched with same parameters (prevents refetch on tab focus)
+        const currentParams = { page, filters, activeTab }
+        if (lastFetchParams && 
+            lastFetchParams.page === page && 
+            lastFetchParams.activeTab === activeTab &&
+            JSON.stringify(lastFetchParams.filters) === JSON.stringify(filters)) {
+          return
+        }
+
         try {
           setLoading(true)
           setError(null)
@@ -83,6 +93,7 @@ export default function StudentsPage() {
           if (response.success && response.data) {
             setStudents(response.data.students)
             setTotal(response.data.total)
+            setLastFetchParams(currentParams)
           } else {
             setError(response.error || 'Failed to load students')
           }
@@ -96,7 +107,7 @@ export default function StudentsPage() {
     }
 
     fetchStudents()
-  }, [session, filters, activeTab, page])
+  }, [session, filters, activeTab, page, lastFetchParams])
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -127,6 +138,24 @@ export default function StudentsPage() {
       return
     }
   }, [session, status, router])
+
+  // Prevent automatic refetch when browser tab regains focus
+  useEffect(() => {
+    let hasUnmounted = false
+
+    const handleVisibilityChange = () => {
+      // Don't refetch if component has unmounted or page is still hidden
+      if (!hasUnmounted && document.visibilityState === 'hidden') {
+        return
+      }
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    return () => {
+      hasUnmounted = true
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+    }
+  }, [])
 
   // Handle filter changes, reset to page 1
   const handleFilterChange = (key: keyof StudentFilters, value: string) => {
