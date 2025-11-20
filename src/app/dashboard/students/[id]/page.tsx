@@ -54,7 +54,7 @@ interface StudentLesson {
   sharedAt: Date | null
 }
 
-type TabType = 'details' | 'learning-plan' | 'generate-lesson' | 'generated-lessons' | 'instant-lesson'
+type TabType = 'details' | 'learning-plan' | 'generated-lessons' | 'instant-lesson'
 
 export default function StudentProfilePage() {
   const { data: session, status } = useSession()
@@ -386,10 +386,10 @@ export default function StudentProfilePage() {
                     </p>
                   </div>
                   <button 
-                    onClick={() => setActiveTab('generate-lesson')}
+                    onClick={() => setActiveTab('learning-plan')}
                     className="bg-brand-primary text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-brand-accent transition-colors text-sm sm:text-base order-1 sm:order-2"
                   >
-                    Generate Lesson
+                    Learning Plan
                   </button>
                   <Link
                     href={`/dashboard/students/${studentId}/edit`}
@@ -717,145 +717,6 @@ export default function StudentProfilePage() {
                   </div>
                 )}
 
-                {/* Generate Lesson Tab */}
-                {activeTab === 'generate-lesson' && (
-                  <div className="space-y-6">
-                    <div>
-                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                        Generate AI Lesson
-                      </h3>
-                      <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                        Click on a topic below to see the &ldquo;Generate Lesson&rdquo; button appear directly underneath it
-                      </p>
-                      <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                        Generations remaining: {generationStats.remaining}/{generationStats.limit}
-                      </div>
-                    </div>
-
-                    {learningTopics.length === 0 && (
-                      <div className="text-center py-12 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                        <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C20.832 18.477 19.246 18 17.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                        </svg>
-                        <h3 className="mt-2 text-sm font-semibold text-gray-900 dark:text-white">
-                          No learning plan available
-                        </h3>
-                        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                          Generate a learning plan first to create individual lessons
-                        </p>
-                        <div className="mt-6">
-                          <button 
-                            onClick={() => setActiveTab('learning-plan')}
-                            className="bg-brand-primary text-white px-4 py-2 rounded-lg hover:bg-brand-accent transition-colors"
-                          >
-                            Go to Learning Plan
-                          </button>
-                        </div>
-                      </div>
-                    )}
-
-                    {learningTopics.length > 0 && (
-                    <div className="grid grid-cols-1 gap-3">
-                      {learningTopics.map((topic, index) => {
-                        const isGenerated = isLessonGenerated(topic.title)
-                        const isSelected = selectedTopic === topic.id
-                        
-                        return (
-                        <div key={topic.id} className="space-y-3">
-                          <div 
-                            className={`p-4 border rounded-lg cursor-pointer transition-all ${
-                              isSelected
-                                ? 'border-brand-primary bg-brand-primary/5 dark:bg-brand-primary/10'
-                                : isGenerated
-                                  ? 'border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/10'
-                                  : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
-                            }`}
-                            onClick={() => {
-                              if (!isGenerated) {
-                                setSelectedTopic(selectedTopic === topic.id ? null : topic.id)
-                              }
-                            }}
-                          >
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center space-x-3">
-                                <span className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                                  isGenerated
-                                    ? 'bg-green-500 text-white'
-                                    : isSelected
-                                      ? 'bg-brand-primary text-white'
-                                      : 'bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300'
-                                }`}>
-                                  {isGenerated ? '✓' : index + 1}
-                                </span>
-                                <div>
-                                  <h4 className={`font-medium ${isGenerated ? 'text-green-700 dark:text-green-400' : 'text-gray-900 dark:text-white'}`}>
-                                    {topic.title}
-                                  </h4>
-                                  <p className={`text-sm ${isGenerated ? 'text-green-600 dark:text-green-300' : 'text-gray-600 dark:text-gray-300'}`}>
-                                    {topic.description}
-                                  </p>
-                                  {isGenerated && (
-                                    <p className="text-xs text-green-600 dark:text-green-400 mt-1 font-medium">
-                                      ✅ Lesson already generated
-                                    </p>
-                                  )}
-                                </div>
-                              </div>
-                              <div className="flex items-center space-x-2">
-                                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getDifficultyColor(topic.difficulty)}`}>
-                                  {topic.difficulty}
-                                </span>
-                                {isSelected && !isGenerated && (
-                                  <svg className="w-5 h-5 text-brand-primary" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                                  </svg>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Generate Lesson Button - appears directly below clicked topic */}
-                          {isSelected && !isGenerated && (
-                            <div className="ml-11 bg-brand-primary/5 dark:bg-brand-primary/10 border border-brand-primary/20 rounded-lg p-4">
-                              <div className="flex items-center justify-between">
-                                <div>
-                                  <h5 className="text-sm font-medium text-gray-900 dark:text-white">
-                                    Ready to Generate Lesson
-                                  </h5>
-                                  <p className="text-xs text-gray-600 dark:text-gray-300 mt-1">
-                                    {currentLearningPlan && `Using ${currentLearningPlan.selectedMethodology} methodology`}
-                                  </p>
-                                </div>
-                                <button 
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleGenerateLesson();
-                                  }}
-                                  disabled={isGeneratingLesson || generationStats.remaining <= 0}
-                                  className="bg-brand-primary text-white px-4 py-2 rounded-lg hover:bg-brand-accent transition-colors text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
-                                >
-                                  {isGeneratingLesson && (
-                                    <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white"></div>
-                                  )}
-                                  <span>{isGeneratingLesson ? 'Generating...' : 'Generate Lesson'}</span>
-                                </button>
-                              </div>
-                              {generationStats.remaining <= 0 && (
-                                <p className="text-xs text-red-600 dark:text-red-400 mt-2">
-                                  Daily generation limit reached. Please try again tomorrow.
-                                </p>
-                              )}
-                            </div>
-                          )}
-                        </div>
-                        )
-                      })}
-                    </div>
-                    )}
-
-                  </div>
-                )}
-
                 {/* Generated Lessons Tab */}
                 {activeTab === 'generated-lessons' && (
                   <div className="space-y-6">
@@ -891,14 +752,14 @@ export default function StudentProfilePage() {
                           No lessons generated yet
                         </h3>
                         <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                          Generate your first lesson from the learning plan topics in the &quot;Generate Lesson&quot; tab
+                          Generate your first lesson from the learning plan topics
                         </p>
                         <div className="mt-6">
                           <button 
-                            onClick={() => setActiveTab('generate-lesson')}
+                            onClick={() => setActiveTab('learning-plan')}
                             className="bg-brand-primary text-white px-4 py-2 rounded-lg hover:bg-brand-accent transition-colors"
                           >
-                            Go to Generate Lesson
+                            Go to Learning Plan
                           </button>
                         </div>
                       </div>
