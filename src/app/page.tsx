@@ -51,7 +51,6 @@ const pricingPlans = [
     { title: 'Starter', description: 'Perfect for trying things out.', price: { monthly: 0, annual: 0 }, buttonText: 'Get Started', features: ['20 generations / day', 'Unlimited students', 'Shareable lesson links'] },
     { title: 'Pro', description: 'For the dedicated professional tutor.', price: { monthly: 6, annual: 5 }, buttonText: 'Upgrade to Pro', features: ['<strong>Everything in Starter, plus:</strong>', '<strong>Unlimited</strong> lesson plans', 'Priority email support'], isPopular: true },
     { title: 'Premium', description: 'For small teams and power users.', price: { monthly: 10, annual: 8 }, buttonText: 'Choose Premium', features: ['<strong>Everything in Pro, plus:</strong>', 'Team access (up to 3 tutors)', 'Custom branding on shared links'] },
-    { title: 'Enterprise', description: 'For schools and large organizations.', price: { monthly: 25, annual: 20 }, buttonText: 'Contact Sales', features: ['<strong>Everything in Premium, plus:</strong>', 'Unlimited team members', 'Advanced analytics & reporting', 'Dedicated support', 'Custom integrations'] },
 ];
 
 // --- Main Landing Page Component ---
