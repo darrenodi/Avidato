@@ -73,6 +73,11 @@ export default function EditStudentPage() {
   // Fetch student data
   useEffect(() => {
     const fetchStudent = async () => {
+      // Skip if student is already loaded (prevents refetch on page focus)
+      if (student?.id === studentId) {
+        return
+      }
+
       if (session && studentId) {
         try {
           setLoading(true)

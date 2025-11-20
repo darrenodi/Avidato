@@ -45,6 +45,11 @@ export default function DashboardPage() {
   useEffect(() => {
     const fetchStats = async () => {
       if (session) {
+        // Skip if stats already loaded
+        if (dashboardStats && !statsLoading) {
+          return
+        }
+
         try {
           setStatsLoading(true)
           const [dashboardResponse, generationResponse] = await Promise.all([
@@ -66,7 +71,7 @@ export default function DashboardPage() {
     }
 
     fetchStats()
-  }, [session])
+  }, [session, dashboardStats, statsLoading])
 
   // Update date and time every minute
   useEffect(() => {
@@ -88,6 +93,15 @@ export default function DashboardPage() {
     const interval = setInterval(updateDateTime, 60000) // Update every minute
 
     return () => clearInterval(interval)
+  }, [])
+
+  // Prevent auto-refresh when switching back to this tab from another browser tab (Issue #58)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      // Do nothing when page becomes visible - prevent automatic re-renders
+    }
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange)
   }, [])
 
   useEffect(() => {
