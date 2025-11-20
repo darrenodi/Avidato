@@ -48,9 +48,9 @@ const faqData = [
 ];
 
 const pricingPlans = [
-    { title: 'Starter', description: 'Perfect for trying things out.', price: { monthly: 0, annual: 0 }, buttonText: 'Get Started', features: ['5 lesson plans / day', 'Unlimited students', 'Shareable lesson links'] },
-    { title: 'Pro', description: 'For the dedicated professional tutor.', price: { monthly: 15, annual: 12 }, buttonText: 'Upgrade to Pro', features: ['<strong>Everything in Starter, plus:</strong>', '<strong>Unlimited</strong> lesson plans', 'Priority email support'], isPopular: true },
-    { title: 'Premium', description: 'For small teams and power users.', price: { monthly: 40, annual: 32 }, buttonText: 'Choose Premium', features: ['<strong>Everything in Pro, plus:</strong>', 'Team access (up to 3 tutors)', 'Custom branding on shared links'] },
+    { title: 'Starter', description: 'Perfect for trying things out.', price: { monthly: 0, annual: 0 }, buttonText: 'Get Started', features: ['20 generations / day', 'Unlimited students', 'Shareable lesson links'] },
+    { title: 'Pro', description: 'For the dedicated professional tutor.', price: { monthly: 6, annual: 5 }, buttonText: 'Upgrade to Pro', features: ['<strong>Everything in Starter, plus:</strong>', '<strong>Unlimited</strong> lesson plans', 'Priority email support'], isPopular: true },
+    { title: 'Premium', description: 'For small teams and power users.', price: { monthly: 10, annual: 8 }, buttonText: 'Choose Premium', features: ['<strong>Everything in Pro, plus:</strong>', 'Team access (up to 3 tutors)', 'Custom branding on shared links'] },
 ];
 
 // --- Main Landing Page Component ---
