@@ -9,7 +9,6 @@ import { getStudent } from '../../../actions/students'
 import { generateLearningPlan, generateLesson, getGenerationStats, getStudentLearningPlan, shareLesson } from '../../../actions/ai-generation'
 import { languages, levels, ageGroups } from '@/lib/form-data-mappings'
 import type { LearningPlan } from '@/types/lesson-template'
-import ShareIcon from '@/components/icons/ShareIcon'
 
 /**
  * StudentProfilePage Component
@@ -684,18 +683,24 @@ export default function StudentProfilePage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {learningTopics.map((topic, index) => {
                         const isGenerated = isLessonGenerated(topic.title)
+                        const generatedLesson = lessons.find(l => l.title.toLowerCase().includes(topic.title.toLowerCase()))
+                        const isTaught = generatedLesson?.sharedAt
+                        const borderColor = !isGenerated ? 'border-gray-200 dark:border-gray-600' : isTaught ? 'border-green-400 dark:border-green-600' : 'border-purple-400 dark:border-purple-600'
+                        const circleColor = !isGenerated ? 'bg-brand-primary text-white' : isTaught ? 'bg-green-500 text-white' : 'bg-purple-500 text-white'
+                        const textColor = !isGenerated ? 'text-gray-900 dark:text-white' : isTaught ? 'text-green-700 dark:text-green-400' : 'text-purple-700 dark:text-purple-400'
+                        const descColor = !isGenerated ? 'text-gray-600 dark:text-gray-300' : isTaught ? 'text-green-600 dark:text-green-300' : 'text-purple-600 dark:text-purple-300'
                         return (
-                          <div key={topic.id} className={`bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border ${isGenerated ? 'border-green-400 dark:border-green-600' : 'border-gray-200 dark:border-gray-600'}`}>
+                          <div key={topic.id} className={`bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border ${borderColor}`}>
                             <div className="flex items-start justify-between mb-3">
                               <div className="flex items-center space-x-3">
-                                <span className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${isGenerated ? 'bg-green-500 text-white' : 'bg-brand-primary text-white'}`}>{isGenerated ? '✓' : index + 1}</span>
+                                <span className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${circleColor}`}>{isGenerated ? (isTaught ? '✓' : '⚡') : index + 1}</span>
                                 <div>
-                                  <h4 className={`font-medium ${isGenerated ? 'text-green-700 dark:text-green-400' : 'text-gray-900 dark:text-white'}`}>{topic.title}</h4>
+                                  <h4 className={`font-medium ${textColor}`}>{topic.title}</h4>
                                   <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getDifficultyColor(topic.difficulty)}`}>{topic.difficulty}</span>
                                 </div>
                               </div>
                             </div>
-                            <p className={`text-sm mb-3 ${isGenerated ? 'text-green-600 dark:text-green-300' : 'text-gray-600 dark:text-gray-300'}`}>{topic.description}</p>
+                            <p className={`text-sm mb-3 ${descColor}`}>{topic.description}</p>
                             <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 mb-2">
                               <span>{topic.estimatedLessons} lesson{topic.estimatedLessons !== 1 ? 's' : ''}</span>
                               <div className="flex space-x-1">
@@ -718,8 +723,8 @@ export default function StudentProfilePage() {
                               </button>
                             ) : (
                               <Link
-                                href={`/lessons/${lessons.find(l => l.title.toLowerCase().includes(topic.title.toLowerCase()))?.id}`}
-                                className="w-full mt-2 bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors text-sm font-medium flex items-center justify-center"
+                                href={`/lessons/${generatedLesson?.id}`}
+                                className={`w-full mt-2 px-4 py-2 rounded-lg text-white transition-colors text-sm font-medium flex items-center justify-center ${isTaught ? 'bg-green-500 hover:bg-green-600' : 'bg-purple-500 hover:bg-purple-600'}`}
                               >
                                 View Lesson
                               </Link>
@@ -795,11 +800,6 @@ export default function StudentProfilePage() {
                                       <h4 className="text-lg font-semibold text-gray-900 dark:text-white">
                                         {lesson.title}
                                       </h4>
-                                      {lesson.sharedAt && (
-                                        <span className="text-green-600 dark:text-green-400" title="Marked as taught to student">
-                                          <ShareIcon className="w-4 h-4" />
-                                        </span>
-                                      )}
                                     </div>
                                     {lesson.overview && (
                                       <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
