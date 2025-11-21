@@ -1,10 +1,22 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { signIn, useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+
+// Extend window to include Turnstile
+declare global {
+  interface Window {
+    turnstile: {
+      render: (selector: string, options: Record<string, unknown>) => string
+      remove: (widgetId: string) => void
+      reset: (widgetId: string) => void
+      getResponse: (widgetId: string) => string | undefined
+    }
+  }
+}
 
 export default function SignupPage() {
   const [formData, setFormData] = useState({
@@ -15,8 +27,81 @@ export default function SignupPage() {
   })
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [turnstileWidgetId, setTurnstileWidgetId] = useState<string>('')
+  const turnstileRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
   const { data: session, status } = useSession()
+
+  // Load and render Turnstile widget - only once
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    if (turnstileWidgetId) return // Already rendered
+
+    const renderWidget = () => {
+      if (!window.turnstile || !turnstileRef.current) return
+
+      try {
+        // Clear any existing widget in container first
+        const container = turnstileRef.current
+        if (container?.hasChildNodes()) {
+          container.innerHTML = ''
+        }
+
+        const widgetId = window.turnstile.render('#turnstile-widget', {
+          sitekey: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY,
+          theme: 'light',
+          size: 'normal',
+        })
+        setTurnstileWidgetId(widgetId)
+      } catch (err) {
+        console.error('Turnstile render error:', err)
+      }
+    }
+
+    // Check if Turnstile script already exists
+    if (document.querySelector('script[src*="turnstile"]')) {
+      // Script exists, wait for window.turnstile to be available
+      if (window.turnstile) {
+        renderWidget()
+      } else {
+        // Poll until Turnstile is available
+        const checkTurnstile = setInterval(() => {
+          if (window.turnstile) {
+            clearInterval(checkTurnstile)
+            renderWidget()
+          }
+        }, 50)
+        return () => clearInterval(checkTurnstile)
+      }
+      return
+    }
+
+    // Load script if not present
+    const script = document.createElement('script')
+    script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js'
+    script.async = true
+
+    script.onload = () => {
+      setTimeout(renderWidget, 100)
+    }
+
+    script.onerror = () => {
+      console.error('Failed to load Turnstile script')
+    }
+
+    document.head.appendChild(script)
+
+    return () => {
+      // Cleanup: remove widget on unmount
+      if (turnstileWidgetId && window.turnstile) {
+        try {
+          window.turnstile.remove(turnstileWidgetId)
+        } catch (err) {
+          console.error('Error removing widget:', err)
+        }
+      }
+    }
+  }, [turnstileWidgetId])
 
   // Redirect to dashboard if already logged in
   useEffect(() => {
@@ -75,7 +160,21 @@ export default function SignupPage() {
     }
 
     try {
-      // Call signup API endpoint
+      // Get Turnstile token
+      if (!window.turnstile || !turnstileWidgetId) {
+        setError('CAPTCHA not ready. Please try again.')
+        setIsLoading(false)
+        return
+      }
+
+      const turnstileToken = window.turnstile.getResponse(turnstileWidgetId)
+      if (!turnstileToken) {
+        setError('Please complete the CAPTCHA verification')
+        setIsLoading(false)
+        return
+      }
+
+      // Call signup API endpoint with Turnstile token
       const response = await fetch('/api/auth/signup', {
         method: 'POST',
         headers: {
@@ -85,13 +184,24 @@ export default function SignupPage() {
           name: formData.name,
           email: formData.email,
           password: formData.password,
+          turnstileToken,
         }),
       })
 
       const data = await response.json()
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to create account')
+        if (data.captchaError) {
+          setError(data.captchaError)
+          // Reset Turnstile for retry
+          window.turnstile.reset(turnstileWidgetId)
+        } else if (data.rateLimited) {
+          setError('Too many signup attempts. Please try again later.')
+        } else {
+          setError(data.error || 'Failed to create account')
+        }
+        setIsLoading(false)
+        return
       }
 
       // Sign in the user after successful signup
@@ -206,6 +316,11 @@ export default function SignupPage() {
                   placeholder="Confirm your password"
                 />
               </div>
+            </div>
+
+            {/* Cloudflare Turnstile Widget */}
+            <div className="flex justify-center">
+              <div id="turnstile-widget" ref={turnstileRef} />
             </div>
 
             <div className="space-y-4">

@@ -3,6 +3,7 @@ import { hash } from 'bcryptjs'
 import { PrismaClient } from '@prisma/client'
 import { checkRateLimit, getClientIdentifier, RATE_LIMITS } from '@/lib/rate-limit'
 import { stripHtml } from '@/lib/sanitize'
+import { verifyTurnstileToken, recordFailedAttempt } from '@/lib/turnstile'
 
 const prisma = new PrismaClient()
 
@@ -16,6 +17,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { 
           error: 'Too many signup attempts',
+          rateLimited: true,
           message: 'Please wait before trying again',
           retryAfter: Math.ceil((rateLimit.reset - Date.now()) / 1000)
         },
@@ -28,13 +30,45 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { name, email, password } = await request.json()
+    const { name, email, password, turnstileToken } = await request.json()
 
     // Validate input
     if (!name || !email || !password) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
+      )
+    }
+
+    // Get client IP for verification
+    const ip = request.headers.get('x-forwarded-for') || 
+               request.headers.get('cf-connecting-ip') || 
+               'unknown'
+
+    // Verify CAPTCHA token
+    if (!turnstileToken) {
+      return NextResponse.json(
+        { 
+          error: 'CAPTCHA token required',
+          captchaError: 'Please complete the CAPTCHA verification'
+        },
+        { status: 400 }
+      )
+    }
+
+    const captchaResult = await verifyTurnstileToken(turnstileToken, ip)
+    if (!captchaResult.success) {
+      recordFailedAttempt(identifier)
+      
+      // Log suspicious signup attempt
+      console.warn(`Failed CAPTCHA during signup for ${email} from ${ip}: ${captchaResult.error}`)
+      
+      return NextResponse.json(
+        {
+          error: 'CAPTCHA verification failed',
+          captchaError: 'Invalid CAPTCHA token. Please try again.',
+        },
+        { status: 401 }
       )
     }
 
