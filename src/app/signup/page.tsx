@@ -224,8 +224,53 @@ export default function SignupPage() {
     }
   }
 
-  const handleGoogleSignIn = () => {
-    signIn('google', { callbackUrl: '/dashboard' })
+  const handleGoogleSignIn = async () => {
+    setError('')
+    setIsLoading(true)
+
+    try {
+      // Get Turnstile token for Google sign-up too
+      if (!window.turnstile || !turnstileWidgetId) {
+        setError('CAPTCHA not ready. Please try again.')
+        setIsLoading(false)
+        return
+      }
+
+      const turnstileToken = window.turnstile.getResponse(turnstileWidgetId)
+      if (!turnstileToken) {
+        setError('Please complete the CAPTCHA verification')
+        setIsLoading(false)
+        return
+      }
+
+      // Verify CAPTCHA before allowing Google sign-up
+      const captchaResponse = await fetch('/api/auth/verify-captcha', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          turnstileToken,
+        }),
+      })
+
+      const captchaData = await captchaResponse.json()
+
+      if (!captchaResponse.ok || !captchaData.success) {
+        setError('CAPTCHA verification failed. Please try again.')
+        window.turnstile.reset(turnstileWidgetId)
+        setIsLoading(false)
+        return
+      }
+
+      // CAPTCHA verified, proceed with Google sign-up
+      setIsLoading(false)
+      await signIn('google', { callbackUrl: '/dashboard' })
+    } catch (error) {
+      setError('Failed to sign up with Google. Please try again.')
+      console.error('Google sign-up error:', error)
+      setIsLoading(false)
+    }
   }
 
   return (

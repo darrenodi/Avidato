@@ -218,8 +218,45 @@ function LoginPageContent() {
   }
 
   const handleGoogleSignIn = async () => {
+    setError('')
+    setIsLoading(true)
+
     try {
-      // Clear any existing auth state before signing in
+      // Get Turnstile token for Google sign-in too
+      if (!window.turnstile || !turnstileWidgetId) {
+        setError('CAPTCHA not ready. Please try again.')
+        setIsLoading(false)
+        return
+      }
+
+      const turnstileToken = window.turnstile.getResponse(turnstileWidgetId)
+      if (!turnstileToken) {
+        setError('Please complete the CAPTCHA verification')
+        setIsLoading(false)
+        return
+      }
+
+      // Verify CAPTCHA before allowing Google sign-in
+      const captchaResponse = await fetch('/api/auth/verify-captcha', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          turnstileToken,
+        }),
+      })
+
+      const captchaData = await captchaResponse.json()
+
+      if (!captchaResponse.ok || !captchaData.success) {
+        setError('CAPTCHA verification failed. Please try again.')
+        window.turnstile.reset(turnstileWidgetId)
+        setIsLoading(false)
+        return
+      }
+
+      // CAPTCHA verified, clear any existing auth state before signing in
       if (typeof window !== 'undefined') {
         // Clear Google-specific cookies/storage that might cache the account
         const cookies = document.cookie.split(";")
@@ -232,14 +269,16 @@ function LoginPageContent() {
           }
         })
       }
-      
+
       // Force Google to show account picker
+      setIsLoading(false)
       await signIn('google', { 
         callbackUrl: '/dashboard',
         prompt: 'select_account'
       })
     } catch {
       setError('Failed to sign in with Google. Please try again.')
+      setIsLoading(false)
     }
   }
 
