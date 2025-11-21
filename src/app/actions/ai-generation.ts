@@ -9,6 +9,26 @@ import { StudentProfile, LearningPlan, GeneratedLesson } from '@/types/lesson-te
 import { revalidatePath } from 'next/cache';
 import type { Session } from 'next-auth';
 import { getVocabularyContext } from '@/lib/vocabulary-tracker';
+import { checkRateLimit, recordFailedAttempt } from '@/lib/turnstile';
+
+/**
+ * Security wrapper for AI generation operations
+ * Prevents abuse of expensive operations
+ */
+async function validateServerActionAccess(userId: string, operation: string): Promise<{ allowed: boolean; error?: string }> {
+  const rateLimitKey = `server-action:${operation}:${userId}`;
+  const rateLimit = checkRateLimit(rateLimitKey);
+
+  if (!rateLimit.allowed) {
+    recordFailedAttempt(rateLimitKey);
+    return {
+      allowed: false,
+      error: `Too many ${operation} attempts. Please wait before trying again.`
+    };
+  }
+
+  return { allowed: true };
+}
 
 
 // Check and update daily generation count
@@ -114,6 +134,12 @@ export async function generateLearningPlan(studentId: string): Promise<{
     const session = await getServerSession(authOptions) as Session | null;
     if (!session?.user?.id) {
       return { success: false, error: 'Unauthorized' };
+    }
+
+    // Security: Check rate limit
+    const accessCheck = await validateServerActionAccess(session.user.id, 'generateLearningPlan');
+    if (!accessCheck.allowed) {
+      return { success: false, error: accessCheck.error };
     }
 
     // Check generation limit
@@ -379,6 +405,12 @@ export async function shareLesson(lessonId: string, studentId: string): Promise<
     const session = await getServerSession(authOptions) as Session | null;
     if (!session?.user?.id) {
       return { success: false, error: 'Unauthorized' };
+    }
+
+    // Security: Rate limit per user
+    const accessCheck = await validateServerActionAccess(session.user.id, 'shareLesson');
+    if (!accessCheck.allowed) {
+      return { success: false, error: accessCheck.error };
     }
 
     // Verify student ownership

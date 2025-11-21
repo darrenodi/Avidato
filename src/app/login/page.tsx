@@ -1,22 +1,108 @@
 /* eslint-disable react/no-unescaped-entities */
 'use client'
 
-import { useState, useEffect, Suspense } from 'react'
+import { useState, useEffect, Suspense, useRef } from 'react'
 import { signIn, getSession, useSession, signOut } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
+
+// Extend window to include Turnstile
+declare global {
+  interface Window {
+    turnstile: {
+      render: (selector: string, options: Record<string, unknown>) => string
+      remove: (widgetId: string) => void
+      reset: (widgetId: string) => void
+      getResponse: (widgetId: string) => string | undefined
+    }
+  }
+}
 
 function LoginPageContent() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [turnstileWidgetId, setTurnstileWidgetId] = useState<string>('')
+  const [turnstileError, setTurnstileError] = useState('')
+  const turnstileRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
   const { data: session, status } = useSession()
   const searchParams = useSearchParams()
 
   // Check if user was redirected here after logout
   const fromLogout = searchParams.get('logout') === 'true'
+
+  // Load and render Turnstile widget - only once
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    if (turnstileWidgetId) return // Already rendered
+
+    const renderWidget = () => {
+      if (!window.turnstile || !turnstileRef.current) return
+
+      try {
+        // Clear any existing widget in container first
+        const container = turnstileRef.current
+        if (container?.hasChildNodes()) {
+          container.innerHTML = ''
+        }
+
+        const widgetId = window.turnstile.render('#turnstile-widget', {
+          sitekey: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY,
+          theme: 'light',
+          size: 'normal',
+        })
+        setTurnstileWidgetId(widgetId)
+      } catch (err) {
+        console.error('Turnstile render error:', err)
+      }
+    }
+
+    // Check if Turnstile script already exists
+    if (document.querySelector('script[src*="turnstile"]')) {
+      // Script exists, wait for window.turnstile to be available
+      if (window.turnstile) {
+        renderWidget()
+      } else {
+        // Poll until Turnstile is available
+        const checkTurnstile = setInterval(() => {
+          if (window.turnstile) {
+            clearInterval(checkTurnstile)
+            renderWidget()
+          }
+        }, 50)
+        return () => clearInterval(checkTurnstile)
+      }
+      return
+    }
+
+    // Load script if not present
+    const script = document.createElement('script')
+    script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js'
+    script.async = true
+
+    script.onload = () => {
+      setTimeout(renderWidget, 100)
+    }
+
+    script.onerror = () => {
+      console.error('Failed to load Turnstile script')
+    }
+
+    document.head.appendChild(script)
+
+    return () => {
+      // Cleanup: remove widget on unmount
+      if (turnstileWidgetId && window.turnstile) {
+        try {
+          window.turnstile.remove(turnstileWidgetId)
+        } catch (err) {
+          console.error('Error removing widget:', err)
+        }
+      }
+    }
+  }, [turnstileWidgetId])
 
   // Clear session if coming from logout or force logout parameter
   useEffect(() => {
@@ -59,20 +145,62 @@ function LoginPageContent() {
     setIsLoading(true)
 
     try {
+      // Get Turnstile token
+      if (!window.turnstile || !turnstileWidgetId) {
+        setError('CAPTCHA not ready. Please try again.')
+        setIsLoading(false)
+        return
+      }
+
+      const turnstileToken = window.turnstile.getResponse(turnstileWidgetId)
+      if (!turnstileToken) {
+        setError('Please complete the CAPTCHA verification')
+        setIsLoading(false)
+        return
+      }
+
+      // Send login request with Turnstile token to our API
+      const loginResponse = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          password,
+          turnstileToken,
+        }),
+      })
+
+      const loginData = await loginResponse.json()
+
+      if (!loginResponse.ok) {
+        if (loginData.captchaError) {
+          setError(loginData.captchaError)
+          // Reset Turnstile for retry
+          window.turnstile.reset(turnstileWidgetId)
+        } else if (loginData.rateLimited) {
+          setError('Too many failed attempts. Please try again later.')
+        } else {
+          setError(loginData.error || 'Login failed')
+        }
+        setIsLoading(false)
+        return
+      }
+
+      // Use NextAuth signIn with the validated token
       const result = await signIn('credentials', {
         email,
         password,
         redirect: false,
       })
 
-
       if (result?.error) {
-        setError('Invalid email or password')
+        setError('Invalid credentials')
+        window.turnstile.reset(turnstileWidgetId)
       } else if (result?.ok) {
-        // Wait a moment for session to be established
         setTimeout(async () => {
           const session = await getSession()
-          
           if (session) {
             const callbackUrl = searchParams.get('callbackUrl') || '/dashboard'
             router.push(callbackUrl)
@@ -80,11 +208,9 @@ function LoginPageContent() {
             setError('Session not established. Please try again.')
           }
         }, 500)
-      } else {
-        setError('Login failed. Please try again.')
       }
     } catch (error) {
-      console.error('Login catch error:', error)
+      console.error('Login error:', error)
       setError('An error occurred. Please try again.')
     } finally {
       setIsLoading(false)
@@ -171,6 +297,11 @@ function LoginPageContent() {
                   placeholder="Enter your password"
                 />
               </div>
+            </div>
+
+            {/* Cloudflare Turnstile Widget */}
+            <div className="flex justify-center">
+              <div id="turnstile-widget" ref={turnstileRef} />
             </div>
 
             <div className="flex items-center justify-between">

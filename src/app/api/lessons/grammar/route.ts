@@ -4,6 +4,7 @@ import { Session } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { generateGrammarLesson } from '@/app/actions/grammar-generation'
+import { checkRateLimit, recordFailedAttempt } from '@/lib/turnstile'
 
 export async function POST(request: NextRequest) {
   try {
@@ -13,6 +14,17 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
+      )
+    }
+
+    // Security: Rate limit per user (5 attempts per 15 minutes)
+    const rateLimitKey = `grammar-generation:${session.user.id}`
+    const rateLimit = checkRateLimit(rateLimitKey)
+    if (!rateLimit.allowed) {
+      recordFailedAttempt(rateLimitKey)
+      return NextResponse.json(
+        { error: 'Too many requests. Please wait before trying again.' },
+        { status: 429 }
       )
     }
 
