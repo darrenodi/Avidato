@@ -1,8 +1,15 @@
 import { NextResponse } from "next/server"
+import type { NextRequest } from "next/server"
+import { addSecurityHeaders } from "@/lib/security-headers"
 
-export function middleware() {
-  // Clean middleware - just allow all requests
-  return NextResponse.next()
+export function middleware(request: NextRequest) {
+  // Create response with security headers
+  const response = NextResponse.next()
+  
+  // Add security headers
+  addSecurityHeaders(response)
+  
+  return response
 }
 
 export const config = {
