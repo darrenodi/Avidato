@@ -35,6 +35,26 @@ export const COOKIE_TYPES = {
 type CookieType = typeof COOKIE_TYPES[keyof typeof COOKIE_TYPES]
 
 /**
+ * Type guards for cookie categories
+ */
+function isAuthCookie(cookieType: CookieType): boolean {
+  return cookieType === COOKIE_TYPES.SESSION_TOKEN || 
+         cookieType === COOKIE_TYPES.REFRESH_TOKEN || 
+         cookieType === COOKIE_TYPES.CSRF_TOKEN
+}
+
+function isPreferenceCookie(cookieType: CookieType): boolean {
+  return cookieType === COOKIE_TYPES.THEME || 
+         cookieType === COOKIE_TYPES.LANGUAGE || 
+         cookieType === COOKIE_TYPES.PREFERENCES
+}
+
+function isAnalyticsCookie(cookieType: CookieType): boolean {
+  return cookieType === COOKIE_TYPES.ANALYTICS_ID || 
+         cookieType === COOKIE_TYPES.SESSION_ID
+}
+
+/**
  * Secure cookie configuration based on type
  */
 export function getCookieConfig(
@@ -47,7 +67,7 @@ export function getCookieConfig(
   }
 
   // Authentication cookies - maximum security
-  if ([COOKIE_TYPES.SESSION_TOKEN, COOKIE_TYPES.REFRESH_TOKEN, COOKIE_TYPES.CSRF_TOKEN].includes(cookieType)) {
+  if (isAuthCookie(cookieType)) {
     return {
       ...baseConfig,
       httpOnly: true, // JavaScript cannot access
@@ -58,7 +78,7 @@ export function getCookieConfig(
   }
 
   // Preference cookies - client accessible
-  if ([COOKIE_TYPES.THEME, COOKIE_TYPES.LANGUAGE, COOKIE_TYPES.PREFERENCES].includes(cookieType)) {
+  if (isPreferenceCookie(cookieType)) {
     return {
       ...baseConfig,
       httpOnly: false, // Client-side JavaScript can access
@@ -69,7 +89,7 @@ export function getCookieConfig(
   }
 
   // Analytics cookies - isolated, no sensitive data
-  if ([COOKIE_TYPES.ANALYTICS_ID, COOKIE_TYPES.SESSION_ID].includes(cookieType)) {
+  if (isAnalyticsCookie(cookieType)) {
     return {
       ...baseConfig,
       httpOnly: false,
