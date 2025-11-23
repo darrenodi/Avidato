@@ -2,6 +2,7 @@ import "./globals.css";
 import type { Metadata } from "next"; // Import the Metadata type for better type-checking
 import { Inter } from "next/font/google";
 import AuthProvider from "@/components/AuthProvider";
+import CookieConsent from "@/components/CookieConsent";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
@@ -30,6 +31,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <main>
             {children}
           </main>
+          <CookieConsent />
         </AuthProvider>
       </body>
     </html>
