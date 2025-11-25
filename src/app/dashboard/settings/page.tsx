@@ -821,7 +821,7 @@ function AccountLinkingTab() {
         </div>
       )}
 
-      {/* Account Linking Overview */}
+      {/* Account Linking */}
       <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6">
         <div className="flex items-center space-x-3 mb-6">
           <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/20 rounded-lg flex items-center justify-center">
@@ -830,24 +830,12 @@ function AccountLinkingTab() {
             </svg>
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Account Linking</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Connected Accounts</h3>
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              Connect social accounts for easier sign-in and enhanced security
+              Manage your sign-in options
             </p>
           </div>
         </div>
-
-        {/* Current Status */}
-        {securityInfo && (
-          <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-            <h4 className="font-medium text-blue-900 dark:text-blue-200 mb-2">Current Status</h4>
-            <p className="text-sm text-blue-800 dark:text-blue-300">
-              You have <strong>{securityInfo.linkedAccounts.length}</strong> account(s) connected.
-              {securityInfo.linkedAccounts.length === 0 && " Consider linking a social account for backup access."}
-              {securityInfo.linkedAccounts.length > 0 && " You can sign in using any of your connected accounts."}
-            </p>
-          </div>
-        )}
 
         {/* Available Providers */}
         <div className="space-y-4">
@@ -921,27 +909,12 @@ function AccountLinkingTab() {
         </div>
       </div>
 
-      {/* Security Information */}
+      {/* Security Tip */}
       <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-6">
-        <h3 className="text-lg font-semibold text-yellow-900 dark:text-yellow-200 mb-3">Security Information</h3>
-        <ul className="space-y-2 text-sm text-yellow-800 dark:text-yellow-300">
-          <li className="flex items-start space-x-2">
-            <span className="font-bold">•</span>
-            <span>Linking multiple accounts provides backup access options</span>
-          </li>
-          <li className="flex items-start space-x-2">
-            <span className="font-bold">•</span>
-            <span>You can sign in with any connected account using the same email</span>
-          </li>
-          <li className="flex items-start space-x-2">
-            <span className="font-bold">•</span>
-            <span>Disconnecting accounts will not affect your existing data</span>
-          </li>
-          <li className="flex items-start space-x-2">
-            <span className="font-bold">•</span>
-            <span>Keep at least one authentication method (password or linked account)</span>
-          </li>
-        </ul>
+        <h3 className="text-lg font-semibold text-yellow-900 dark:text-yellow-200 mb-2">Tip</h3>
+        <p className="text-sm text-yellow-800 dark:text-yellow-300">
+          Keep at least one authentication method (password or linked account) to ensure you can always access your account.
+        </p>
       </div>
     </div>
   )
