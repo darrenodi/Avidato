@@ -1,11 +1,11 @@
 'use client'
 
 import { useSession } from 'next-auth/react'
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import Image from 'next/image'
 import DashboardLayout from '@/components/layout/DashboardLayout'
 import ManageAccountsIcon from '@/components/icons/ManageAccountsIcon'
-import { updateProfile, getUserProfile, checkUsernameAvailability, changePassword, getSecurityInfo } from '@/app/actions/settings'
+import { updateProfile, getUserProfile, checkUsernameAvailability, changePassword, getSecurityInfo, uploadProfilePicture } from '@/app/actions/settings'
 import type { UpdateProfileData } from '@/app/actions/settings'
 
 /**
@@ -165,8 +165,11 @@ export default function SettingsPage() {
 function ProfileTab() {
   const { data: session } = useSession()
   const [isLoading, setIsLoading] = useState(false)
+  const [isUploading, setIsUploading] = useState(false)
   const [errors, setErrors] = useState<Record<string, string[]>>({})
   const [message, setMessage] = useState<{type: 'success' | 'error', text: string} | null>(null)
+  const [profileImage, setProfileImage] = useState<string | null>(null)
+  const fileInputRef = React.useRef<HTMLInputElement>(null)
   const [formData, setFormData] = useState({
     name: '',
     email: session?.user?.email || '', // Read-only, for display only
@@ -246,6 +249,54 @@ function ProfileTab() {
         }
       } catch (error) {
         console.error('Username check error:', error)
+      }
+    }
+  }
+
+  const handlePictureClick = () => {
+    fileInputRef.current?.click()
+  }
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      setMessage({ type: 'error', text: 'Please select an image file (JPG, PNG, etc.)' })
+      return
+    }
+
+    // Validate file size (max 1MB)
+    const maxSize = 1024 * 1024 // 1MB
+    if (file.size > maxSize) {
+      setMessage({ type: 'error', text: 'Image must be less than 1MB' })
+      return
+    }
+
+    // Upload file
+    setIsUploading(true)
+    setMessage(null)
+
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+      const result = await uploadProfilePicture(formData)
+
+      if (result.success && result.imageUrl) {
+        setProfileImage(result.imageUrl)
+        setMessage({ type: 'success', text: result.message || 'Profile picture updated' })
+      } else {
+        setMessage({ type: 'error', text: result.error || 'Failed to upload image' })
+      }
+    } catch (error) {
+      console.error('File upload error:', error)
+      setMessage({ type: 'error', text: 'An error occurred while uploading' })
+    } finally {
+      setIsUploading(false)
+      // Reset file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ''
       }
     }
   }
@@ -331,9 +382,9 @@ function ProfileTab() {
           </label>
           <div className="flex items-center space-x-3 sm:space-x-4">
             <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center overflow-hidden flex-shrink-0">
-              {session?.user?.image ? (
+              {profileImage || session?.user?.image ? (
                 <Image 
-                  src={session.user.image} 
+                  src={profileImage || session?.user?.image || ''} 
                   alt="Profile" 
                   width={48}
                   height={48}
@@ -345,10 +396,23 @@ function ProfileTab() {
             </div>
             <button
               type="button"
-              className="px-3 py-2 text-xs sm:text-sm border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              onClick={handlePictureClick}
+              disabled={isUploading}
+              className="px-3 py-2 text-xs sm:text-sm border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Change Picture
+              {isUploading ? 'Uploading...' : 'Change Picture'}
             </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleFileChange}
+              className="hidden"
+              aria-label="Upload profile picture"
+            />
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              Max 1MB
+            </p>
           </div>
         </div>
       </div>

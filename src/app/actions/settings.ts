@@ -399,3 +399,64 @@ export async function getSecurityInfo() {
     }
   }
 }
+
+/**
+ * Upload Profile Picture
+ * Validates file size (max 1MB) and type before updating user profile
+ */
+export async function uploadProfilePicture(formData: FormData): Promise<{
+  success: boolean
+  message?: string
+  imageUrl?: string
+  error?: string
+}> {
+  try {
+    const session = await getServerSession(authOptions) as AuthSession | null
+
+    if (!session?.user?.email) {
+      return { success: false, error: 'Not authenticated' }
+    }
+
+    const file = formData.get('file') as File | null
+
+    if (!file) {
+      return { success: false, error: 'No file provided' }
+    }
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      return { success: false, error: 'File must be an image' }
+    }
+
+    // Validate file size (max 1MB)
+    const maxSize = 1024 * 1024 // 1MB in bytes
+    if (file.size > maxSize) {
+      return { success: false, error: 'Image must be less than 1MB' }
+    }
+
+    // Convert file to base64 for storage
+    const buffer = await file.arrayBuffer()
+    const base64 = Buffer.from(buffer).toString('base64')
+    const dataUrl = `data:${file.type};base64,${base64}`
+
+    // Update user profile with image
+    await prisma.user.update({
+      where: { email: session.user.email },
+      data: { image: dataUrl }
+    })
+
+    revalidatePath('/dashboard/settings')
+
+    return { 
+      success: true, 
+      message: 'Profile picture updated successfully',
+      imageUrl: dataUrl
+    }
+  } catch (error) {
+    console.error('Profile picture upload error:', error)
+    return { 
+      success: false, 
+      error: 'Failed to upload profile picture' 
+    }
+  }
+}
