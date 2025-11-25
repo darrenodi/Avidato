@@ -163,12 +163,11 @@ export default function SettingsPage() {
  * Handles user profile information updates with server actions
  */
 function ProfileTab() {
-  const { data: session } = useSession()
+  const { data: session, update: updateSession } = useSession()
   const [isLoading, setIsLoading] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
   const [errors, setErrors] = useState<Record<string, string[]>>({})
   const [message, setMessage] = useState<{type: 'success' | 'error', text: string} | null>(null)
-  const [profileImage, setProfileImage] = useState<string | null>(null)
   const fileInputRef = React.useRef<HTMLInputElement>(null)
   const [formData, setFormData] = useState({
     name: '',
@@ -284,7 +283,8 @@ function ProfileTab() {
       const result = await uploadProfilePicture(formData)
 
       if (result.success && result.imageUrl) {
-        setProfileImage(result.imageUrl)
+        // Refresh session to get updated image
+        await updateSession({ image: result.imageUrl })
         setMessage({ type: 'success', text: result.message || 'Profile picture updated' })
       } else {
         setMessage({ type: 'error', text: result.error || 'Failed to upload image' })
@@ -382,9 +382,9 @@ function ProfileTab() {
           </label>
           <div className="flex items-center space-x-3 sm:space-x-4">
             <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center overflow-hidden flex-shrink-0">
-              {profileImage || session?.user?.image ? (
+              {session?.user?.image ? (
                 <Image 
-                  src={profileImage || session?.user?.image || ''} 
+                  src={session.user.image} 
                   alt="Profile" 
                   width={48}
                   height={48}
@@ -445,15 +445,15 @@ function ProfileTab() {
         <button
           type="submit"
           disabled={isLoading}
-          className={`px-4 sm:px-6 py-2 bg-primary dark:bg-primary text-white dark:text-white rounded-lg font-medium transition-colors text-sm sm:text-base w-full sm:w-auto ${
+          className={`px-4 sm:px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors text-sm sm:text-base w-full sm:w-auto ${
             isLoading 
               ? 'opacity-50 cursor-not-allowed' 
-              : 'hover:bg-primary/90 dark:hover:bg-primary/80 focus:ring-2 focus:ring-primary focus:ring-offset-2 dark:focus:ring-offset-gray-900'
+              : 'focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900'
           }`}
         >
           {isLoading ? (
             <div className="flex items-center justify-center space-x-2">
-              <div className="w-4 h-4 border-2 border-white dark:border-white border-t-transparent rounded-full animate-spin"></div>
+              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
               <span>Saving...</span>
             </div>
           ) : (
