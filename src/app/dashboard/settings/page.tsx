@@ -445,15 +445,15 @@ function ProfileTab() {
         <button
           type="submit"
           disabled={isLoading}
-          className={`px-4 sm:px-6 py-2 bg-primary text-white rounded-lg font-medium transition-colors text-sm sm:text-base w-full sm:w-auto ${
+          className={`px-4 sm:px-6 py-2 bg-primary dark:bg-primary text-white dark:text-white rounded-lg font-medium transition-colors text-sm sm:text-base w-full sm:w-auto ${
             isLoading 
               ? 'opacity-50 cursor-not-allowed' 
-              : 'hover:bg-primary/90 focus:ring-2 focus:ring-primary focus:ring-offset-2'
+              : 'hover:bg-primary/90 dark:hover:bg-primary/80 focus:ring-2 focus:ring-primary focus:ring-offset-2 dark:focus:ring-offset-gray-900'
           }`}
         >
           {isLoading ? (
             <div className="flex items-center justify-center space-x-2">
-              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              <div className="w-4 h-4 border-2 border-white dark:border-white border-t-transparent rounded-full animate-spin"></div>
               <span>Saving...</span>
             </div>
           ) : (
