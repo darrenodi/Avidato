@@ -16,6 +16,8 @@ export function addSecurityHeaders(response: NextResponse) {
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "font-src 'self' https://fonts.gstatic.com",
       "img-src 'self' data: https: http://localhost:3000",
+      "media-src 'self' data: https: blob: https://*.supabase.co",
+      "audio-src 'self' data: https: blob: https://*.supabase.co",
       "connect-src 'self' https://challenges.cloudflare.com https://api.github.com",
       "frame-src 'self' https://challenges.cloudflare.com",
       "object-src 'none'",
