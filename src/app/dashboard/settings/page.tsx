@@ -753,26 +753,6 @@ function AccountLinkingTab() {
       textColor: 'text-red-700',
       bgLight: 'bg-red-50 dark:bg-red-900/20',
       borderColor: 'border-red-200 dark:border-red-800'
-    },
-    {
-      id: 'github',
-      name: 'GitHub',
-      description: 'Connect your GitHub account',
-      icon: '⚡',
-      color: 'bg-gray-800',
-      textColor: 'text-gray-700',
-      bgLight: 'bg-gray-50 dark:bg-gray-900/20',
-      borderColor: 'border-gray-200 dark:border-gray-800'
-    },
-    {
-      id: 'microsoft',
-      name: 'Microsoft',
-      description: 'Link your Microsoft/Outlook account',
-      icon: '🔷',
-      color: 'bg-blue-500',
-      textColor: 'text-blue-700',
-      bgLight: 'bg-blue-50 dark:bg-blue-900/20',
-      borderColor: 'border-blue-200 dark:border-blue-800'
     }
   ]
 
@@ -795,7 +775,7 @@ function AccountLinkingTab() {
     }
   }
 
-  const handleUnlinkAccount = async (providerId: string) => {
+  const handleUnlinkAccount = async (_providerId: string) => {
     setIsLoading(true)
     setMessage(null)
 
