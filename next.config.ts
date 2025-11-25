@@ -55,7 +55,6 @@ const nextConfig: NextConfig = {
               "font-src 'self' https://fonts.gstatic.com",
               "img-src 'self' data: https: blob:",
               "media-src 'self' data: https: blob: https://*.supabase.co",
-              "audio-src 'self' data: https: blob: https://*.supabase.co",
               "connect-src 'self' https: wss:",
               "frame-src 'self' https://challenges.cloudflare.com",
               "object-src 'none'",
