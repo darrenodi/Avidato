@@ -1,20 +1,26 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { setCookie, getCookie } from '@/lib/cookies'
 
 export default function CookieConsent() {
+  const pathname = usePathname()
   const [isVisible, setIsVisible] = useState(false)
+
+  // Pages where cookie banner should NOT appear
+  const policyPages = ['/privacy', '/refund-policy', '/fair-use', '/terms', '/cookie-policy']
+  const shouldHide = policyPages.some(page => pathname?.startsWith(page))
 
   useEffect(() => {
     // Check if user has already made a choice
     const cookieConsent = getCookie('cookie-consent')
-    if (!cookieConsent) {
-      // Show banner only if no decision made yet
+    if (!cookieConsent && !shouldHide) {
+      // Show banner only if no decision made yet and not on policy pages
       setIsVisible(true)
     }
-  }, [])
+  }, [shouldHide])
 
   const handleAcceptAll = () => {
     // Set cookie consent to true (includes necessary + analytics)
