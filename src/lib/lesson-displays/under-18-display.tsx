@@ -317,9 +317,9 @@ export const Under18LessonDisplay: React.FC<Under18DisplayProps> = ({
                 {completedExercises.size} completed
               </span>
             </div>
-            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 overflow-hidden">
+            <div className="w-full bg-gray-300 dark:bg-gray-600 rounded-full h-2 overflow-hidden shadow-sm">
               <div
-                className="bg-gradient-to-r from-blue-500 to-purple-500 h-3 rounded-full transition-all duration-500"
+                className="bg-green-500 h-2 rounded-full transition-all duration-500 shadow-md"
                 style={{
                   width: `${((currentExerciseIndex + 1) / lesson.exercises.length) * 100}%`,
                 }}
