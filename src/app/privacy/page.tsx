@@ -162,6 +162,7 @@ export default function PrivacyPolicyPage() {
         <li><strong>&quot;Accept all Cookies&quot;</strong> - Accepts all cookies including analytics tracking</li>
         <li><strong>&quot;Only necessary cookies&quot;</strong> - Disables analytics cookies while keeping necessary cookies for authentication and security</li>
       </ul>
+      <p className="mb-4"><strong>Closing the banner (X button):</strong> If you close the cookie banner without selecting an option, we will treat this as selecting &quot;Only necessary cookies&quot; to comply with privacy regulations. This means only essential authentication and security cookies will be enabled, while analytics cookies will be disabled.</p>
       <p className="mb-4">Your preference is saved for 1 year. You can change your cookie preferences at any time by clearing your browser cookies and refreshing the page.</p>
 
       <h3 className="text-lg font-semibold mt-4 mb-2">Cookie Security:</h3>

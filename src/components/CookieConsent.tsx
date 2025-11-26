@@ -68,7 +68,10 @@ export default function CookieConsent() {
           </div>
 
           <button
-            onClick={() => setIsVisible(false)}
+            onClick={() => {
+              // Closing the banner = only necessary cookies (privacy-compliant)
+              handleOnlyNecessary()
+            }}
             className="absolute top-4 right-4 sm:relative sm:top-0 sm:right-0 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 flex-shrink-0"
             aria-label="Close cookie banner"
           >
