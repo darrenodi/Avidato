@@ -159,8 +159,8 @@ export default function PrivacyPolicyPage() {
       <h3 className="text-lg font-semibold mt-4 mb-2">Cookie Consent Management:</h3>
       <p className="mb-4">When you first visit Avidato, you will see a cookie consent banner with two options:</p>
       <ul className="list-disc ml-6 mb-4">
-        <li><strong>&quot;Mmm... Sweet!&quot;</strong> - Accepts all cookies including analytics tracking</li>
-        <li><strong>&quot;Nope... I am on a diet 😊&quot;</strong> - Disables analytics cookies while keeping necessary cookies for authentication and security</li>
+        <li><strong>&quot;Accept all Cookies&quot;</strong> - Accepts all cookies including analytics tracking</li>
+        <li><strong>&quot;Only necessary cookies&quot;</strong> - Disables analytics cookies while keeping necessary cookies for authentication and security</li>
       </ul>
       <p className="mb-4">Your preference is saved for 1 year. You can change your cookie preferences at any time by clearing your browser cookies and refreshing the page.</p>
 

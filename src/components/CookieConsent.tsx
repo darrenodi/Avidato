@@ -32,7 +32,7 @@ export default function CookieConsent() {
     setIsVisible(false)
   }
 
-  const handleRejectAnalytics = () => {
+  const handleOnlyNecessary = () => {
     // Set cookie consent to necessary-only
     setCookie('cookie-consent', 'necessary-only', {
       maxAge: 365 * 24 * 60 * 60, // 1 year
@@ -47,45 +47,49 @@ export default function CookieConsent() {
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 text-center">
-        {/* Cookie Emoji Icon */}
-        <div className="mb-6 text-6xl">🍪</div>
+    <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 shadow-lg z-50">
+      <div className="max-w-4xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+          <div className="flex-1">
+            <h3 className="text-sm sm:text-base font-semibold text-gray-900 dark:text-white mb-2">
+              Accept the use of cookies.
+            </h3>
+            <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">
+              We use cookies to improve your browsing experience, serve personalized content, and analyze our traffic.
+              By clicking &quot;Accept all Cookies&quot;, you agree to the storing of cookies on your device.
+            </p>
+            <p className="text-sm text-gray-600 dark:text-gray-300">
+              You can customize your settings by clicking &quot;Only necessary cookies&quot;. For more details, see our{' '}
+              <Link href="/privacy" className="text-brand-primary hover:underline font-medium">
+                Cookie Policy
+              </Link>
+              .
+            </p>
+          </div>
 
-        {/* Heading */}
-        <h2 className="text-2xl font-bold text-gray-900 mb-3">We use cookies</h2>
-        
-        {/* Description */}
-        <p className="text-gray-600 text-sm mb-2">
-          Please, accept these sweeties<br />to continue enjoying our site!
-        </p>
+          <button
+            onClick={() => setIsVisible(false)}
+            className="absolute top-4 right-4 sm:relative sm:top-0 sm:right-0 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 flex-shrink-0"
+            aria-label="Close cookie banner"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
 
-        {/* Privacy Policy Link */}
-        <p className="text-gray-500 text-xs mb-6">
-          Learn more about how we use your data in our{' '}
-          <Link href="/privacy" target="_blank" className="text-blue-600 hover:text-blue-700 underline font-medium">
-            Privacy Policy
-          </Link>
-          {' '}and{' '}
-          <Link href="/privacy#cookie-policy" target="_blank" className="text-blue-600 hover:text-blue-700 underline font-medium">
-            Cookie Policy
-          </Link>
-        </p>
-
-        {/* Button Container */}
-        <div className="space-y-3">
+        <div className="flex flex-col sm:flex-row gap-3 mt-6">
           <button
             onClick={handleAcceptAll}
-            className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200"
+            className="px-6 py-2.5 bg-brand-primary hover:bg-brand-accent text-white font-medium rounded-lg transition-colors order-2 sm:order-1"
           >
-            Mmm... Sweet!
+            Accept all Cookies
           </button>
-          
           <button
-            onClick={handleRejectAnalytics}
-            className="w-full text-blue-500 hover:text-blue-600 font-medium py-2 px-4 transition-colors duration-200"
+            onClick={handleOnlyNecessary}
+            className="px-6 py-2.5 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 font-medium rounded-lg transition-colors order-1 sm:order-2"
           >
-            Nope... I am on a diet 😊
+            Only necessary cookies
           </button>
         </div>
       </div>
