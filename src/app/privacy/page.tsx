@@ -8,9 +8,7 @@ export default function PrivacyPolicyPage() {
       <PublicNavbar />
       <main className="max-w-2xl mx-auto py-12 px-4">
       <h1 className="text-3xl font-bold mb-6">Privacy Policy</h1>
-  <p className="mb-4">This Privacy Policy describes how Avidato LLC (&quot;Avidato&quot;, &quot;we&quot;, &quot;us&quot;, or &quot;our&quot;), a company registered in New Mexico, United States, collects, uses, discloses, and protects your information when you use our services. By accessing or using Avidato, you consent to the practices described in this policy.</p>
-
-
+      <p className="mb-4">This Privacy Policy describes how Avidato (&quot;Avidato&quot;, &quot;we&quot;, &quot;us&quot;, or &quot;our&quot;) collects, uses, discloses, and protects your information when you use our services. By accessing or using Avidato, you consent to the practices described in this policy.</p>
       <h2 className="text-xl font-semibold mt-6 mb-2">1. Information We Collect</h2>
       <p className="mb-4">We may collect the following types of information:</p>
       <ul className="list-disc ml-6 mb-4">
@@ -194,7 +192,7 @@ export default function PrivacyPolicyPage() {
       <p className="mb-4">We may update this Privacy Policy from time to time. We will notify you of any material changes by posting the new policy on this page and updating the effective date. Your continued use of the service after such changes constitutes your acceptance of the new policy.</p>
 
       <h2 className="text-xl font-semibold mt-6 mb-2">11. Contact Us</h2>
-      <p>If you have any questions about this Privacy Policy or our data practices, please contact us at support@avidato.com or by mail at Avidato LLC, 123 Main Street, Albuquerque, NM 87101, USA.</p>
+      <p>If you have any questions about this Privacy Policy or our data practices, please contact us at support@avidato.com.</p>
       </main>
       <PublicFooter />
     </>

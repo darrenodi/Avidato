@@ -14,7 +14,7 @@ export default function RefundPolicyPage() {
 
         <h2 className="text-xl font-semibold mt-6 mb-2">30-Day Money-Back Guarantee</h2>
         <p className="mb-4">
-          At Avidato LLC (&quot;Avidato&quot;, &quot;we&quot;, &quot;us&quot;, or &quot;our&quot;), we stand behind our service. If you are not satisfied with Avidato for any reason, you may request a full refund within 30 days of your initial purchase. No questions asked.
+          At Avidato (&quot;Avidato&quot;, &quot;we&quot;, &quot;us&quot;, or &quot;our&quot;), we stand behind our service. If you are not satisfied with Avidato for any reason, you may request a full refund within 30 days of your initial purchase. No questions asked.
         </p>
 
         <h2 className="text-xl font-semibold mt-6 mb-2">How to Request a Refund</h2>
@@ -69,7 +69,6 @@ export default function RefundPolicyPage() {
         </p>
         <ul className="list-disc ml-6 mb-4">
           <li><strong>Email:</strong> support@avidato.com</li>
-          <li><strong>Mailing Address:</strong> Avidato LLC, 123 Main Street, Albuquerque, NM 87101, USA</li>
         </ul>
 
         <h2 className="text-xl font-semibold mt-6 mb-2">Your Legal Rights</h2>

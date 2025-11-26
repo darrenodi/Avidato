@@ -13,7 +13,7 @@ export default function TermsPage() {
 
       <h2 className="text-xl font-semibold mt-6 mb-2">1. Legal Entity and Jurisdiction</h2>
       <ul className="list-disc ml-6 mb-4">
-        <li><strong>Entity:</strong> Avidato LLC, registered in New Mexico, United States.</li>
+        <li><strong>Entity:</strong> Avidato</li>
         <li><strong>Jurisdiction:</strong>
           <ul className="list-decimal ml-6">
             <li>These Terms &amp; Conditions are governed by the laws of the State of New Mexico, USA.</li>
@@ -75,7 +75,7 @@ export default function TermsPage() {
 
       <h2 className="text-xl font-semibold mt-6 mb-2">6. Intellectual Property</h2>
       <ul className="list-disc ml-6 mb-4">
-        <li>All content, features, and functionality on Avidato are the exclusive property of Avidato LLC or its licensors.</li>
+        <li>All content, features, and functionality on Avidato are the exclusive property of Avidato or its licensors.</li>
         <li>Protected by United States and international copyright, trademark, and other intellectual property laws.</li>
         <li>You may not:
           <ul className="list-decimal ml-6">
@@ -123,7 +123,7 @@ export default function TermsPage() {
 
       <h2 className="text-xl font-semibold mt-6 mb-2">10. Limitation of Liability</h2>
       <ul className="list-disc ml-6 mb-4">
-        <li>To the maximum extent permitted by law, Avidato LLC and its affiliates, officers, employees, agents, and licensors shall not be liable for:
+        <li>To the maximum extent permitted by law, Avidato and its affiliates, officers, employees, agents, and licensors shall not be liable for:
           <ul className="list-decimal ml-6">
             <li>Any indirect, incidental, special, consequential, or punitive damages</li>
             <li>Any loss of profits or revenues, whether incurred directly or indirectly</li>
@@ -138,7 +138,7 @@ export default function TermsPage() {
 
       <h2 className="text-xl font-semibold mt-6 mb-2">11. Indemnification</h2>
       <ul className="list-disc ml-6 mb-4">
-        <li>You agree to indemnify, defend, and hold harmless Avidato LLC, its affiliates, officers, directors, employees, agents, licensors, and suppliers from and against all losses, expenses, damages, and costs, including reasonable attorneys&apos; fees, resulting from:
+        <li>You agree to indemnify, defend, and hold harmless Avidato, its affiliates, officers, directors, employees, agents, licensors, and suppliers from and against all losses, expenses, damages, and costs, including reasonable attorneys&apos; fees, resulting from:
           <ul className="list-decimal ml-6">
             <li>Any violation of these Terms &amp; Conditions</li>
             <li>Any activity related to your account (including negligent or wrongful conduct)</li>
@@ -161,7 +161,7 @@ export default function TermsPage() {
 
       <h2 className="text-xl font-semibold mt-6 mb-2">14. Entire Agreement</h2>
       <ul className="list-disc ml-6 mb-4">
-        <li>These Terms &amp; Conditions constitute the entire agreement between you and Avidato LLC regarding your use of the service.</li>
+        <li>These Terms &amp; Conditions constitute the entire agreement between you and Avidato regarding your use of the service.</li>
         <li>They supersede all prior agreements and understandings.</li>
       </ul>
 
