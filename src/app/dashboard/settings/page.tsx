@@ -23,7 +23,7 @@ import type { UpdateProfileData } from '@/app/actions/settings'
  * - Industry-standard security practices
  */
 
-type SettingsTab = 'profile' | 'security' | 'account-linking'
+type SettingsTab = 'profile' | 'security' | 'billing'
 
 interface TabConfig {
   id: SettingsTab
@@ -55,15 +55,14 @@ export default function SettingsPage() {
       description: 'Password, authentication, and security settings'
     },
     {
-      id: 'account-linking',
-      label: 'Account Linking',
+      id: 'billing',
+      label: 'Billing',
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
-                d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
         </svg>
-      ),
-      description: 'Connect or disconnect authentication providers'
+      )
     }
   ]
 
@@ -73,8 +72,8 @@ export default function SettingsPage() {
         return <ProfileTab />
       case 'security':
         return <SecurityTab />
-      case 'account-linking':
-        return <AccountLinkingTab />
+      case 'billing':
+        return <BillingTab />
       default:
         return <ProfileTab />
     }
@@ -126,10 +125,10 @@ export default function SettingsPage() {
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`flex items-center space-x-2 px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
+                    className={`flex items-center space-x-2 px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-medium border-b-2 transition-all duration-200 whitespace-nowrap ${
                       activeTab === tab.id
-                        ? 'border-primary text-primary bg-primary/5'
-                        : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
+                        ? 'border-primary text-primary bg-primary/5 dark:bg-primary/10'
+                        : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary hover:bg-primary/5 dark:hover:bg-primary/10 hover:border-primary/30'
                     }`}
                   >
                     {tab.icon}
@@ -682,32 +681,6 @@ function SecurityTab() {
               )}
             </div>
 
-            {/* Connected Accounts */}
-            <div className="py-3">
-              <div className="flex items-center space-x-3 mb-3">
-                <div className={`w-3 h-3 rounded-full ${securityInfo.linkedAccounts.length > 0 ? 'bg-green-500' : 'bg-gray-400'}`}></div>
-                <div>
-                  <p className="font-medium text-gray-900 dark:text-white">Connected Accounts</p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Social login providers linked to your account
-                  </p>
-                </div>
-              </div>
-              {securityInfo.linkedAccounts.length > 0 ? (
-                <div className="ml-6 space-y-2">
-                  {securityInfo.linkedAccounts.map((account: {provider: string, type: string}, index: number) => (
-                    <div key={index} className="flex items-center space-x-2 text-sm">
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200">
-                        {account.provider.charAt(0).toUpperCase() + account.provider.slice(1)}
-                      </span>
-                      <span className="text-gray-500 dark:text-gray-400">({account.type})</span>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="ml-6 text-sm text-gray-500 dark:text-gray-400">No connected accounts</p>
-              )}
-            </div>
           </div>
         ) : (
           <div className="animate-pulse space-y-4">
@@ -827,6 +800,9 @@ function SecurityTab() {
         </div>
       )}
 
+      {/* Account Linking Section */}
+      <AccountLinkingSection />
+
       {/* Security Tips */}
       <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6">
         <h3 className="text-lg font-semibold text-blue-900 dark:text-blue-200 mb-3">Security Tips</h3>
@@ -854,10 +830,10 @@ function SecurityTab() {
 }
 
 /**
- * Account Linking Tab Component
- * Handles provider linking/unlinking and OAuth management
+ * Account Linking Component
+ * Embedded within SecurityTab to manage provider linking/unlinking
  */
-function AccountLinkingTab() {
+function AccountLinkingSection() {
   const [isLoading, setIsLoading] = useState(false)
   const [message, setMessage] = useState<{type: 'success' | 'error', text: string} | null>(null)
   const [securityInfo, setSecurityInfo] = useState<{
@@ -1055,6 +1031,189 @@ function AccountLinkingTab() {
         <p className="text-sm text-yellow-800 dark:text-yellow-300">
           Keep at least one authentication method (password or linked account) to ensure you can always access your account.
         </p>
+      </div>
+    </div>
+  )
+}
+
+/**
+ * Billing Tab Component
+ * Displays subscription information and billing details
+ */
+function BillingTab() {
+  const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'annual'>('monthly')
+  const [hoveredCardIndex, setHoveredCardIndex] = useState<number>(1)
+
+  const plans = [
+    {
+      title: 'Starter',
+      description: 'Perfect for trying things out.',
+      price: { monthly: 0, annual: 0 },
+      buttonText: 'Current Plan',
+      isPopular: false,
+      isCurrent: true,
+      features: [
+        '20 generations / day',
+        'Unlimited students',
+        'Shareable lesson links'
+      ]
+    },
+    {
+      title: 'Pro',
+      description: 'For the dedicated professional tutor.',
+      price: { monthly: 6, annual: 60 },
+      buttonText: 'Upgrade to Pro',
+      isPopular: true,
+      isCurrent: false,
+      features: [
+        'Everything in Starter, plus:',
+        'Unlimited lesson plans',
+        'Priority email support'
+      ]
+    },
+    {
+      title: 'Premium',
+      description: 'For small teams and power users.',
+      price: { monthly: 10, annual: 100 },
+      buttonText: 'Choose Premium',
+      isPopular: false,
+      isCurrent: false,
+      features: [
+        'Everything in Pro, plus:',
+        'Team access (up to 3 tutors)',
+        'Custom branding on shared links'
+      ]
+    }
+  ]
+
+  return (
+    <div className="space-y-8">
+      {/* Header */}
+      <div>
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Billing & Subscription</h3>
+        <p className="text-sm text-gray-600 dark:text-gray-400">
+          Choose the perfect plan for your teaching needs
+        </p>
+      </div>
+
+      {/* Billing Period Toggle */}
+      <div className="flex justify-center mb-10">
+        <div className="inline-flex rounded-full bg-gray-200 dark:bg-gray-700 p-1">
+          <button 
+            onClick={() => setBillingPeriod('monthly')} 
+            className={`px-4 py-1.5 text-sm font-semibold rounded-full transition-colors ${
+              billingPeriod === 'monthly' 
+                ? 'bg-white dark:bg-gray-600 text-gray-800 dark:text-white shadow' 
+                : 'text-gray-500 dark:text-gray-400'
+            }`}
+          >
+            Monthly
+          </button>
+          <button 
+            onClick={() => setBillingPeriod('annual')} 
+            className={`px-4 py-1.5 text-sm font-semibold rounded-full transition-colors ${
+              billingPeriod === 'annual' 
+                ? 'bg-white dark:bg-gray-600 text-gray-800 dark:text-white shadow' 
+                : 'text-gray-500 dark:text-gray-400'
+            }`}
+          >
+            Annual (Save 20%)
+          </button>
+        </div>
+      </div>
+
+      {/* Plans Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
+        {plans.map((plan, index) => {
+          const isHighlighted = hoveredCardIndex === index
+          return (
+            <div 
+              key={plan.title} 
+              onMouseEnter={() => setHoveredCardIndex(index)} 
+              onMouseLeave={() => setHoveredCardIndex(1)} 
+              className={`p-8 rounded-xl flex flex-col h-full relative transition-all duration-300 ${
+                isHighlighted 
+                  ? 'bg-gradient-to-br from-primary via-primary to-brand-accent text-white shadow-2xl transform scale-105 dark:from-primary dark:via-primary dark:to-brand-accent' 
+                  : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700'
+              }`}
+            >
+              {/* Most Popular Badge - only show when highlighted */}
+              {plan.isPopular && isHighlighted && (
+                <div className="absolute top-0 -translate-y-1/2 left-1/2 -translate-x-1/2 bg-white text-primary px-3 py-1 rounded-full text-sm font-semibold shadow-md">
+                  Most Popular
+                </div>
+              )}
+
+              {/* Plan Title */}
+              <h3 className="text-xl font-bold">{plan.title}</h3>
+
+              {/* Plan Description */}
+              <p className={`mt-2 min-h-[48px] ${isHighlighted ? 'opacity-90' : 'text-gray-500 dark:text-gray-400'}`}>
+                {plan.description}
+              </p>
+
+              {/* Price */}
+              <div className="mt-6 text-4xl font-extrabold">
+                ${billingPeriod === 'monthly' ? plan.price.monthly : Math.round(plan.price.annual / 12)}
+                {plan.price.monthly > 0 && (
+                  <span className={`text-lg font-normal ${isHighlighted ? 'opacity-70' : 'text-gray-500 dark:text-gray-400'}`}>
+                    {' '}/ month
+                  </span>
+                )}
+              </div>
+
+              {/* Flex Grow */}
+              <div className="flex-grow" />
+
+              {/* Button */}
+              <button 
+                disabled={plan.isCurrent}
+                className={`block w-full text-center mt-8 py-2.5 rounded-md font-semibold transition-colors ${
+                  isHighlighted 
+                    ? 'bg-white text-primary hover:bg-gray-100' 
+                    : `${
+                        plan.isCurrent
+                          ? 'bg-gray-300 dark:bg-gray-600 text-gray-600 dark:text-gray-400 cursor-not-allowed'
+                          : 'border border-primary text-primary hover:bg-primary/5 dark:hover:bg-primary/10'
+                      }`
+                }`}
+              >
+                {plan.buttonText}
+              </button>
+
+              {/* Features */}
+              <ul className="mt-8 space-y-4 text-left text-sm">
+                {plan.features.map((feature, fIndex) => (
+                  <li key={fIndex} className="flex items-start">
+                    <svg 
+                      className={`w-5 h-5 mr-3 mt-0.5 flex-shrink-0 ${
+                        isHighlighted ? 'text-white' : 'text-primary'
+                      }`} 
+                      fill="currentColor" 
+                      viewBox="0 0 20 20"
+                    >
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                    <span dangerouslySetInnerHTML={{ __html: feature }} />
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )
+        })}
+      </div>
+
+      {/* Billing History */}
+      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 sm:p-8">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">Billing History</h3>
+        
+        <div className="text-center py-12">
+          <svg className="w-12 h-12 text-gray-400 dark:text-gray-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          <p className="text-gray-600 dark:text-gray-400 mb-2">No billing history yet</p>
+          <p className="text-sm text-gray-500 dark:text-gray-500">Your billing history will appear here once you upgrade to a paid plan</p>
+        </div>
       </div>
     </div>
   )

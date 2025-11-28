@@ -10,6 +10,7 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        primary: '#3d74b5',     // Medium Blue (alias for brand-primary)
         brand: {
           primary: '#3d74b5',    // Medium Blue
           secondary: '#5ebbc8',  // Light Teal/Cyan  
