@@ -5,31 +5,45 @@ import { createVerificationToken } from '@/lib/token-service'
 import { sendVerificationEmail } from '@/lib/email-service'
 import { prisma } from '@/lib/prisma'
 
-// Simple in-memory rate limit store (for demo - use Redis in production)
-const rateLimitMap = new Map<string, { count: number; resetTime: number }>()
+/**
+ * Check if user has exceeded resend limit
+ * Allows 2 resends, then requires 30 minute cooldown
+ */
+async function checkResendLimit(email: string): Promise<{ allowed: boolean; nextAvailableAt?: Date }> {
+  const user = await prisma.user.findUnique({
+    where: { email: email.toLowerCase() }
+  })
 
-const RATE_LIMIT_WINDOW = 60 * 1000 // 60 seconds
-const MAX_RESEND_PER_WINDOW = 3 // Allow 3 resends per minute
+  if (!user) return { allowed: true }
 
-function checkRateLimit(email: string): { allowed: boolean; retryAfter?: number } {
-  const now = Date.now()
-  const key = `verify-email-${email}`
-  const record = rateLimitMap.get(key)
+  // Get the last verification request time
+  const lastToken = await prisma.verificationToken.findFirst({
+    where: { email: email.toLowerCase() },
+    orderBy: { createdAt: 'desc' },
+    take: 1
+  })
 
-  if (!record || now > record.resetTime) {
-    // New window or expired
-    rateLimitMap.set(key, { count: 1, resetTime: now + RATE_LIMIT_WINDOW })
+  if (!lastToken) {
+    // First time requesting
     return { allowed: true }
   }
 
-  if (record.count < MAX_RESEND_PER_WINDOW) {
-    record.count++
-    return { allowed: true }
+  // Count how many tokens were created in the last 30 minutes
+  const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000)
+  const recentRequests = await prisma.verificationToken.count({
+    where: {
+      email: email.toLowerCase(),
+      createdAt: { gte: thirtyMinutesAgo }
+    }
+  })
+
+  if (recentRequests >= 2) {
+    // Already sent 2 times in last 30 minutes
+    const nextAvailableAt = new Date(lastToken.createdAt.getTime() + 30 * 60 * 1000)
+    return { allowed: false, nextAvailableAt }
   }
 
-  // Rate limit exceeded
-  const retryAfter = Math.ceil((record.resetTime - now) / 1000)
-  return { allowed: false, retryAfter }
+  return { allowed: true }
 }
 
 /**
@@ -63,19 +77,20 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Rate limiting check
-    const rateLimit = checkRateLimit(email)
+    // Rate limiting check - 2 resends, then 30 minute cooldown
+    const rateLimit = await checkResendLimit(email)
     if (!rateLimit.allowed) {
+      const minutesUntilRetry = Math.ceil((rateLimit.nextAvailableAt!.getTime() - Date.now()) / 60 / 1000)
       return NextResponse.json(
         { 
           success: false,
-          error: `Too many resend requests. Please try again in ${rateLimit.retryAfter} seconds.`,
-          retryAfter: rateLimit.retryAfter
+          error: `Too many verification requests. Please try again in ${minutesUntilRetry} minutes.`,
+          nextAvailableAt: rateLimit.nextAvailableAt?.toISOString()
         },
         { 
           status: 429,
           headers: {
-            'Retry-After': rateLimit.retryAfter?.toString() || '60'
+            'Retry-After': Math.ceil((rateLimit.nextAvailableAt!.getTime() - Date.now()) / 1000).toString()
           }
         }
       )
