@@ -117,6 +117,7 @@ export const authOptions = {
       if (user) {
         token.id = user.id
         token.username = user.username
+        token.emailVerified = user.emailVerified
         token.dailyGenerationCount = user.dailyGenerationCount
         token.dailyLimit = user.dailyLimit
         token.lastGenerationDate = user.lastGenerationDate
@@ -129,6 +130,7 @@ export const authOptions = {
       if (token && session.user) {
         session.user.id = token.id
         session.user.username = token.username
+        session.user.emailVerified = token.emailVerified
         session.user.dailyGenerationCount = token.dailyGenerationCount
         session.user.dailyLimit = token.dailyLimit
         session.user.lastGenerationDate = token.lastGenerationDate
