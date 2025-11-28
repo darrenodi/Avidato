@@ -480,6 +480,7 @@ function SecurityTab() {
     email: string
   } | null>(null)
   const [showPasswordForm, setShowPasswordForm] = useState(false)
+  const [isResendingEmail, setIsResendingEmail] = useState(false)
   const [passwordData, setPasswordData] = useState({
     currentPassword: '',
     newPassword: '',
@@ -538,6 +539,47 @@ function SecurityTab() {
     }
   }
 
+  // Handle resend verification email
+  const handleResendVerification = async () => {
+    setIsResendingEmail(true)
+    setMessage(null)
+
+    try {
+      const response = await fetch('/api/auth/resend-verification-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: securityInfo?.email,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        setMessage({ 
+          type: 'error', 
+          text: data.error || 'Failed to resend verification email'
+        })
+        return
+      }
+
+      setMessage({ 
+        type: 'success', 
+        text: 'Verification email sent! Please check your inbox.'
+      })
+    } catch (error) {
+      console.error('Error resending verification email:', error)
+      setMessage({ 
+        type: 'error', 
+        text: 'An error occurred. Please try again.'
+      })
+    } finally {
+      setIsResendingEmail(false)
+    }
+  }
+
   return (
     <div className="space-y-8">
       {/* Success/Error Messages */}
@@ -593,6 +635,31 @@ function SecurityTab() {
               )}
             </div>
 
+            {/* Email Address */}
+            <div className="flex items-center justify-between py-3 border-b border-gray-200 dark:border-gray-700">
+              <div className="flex items-center space-x-3 flex-1">
+                <div>
+                  <p className="font-medium text-gray-900 dark:text-white">Email Address</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    {securityInfo.email}
+                  </p>
+                  <p className="text-xs mt-1">
+                    <span className={`inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium ${
+                      securityInfo.emailVerified 
+                        ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300' 
+                        : 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300'
+                    }`}>
+                      <span className={`w-2 h-2 rounded-full ${securityInfo.emailVerified ? 'bg-green-500' : 'bg-yellow-500'}`}></span>
+                      {securityInfo.emailVerified ? 'Verified' : 'Not Verified'}
+                    </span>
+                  </p>
+                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
+                    Email cannot be changed for security reasons. <a href="mailto:support@avidato.com" className="text-primary hover:text-primary-dark">Contact support</a> if needed.
+                  </p>
+                </div>
+              </div>
+            </div>
+
             {/* Email Verification Status */}
             <div className="flex items-center justify-between py-3 border-b border-gray-200 dark:border-gray-700">
               <div className="flex items-center space-x-3">
@@ -604,6 +671,15 @@ function SecurityTab() {
                   </p>
                 </div>
               </div>
+              {!securityInfo.emailVerified && (
+                <button
+                  onClick={handleResendVerification}
+                  disabled={isResendingEmail}
+                  className="px-4 py-2 text-sm font-medium text-white bg-yellow-600 hover:bg-yellow-700 disabled:opacity-50 disabled:cursor-not-allowed border border-yellow-600 rounded-lg transition-colors"
+                >
+                  {isResendingEmail ? 'Sending...' : 'Send Verification'}
+                </button>
+              )}
             </div>
 
             {/* Connected Accounts */}

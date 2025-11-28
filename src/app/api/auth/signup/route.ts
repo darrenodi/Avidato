@@ -4,6 +4,8 @@ import { PrismaClient } from '@prisma/client'
 import { checkRateLimit, getClientIdentifier, RATE_LIMITS } from '@/lib/rate-limit'
 import { stripHtml } from '@/lib/sanitize'
 import { verifyTurnstileToken, recordFailedAttempt } from '@/lib/turnstile'
+import { createVerificationToken } from '@/lib/token-service'
+import { sendVerificationEmail, sendWelcomeEmail } from '@/lib/email-service'
 
 const prisma = new PrismaClient()
 
@@ -125,12 +127,13 @@ export async function POST(request: NextRequest) {
     // Hash password
     const hashedPassword = await hash(password, 12)
 
-    // Create user
+    // Create user (emailVerified is NULL for credentials users - not auto-verified)
     const user = await prisma.user.create({
       data: {
         name: sanitizedName,
         email: email.toLowerCase(),
         password: hashedPassword,
+        emailVerified: null, // Credentials users must verify their email
       },
       select: {
         id: true,
@@ -139,8 +142,41 @@ export async function POST(request: NextRequest) {
       }
     })
 
+    // Generate verification token
+    const verificationToken = await createVerificationToken(
+      email.toLowerCase(),
+      user.id
+    )
+
+    // Send verification email
+    try {
+      await sendVerificationEmail(
+        email.toLowerCase(),
+        verificationToken.token,
+        sanitizedName
+      )
+    } catch (emailError) {
+      console.error('Failed to send verification email:', emailError)
+      // Don't fail signup if email fails - user can resend later
+      // But log it for monitoring
+    }
+
+    // Send welcome email
+    try {
+      await sendWelcomeEmail(
+        email.toLowerCase(),
+        sanitizedName
+      )
+    } catch (welcomeError) {
+      console.error('Failed to send welcome email:', welcomeError)
+      // Don't fail signup if welcome email fails
+    }
+
     return NextResponse.json(
-      { message: 'User created successfully', user },
+      { 
+        message: 'User created successfully. Please check your email to verify your account.',
+        user 
+      },
       { status: 201 }
     )
 

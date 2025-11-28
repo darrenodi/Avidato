@@ -3,7 +3,8 @@
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { useEffect } from "react"
-import DashboardThemeProvider from "@/components/DashboardThemeProvider";
+import DashboardThemeProvider from "@/components/DashboardThemeProvider"
+import { VerificationBanner } from "@/components/VerificationBanner"
 
 export default function DashboardRootLayout({
   children,
@@ -42,6 +43,7 @@ export default function DashboardRootLayout({
   return (
     <DashboardThemeProvider>
       <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-white transition-colors">
+        <VerificationBanner />
         {children}
       </div>
     </DashboardThemeProvider>

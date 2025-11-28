@@ -6,7 +6,7 @@ const resend = new Resend(process.env.RESEND_API_KEY)
 
 const getFromEmail = () => {
   if (process.env.NODE_ENV === 'production') {
-    return process.env.RESEND_FROM_EMAIL || 'noreply@yourdomain.com'
+    return process.env.RESEND_FROM_EMAIL || 'support@avidato.com'
   }
   // In development, check if domain is verified
   // If not, we can only send to the verified sender email

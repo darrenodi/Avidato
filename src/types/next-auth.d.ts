@@ -6,6 +6,7 @@ declare module "next-auth" {
       email?: string | null
       image?: string | null
       username?: string | null
+      emailVerified?: Date | null
       dailyGenerationCount: number
       dailyLimit: number
       lastGenerationDate?: Date | null
@@ -18,6 +19,7 @@ declare module "next-auth" {
     email?: string | null
     image?: string | null
     username?: string | null
+    emailVerified?: Date | null
     dailyGenerationCount?: number
     dailyLimit?: number
     lastGenerationDate?: Date | null
@@ -28,6 +30,7 @@ declare module "next-auth/jwt" {
   interface JWT {
     id: string
     username?: string | null
+    emailVerified?: Date | null
     dailyGenerationCount: number
     dailyLimit: number
   }

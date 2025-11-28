@@ -76,18 +76,15 @@ export async function requestEmailVerification(
     // Create verification token
     const tokenData = await createVerificationToken(validated.email, user.id)
 
-    // Build verification URL
-    const baseUrl = getBaseUrl()
-    const verificationUrl = `${baseUrl}/auth/verify-email?email=${encodeURIComponent(validated.email)}&token=${tokenData.token}`
-
-    // Send verification email
-    const emailResult = await sendVerificationEmail(
-      validated.email,
-      verificationUrl,
-      user.name || 'User'
-    )
-
-    if (!emailResult.success) {
+    // Send verification email (token, not URL - email-service builds the URL)
+    try {
+      await sendVerificationEmail(
+        validated.email,
+        tokenData.token,
+        user.name || 'User'
+      )
+    } catch (emailError) {
+      console.error('Failed to send verification email:', emailError)
       return {
         success: false,
         message: 'Failed to send verification email. Please try again.',
@@ -198,18 +195,15 @@ export async function requestPasswordReset(
       where: { email: validated.email },
     })
 
-    // Build reset URL
-    const baseUrl = getBaseUrl()
-    const resetUrl = `${baseUrl}/auth/reset-password?email=${encodeURIComponent(validated.email)}&token=${tokenData.token}`
-
-    // Send password reset email
-    const emailResult = await sendPasswordResetEmail(
-      validated.email,
-      resetUrl,
-      user?.name || 'User'
-    )
-
-    if (!emailResult.success) {
+    // Send password reset email (token, not URL - email-service builds the URL)
+    try {
+      await sendPasswordResetEmail(
+        validated.email,
+        tokenData.token,
+        user?.name || 'User'
+      )
+    } catch (emailError) {
+      console.error('Failed to send password reset email:', emailError)
       return {
         success: false,
         message: 'Failed to send password reset email. Please try again.',
