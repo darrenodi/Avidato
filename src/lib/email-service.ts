@@ -2,13 +2,19 @@ import { Resend } from 'resend'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
+// Helper to ensure NEXTAUTH_URL has proper formatting
+const getBaseUrl = () => {
+  const url = process.env.NEXTAUTH_URL || 'http://localhost:3000'
+  return url.endsWith('/') ? url.slice(0, -1) : url
+}
+
 export async function sendVerificationEmail(
   email: string,
   verificationToken: string,
   userName?: string
 ) {
   try {
-    const verificationUrl = `${process.env.NEXTAUTH_URL}api/auth/verify-email?token=${verificationToken}`
+    const verificationUrl = `${getBaseUrl()}/api/auth/verify-email?token=${verificationToken}`
     
     const htmlContent = `
       <!DOCTYPE html>
@@ -92,7 +98,7 @@ export async function sendPasswordResetEmail(
   userName?: string
 ) {
   try {
-    const resetUrl = `${process.env.NEXTAUTH_URL}api/auth/reset-password?token=${resetToken}`
+    const resetUrl = `${getBaseUrl()}/api/auth/reset-password?token=${resetToken}`
     
     const htmlContent = `
       <!DOCTYPE html>
@@ -143,7 +149,7 @@ export async function sendPasswordResetEmail(
               </div>
               <div class="footer">
                 <p>© ${new Date().getFullYear()} Avidato. All rights reserved.</p>
-                <p><a href="${process.env.NEXTAUTH_URL}privacy">Privacy Policy</a> | <a href="${process.env.NEXTAUTH_URL}terms">Terms of Service</a></p>
+                <p><a href="${getBaseUrl()}/privacy">Privacy Policy</a> | <a href="${getBaseUrl()}/terms">Terms of Service</a></p>
               </div>
             </div>
           </div>
@@ -175,7 +181,7 @@ export async function sendWelcomeEmail(
   userName?: string
 ) {
   try {
-    const dashboardUrl = `${process.env.NEXTAUTH_URL}dashboard`
+    const dashboardUrl = `${getBaseUrl()}/dashboard`
     
     const htmlContent = `
       <!DOCTYPE html>
@@ -269,7 +275,7 @@ export async function sendWelcomeEmail(
 
               <div class="footer">
                 <p>© ${new Date().getFullYear()} Avidato. All rights reserved.</p>
-                <p><a href="${process.env.NEXTAUTH_URL}privacy">Privacy Policy</a> | <a href="${process.env.NEXTAUTH_URL}terms">Terms of Service</a></p>
+                <p><a href="${getBaseUrl()}/privacy">Privacy Policy</a> | <a href="${getBaseUrl()}/terms">Terms of Service</a></p>
               </div>
             </div>
           </div>
