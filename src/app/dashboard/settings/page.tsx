@@ -635,22 +635,20 @@ function SecurityTab() {
               )}
             </div>
 
-            {/* Email Address */}
+            {/* Email Address & Verification */}
             <div className="flex items-center justify-between py-3 border-b border-gray-200 dark:border-gray-700">
               <div className="flex items-center space-x-3 flex-1">
+                <div className={`w-3 h-3 rounded-full ${securityInfo.emailVerified ? 'bg-green-500' : 'bg-yellow-500'}`}></div>
                 <div>
                   <p className="font-medium text-gray-900 dark:text-white">Email Address</p>
                   <p className="text-sm text-gray-500 dark:text-gray-400">
                     {securityInfo.email}
-                  </p>
-                  <p className="text-xs mt-1">
-                    <span className={`inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium ${
+                    <span className={`inline-flex items-center gap-1 ml-2 px-2 py-1 rounded text-xs font-medium ${
                       securityInfo.emailVerified 
                         ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300' 
                         : 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300'
                     }`}>
-                      <span className={`w-2 h-2 rounded-full ${securityInfo.emailVerified ? 'bg-green-500' : 'bg-yellow-500'}`}></span>
-                      {securityInfo.emailVerified ? 'Verified' : 'Not Verified'}
+                      {securityInfo.emailVerified ? '✓ Verified' : '○ Not Verified'}
                     </span>
                   </p>
                   <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
@@ -658,24 +656,11 @@ function SecurityTab() {
                   </p>
                 </div>
               </div>
-            </div>
-
-            {/* Email Verification Status */}
-            <div className="flex items-center justify-between py-3 border-b border-gray-200 dark:border-gray-700">
-              <div className="flex items-center space-x-3">
-                <div className={`w-3 h-3 rounded-full ${securityInfo.emailVerified ? 'bg-green-500' : 'bg-yellow-500'}`}></div>
-                <div>
-                  <p className="font-medium text-gray-900 dark:text-white">Email Verification</p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    {securityInfo.emailVerified ? 'Email address verified' : 'Email address not verified'}
-                  </p>
-                </div>
-              </div>
               {!securityInfo.emailVerified && (
                 <button
                   onClick={handleResendVerification}
                   disabled={isResendingEmail}
-                  className="px-4 py-2 text-sm font-medium text-white bg-yellow-600 hover:bg-yellow-700 disabled:opacity-50 disabled:cursor-not-allowed border border-yellow-600 rounded-lg transition-colors"
+                  className="flex-shrink-0 px-4 py-2 text-sm font-medium text-white bg-yellow-600 hover:bg-yellow-700 disabled:opacity-50 disabled:cursor-not-allowed border border-yellow-600 rounded-lg transition-colors whitespace-nowrap ml-4"
                 >
                   {isResendingEmail ? 'Sending...' : 'Send Verification'}
                 </button>

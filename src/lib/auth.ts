@@ -144,6 +144,8 @@ export const authOptions = {
         user.email = profile.email
         user.name = profile.name
         user.image = profile.picture || user.image
+        // Auto-verify email for Google users
+        user.emailVerified = new Date()
       }
       return true
     },
