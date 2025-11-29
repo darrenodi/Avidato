@@ -139,13 +139,24 @@ export const authOptions = {
     },
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async signIn({ user, account, profile }: any): Promise<boolean> {
-      if (account?.provider === "google" && profile) {
+      if (account?.provider === "google" && profile && user.email) {
+        console.log("Google sign-in for:", account.provider, user.email )
         // Prevent account switching by using profile data
         user.email = profile.email
         user.name = profile.name
         user.image = profile.picture || user.image
-        // Auto-verify email for Google users
-        user.emailVerified = new Date()
+        
+        // Auto-verify email for ALL Google users (even existing ones)
+        // Google's email verification is built-in, so we can trust it
+        try {
+          const updatedUser = await prisma.user.update({
+            where: { email: user.email },
+            data: { emailVerified: new Date() }
+          })
+          user.emailVerified = updatedUser.emailVerified
+        } catch (error) {
+          console.error('Failed to auto-verify Google user email:', error)
+        }
       }
       return true
     },
