@@ -138,7 +138,7 @@ export default function DashboardPage() {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="min-w-0 flex-1">
               <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white truncate">
-                Welcome back, {extendedSession.user?.name?.split(' ')[0] || 'there'}! 👋
+                Welcome back, {extendedSession.user?.name?.split(' ')[0] || 'there'}! 🎄
               </h1>
               <p className="mt-1 sm:mt-2 text-sm sm:text-base text-gray-600 dark:text-gray-400">
                 Ready to create some amazing lesson plans?

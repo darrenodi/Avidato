@@ -34,7 +34,7 @@ export default function PublicFooter() {
                   height={32}
                 />
                 <Image
-                  src="/white-name.svg"
+                  src="/white-logo-dec.svg"
                   alt="Avidato"
                   width={110}
                   height={26}

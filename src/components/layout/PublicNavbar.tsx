@@ -33,7 +33,7 @@ const PublicNavbar: React.FC = () => {
               priority
             />
             <Image
-              src="/name.svg"
+              src="/logo-dec.svg"
               alt="Avidato"
               width={110}
               height={26}

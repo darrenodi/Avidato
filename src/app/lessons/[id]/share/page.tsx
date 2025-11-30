@@ -662,7 +662,7 @@ export default function SharedLessonPage() {
   }, [lessonId])
 
   const logoSrc = mounted && theme === 'light' ? '/logo.svg' : '/white-logo.svg'
-  const nameSrc = mounted && theme === 'light' ? '/name.svg' : '/white-name.svg'
+  const nameSrc = mounted && theme === 'light' ? '/logo-dec.svg' : '/white-logo-dec.svg'
 
   return (
     <ClientThemeProvider>
