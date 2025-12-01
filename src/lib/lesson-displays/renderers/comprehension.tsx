@@ -89,6 +89,8 @@ export const ComprehensionRenderer: React.FC<ComprehensionRendererProps> = ({
                   const hasAnswered = answeredQuestions.has(index)
                   const showCorrect = hasAnswered && isCorrect
                   const showWrong = hasAnswered && isSelected && !isCorrect
+                  // Strip the letter prefix if option starts with "A) ", "B) ", etc.
+                  const displayText = option.match(/^[A-Z]\)\s/) ? option.substring(3) : option
 
                   return (
                     <div key={optIndex}>
@@ -105,7 +107,7 @@ export const ComprehensionRenderer: React.FC<ComprehensionRendererProps> = ({
                         }`}
                       >
                         <div className="flex items-center gap-3">
-                          <span className="text-sm">{option}</span>
+                          <span className="text-sm">{optIndex + 1}. {displayText}</span>
                           {showCorrect && <span className="ml-auto text-lg font-bold">✓</span>}
                           {showWrong && <span className="ml-auto text-lg font-bold">✗</span>}
                         </div>

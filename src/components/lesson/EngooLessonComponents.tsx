@@ -396,6 +396,8 @@ export function ComprehensionExercise({
                     const optionLetter = String.fromCharCode(65 + optionIndex)
                     const isSelected = selectedAnswers[index] === option
                     const isCorrectAnswer = isCorrect(index, option)
+                    // Strip the letter prefix if option starts with "A) ", "B) ", etc.
+                    const displayText = option.match(/^[A-Z]\)\s/) ? option.substring(3) : option
                     
                     return (
                       <label 
@@ -435,7 +437,7 @@ export function ComprehensionExercise({
                         </div>
                         <span className={`${isSelected ? 'font-medium' : ''}`}>
                           <span dangerouslySetInnerHTML={{ 
-                            __html: safeReplace(option) 
+                            __html: safeReplace(displayText) 
                           }} />
                         </span>
                       </label>
