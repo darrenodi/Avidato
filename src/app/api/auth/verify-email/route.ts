@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { confirmEmailVerification } from '@/lib/token-service'
+import { confirmEmailVerification, verifyEmailToken } from '@/lib/token-service'
+import { prisma } from '@/lib/prisma'
 
 /**
  * GET /api/auth/verify-email?token=<token>
@@ -18,8 +19,19 @@ export async function GET(request: NextRequest) {
       return NextResponse.redirect(errorUrl)
     }
 
-    // Verify token and mark email as verified
-    const result = await confirmEmailVerification('', token)
+    // First, find the email associated with this token
+    const verificationToken = await prisma.verificationToken.findFirst({
+      where: { token },
+    })
+
+    if (!verificationToken) {
+      const errorUrl = new URL('/auth/verify-error', request.nextUrl.origin)
+      errorUrl.searchParams.set('error', 'invalid-token')
+      return NextResponse.redirect(errorUrl)
+    }
+
+    // Now verify the token with the email
+    const result = await confirmEmailVerification(verificationToken.email, token)
 
     if (!result) {
       const errorUrl = new URL('/auth/verify-error', request.nextUrl.origin)
@@ -61,8 +73,23 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Verify token and mark email as verified
-    const result = await confirmEmailVerification('', token)
+    // First, find the email associated with this token
+    const verificationToken = await prisma.verificationToken.findFirst({
+      where: { token },
+    })
+
+    if (!verificationToken) {
+      return NextResponse.json(
+        { 
+          success: false,
+          error: 'Invalid or expired verification token. Please request a new verification email.'
+        },
+        { status: 400 }
+      )
+    }
+
+    // Now verify the token with the email
+    const result = await confirmEmailVerification(verificationToken.email, token)
 
     if (!result) {
       return NextResponse.json(

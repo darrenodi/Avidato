@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useTheme } from 'next-themes'
 import Image from 'next/image'
 import DashboardSidebar from './DashboardSidebar'
+import { VerificationBanner } from '@/components/VerificationBanner'
 
 /**
  * DashboardLayout Component
@@ -130,6 +131,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
         {/* Page content with independent scrolling */}
         <main className="flex-1 overflow-y-auto h-0">
+          <VerificationBanner />
           {children}
         </main>
       </div>

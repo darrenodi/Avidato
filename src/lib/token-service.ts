@@ -18,16 +18,17 @@ export async function createVerificationToken(
 ): Promise<{ token: string; expires: Date }> {
   const token = generateToken()
   const expires = new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours
+  const normalizedEmail = email.toLowerCase()
 
   // Delete any existing tokens for this email
   await prisma.verificationToken.deleteMany({
-    where: { email },
+    where: { email: normalizedEmail },
   })
 
-  // Create new token
+  // Create new token with normalized email
   const verificationToken = await prisma.verificationToken.create({
     data: {
-      email,
+      email: normalizedEmail,
       token,
       expires,
       userId: userId || null,
@@ -48,9 +49,10 @@ export async function verifyEmailToken(
   email: string,
   token: string
 ): Promise<{ valid: boolean; expired: boolean }> {
+  const normalizedEmail = email.toLowerCase()
   const verificationToken = await prisma.verificationToken.findFirst({
     where: {
-      email,
+      email: normalizedEmail,
       token,
     },
   })
@@ -80,9 +82,10 @@ export async function confirmEmailVerification(
   token: string
 ): Promise<boolean> {
   try {
+    const normalizedEmail = email.toLowerCase()
     const verificationToken = await prisma.verificationToken.findFirst({
       where: {
-        email,
+        email: normalizedEmail,
         token,
       },
     })
@@ -101,7 +104,7 @@ export async function confirmEmailVerification(
 
     // Update user's emailVerified status
     await prisma.user.update({
-      where: { email },
+      where: { email: normalizedEmail },
       data: { emailVerified: new Date() },
     })
 
