@@ -4,7 +4,8 @@ import { useSession } from 'next-auth/react'
 import React, { useState, useEffect } from 'react'
 import Image from 'next/image'
 import DashboardLayout from '@/components/layout/DashboardLayout'
-import ManageAccountsIcon from '@/components/icons/ManageAccountsIcon'
+import SettingsIcon from '@/components/icons/SettingsIcon'
+import PersonIcon from '@/components/icons/PersonIcon'
 import { updateProfile, getUserProfile, checkUsernameAvailability, changePassword, getSecurityInfo, uploadProfilePicture } from '@/app/actions/settings'
 import type { UpdateProfileData } from '@/app/actions/settings'
 
@@ -40,18 +41,13 @@ export default function SettingsPage() {
     {
       id: 'profile',
       label: 'Profile',
-      icon: <ManageAccountsIcon className="w-5 h-5" />,
+      icon: <PersonIcon className="w-5 h-5" />,
       description: 'Manage your personal information and preferences'
     },
     {
       id: 'security',
       label: 'Security',
-      icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
-                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-        </svg>
-      ),
+      icon: <SettingsIcon className="w-5 h-5" />,
       description: 'Password, authentication, and security settings'
     },
     {
@@ -88,7 +84,7 @@ export default function SettingsPage() {
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
             <div className="flex items-center space-x-3">
               <div className="p-2 bg-primary/10 rounded-lg">
-                <ManageAccountsIcon className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
+                <SettingsIcon className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
               </div>
               <div>
                 <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
@@ -157,6 +153,10 @@ export default function SettingsPage() {
     </DashboardLayout>
   )
 }
+
+/**
+ * Remove unused renderTabContent function - tabs now render inline to preserve state
+ */
 
 /**
  * Profile Tab Component
@@ -391,7 +391,7 @@ function ProfileTab() {
                   className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover"
                 />
               ) : (
-                <ManageAccountsIcon className="w-5 h-5 sm:w-6 sm:h-6 text-gray-400" />
+                <PersonIcon className="w-5 h-5 sm:w-6 sm:h-6 text-gray-400" />
               )}
             </div>
             <button
@@ -789,27 +789,12 @@ function SecurityTab() {
       {/* Account Linking Section */}
       <AccountLinkingSection />
 
-      {/* Security Tips */}
-      <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6">
-        <h3 className="text-lg font-semibold text-blue-900 dark:text-blue-200 mb-3">Security Tips</h3>
-        <ul className="space-y-2 text-sm text-blue-800 dark:text-blue-300">
-          <li className="flex items-start space-x-2">
-            <span className="font-bold">•</span>
-            <span>Use a strong, unique password that you don&apos;t use elsewhere</span>
-          </li>
-          <li className="flex items-start space-x-2">
-            <span className="font-bold">•</span>
-            <span>Consider using a password manager to generate and store secure passwords</span>
-          </li>
-          <li className="flex items-start space-x-2">
-            <span className="font-bold">•</span>
-            <span>Keep your account secure by linking additional authentication methods</span>
-          </li>
-          <li className="flex items-start space-x-2">
-            <span className="font-bold">•</span>
-            <span>Regularly review your connected accounts and remove any you no longer use</span>
-          </li>
-        </ul>
+      {/* Security Tip */}
+      <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-6">
+        <h3 className="text-lg font-semibold text-yellow-900 dark:text-yellow-200 mb-2">Tip</h3>
+        <p className="text-sm text-yellow-800 dark:text-yellow-300">
+          Keep at least one authentication method (password or linked account) to ensure you can always access your account.
+        </p>
       </div>
     </div>
   )
@@ -1009,14 +994,6 @@ function AccountLinkingSection() {
             )
           })}
         </div>
-      </div>
-
-      {/* Security Tip */}
-      <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-6">
-        <h3 className="text-lg font-semibold text-yellow-900 dark:text-yellow-200 mb-2">Tip</h3>
-        <p className="text-sm text-yellow-800 dark:text-yellow-300">
-          Keep at least one authentication method (password or linked account) to ensure you can always access your account.
-        </p>
       </div>
     </div>
   )

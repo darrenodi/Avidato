@@ -31,8 +31,8 @@ export async function sendVerificationEmail(
             .greeting { font-size: 16px; margin-bottom: 20px; }
             .message { font-size: 14px; color: #666; margin-bottom: 30px; line-height: 1.8; }
             .button-wrapper { text-align: center; margin: 30px 0; }
-            .verify-button { display: inline-block; background: #3d74b5; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 14px; }
-            .verify-button:hover { background: #2d5a8f; }
+            .verify-button { display: inline-block; background: #3d74b5 !important; color: white !important; padding: 15px 40px !important; text-decoration: none !important; border-radius: 6px; font-weight: 600 !important; font-size: 15px !important; }
+            .verify-button:hover { background: #2d5a8f !important; }
             .divider { text-align: center; color: #999; margin: 20px 0; font-size: 12px; }
             .link-text { font-size: 12px; word-break: break-all; color: #3d74b5; }
             .footer { font-size: 12px; color: #999; margin-top: 20px; text-align: center; }
@@ -203,8 +203,8 @@ export async function sendWelcomeEmail(
             .feature-text { font-size: 14px; color: #666; }
             .feature-title { font-weight: 600; color: #333; }
             .button-wrapper { text-align: center; margin: 30px 0; }
-            .cta-button { display: inline-block; background: #3d74b5; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 14px; }
-            .cta-button:hover { background: #2d5a8f; }
+            .cta-button { display: inline-block; background: #3d74b5 !important; color: white !important; padding: 15px 40px !important; text-decoration: none !important; border-radius: 6px; font-weight: 600 !important; font-size: 15px !important; }
+            .cta-button:hover { background: #2d5a8f !important; }
             .support-section { background: #e8f0f7; padding: 15px; border-left: 4px solid #3d74b5; margin: 20px 0; border-radius: 4px; }
             .support-section p { margin: 0; font-size: 13px; color: #555; }
             .footer { font-size: 12px; color: #999; margin-top: 20px; text-align: center; }
@@ -264,7 +264,11 @@ export async function sendWelcomeEmail(
               </div>
 
               <div class="support-section">
-                <p><strong>Need help?</strong> Check out our documentation or reach out to support at help@avidato.com. We're here to help!</p>
+                <p><strong>⚠️ Didn't sign up for Avidato?</strong> If you didn't create this account or believe this was a mistake, you can safely disregard this message. If you're concerned about unauthorized account creation, please contact us at support@avidato.com immediately.</p>
+              </div>
+
+              <div class="support-section">
+                <p><strong>Need help?</strong> Check out our documentation or reach out to support at support@avidato.com. We're here to help!</p>
               </div>
 
               <div class="divider"></div>

@@ -3,6 +3,7 @@ import GoogleProvider from "next-auth/providers/google"
 import { PrismaAdapter } from "@next-auth/prisma-adapter"
 import { PrismaClient } from "@prisma/client"
 import bcrypt from "bcryptjs"
+import { sendWelcomeEmail } from "./email-service"
 
 const prisma = new PrismaClient()
 
@@ -121,6 +122,23 @@ export const authOptions = {
         token.dailyGenerationCount = user.dailyGenerationCount
         token.dailyLimit = user.dailyLimit
         token.lastGenerationDate = user.lastGenerationDate
+      } else if (token.email) {
+        // On subsequent calls, refresh user data from database to get updated emailVerified status
+        const dbUser = await prisma.user.findUnique({
+          where: { email: token.email },
+          select: {
+            emailVerified: true,
+            dailyGenerationCount: true,
+            dailyLimit: true,
+            lastGenerationDate: true,
+          }
+        })
+        if (dbUser) {
+          token.emailVerified = dbUser.emailVerified
+          token.dailyGenerationCount = dbUser.dailyGenerationCount
+          token.dailyLimit = dbUser.dailyLimit
+          token.lastGenerationDate = dbUser.lastGenerationDate
+        }
       }
       return token
     },
@@ -138,9 +156,9 @@ export const authOptions = {
       return session
     },
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    async signIn({ user, account, profile }: any): Promise<boolean> {
+    async signIn({ user, account, profile, isNewUser }: any): Promise<boolean> {
       if (account?.provider === "google" && profile && user.email) {
-        console.log("Google sign-in for:", account.provider, user.email )
+        
         // Prevent account switching by using profile data
         user.email = profile.email
         user.name = profile.name
@@ -154,6 +172,16 @@ export const authOptions = {
             data: { emailVerified: new Date() }
           })
           user.emailVerified = updatedUser.emailVerified
+          
+          // Send welcome email to new Google users only
+          if (isNewUser) {
+            try {
+              await sendWelcomeEmail(user.email, user.name)
+            } catch (welcomeError) {
+              console.error('Failed to send welcome email to Google user:', welcomeError)
+              // Don't fail signin if welcome email fails
+            }
+          }
         } catch (error) {
           console.error('Failed to auto-verify Google user email:', error)
         }

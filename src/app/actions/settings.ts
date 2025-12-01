@@ -376,13 +376,17 @@ export async function getSecurityInfo() {
       }
     }
 
+    // Google OAuth users always have verified emails (Google verifies it)
+    const isGoogleUser = user.accounts.some(acc => acc.provider === 'google')
+    const emailVerified = isGoogleUser ? true : !!user.emailVerified
+
     const securityInfo = {
       hasPassword: !!user.password,
       linkedAccounts: user.accounts.map(account => ({
         provider: account.provider,
         type: account.type
       })),
-      emailVerified: !!user.emailVerified,
+      emailVerified,
       email: user.email
     }
 

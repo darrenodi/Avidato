@@ -14,20 +14,25 @@ export function VerificationBanner() {
   const [emailSent, setEmailSent] = useState(false)
   const [canResend, setCanResend] = useState(true)
   const [resendCountdown, setResendCountdown] = useState(0)
+  const [verificationProcessed, setVerificationProcessed] = useState(false)
+  const [showBanner, setShowBanner] = useState(false)
 
   // Check if user just verified their email via URL param
   useEffect(() => {
-    if (searchParams.get('verified') === 'true') {
+    if (searchParams.get('verified') === 'true' && !verificationProcessed) {
+      setVerificationProcessed(true)
       setSuccess(true)
       // Refresh session to update emailVerified status
       const refreshSession = async () => {
         await updateSession()
-        // After session refreshes, remove the verified param and hide banner
-        router.replace('/dashboard')
+        // Wait a moment for session to update, then remove the verified param
+        setTimeout(() => {
+          router.replace('/dashboard')
+        }, 500)
       }
       refreshSession()
     }
-  }, [searchParams, updateSession, router])
+  }, [searchParams, updateSession, router, verificationProcessed])
 
   // Countdown timer for resend button
   useEffect(() => {
@@ -38,6 +43,24 @@ export function VerificationBanner() {
       setCanResend(true)
     }
   }, [resendCountdown, canResend])
+
+  // Auto-hide success banner after 3 seconds
+  useEffect(() => {
+    if (success) {
+      const timer = setTimeout(() => {
+        setSuccess(false)
+      }, 3000)
+      return () => clearTimeout(timer)
+    }
+  }, [success])
+
+  // Show banner after 30 seconds (allows background verification check)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowBanner(true)
+    }, 30000) // 30 seconds
+    return () => clearTimeout(timer)
+  }, [])
 
   // Show success banner first (before checking if email is verified)
   if (success) {
@@ -59,11 +82,11 @@ export function VerificationBanner() {
     )
   }
 
-  // Show banner if user's email is not verified
+  // Show banner if user's email is not verified AND 30 seconds have passed
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const isEmailVerified = (session?.user as any)?.emailVerified || session?.user?.image // Google users have image set immediately
   
-  if (!session?.user?.email || isEmailVerified) {
+  if (!showBanner || !session?.user?.email || isEmailVerified) {
     return null
   }
 
@@ -105,7 +128,7 @@ export function VerificationBanner() {
       setCanResend(false)
       setResendCountdown(60) // 60 second countdown
       
-      // Hide success message after 3 seconds
+      // Hide success message after 3 seconds and return to warning banner
       setTimeout(() => {
         setEmailSent(false)
       }, 3000)
@@ -119,8 +142,8 @@ export function VerificationBanner() {
 
   if (success) {
     return (
-      <div className="fixed top-0 left-64 right-0 lg:left-64 z-50 bg-green-50 dark:bg-green-900/20 border-b border-green-200 dark:border-green-800 p-4">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="sticky top-0 inset-x-0 z-50 bg-green-50 dark:bg-green-900/20 border-b border-green-200 dark:border-green-800 p-4 md:left-64">
+        <div className="max-w-full px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-3">
             <svg className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
@@ -138,8 +161,8 @@ export function VerificationBanner() {
 
   if (emailSent) {
     return (
-      <div className="fixed top-0 left-64 right-0 lg:left-64 z-50 bg-green-50 dark:bg-green-900/20 border-b border-green-200 dark:border-green-800 p-4">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="sticky top-0 inset-x-0 z-50 bg-green-50 dark:bg-green-900/20 border-b border-green-200 dark:border-green-800 p-4 md:left-64">
+        <div className="max-w-full px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-3">
             <svg className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
@@ -156,8 +179,8 @@ export function VerificationBanner() {
   }
 
   return (
-    <div className="fixed top-0 left-64 right-0 lg:left-64 z-50 bg-amber-50 dark:bg-amber-900/20 border-b border-amber-200 dark:border-amber-800 p-3">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="sticky top-0 inset-x-0 z-50 bg-amber-50 dark:bg-amber-900/20 border-b border-amber-200 dark:border-amber-800 p-3 md:left-64">
+      <div className="max-w-full px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2 min-w-0">
             <svg className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
