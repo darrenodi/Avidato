@@ -65,7 +65,7 @@ export async function sendVerificationEmail(
               </div>
               <div class="footer">
                 <p>© ${new Date().getFullYear()} Avidato. All rights reserved.</p>
-                <p><a href="${process.env.NEXTAUTH_URL}privacy">Privacy Policy</a> | <a href="${process.env.NEXTAUTH_URL}terms">Terms of Service</a></p>
+                <p><a href="${getBaseUrl()}/privacy">Privacy Policy</a> | <a href="${getBaseUrl()}/terms">Terms of Service</a></p>
               </div>
             </div>
           </div>
