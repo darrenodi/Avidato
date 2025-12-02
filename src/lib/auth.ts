@@ -114,51 +114,29 @@ export const authOptions = {
   callbacks: {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async jwt({ token, user }: { token: any; user: any }) {
-      // When user signs in, add user data to token
+      // When user signs in, add essential user data to token
       if (user) {
         token.id = user.id
         token.username = user.username
-        token.emailVerified = user.emailVerified
-        token.dailyGenerationCount = user.dailyGenerationCount
-        token.dailyLimit = user.dailyLimit
-        token.lastGenerationDate = user.lastGenerationDate
-      } else if (token.email) {
-        // On subsequent calls, refresh user data from database to get updated emailVerified status
-        const dbUser = await prisma.user.findUnique({
-          where: { email: token.email },
-          select: {
-            emailVerified: true,
-            dailyGenerationCount: true,
-            dailyLimit: true,
-            lastGenerationDate: true,
-          }
-        })
-        if (dbUser) {
-          token.emailVerified = dbUser.emailVerified
-          token.dailyGenerationCount = dbUser.dailyGenerationCount
-          token.dailyLimit = dbUser.dailyLimit
-          token.lastGenerationDate = dbUser.lastGenerationDate
-        }
+        // Note: emailVerified is NOT stored in token - fetch from DB when needed (e.g., settings page)
       }
+      
       return token
     },
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async session({ session, token }: { session: any; token: any }) {
-      // Send user data from token to session
+      // Send essential user data from token to session
       if (token && session.user) {
         session.user.id = token.id
         session.user.username = token.username
-        session.user.emailVerified = token.emailVerified
-        session.user.dailyGenerationCount = token.dailyGenerationCount
-        session.user.dailyLimit = token.dailyLimit
-        session.user.lastGenerationDate = token.lastGenerationDate
+        // Note: emailVerified NOT in session - fetch from DB when needed in settings/features
       }
+      
       return session
     },
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async signIn({ user, account, profile, isNewUser }: any): Promise<boolean> {
       if (account?.provider === "google" && profile && user.email) {
-        
         // Prevent account switching by using profile data
         user.email = profile.email
         user.name = profile.name
@@ -186,6 +164,7 @@ export const authOptions = {
           console.error('Failed to auto-verify Google user email:', error)
         }
       }
+      
       return true
     },
     async redirect({ url, baseUrl }: { url: string; baseUrl: string }) {
