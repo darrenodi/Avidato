@@ -552,6 +552,12 @@ export default function StudentProfilePage() {
                             <span className="text-xl sm:text-2xl font-bold text-brand-primary">{student.lessonCount || 0}</span>
                           </div>
                           <div className="flex items-center justify-between">
+                            <span className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">Lessons Taught</span>
+                            <span className="text-xl sm:text-2xl font-bold text-green-600 dark:text-green-400">
+                              {lessons.filter(lesson => lesson.sharedAt !== null).length}
+                            </span>
+                          </div>
+                          <div className="flex items-center justify-between">
                             <span className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">Profile Created</span>
                             <span className="text-xs sm:text-sm text-gray-900 dark:text-white">
                               {new Date(student.createdAt).toLocaleDateString()}
