@@ -16,6 +16,38 @@ export function VerificationBanner() {
   const [resendCountdown, setResendCountdown] = useState(0)
   const [verificationProcessed, setVerificationProcessed] = useState(false)
   const [showBanner, setShowBanner] = useState(false)
+  const [isEmailVerified, setIsEmailVerified] = useState<boolean | null>(null)
+  const [checkingVerification, setCheckingVerification] = useState(false)
+
+  // Check email verification status from database after 30 seconds
+  useEffect(() => {
+    if (!session?.user?.email) return
+
+    const checkVerificationStatus = async () => {
+      try {
+        setCheckingVerification(true)
+        const response = await fetch('/api/auth/check-verification')
+        if (response.ok) {
+          const data = await response.json()
+          setIsEmailVerified(data.emailVerified)
+          setShowBanner(!data.emailVerified) // Only show banner if not verified
+        }
+      } catch (error) {
+        console.error('Error checking verification status:', error)
+        // Default to showing banner if check fails
+        setShowBanner(true)
+      } finally {
+        setCheckingVerification(false)
+      }
+    }
+
+    // Wait 30 seconds after login before checking
+    const timer = setTimeout(() => {
+      checkVerificationStatus()
+    }, 30000) // 30 seconds
+
+    return () => clearTimeout(timer)
+  }, [session?.user?.email])
 
   // Check if user just verified their email via URL param
   useEffect(() => {
@@ -54,14 +86,6 @@ export function VerificationBanner() {
     }
   }, [success])
 
-  // Show banner after 30 seconds (allows background verification check)
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowBanner(true)
-    }, 30000) // 30 seconds
-    return () => clearTimeout(timer)
-  }, [])
-
   // Show success banner first (before checking if email is verified)
   if (success) {
     return (
@@ -82,11 +106,8 @@ export function VerificationBanner() {
     )
   }
 
-  // Show banner if user's email is not verified AND 30 seconds have passed
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const isEmailVerified = (session?.user as any)?.emailVerified || session?.user?.image // Google users have image set immediately
-  
-  if (!showBanner || !session?.user?.email || isEmailVerified) {
+  // Don't show banner if still checking, not ready yet, or email is verified
+  if (checkingVerification || !showBanner || !session?.user?.email || isEmailVerified) {
     return null
   }
 
