@@ -7,6 +7,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import ClientThemeProvider from '@/components/ClientThemeProvider'
 import { Under18LessonDisplay } from '@/lib/lesson-displays/under-18-display'
+import InstantLessonDisplay from '@/components/lesson/InstantLessonDisplay'
 import {
   VocabularyExercise,
   WarmupExercise,
@@ -82,8 +83,11 @@ interface SharedLessonContent {
   grammarTopic?: string
   explanation?: GrammarExplanationBlock
   skills?: string[]
-  vocabulary?: Array<string | { word?: string; term?: string }>
+  vocabulary?: Array<string | { word?: string; term?: string; definition?: string; example?: string; partOfSpeech?: string; phonetics?: string }>
   exercises?: LessonExercise[]
+  homework?: string
+  materials?: string[]
+  teachingNotes?: string
 }
 
 interface SharedLessonData {
@@ -706,6 +710,34 @@ export default function SharedLessonPage() {
             <>
               {lesson.content?.isGrammarLesson ? (
                 <SharedGrammarLesson lesson={lesson} />
+              ) : lesson.content?.lessonType === 'instant' ? (
+                <InstantLessonDisplay lesson={{
+                  title: lesson.content.title || '',
+                  lessonType: lesson.content.lessonType || 'instant',
+                  difficulty: lesson.content.difficulty || 0,
+                  duration: lesson.content.duration || 0,
+                  objective: lesson.content.objective || '',
+                  skills: lesson.content.skills || [],
+                  context: lesson.content.context || '',
+                  vocabulary: (lesson.content.vocabulary?.filter(v => typeof v === 'object') || []) as Array<{
+                    word?: string
+                    term?: string
+                    definition?: string
+                    example?: string
+                    partOfSpeech?: string
+                    phonetics?: string
+                  }>,
+                  exercises: (lesson.content.exercises || []).map(ex => ({
+                    type: ex.type || '',
+                    title: ex.title || '',
+                    description: ex.description || '',
+                    content: ex.content || '',
+                    timeMinutes: ex.timeMinutes || 0
+                  })),
+                  homework: lesson.content.homework,
+                  materials: lesson.content.materials,
+                  teachingNotes: lesson.content.teachingNotes
+                }} />
               ) : lesson.content?.lessonType === 'Under-18' ? (
                 <Under18LessonDisplay
                   lesson={{
