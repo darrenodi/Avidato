@@ -78,7 +78,12 @@ export default function StudentProfilePage() {
   
   // Instant Lesson Generator State
   const [instantGrammarTopic, setInstantGrammarTopic] = useState('')
+  const [instantLessonDescription, setInstantLessonDescription] = useState('')
+  const [instantLessonDuration, setInstantLessonDuration] = useState<25 | 50>(50)
   const [isGeneratingInstantLesson, setIsGeneratingInstantLesson] = useState(false)
+
+  // Check if student is learning English
+  const isEnglishStudent = student?.targetLanguage.toLowerCase() === 'english'
 
   // Helper function to check if a lesson already exists for a topic
   const isLessonGenerated = (topicTitle: string) => {
@@ -451,10 +456,13 @@ export default function StudentProfilePage() {
                     </div>
                   </button>
                   <button
-                    onClick={() => setActiveTab('learning-plan')}
+                    onClick={() => isEnglishStudent && setActiveTab('learning-plan')}
+                    disabled={!isEnglishStudent}
                     className={`py-4 px-1 border-b-2 font-medium text-xs sm:text-sm whitespace-nowrap ${
                       activeTab === 'learning-plan'
                         ? 'border-brand-primary text-brand-primary'
+                        : !isEnglishStudent
+                        ? 'border-transparent text-gray-300 dark:text-gray-600 cursor-not-allowed'
                         : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
                     }`}
                   >
@@ -467,10 +475,13 @@ export default function StudentProfilePage() {
                     </div>
                   </button>
                   <button
-                    onClick={() => setActiveTab('generated-lessons')}
+                    onClick={() => isEnglishStudent && setActiveTab('generated-lessons')}
+                    disabled={!isEnglishStudent}
                     className={`py-4 px-1 border-b-2 font-medium text-xs sm:text-sm whitespace-nowrap ${
                       activeTab === 'generated-lessons'
                         ? 'border-brand-primary text-brand-primary'
+                        : !isEnglishStudent
+                        ? 'border-transparent text-gray-300 dark:text-gray-600 cursor-not-allowed'
                         : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
                     }`}
                   >
@@ -624,6 +635,20 @@ export default function StudentProfilePage() {
 
                 {/* Learning Plan Tab */}
                 {activeTab === 'learning-plan' && (
+                  <>
+                    {!isEnglishStudent ? (
+                      <div className="text-center py-12 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+                        <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        </svg>
+                        <h3 className="mt-2 text-sm font-semibold text-gray-900 dark:text-white">
+                          Feature Coming Soon
+                        </h3>
+                        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400 max-w-md mx-auto">
+                          We are working with professionals to bring this feature to life for {getLanguageLabel(student.targetLanguage)} students. In the meantime, you can use the Instant Lesson tab to generate custom lessons.
+                        </p>
+                      </div>
+                    ) : (
                   <div className="space-y-4 sm:space-y-6">
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                       <div>
@@ -741,10 +766,26 @@ export default function StudentProfilePage() {
                     </div>
                     )}
                   </div>
+                    )}
+                  </>
                 )}
 
                 {/* Generated Lessons Tab */}
                 {activeTab === 'generated-lessons' && (
+                  <>
+                    {!isEnglishStudent ? (
+                      <div className="text-center py-12 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+                        <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        </svg>
+                        <h3 className="mt-2 text-sm font-semibold text-gray-900 dark:text-white">
+                          Feature Coming Soon
+                        </h3>
+                        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400 max-w-md mx-auto">
+                          We are working with professionals to bring this feature to life for {getLanguageLabel(student.targetLanguage)} students. In the meantime, you can use the Instant Lesson tab to generate custom lessons.
+                        </p>
+                      </div>
+                    ) : (
                   <div className="space-y-6">
                     <div className="flex items-center justify-between">
                       <div>
@@ -861,6 +902,8 @@ export default function StudentProfilePage() {
                       </div>
                     )}
                   </div>
+                    )}
+                  </>
                 )}
 
                 {/* Instant Lesson Tab */}
@@ -868,10 +911,10 @@ export default function StudentProfilePage() {
                   <div className="space-y-6">
                     <div>
                       <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                        Generate Instant Grammar Lesson
+                        Generate Instant Lesson
                       </h3>
                       <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
-                        Generate a focused grammar lesson on any topic. The lesson will be customized to {student?.name}&apos;s proficiency level and interests.
+                        Generate a custom {getLanguageLabel(student.targetLanguage)} lesson on any topic. The lesson will be customized to {student?.name}&apos;s proficiency level and interests.
                       </p>
                     </div>
 
@@ -880,18 +923,23 @@ export default function StudentProfilePage() {
                         onSubmit={async (e) => {
                           e.preventDefault()
                           if (!instantGrammarTopic.trim()) {
-                            alert('Please enter a grammar topic')
+                            alert('Please enter a lesson topic')
                             return
                           }
 
                           setIsGeneratingInstantLesson(true)
                           try {
-                            const response = await fetch('/api/lessons/grammar', {
+                            const response = await fetch('/api/lessons/instant', {
                               method: 'POST',
                               headers: { 'Content-Type': 'application/json' },
                               body: JSON.stringify({
                                 studentId,
-                                topic: instantGrammarTopic.trim()
+                                topic: instantGrammarTopic.trim(),
+                                description: instantLessonDescription.trim(),
+                                duration: instantLessonDuration,
+                                targetLanguage: student.targetLanguage,
+                                nativeLanguage: student.nativeLanguage,
+                                level: student.level
                               })
                             })
 
@@ -916,19 +964,52 @@ export default function StudentProfilePage() {
                       >
                         <div>
                           <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
-                            Grammar Topic
+                            Lesson Topic <span className="text-red-500">*</span>
                           </label>
                           <input
                             type="text"
                             value={instantGrammarTopic}
                             onChange={(e) => setInstantGrammarTopic(e.target.value)}
-                            placeholder="e.g., Present Perfect, Reported Speech, Conditional Sentences..."
+                            placeholder="e.g., Present Perfect, Ordering Food, Business Negotiations..."
                             disabled={isGeneratingInstantLesson}
                             className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 disabled:opacity-50"
+                            required
                           />
                           <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-                            Enter any grammar topic you&apos;d like to teach. The lesson will be customized to the student&apos;s level and context.
+                            Enter any topic you&apos;d like to teach. The lesson will be customized to the student&apos;s level and context.
                           </p>
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
+                            Description (Optional)
+                          </label>
+                          <textarea
+                            value={instantLessonDescription}
+                            onChange={(e) => setInstantLessonDescription(e.target.value)}
+                            placeholder="Add more context about what you want to focus on in this lesson..."
+                            disabled={isGeneratingInstantLesson}
+                            rows={3}
+                            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 disabled:opacity-50 resize-none"
+                          />
+                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                            Provide additional details to help customize the lesson content.
+                          </p>
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
+                            Duration <span className="text-red-500">*</span>
+                          </label>
+                          <select
+                            value={instantLessonDuration}
+                            onChange={(e) => setInstantLessonDuration(Number(e.target.value) as 25 | 50)}
+                            disabled={isGeneratingInstantLesson}
+                            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white disabled:opacity-50"
+                          >
+                            <option value={25}>25 minutes</option>
+                            <option value={50}>50 minutes</option>
+                          </select>
                         </div>
 
                         <button
@@ -956,18 +1037,18 @@ export default function StudentProfilePage() {
                     {/* Example Topics */}
                     <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
                       <h4 className="text-sm font-semibold text-blue-900 dark:text-blue-100 mb-2">
-                        Example Topics:
+                        Example Topics for {getLanguageLabel(student.targetLanguage)}:
                       </h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                         <ul className="text-sm text-blue-800 dark:text-blue-200 space-y-1">
-                          <li>• Present Perfect Tense</li>
-                          <li>• Reported Speech</li>
-                          <li>• Conditional Sentences</li>
+                          <li>• Grammar: Present Perfect, Conditionals</li>
+                          <li>• Conversation: Ordering Food, Job Interviews</li>
+                          <li>• Business: Negotiations, Presentations</li>
                         </ul>
                         <ul className="text-sm text-blue-800 dark:text-blue-200 space-y-1">
-                          <li>• Passive Voice</li>
-                          <li>• Phrasal Verbs</li>
-                          <li>• Word Order</li>
+                          <li>• Travel: At the Airport, Booking Hotels</li>
+                          <li>• Academic: Writing Essays, Discussions</li>
+                          <li>• Daily Life: Shopping, Making Appointments</li>
                         </ul>
                       </div>
                     </div>

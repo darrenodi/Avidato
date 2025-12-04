@@ -8,6 +8,7 @@ import DashboardLayout from '@/components/layout/DashboardLayout'
 import { shareLesson } from '@/app/actions/ai-generation'
 import { Under18LessonDisplay } from '@/lib/lesson-displays'
 import GrammarLessonDisplay from '@/components/lesson/GrammarLessonDisplay'
+import InstantLessonDisplay from '@/components/lesson/InstantLessonDisplay'
 import { 
   VocabularyExercise, 
   WarmupExercise, 
@@ -450,6 +451,26 @@ export default function LessonPage() {
 
             {/* Lesson Content */}
             {!loading && !error && lesson && (
+          <>
+            {/* Check if it's an instant lesson and use dedicated renderer */}
+            {lesson.content?.lessonType === 'instant' ? (
+              <div className="space-y-4 sm:space-y-6">
+                {/* Header with Back Button */}
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 sm:mb-8">
+                  <Link
+                    href={`/dashboard/students/${lesson.student.id}`}
+                    className="inline-flex items-center text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 text-sm sm:text-base"
+                  >
+                    <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                    </svg>
+                    Back to {lesson.student.name}
+                  </Link>
+                </div>
+
+                <InstantLessonDisplay lesson={lesson.content} />
+              </div>
+            ) : (
           <div className="space-y-4 sm:space-y-6">
             {/* Header with Back Button */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 sm:mb-8">
@@ -619,6 +640,8 @@ export default function LessonPage() {
               </div>
             )}
           </div>
+            )}
+          </>
         )}
 
         {/* No Lesson Found */}
