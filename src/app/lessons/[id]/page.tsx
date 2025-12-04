@@ -468,7 +468,17 @@ export default function LessonPage() {
                   </Link>
                 </div>
 
-                <InstantLessonDisplay lesson={lesson.content} />
+                <InstantLessonDisplay lesson={{
+                  ...lesson.content,
+                  vocabulary: (lesson.content.vocabulary?.filter(v => typeof v === 'object') || []) as Array<{
+                    word?: string
+                    term?: string
+                    definition?: string
+                    example?: string
+                    partOfSpeech?: string
+                    phonetics?: string
+                  }>
+                }} />
               </div>
             ) : (
           <div className="space-y-4 sm:space-y-6">
