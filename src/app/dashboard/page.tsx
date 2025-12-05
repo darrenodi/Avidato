@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import DashboardLayout from '@/components/layout/DashboardLayout'
+import NotificationCenter from '@/components/NotificationCenter'
 import { getDashboardStats } from '../actions/dashboard'
 import { getGenerationStats } from '../actions/ai-generation'
 
@@ -148,20 +149,24 @@ export default function DashboardPage() {
               </p>
             </div>
             
-            {/* Quick Add Button - Hidden on mobile, shown on larger screens */}
-            <Link
-              href="/dashboard/students/add"
-              className="hidden sm:flex items-center gap-2 bg-brand-primary text-white px-4 py-2 rounded-lg hover:bg-brand-accent transition-colors whitespace-nowrap"
-            >
-              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-              </svg>
-              Add Student
-            </Link>
+            {/* Notification Center + Quick Add Button - Hidden on mobile, shown on larger screens */}
+            <div className="hidden sm:flex items-center gap-3">
+              <NotificationCenter />
+              <Link
+                href="/dashboard/students/add"
+                className="flex items-center gap-2 bg-brand-primary text-white px-4 py-2 rounded-lg hover:bg-brand-accent transition-colors whitespace-nowrap"
+              >
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+                Add Student
+              </Link>
+            </div>
           </div>
           
-          {/* Mobile Quick Add Button */}
-          <div className="mt-4 sm:hidden">
+          {/* Mobile Quick Add Button + Notification */}
+          <div className="mt-4 sm:hidden space-y-3">
+            <NotificationCenter />
             <Link
               href="/dashboard/students/add"
               className="flex items-center justify-center gap-2 w-full bg-brand-primary text-white px-4 py-3 rounded-lg hover:bg-brand-accent transition-colors"
