@@ -12,9 +12,9 @@ const PublicNavbar: React.FC = () => {
   const toggleMenu = () => setIsMenuOpen((prev) => !prev);
 
   const links = [
-    { href: "/#features", label: "Features" },
+    { href: "/features", label: "Features" },
     { href: "/#pedagogy", label: "Pedagogy" },
-    { href: "/#pricing", label: "Pricing" },
+    { href: "/pricing", label: "Pricing" },
     { href: "/#faq", label: "FAQ" },
   ];
 
