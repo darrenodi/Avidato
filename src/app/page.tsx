@@ -26,10 +26,10 @@ import AddIcon from '@/components/icons/AddIcon';
 // --- Page-Specific Data ---
 // It's good practice to keep data separate from the component logic.
 const features = [
-  { icon: <AutoAwesomeIcon className="h-8 w-8 text-brand-primary" />, title: "AI Course Outlines", description: "Instantly generate a 10-lesson course outline based on your student's proficiency level and learning goals." },
-  { icon: <FactCheckIcon className="h-8 w-8 text-brand-secondary" />, title: "Detailed Lesson Plans", description: "Go from outline to a complete, structured lesson plan with warm-ups, activities, and vocabulary in a single click." },
-  { icon: <ManageAccountsIcon className="h-8 w-8 text-brand-accent" />, title: "Simple Student Hub", description: "Keep all your student notes, progress, and generated lesson plans organized in one central dashboard." },
-  { icon: <ShareIcon className="h-8 w-8 text-brand-dark" />, title: "Shareable Links", description: "Send a read-only link of the lesson plan to your student. No login required for them to view the materials." },
+  { icon: <AutoAwesomeIcon className="h-8 w-8 text-brand-primary" />, title: "AI Course Outlines", imageName: "ai-course-outlines-screenshot.png", description: "Instantly generate a 10-lesson course outline based on your student's proficiency level and learning goals." },
+  { icon: <FactCheckIcon className="h-8 w-8 text-brand-secondary" />, title: "Detailed Lesson Plans", imageName: "detailed-lesson-plans-screenshot.png", description: "Go from outline to a complete, structured lesson plan with warm-ups, activities, and vocabulary in a single click." },
+  { icon: <ManageAccountsIcon className="h-8 w-8 text-brand-accent" />, title: "Simple Student Hub", imageName: "simple-student-hub-screenshot.png", description: "Keep all your student notes, progress, and generated lesson plans organized in one central dashboard." },
+  { icon: <ShareIcon className="h-8 w-8 text-brand-dark" />, title: "Shareable Links", imageName: "shareable-links-screenshot.png", description: "Send a read-only link of the lesson plan to your student. No login required for them to view the materials." },
 ];
 
 const methodologies = [
@@ -186,38 +186,42 @@ const LandingPage: React.FC = () => {
           </div>
         </section>
 
-        {/* === PRICING SECTION === */}
-        <section id="pricing" className="py-20 md:py-28 bg-gray-50">
+        {/* === DASHBOARD SHOWCASE SECTION === */}
+        <section className="py-20 md:py-28 bg-white overflow-hidden">
           <div className="container mx-auto px-4">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-gray-900">Choose the Plan That's Right for You</h2>
-              <p className="mt-4 max-w-2xl mx-auto text-lg text-gray-600">Join for free. Upgrade for unlimited power.</p>
-            </div>
-            <div className="flex justify-center mb-10">
-              <div className="inline-flex rounded-full bg-gray-200 p-1">
-                <button onClick={() => setPricingTier('monthly')} className={`px-4 py-1.5 text-sm font-semibold rounded-full transition-colors ${pricingTier === 'monthly' ? 'bg-white text-gray-800 shadow' : 'text-gray-500'}`}>Monthly</button>
-                <button onClick={() => setPricingTier('annual')} className={`px-4 py-1.5 text-sm font-semibold rounded-full transition-colors ${pricingTier === 'annual' ? 'bg-white text-gray-800 shadow' : 'text-gray-500'}`}>Annual (Save 20%)</button>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+              <div className="text-center lg:text-left">
+                <p className="text-sm font-semibold text-brand-primary uppercase tracking-wider">Your Dashboard Command Center</p>
+                <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-gray-900 mt-2 mb-6">Organize, Manage & Track Everything in One Place</h2>
+                <p className="text-lg text-gray-600 mb-8">
+                  From student profiles to lesson history, analytics, and student progress - everything you need to manage your teaching is organized in an intuitive dashboard. Stay organized while you focus on what matters most: your students' success.
+                </p>
+                <ul className="space-y-4 mb-8">
+                  <li className="flex items-start">
+                    <CheckCircleIcon className="w-6 h-6 text-brand-primary mr-3 mt-0.5 flex-shrink-0" />
+                    <span className="text-gray-700">Student portfolio with proficiency tracking</span>
+                  </li>
+                  <li className="flex items-start">
+                    <CheckCircleIcon className="w-6 h-6 text-brand-primary mr-3 mt-0.5 flex-shrink-0" />
+                    <span className="text-gray-700">Complete lesson generation history</span>
+                  </li>
+                  <li className="flex items-start">
+                    <CheckCircleIcon className="w-6 h-6 text-brand-primary mr-3 mt-0.5 flex-shrink-0" />
+                    <span className="text-gray-700">Real-time usage analytics & insights</span>
+                  </li>
+                  <li className="flex items-start">
+                    <CheckCircleIcon className="w-6 h-6 text-brand-primary mr-3 mt-0.5 flex-shrink-0" />
+                    <span className="text-gray-700">Quick access to all your teaching materials</span>
+                  </li>
+                </ul>
+                <Link href="/pricing" className="inline-flex items-center justify-center px-8 py-3 text-lg font-semibold text-white bg-brand-primary rounded-full hover:bg-brand-accent transition-colors">
+                  View Pricing Plans
+                  <ArrowForwardIcon className="w-5 h-5 ml-2" />
+                </Link>
               </div>
-            </div>
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
-              {pricingPlans.map((plan, index) => {
-                const isHighlighted = hoveredCardIndex === index;
-                return (
-                  <div key={plan.title} onMouseEnter={() => setHoveredCardIndex(index)} onMouseLeave={() => setHoveredCardIndex(1)} className={`p-8 rounded-xl flex flex-col h-full relative transition-all duration-300 ${isHighlighted ? 'bg-gradient-to-br from-brand-primary to-brand-accent text-white shadow-2xl transform scale-105' : 'bg-white text-gray-900 border border-gray-200'}`}>
-                    {plan.isPopular && isHighlighted && (<div className="absolute top-0 -translate-y-1/2 left-1/2 -translate-x-1/2 bg-white text-brand-primary px-3 py-1 rounded-full text-sm font-semibold shadow-md">Most Popular</div>)}
-                    <h3 className="text-xl font-bold">{plan.title}</h3>
-                    <p className={`mt-2 min-h-[48px] ${isHighlighted ? 'opacity-90' : 'text-gray-500'}`}>{plan.description}</p>
-                    <div className="mt-6 text-4xl font-extrabold">${pricingTier === 'monthly' ? plan.price.monthly : plan.price.annual}{plan.price.monthly > 0 && <span className={`text-lg font-normal ${isHighlighted ? 'opacity-70' : 'text-gray-500'}`}> / month</span>}</div>
-                    <div className="flex-grow" />
-                    <Link href="/signup" className={`block w-full text-center mt-8 py-2.5 rounded-md font-semibold transition-colors ${isHighlighted ? 'bg-white text-brand-primary hover:bg-gray-100' : 'border border-brand-primary text-brand-primary hover:bg-brand-primary/5'}`}>{plan.buttonText}</Link>
-                    <ul className="mt-8 space-y-4 text-left text-sm">
-                      {plan.features.map((feature, fIndex) => (<li key={fIndex} className="flex items-start">
-                        <CheckCircleIcon className={`w-5 h-5 mr-3 mt-0.5 flex-shrink-0 ${isHighlighted ? 'text-white' : 'text-brand-secondary'}`} />
-                        <span dangerouslySetInnerHTML={{ __html: feature }} />
-                      </li>))}
-                    </ul>
-                  </div>);
-              })}
+              <div className="w-full rounded-2xl shadow-2xl overflow-hidden border border-gray-200">
+                <div style={{ backgroundImage: `url(/images/dashboard.png)` }} className="w-full h-96 lg:h-[500px] bg-cover bg-center" />
+              </div>
             </div>
           </div>
         </section>
