@@ -256,7 +256,7 @@ export default function FeaturesPage() {
                 <CheckCircleIcon className="w-8 h-8 text-green-500 flex-shrink-0 mt-1" />
                 <div>
                   <h3 className="text-xl font-bold text-gray-900 mb-2">Personalized Lessons</h3>
-                  <p className="text-gray-600">Every lesson is tailored to your student's proficiency level and learning goals.</p>
+                  <p className="text-gray-600">Every lesson is tailored to your student&apos;s proficiency level and learning goals.</p>
                 </div>
               </div>
               <div className="flex gap-4">

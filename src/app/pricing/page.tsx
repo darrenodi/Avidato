@@ -88,7 +88,7 @@ const faqData = [
   },
   {
     question: 'Can I upgrade or downgrade my plan anytime?',
-    answer: "Absolutely! You can change your plan at any time. If you upgrade, you'll be charged the prorated difference. If you downgrade, you'll receive a credit toward your next billing cycle.",
+    answer: "Absolutely! You can change your plan at any time. If you upgrade, you&apos;ll be charged the prorated difference. If you downgrade, you&apos;ll receive a credit toward your next billing cycle.",
   },
   {
     question: 'What if I need more than 3 tutors on the Premium plan?',
@@ -311,7 +311,7 @@ export default function PricingPage() {
               Your questions, answered
             </h2>
             <p className="text-center text-gray-600 mb-12">
-              Have a question? We're here to help. Check out our most frequently asked questions below.
+              Have a question? We&apos;re here to help. Check out our most frequently asked questions below.
             </p>
 
             <div className="space-y-4">
