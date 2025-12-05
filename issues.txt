@@ -1,0 +1,24 @@
+TITLE: Build Admin Panel for Managing Notifications
+BODY: Create an admin dashboard that allows administrators to:
+- Send notifications to specific users or all tutors
+- Manage notification types and templates
+- View notification history and delivery status
+- Create announcements about new features and system updates
+
+This will be integrated with the NotificationCenter component to display sent notifications to users.
+
+LABELS: enhancement, admin
+
+---
+
+TITLE: Create Public Status Page
+BODY: Build a public status page that displays:
+- System uptime and health status
+- Ongoing maintenance windows
+- Feature announcements and updates
+- Recent system incidents and resolutions
+- API status
+
+The status page should be accessible to all users and updated in real-time with current system status.
+
+LABELS: enhancement, infrastructure
