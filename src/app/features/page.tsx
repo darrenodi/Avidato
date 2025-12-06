@@ -161,7 +161,7 @@ export default function FeaturesPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
               {/* Ordering Food Video */}
               <div className="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-lg transition-shadow">
-                <div className="h-64 bg-gray-900 flex items-center justify-center">
+                <div className="h-64 bg-gray-900 relative">
                   <iframe 
                     src="https://drive.google.com/file/d/1HVpKvnmciGuY75wdwWDXidsNlABymtXE/preview"
                     width="100%"
@@ -178,7 +178,7 @@ export default function FeaturesPage() {
 
               {/* Adding Students Video */}
               <div className="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-lg transition-shadow">
-                <div className="h-64 bg-gray-900 flex items-center justify-center">
+                <div className="h-64 bg-gray-900 relative">
                   <iframe 
                     src="https://drive.google.com/file/d/1ZN96L68QRZ-9CizlkyPMn0lnCarZFGvK/preview"
                     width="100%"
