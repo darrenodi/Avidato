@@ -77,14 +77,26 @@ class GeminiService {
     };
   }
 
-  // Generate learning plan (10 topics)
+  // Generate learning plan (30 topics in 3 batches of 10)
   async generateLearningPlan(student: StudentProfile): Promise<LearningPlan> {
     const { methodology, reasoning } = this.selectMethodology(student);
     const { roles, examples } = getSuggestedRolesAndScenarios(student.occupation);
     const rolesList = roles.join(', ');
     const exampleList = examples.join('; ');
     
-  const prompt = `Generate a 10-lesson learning plan for a ${student.level} ${student.targetLanguage} student.
+    const allTopics: LearningTopic[] = [];
+    
+    // Generate 3 batches of 10 lessons each
+    for (let batch = 0; batch < 3; batch++) {
+      const startLessonNumber = batch * 10 + 1;
+      const endLessonNumber = (batch + 1) * 10;
+      
+      // Build context of previously generated topics
+      const previousTopicsContext = allTopics.length > 0 
+        ? `\n\nPREVIOUSLY GENERATED TOPICS (do NOT repeat these):\n${allTopics.map(t => `${t.lessonNumber}. ${t.title}`).join('\n')}`
+        : '';
+      
+      const prompt = `Generate lessons ${startLessonNumber}-${endLessonNumber} of a 30-lesson learning plan for a ${student.level} ${student.targetLanguage} student.
 
 STUDENT PROFILE:
 - Name: ${student.name}
@@ -99,9 +111,10 @@ STUDENT PROFILE:
 
 SELECTED METHODOLOGY: ${methodology}
 ${reasoning}
+${previousTopicsContext}
 
 REQUIREMENTS:
-1. Create exactly 10 learning topics
+1. Create exactly 10 learning topics numbered ${startLessonNumber} to ${endLessonNumber}
 2. Each topic should be relevant to the student's goals and context and MUST be a concrete, real interaction (meeting/call/review/briefing) aligned with the student's occupation and goals — NOT abstract skills
   - Roles should reflect the student's world. Suggested roles: ${rolesList}
   - Scenario examples (adapt as appropriate): ${exampleList}
@@ -126,7 +139,7 @@ FORMAT YOUR RESPONSE AS VALID JSON ONLY (no markdown, no explanations):
 {
   "topics": [
     {
-      "lessonNumber": 1,
+      "lessonNumber": ${startLessonNumber},
       "title": "Topic title",
       "objective": "What the student will learn/achieve",
       "vocabulary": ["word1", "word2", "phrase1"],
@@ -140,93 +153,131 @@ FORMAT YOUR RESPONSE AS VALID JSON ONLY (no markdown, no explanations):
 
 IMPORTANT: Return ONLY the JSON object. No additional text, markdown formatting, or explanations.`;
 
-    try {
-      const { rawText: text } = await generateWithFailover({
-        prompt,
-        generationConfig: {
-          temperature: 0.1,
-          topK: 40,
-          topP: 0.95,
-          maxOutputTokens: 8192,
-        },
-      });
-      
-      // Extract JSON - more robust parsing for gemini-2.5-flash
-      const startIdx = text.indexOf('{');
-      const lastIdx = text.lastIndexOf('}');
-      
-      if (startIdx === -1 || lastIdx === -1 || startIdx >= lastIdx) {
-        console.error('No JSON found in response:', text.substring(0, 200));
-        throw new Error('No valid JSON found in AI response');
-      }
-      
-      const jsonStr = text.substring(startIdx, lastIdx + 1);
-      
-      // Carefully clean the JSON
-      let cleanedJson = jsonStr
-        .replace(/\r\n/g, '\n') // Normalize line endings
-        .replace(/\n/g, ' ') // Replace newlines with space
-        .replace(/\t/g, ' ') // Replace tabs with space
-        .replace(/  +/g, ' ') // Collapse multiple spaces
-        .replace(/,\s*]/g, ']') // Remove trailing commas in arrays
-        .replace(/,\s*}/g, '}'); // Remove trailing commas in objects
-      
-      // Try parsing
-      let parsedResponse;
       try {
-        parsedResponse = JSON.parse(cleanedJson);
-      } catch (firstError) {
-        // Log the problematic JSON segment around error position
-        const syntaxError = firstError as SyntaxError;
-        const positionMatch = syntaxError.message.match(/position (\d+)/);
-        const errorPos = positionMatch ? parseInt(positionMatch[1]) : -1;
+        const { rawText: text } = await generateWithFailover({
+          prompt,
+          generationConfig: {
+            temperature: 0.1,
+            topK: 40,
+            topP: 0.95,
+            maxOutputTokens: 8192,
+          },
+        });
         
-        if (errorPos > 0) {
-          const start = Math.max(0, errorPos - 100);
-          const end = Math.min(cleanedJson.length, errorPos + 100);
-          console.error(
-            `JSON syntax error at position ${errorPos}:`,
-            cleanedJson.substring(start, end)
-          );
-        }
-
-        // Try more aggressive cleanup
-        cleanedJson = cleanedJson
-          .replace(/[\x00-\x1F\x7F]/g, ' ') // Replace control chars with spaces
-          .replace(/\\+n/g, ' ') // Fix double-escaped newlines
-          .replace(/\\+r/g, '') // Remove escaped carriage returns
-          .replace(/\\+t/g, ' ') // Fix escaped tabs
-          .replace(/  +/g, ' '); // Collapse multiple spaces again
-
-        // Fix unescaped quotes within string values
-        const parts = cleanedJson.split('"');
-        for (let i = 1; i < parts.length; i += 2) {
-          // Odd indices are content within quotes - escape any unescaped quotes
-          parts[i] = parts[i].replace(/\\"/g, '\\"').replace(/"/g, '\\"');
-        }
-        cleanedJson = parts.join('"');
-
-        // Fix common JSON structural issues
-        cleanedJson = cleanedJson
-          .replace(/}\s+{/g, '},{') // Fix missing commas between objects
-          .replace(/]\s+{/g, '],[') // Fix missing commas between array and object
-          .replace(/}\s+\[/g, '},[') // Fix missing commas between object and array
-          .replace(/]\s+[{[\d"]/g, (match) => '],' + match.slice(1)) // Fix missing commas after arrays
-          .replace(/}\s+[{[\d"]/g, (match) => '},' + match.slice(1)); // Fix missing commas after objects
+        // Extract JSON - more robust parsing for gemini-2.5-flash
+        const startIdx = text.indexOf('{');
+        const lastIdx = text.lastIndexOf('}');
         
-        console.error('JSON parse error:', syntaxError.message);
-        parsedResponse = JSON.parse(cleanedJson);
+        if (startIdx === -1 || lastIdx === -1 || startIdx >= lastIdx) {
+          console.error('No JSON found in response:', text.substring(0, 200));
+          throw new Error('No valid JSON found in AI response');
+        }
+        
+        const jsonStr = text.substring(startIdx, lastIdx + 1);
+        
+        // Carefully clean the JSON
+        let cleanedJson = jsonStr
+          .replace(/\r\n/g, '\n') // Normalize line endings
+          .replace(/\n/g, ' ') // Replace newlines with space
+          .replace(/\t/g, ' ') // Replace tabs with space
+          .replace(/  +/g, ' ') // Collapse multiple spaces
+          .replace(/,\s*]/g, ']') // Remove trailing commas in arrays
+          .replace(/,\s*}/g, '}'); // Remove trailing commas in objects
+        
+        // Try parsing
+        let parsedResponse;
+        try {
+          parsedResponse = JSON.parse(cleanedJson);
+        } catch (firstError) {
+          // Log the problematic JSON segment around error position
+          const syntaxError = firstError as SyntaxError;
+          const positionMatch = syntaxError.message.match(/position (\d+)/);
+          const errorPos = positionMatch ? parseInt(positionMatch[1]) : -1;
+          
+          if (errorPos > 0) {
+            const start = Math.max(0, errorPos - 100);
+            const end = Math.min(cleanedJson.length, errorPos + 100);
+            console.error(
+              `JSON syntax error at position ${errorPos}:`,
+              cleanedJson.substring(start, end)
+            );
+          }
+
+          // Try more aggressive cleanup
+          cleanedJson = cleanedJson
+            .replace(/[\x00-\x1F\x7F]/g, ' ') // Replace control chars with spaces
+            .replace(/\\+n/g, ' ') // Fix double-escaped newlines
+            .replace(/\\+r/g, '') // Remove escaped carriage returns
+            .replace(/\\+t/g, ' ') // Fix escaped tabs
+            .replace(/  +/g, ' '); // Collapse multiple spaces again
+
+          // Fix unescaped quotes within string values - more robust approach
+          let fixedJson = '';
+          let inString = false;
+          let escapeNext = false;
+          
+          for (let i = 0; i < cleanedJson.length; i++) {
+            const char = cleanedJson[i];
+            
+            if (escapeNext) {
+              fixedJson += char;
+              escapeNext = false;
+              continue;
+            }
+            
+            if (char === '\\') {
+              fixedJson += char;
+              escapeNext = true;
+              continue;
+            }
+            
+            if (char === '"') {
+              inString = !inString;
+              fixedJson += char;
+              continue;
+            }
+            
+            // If we encounter an unescaped quote inside a string, escape it
+            if (inString && char === '"') {
+              fixedJson += '\\"';
+              continue;
+            }
+            
+            fixedJson += char;
+          }
+          
+          cleanedJson = fixedJson;
+
+          // Fix common JSON structural issues
+          cleanedJson = cleanedJson
+            .replace(/}\s*{/g, '},{') // Fix missing commas between objects
+            .replace(/]\s*{/g, '},{') // Fix missing commas between array and object
+            .replace(/}\s*\[/g, ',[') // Fix missing commas between object and array
+            .replace(/]\s*\[/g, '],[') // Fix missing commas between arrays
+            .replace(/}\s*\]/g, '}') // Remove spurious separators before ]
+            .replace(/,\s*]/g, ']') // Remove trailing commas in arrays
+            .replace(/,\s*}/g, '}'); // Remove trailing commas in objects
+          
+          console.error('JSON parse error:', syntaxError.message);
+          parsedResponse = JSON.parse(cleanedJson);
+        }
+        
+        // Add this batch's topics to the collection
+        if (parsedResponse.topics && Array.isArray(parsedResponse.topics)) {
+          allTopics.push(...parsedResponse.topics);
+        }
+        
+      } catch (error) {
+        console.error(`Error generating batch ${batch + 1}:`, error);
+        throw new Error(`Failed to generate lessons ${startLessonNumber}-${endLessonNumber}. Please try again.`);
       }
-      
-      return {
-        selectedMethodology: methodology,
-        methodologyReasoning: reasoning,
-        topics: parsedResponse.topics
-      };
-    } catch (error) {
-      console.error('Error generating learning plan:', error);
-      throw new Error('Failed to generate learning plan. Please try again.');
     }
+    
+    return {
+      selectedMethodology: methodology,
+      methodologyReasoning: reasoning,
+      topics: allTopics
+    };
   }
 
   // Generate individual lesson

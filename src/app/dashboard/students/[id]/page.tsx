@@ -658,7 +658,7 @@ export default function StudentProfilePage() {
                         <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">
                           {currentLearningPlan 
                             ? `AI-generated using ${currentLearningPlan.selectedMethodology} methodology`
-                            : `10 topics tailored to ${student.name}'s goals and level`
+                            : `30 topics tailored to ${student.name}'s goals and level`
                           }
                         </p>
                         {currentLearningPlan && (
@@ -711,58 +711,196 @@ export default function StudentProfilePage() {
                     )}
 
                     {learningTopics.length > 0 && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {learningTopics.map((topic, index) => {
-                        const isGenerated = isLessonGenerated(topic.title)
-                        const generatedLesson = lessons.find(l => l.title.toLowerCase().includes(topic.title.toLowerCase()))
-                        const isTaught = generatedLesson?.sharedAt
-                        const borderColor = !isGenerated ? 'border-gray-200 dark:border-gray-600' : isTaught ? 'border-green-400 dark:border-green-600' : 'border-purple-400 dark:border-purple-600'
-                        const circleColor = !isGenerated ? 'bg-brand-primary text-white' : isTaught ? 'bg-green-500 text-white' : 'bg-purple-500 text-white'
-                        const textColor = !isGenerated ? 'text-gray-900 dark:text-white' : isTaught ? 'text-green-700 dark:text-green-400' : 'text-purple-700 dark:text-purple-400'
-                        const descColor = !isGenerated ? 'text-gray-600 dark:text-gray-300' : isTaught ? 'text-green-600 dark:text-green-300' : 'text-purple-600 dark:text-purple-300'
-                        return (
-                          <div key={topic.id} className={`bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border ${borderColor}`}>
-                            <div className="flex items-start justify-between mb-3">
-                              <div className="flex items-center space-x-3">
-                                <span className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${circleColor}`}>{isGenerated ? (isTaught ? '✓' : '⚡') : index + 1}</span>
-                                <div>
-                                  <h4 className={`font-medium ${textColor}`}>{topic.title}</h4>
-                                  <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getDifficultyColor(topic.difficulty)}`}>{topic.difficulty}</span>
+                    <div className="space-y-6">
+                      {/* Phase 1: Lessons 1-10 */}
+                      <div className="border border-blue-200 dark:border-blue-800 rounded-lg overflow-hidden">
+                        <div className="bg-blue-100 dark:bg-blue-900/30 px-4 py-3">
+                          <h4 className="font-semibold text-blue-900 dark:text-blue-100">
+                            Phase 1: Foundations (Lessons 1-10)
+                          </h4>
+                          <p className="text-sm text-blue-700 dark:text-blue-300">Build fundamental skills and confidence</p>
+                        </div>
+                        <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {learningTopics.slice(0, 10).map((topic, index) => {
+                            const isGenerated = isLessonGenerated(topic.title)
+                            const generatedLesson = lessons.find(l => l.title.toLowerCase().includes(topic.title.toLowerCase()))
+                            const isTaught = generatedLesson?.sharedAt
+                            const borderColor = !isGenerated ? 'border-gray-200 dark:border-gray-600' : isTaught ? 'border-green-400 dark:border-green-600' : 'border-purple-400 dark:border-purple-600'
+                            const circleColor = !isGenerated ? 'bg-brand-primary text-white' : isTaught ? 'bg-green-500 text-white' : 'bg-purple-500 text-white'
+                            const textColor = !isGenerated ? 'text-gray-900 dark:text-white' : isTaught ? 'text-green-700 dark:text-green-400' : 'text-purple-700 dark:text-purple-400'
+                            const descColor = !isGenerated ? 'text-gray-600 dark:text-gray-300' : isTaught ? 'text-green-600 dark:text-green-300' : 'text-purple-600 dark:text-purple-300'
+                            return (
+                              <div key={topic.id} className={`bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border ${borderColor}`}>
+                                <div className="flex items-start justify-between mb-3">
+                                  <div className="flex items-center space-x-3">
+                                    <span className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${circleColor}`}>{isGenerated ? (isTaught ? '✓' : '⚡') : index + 1}</span>
+                                    <div>
+                                      <h4 className={`font-medium ${textColor}`}>{topic.title}</h4>
+                                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getDifficultyColor(topic.difficulty)}`}>{topic.difficulty}</span>
+                                    </div>
+                                  </div>
                                 </div>
+                                <p className={`text-sm mb-3 ${descColor}`}>{topic.description}</p>
+                                <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 mb-2">
+                                  <span>{topic.estimatedLessons} lesson{topic.estimatedLessons !== 1 ? 's' : ''}</span>
+                                  <div className="flex space-x-1">
+                                    {topic.skills.map((skill) => (
+                                      <span key={skill} className="bg-gray-200 dark:bg-gray-600 px-2 py-1 rounded">{skill}</span>
+                                    ))}
+                                  </div>
+                                </div>
+                                {!isGenerated ? (
+                                  <button
+                                    onClick={async () => {
+                                      setSelectedTopic(topic.id);
+                                      await handleGenerateLesson();
+                                    }}
+                                    disabled={isGeneratingLesson || generationStats.remaining <= 0}
+                                    className="w-full mt-2 bg-brand-primary text-white px-4 py-2 rounded-lg hover:bg-brand-accent transition-colors text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                                  >
+                                    {isGeneratingLesson ? 'Generating...' : 'Generate Lesson'}
+                                  </button>
+                                ) : (
+                                  <Link
+                                    href={`/lessons/${generatedLesson?.id}`}
+                                    className={`w-full mt-2 px-4 py-2 rounded-lg text-white transition-colors text-sm font-medium flex items-center justify-center ${isTaught ? 'bg-green-500 hover:bg-green-600' : 'bg-purple-500 hover:bg-purple-600'}`}
+                                  >
+                                    View Lesson
+                                  </Link>
+                                )}
                               </div>
-                            </div>
-                            <p className={`text-sm mb-3 ${descColor}`}>{topic.description}</p>
-                            <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 mb-2">
-                              <span>{topic.estimatedLessons} lesson{topic.estimatedLessons !== 1 ? 's' : ''}</span>
-                              <div className="flex space-x-1">
-                                {topic.skills.map((skill) => (
-                                  <span key={skill} className="bg-gray-200 dark:bg-gray-600 px-2 py-1 rounded">{skill}</span>
-                                ))}
-                              </div>
-                            </div>
-                            {/* Generate/View Button */}
-                            {!isGenerated ? (
-                              <button
-                                onClick={async () => {
-                                  setSelectedTopic(topic.id);
-                                  await handleGenerateLesson();
-                                }}
-                                disabled={isGeneratingLesson || generationStats.remaining <= 0}
-                                className="w-full mt-2 bg-brand-primary text-white px-4 py-2 rounded-lg hover:bg-brand-accent transition-colors text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
-                              >
-                                {isGeneratingLesson ? 'Generating...' : 'Generate Lesson'}
-                              </button>
-                            ) : (
-                              <Link
-                                href={`/lessons/${generatedLesson?.id}`}
-                                className={`w-full mt-2 px-4 py-2 rounded-lg text-white transition-colors text-sm font-medium flex items-center justify-center ${isTaught ? 'bg-green-500 hover:bg-green-600' : 'bg-purple-500 hover:bg-purple-600'}`}
-                              >
-                                View Lesson
-                              </Link>
-                            )}
+                            )
+                          })}
+                        </div>
+                      </div>
+
+                      {/* Phase 2: Lessons 11-20 */}
+                      {learningTopics.length > 10 && (
+                        <div className="border border-purple-200 dark:border-purple-800 rounded-lg overflow-hidden">
+                          <div className="bg-purple-100 dark:bg-purple-900/30 px-4 py-3">
+                            <h4 className="font-semibold text-purple-900 dark:text-purple-100">
+                              Phase 2: Intermediate Exploration (Lessons 11-20)
+                            </h4>
+                            <p className="text-sm text-purple-700 dark:text-purple-300">Expand vocabulary and communication complexity</p>
                           </div>
-                        )
-                      })}
+                          <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {learningTopics.slice(10, 20).map((topic, index) => {
+                              const isGenerated = isLessonGenerated(topic.title)
+                              const generatedLesson = lessons.find(l => l.title.toLowerCase().includes(topic.title.toLowerCase()))
+                              const isTaught = generatedLesson?.sharedAt
+                              const borderColor = !isGenerated ? 'border-gray-200 dark:border-gray-600' : isTaught ? 'border-green-400 dark:border-green-600' : 'border-purple-400 dark:border-purple-600'
+                              const circleColor = !isGenerated ? 'bg-brand-primary text-white' : isTaught ? 'bg-green-500 text-white' : 'bg-purple-500 text-white'
+                              const textColor = !isGenerated ? 'text-gray-900 dark:text-white' : isTaught ? 'text-green-700 dark:text-green-400' : 'text-purple-700 dark:text-purple-400'
+                              const descColor = !isGenerated ? 'text-gray-600 dark:text-gray-300' : isTaught ? 'text-green-600 dark:text-green-300' : 'text-purple-600 dark:text-purple-300'
+                              return (
+                                <div key={topic.id} className={`bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border ${borderColor}`}>
+                                  <div className="flex items-start justify-between mb-3">
+                                    <div className="flex items-center space-x-3">
+                                      <span className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${circleColor}`}>{isGenerated ? (isTaught ? '✓' : '⚡') : index + 11}</span>
+                                      <div>
+                                        <h4 className={`font-medium ${textColor}`}>{topic.title}</h4>
+                                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getDifficultyColor(topic.difficulty)}`}>{topic.difficulty}</span>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <p className={`text-sm mb-3 ${descColor}`}>{topic.description}</p>
+                                  <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 mb-2">
+                                    <span>{topic.estimatedLessons} lesson{topic.estimatedLessons !== 1 ? 's' : ''}</span>
+                                    <div className="flex space-x-1">
+                                      {topic.skills.map((skill) => (
+                                        <span key={skill} className="bg-gray-200 dark:bg-gray-600 px-2 py-1 rounded">{skill}</span>
+                                      ))}
+                                    </div>
+                                  </div>
+                                  {!isGenerated ? (
+                                    <button
+                                      onClick={async () => {
+                                        setSelectedTopic(topic.id);
+                                        await handleGenerateLesson();
+                                      }}
+                                      disabled={isGeneratingLesson || generationStats.remaining <= 0}
+                                      className="w-full mt-2 bg-brand-primary text-white px-4 py-2 rounded-lg hover:bg-brand-accent transition-colors text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                                    >
+                                      {isGeneratingLesson ? 'Generating...' : 'Generate Lesson'}
+                                    </button>
+                                  ) : (
+                                    <Link
+                                      href={`/lessons/${generatedLesson?.id}`}
+                                      className={`w-full mt-2 px-4 py-2 rounded-lg text-white transition-colors text-sm font-medium flex items-center justify-center ${isTaught ? 'bg-green-500 hover:bg-green-600' : 'bg-purple-500 hover:bg-purple-600'}`}
+                                    >
+                                      View Lesson
+                                    </Link>
+                                  )}
+                                </div>
+                              )
+                            })}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Phase 3: Lessons 21-30 */}
+                      {learningTopics.length > 20 && (
+                        <div className="border border-amber-200 dark:border-amber-800 rounded-lg overflow-hidden">
+                          <div className="bg-amber-100 dark:bg-amber-900/30 px-4 py-3">
+                            <h4 className="font-semibold text-amber-900 dark:text-amber-100">
+                              Phase 3: Mastery & Application (Lessons 21-30)
+                            </h4>
+                            <p className="text-sm text-amber-700 dark:text-amber-300">Advanced scenarios and specialized applications</p>
+                          </div>
+                          <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {learningTopics.slice(20, 30).map((topic, index) => {
+                              const isGenerated = isLessonGenerated(topic.title)
+                              const generatedLesson = lessons.find(l => l.title.toLowerCase().includes(topic.title.toLowerCase()))
+                              const isTaught = generatedLesson?.sharedAt
+                              const borderColor = !isGenerated ? 'border-gray-200 dark:border-gray-600' : isTaught ? 'border-green-400 dark:border-green-600' : 'border-purple-400 dark:border-purple-600'
+                              const circleColor = !isGenerated ? 'bg-brand-primary text-white' : isTaught ? 'bg-green-500 text-white' : 'bg-purple-500 text-white'
+                              const textColor = !isGenerated ? 'text-gray-900 dark:text-white' : isTaught ? 'text-green-700 dark:text-green-400' : 'text-purple-700 dark:text-purple-400'
+                              const descColor = !isGenerated ? 'text-gray-600 dark:text-gray-300' : isTaught ? 'text-green-600 dark:text-green-300' : 'text-purple-600 dark:text-purple-300'
+                              return (
+                                <div key={topic.id} className={`bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border ${borderColor}`}>
+                                  <div className="flex items-start justify-between mb-3">
+                                    <div className="flex items-center space-x-3">
+                                      <span className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${circleColor}`}>{isGenerated ? (isTaught ? '✓' : '⚡') : index + 21}</span>
+                                      <div>
+                                        <h4 className={`font-medium ${textColor}`}>{topic.title}</h4>
+                                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getDifficultyColor(topic.difficulty)}`}>{topic.difficulty}</span>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <p className={`text-sm mb-3 ${descColor}`}>{topic.description}</p>
+                                  <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 mb-2">
+                                    <span>{topic.estimatedLessons} lesson{topic.estimatedLessons !== 1 ? 's' : ''}</span>
+                                    <div className="flex space-x-1">
+                                      {topic.skills.map((skill) => (
+                                        <span key={skill} className="bg-gray-200 dark:bg-gray-600 px-2 py-1 rounded">{skill}</span>
+                                      ))}
+                                    </div>
+                                  </div>
+                                  {!isGenerated ? (
+                                    <button
+                                      onClick={async () => {
+                                        setSelectedTopic(topic.id);
+                                        await handleGenerateLesson();
+                                      }}
+                                      disabled={isGeneratingLesson || generationStats.remaining <= 0}
+                                      className="w-full mt-2 bg-brand-primary text-white px-4 py-2 rounded-lg hover:bg-brand-accent transition-colors text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                                    >
+                                      {isGeneratingLesson ? 'Generating...' : 'Generate Lesson'}
+                                    </button>
+                                  ) : (
+                                    <Link
+                                      href={`/lessons/${generatedLesson?.id}`}
+                                      className={`w-full mt-2 px-4 py-2 rounded-lg text-white transition-colors text-sm font-medium flex items-center justify-center ${isTaught ? 'bg-green-500 hover:bg-green-600' : 'bg-purple-500 hover:bg-purple-600'}`}
+                                    >
+                                      View Lesson
+                                    </Link>
+                                  )}
+                                </div>
+                              )
+                            })}
+                          </div>
+                        </div>
+                      )}
                     </div>
                     )}
                   </div>
