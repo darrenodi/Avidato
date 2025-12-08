@@ -77,14 +77,23 @@ class GeminiService {
     };
   }
 
-  // Generate learning plan (10 topics)
-  async generateLearningPlan(student: StudentProfile): Promise<LearningPlan> {
+  // Generate learning plan (10 topics) - can be called multiple times to add more lessons
+  async generateLearningPlan(student: StudentProfile, existingTopics: LearningTopic[] = []): Promise<LearningPlan> {
     const { methodology, reasoning } = this.selectMethodology(student);
     const { roles, examples } = getSuggestedRolesAndScenarios(student.occupation);
     const rolesList = roles.join(', ');
     const exampleList = examples.join('; ');
     
-  const prompt = `Generate a 10-lesson learning plan for a ${student.level} ${student.targetLanguage} student.
+    // Calculate lesson numbers for this batch
+    const startLessonNumber = existingTopics.length + 1;
+    const endLessonNumber = existingTopics.length + 10;
+    
+    // Build context of previously generated topics
+    const previousTopicsContext = existingTopics.length > 0 
+      ? `\n\nPREVIOUSLY GENERATED TOPICS (do NOT repeat these):\n${existingTopics.map(t => `${t.lessonNumber}. ${t.title}`).join('\n')}\n\nGenerate the NEXT 10 lessons that build upon these previous topics.`
+      : '';
+    
+  const prompt = `Generate lessons ${startLessonNumber}-${endLessonNumber} for a ${student.level} ${student.targetLanguage} student.
 
 STUDENT PROFILE:
 - Name: ${student.name}
@@ -99,9 +108,10 @@ STUDENT PROFILE:
 
 SELECTED METHODOLOGY: ${methodology}
 ${reasoning}
+${previousTopicsContext}
 
 REQUIREMENTS:
-1. Create exactly 10 learning topics
+1. Create exactly 10 learning topics numbered ${startLessonNumber} to ${endLessonNumber}
 2. Each topic should be relevant to the student's goals and context and MUST be a concrete, real interaction (meeting/call/review/briefing) aligned with the student's occupation and goals — NOT abstract skills
   - Roles should reflect the student's world. Suggested roles: ${rolesList}
   - Scenario examples (adapt as appropriate): ${exampleList}

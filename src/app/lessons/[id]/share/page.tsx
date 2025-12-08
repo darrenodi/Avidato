@@ -806,21 +806,27 @@ export default function SharedLessonPage() {
                       </div>
                       <div className="text-center">
                         <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Vocabulary</h3>
-                        {Array.isArray(lesson.content.vocabulary) && lesson.content.vocabulary.length > 0 ? (
-                          <div className="flex flex-wrap justify-center gap-2">
-                            {lesson.content.vocabulary?.slice(0, 8).map((w: string | { word?: string; term?: string }, i: number) => {
-                              const word = typeof w === 'string' ? w : w.word || w.term || String(w)
-                              return (
-                                <span key={i} className="px-2 py-1 bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-300 rounded-full text-xs">{word}</span>
-                              )
-                            })}
-                            {lesson.content.vocabulary.length > 8 && (
-                              <span className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-full text-xs">+{lesson.content.vocabulary.length - 8} more</span>
-                            )}
-                          </div>
-                        ) : (
-                          <p className="text-xs text-gray-600 dark:text-gray-400">No vocabulary list</p>
-                        )}
+                        {(() => {
+                          // Extract vocabulary from Exercise 1 (vocabulary exercise)
+                          const vocabExercise = lesson.content.exercises?.find((ex: { type: string }) => ex.type === 'vocabulary');
+                          const vocabulary = vocabExercise?.content?.vocabulary || [];
+                          
+                          return Array.isArray(vocabulary) && vocabulary.length > 0 ? (
+                            <div className="flex flex-wrap justify-center gap-2">
+                              {vocabulary.slice(0, 8).map((w: string | { word?: string; term?: string }, i: number) => {
+                                const word = typeof w === 'string' ? w : w.word || w.term || String(w)
+                                return (
+                                  <span key={i} className="px-2 py-1 bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-300 rounded-full text-xs">{word}</span>
+                                )
+                              })}
+                              {vocabulary.length > 8 && (
+                                <span className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-full text-xs">+{vocabulary.length - 8} more</span>
+                              )}
+                            </div>
+                          ) : (
+                            <p className="text-xs text-gray-600 dark:text-gray-400">No vocabulary list</p>
+                          );
+                        })()}
                       </div>
                       <div className="text-center">
                         <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Context</h3>

@@ -12,20 +12,13 @@ if (!process.env.GOOGLE_API_KEY) {
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY)
 
 // Ordered by preference / capability (adjust as needed)
-// Provided by user: want to switch to "any other" on error.
-// We'll attempt higher capability / freshness first, then lighter / experimental.
-// Preferred model order (user-specified):
-// 1) Gemini 2.5 Pro
-// 2) Gemini 2.5 Flash
-// 3) Gemini 2.5 Flash-Lite
-// 4) Gemini 2.0 Flash
-// 5) Gemini 2.0 Flash-Lite
+// Using only models that support generateContent API
+// Based on quota limits from Google AI Studio:
+// - gemini-2.5-flash: 5 RPM, 250K TPM, 20 RPD
+// - gemini-2.5-flash-lite: 10 RPM, 250K TPM, 20 RPD
 export const MODEL_FALLBACK_CHAIN: string[] = [
-  'gemini-2.5-pro',
-  'gemini-2.5-flash',
-  'gemini-2.5-flash-lite',
-  'gemini-2.0-flash',
-  'gemini-2.0-flash-lite',
+  'gemini-2.5-flash',      // Best quality - 5 RPM, 20 RPD
+  'gemini-2.5-flash-lite', // Faster rate limit - 10 RPM, 20 RPD
 ]
 
 export interface FailoverResult {
@@ -61,8 +54,10 @@ export async function generateWithFailover({
       if (!text || text.trim().length === 0) {
         throw new Error('Empty response text')
       }
+      console.log(`✅ Gemini API Success - Model used: ${modelName}`)
       return { modelUsed: modelName, rawText: text }
     } catch (err) {
+      console.warn(`❌ Gemini API Failed - Model: ${modelName}, Error:`, err instanceof Error ? err.message : String(err))
       errors.push({ model: modelName, error: err })
       // Continue to next model.
     }
