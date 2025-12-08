@@ -68,36 +68,37 @@ CRITICAL SYNONYM RULES FOR ${student.level.toUpperCase()} STUDENTS:
 - ADVANCED (C1/C2): Synonyms can be more sophisticated
 
 VOCABULARY COMPOSITION RULES (CRITICAL):
-- Total vocabulary items: 6-8
-- **PRIMARILY SINGLE-WORD VOCABULARY** (4-8 items):
-  * Must be verbs, adjectives, nouns, or adverbs
+- Total vocabulary items: EXACTLY 6
+- **NO NOUN PHRASES ALLOWED** - Only single words:
+  * Must be verbs, adjectives, nouns, adverbs, idioms, or phrasal verbs
   * Must be appropriate for ${student.level} CEFR level
   * Must be CONTEXTUALLY RELEVANT to the specific lesson topic: "${topic.title}"
   * Must be UNIQUE - do NOT repeat vocabulary from other lessons
-- **Maximum 0-2 multi-word phrases** (strongly prefer 0-1):
-  * ONLY idioms or phrasal verbs
-  * Must be contextually appropriate for this specific lesson scenario
-  * Must match ${student.level} complexity
-- **STRICTLY FORBIDDEN - COMPOUND NOUN PHRASES**:
-  * ❌ DO NOT USE: Multi-word noun phrases with possessive/descriptive structures
-  * ❌ WRONG TYPE: Phrases combining two nouns or adjective+noun combinations that form a technical term
-  * ✅ CORRECT APPROACH: Extract and teach the CORE SINGLE WORD from compound phrases
-  * ✅ CORRECT TYPE: Individual verbs, adjectives, or single nouns that stand alone
+  * Must appear NATURALLY in the dialogue for this specific topic
+- **ALLOWED TYPES**:
+  * ✅ Single verbs (e.g., "streamline", "confirm", "negotiate")
+  * ✅ Single adjectives (e.g., "efficient", "detailed", "precise")
+  * ✅ Single nouns (e.g., "invoice", "quantity", "supplier")
+  * ✅ Idioms (e.g., "get bogged down", "touch base")
+  * ✅ Phrasal verbs (e.g., "follow up", "sort out")
+- **STRICTLY FORBIDDEN**:
+  * ❌ Compound noun phrases (e.g., "purchase order", "item code", "delivery schedule")
+  * ❌ Multi-word technical terms (e.g., "product code", "ETA")
+  * ❌ Possessive structures (e.g., "supplier's terms")
+  * ❌ Adjective+noun combinations (e.g., "direct competitor", "key stakeholder")
+  * ❌ Generic business words used across multiple lessons (e.g., "mitigate", "align", "leverage", "streamline" - use only if ESSENTIAL to THIS specific topic)
+  * ❌ Overused corporate jargon - choose topic-specific vocabulary instead
 - **UNIQUENESS REQUIREMENT**:
   * Each lesson must have completely unique vocabulary
-  * Do NOT repeat words across different lessons
-  * Choose words specific to THIS lesson's context and scenario
-- **EXCEPTION FOR IDIOM-FOCUSED LESSONS**:
-  * If the lesson explicitly teaches idioms or phrasal verbs as its primary objective, you may include more multi-word items
-  * Even then, they must be idioms/phrasal verbs, NOT compound noun phrases
-- **Level-specific adaptation**:
-  * A1-A2: Simple single-word verbs, nouns, adjectives; 0-1 basic phrasal verb if contextually essential
-  * B1-B2: Intermediate-level single words; 0-1 common idiom or phrasal verb
-  * C1-C2: Advanced single words; 0-2 sophisticated idioms or natural collocations
+  * Do NOT repeat words across different lessons - even common business terms
+  * Choose words SPECIFIC to THIS lesson's scenario, not generic business vocabulary
+  * If a word like "mitigate" appears in one lesson, use synonyms like "reduce", "minimize", "address" in other lessons
+  * Vocabulary must be DIRECTLY TIED to the dialogue content and topic - no generic filler words
 
 CRITICAL REQUIREMENTS:
 1. EVERY vocabulary item MUST appear naturally in the Exercise 3 dialogue. ALL vocabulary words MUST be used 2-3 times throughout the lesson.
-2. Follow EXACT Engoo format with proper vocabulary structure
+2. VOCABULARY MUST BE TOPIC-SPECIFIC: Choose words that are directly relevant to "${topic.title}" and would naturally appear in the dialogue context: "${topic.context}". Avoid generic business vocabulary.
+3. Follow EXACT Engoo format with proper vocabulary structure
 3. The dialogue MUST BE the actual event described in the lesson title. Examples:
    - "Delivering Quarterly Results" → ${student.name} delivers actual presentation with Q&A, NOT colleagues coaching ${student.name} on how to present
    - "Negotiating Contract Terms" → ${student.name} negotiates with client, NOT team discussing negotiation strategy
@@ -108,10 +109,12 @@ CRITICAL REQUIREMENTS:
 5. VOCABULARY MUST BE LEVEL-APPROPRIATE - avoid basic words for advanced students
 6. SELECT VOCABULARY BASED ON:
    - What would naturally be said DURING this specific event (presentation, meeting, call, review, negotiation, etc.)
+   - Words that are UNIQUE to this topic and dialogue - avoid generic business terms
    - Student's level (use guidelines above)
    - Student's occupation (${student.occupation || 'general'})
-   - The functional language needed to execute this task
-7. DOMAIN TERMS: Naturally include 2-4 domain-specific terms that would be used in this actual scenario
+   - The functional language needed to execute THIS SPECIFIC task
+   - Avoid common corporate jargon that could appear in any lesson (e.g., "mitigate", "leverage", "align", "synergy")
+7. DOMAIN TERMS: Naturally include 2-4 domain-specific terms that would ONLY be used in this actual scenario, not generic business words
 
 🎯 FOR ${student.level.toUpperCase()} STUDENTS SPECIFICALLY:
 ${cefrVocabGuide}
@@ -124,7 +127,7 @@ ${cefrVocabGuide}
 ENGOO LESSON STRUCTURE:
 
 **Exercise 1: Vocabulary**
-Create 6-8 vocabulary items with this EXACT format (examples for different levels):
+Create EXACTLY 6 vocabulary items with this EXACT format (examples for different levels):
 
 FOR BEGINNER/ELEMENTARY (A1-A2):
 {
@@ -176,9 +179,9 @@ VOCABULARY FORMAT:
   "title": "Exercise 1: Vocabulary", 
   "description": "Learn and practice new vocabulary",
   "content": {
-    "vocabulary": [/* 6-8 level-appropriate vocabulary items WITH synonyms */]
+    "vocabulary": [/* EXACTLY 6 level-appropriate vocabulary items WITH synonyms */]
   },
-  "timeMinutes": 10
+  "timeMinutes": 8
 }
 
 SYNONYM RULES (Issue #36):
@@ -230,6 +233,7 @@ EXPRESSIONS/COLLOCATIONS RULES (Issue #42):
 ${student.name} performs the ACTUAL task/event described in the lesson title:
 
   ⚠️ CRITICAL DIALOGUE RULES - THE DIALOGUE MUST BE THE ACTUAL EVENT:
+  - EXACTLY 8 EXCHANGES (student speaks 4 times, other character speaks 4 times)
   - ${student.name} is PERFORMING the task in the title (presenting, negotiating, processing order, reviewing code, conducting QBR, etc.)
   - Other characters are the AUDIENCE/PARTICIPANTS in this event (investors, clients, customers, teammates, manager, etc.)
   - The FIRST character speaking MUST be ${student.name}
@@ -238,10 +242,11 @@ ${student.name} performs the ACTUAL task/event described in the lesson title:
   - This is a 1-on-1 lesson format: the teacher reads one role, the student reads ${student.name}'s role, and they alternate strictly
   - If multiple participants are present in the scenario, they should speak one at a time with ${student.name} responding to each in turn
   - The conversation is about the ACTUAL CONTENT of the event (project details, product specs, code logic, contract terms, etc.) - NOT about how to communicate
-  - Vocabulary words are used FUNCTIONALLY within the event (e.g., "projected sales" used when presenting sales data, "expedited shipping" used when processing an order, "merge conflict" used during code review)
+  - Vocabulary words are used FUNCTIONALLY within the event
   - NEVER have characters introduce themselves unnecessarily
   - ALWAYS write NATURAL dialogue as people actually speak
   - DIALOGUE MUST HAVE A CONCLUSIVE ENDING with a decision/agreement/resolution
+  - KEEP DIALOGUE CONCISE - 8 exchanges total (4 from student, 4 from other character)
   
 EXAMPLE PATTERNS:
   * "Delivering Presentation" → ${student.name} presents to stakeholders, they ask questions about content
@@ -366,8 +371,7 @@ DO NOT create scenarios with 3 or more participants. The teacher will read the c
   "content": {
     "scenario": "The ACTUAL event happening: ${student.name} is [doing the task from lesson title]. WHO is the ONE other person they're with, WHERE is it, WHAT specifically is happening. Example: '${student.name} is delivering a product demo to a potential client in the sales conference room.'",
     "roles": [
-      {"name": "${student.name}", "description": "${student.occupation || 'professional'} performing [the task from lesson title]", "keyPoints": ["PERFORM the task completely", "Use vocabulary naturally within the content", "Act as the actual performer/deliverer/executor"]},
-      {"name": "${primaryRoleA}", "description": "The ONE counterpart: the audience member/participant/recipient of the task. Example: 'A potential client asking questions during the demo' or 'A customer placing an order'", "keyPoints": ["Respond naturally as the participant", "Ask content-related questions", "React to what ${student.name} is doing"]}
+      {"name": "${student.name}", "description": "${student.occupation || 'professional'} performing [the task from lesson title]", "keyPoints": ["TASK: [Specific task for student to perform]", "Use vocabulary naturally", "Complete the interaction professionally"]}
     ],
     "timeMinutes": 10
   },
@@ -423,9 +427,7 @@ OUTPUT FORMAT (JSON):
   "lessonType": "${(student.ageGroup === 'child' || student.ageGroup === 'teenager') ? 'Under-18' : 'interactive'}",
   "difficulty": ${student.level === 'beginner' ? '3-4' : student.level === 'intermediate' ? '5-6' : '7-8'},
   "duration": ${duration},
-  "objective": "${topic.objective}",
   "skills": ["Speaking", "Listening", "Reading", "Vocabulary"],
-  "vocabulary": ${JSON.stringify(topic.vocabulary)},
   "context": "${topic.context}",
   "exercises": [array of exercises following exact format above],
   "homework": "Review vocabulary and practice dialogue with a friend",

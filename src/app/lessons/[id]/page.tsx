@@ -570,22 +570,32 @@ export default function LessonPage() {
                   <div>
                     <h3 className="font-semibold text-gray-900 dark:text-white mb-2 text-sm sm:text-base">Key Vocabulary</h3>
                     <div className="flex flex-wrap gap-2">
-                      {((lesson.content as Record<string, unknown>).vocabulary as unknown[]).slice(0, 6).map((word, index) => {
-                        // Handle both string vocabulary and object vocabulary
-                        const displayWord = typeof word === 'string' ? word : ((word as Record<string, unknown>).word || (word as Record<string, unknown>).term || String(word));
-                        const key = typeof word === 'string' ? word : `vocab-${index}`;
+                      {(() => {
+                        // Extract vocabulary from Exercise 1 (vocabulary exercise)
+                        const vocabExercise = ((lesson.content as Record<string, unknown>).exercises as Array<{ type: string; content: { vocabulary?: unknown[] } }>)?.find(ex => ex.type === 'vocabulary');
+                        const vocabulary = vocabExercise?.content?.vocabulary || [];
                         
-                        return (
-                          <span key={key} className="px-2 py-1 bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-400 rounded text-xs sm:text-sm">
-                            {String(displayWord)}
+                        return vocabulary.slice(0, 6).map((word, index) => {
+                          // Handle both string vocabulary and object vocabulary
+                          const displayWord = typeof word === 'string' ? word : ((word as Record<string, unknown>).word || (word as Record<string, unknown>).term || String(word));
+                          const key = typeof word === 'string' ? word : `vocab-${index}`;
+                          
+                          return (
+                            <span key={key} className="px-2 py-1 bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-400 rounded text-xs sm:text-sm">
+                              {String(displayWord)}
+                            </span>
+                          );
+                        });
+                      })()}
+                      {(() => {
+                        const vocabExercise = ((lesson.content as Record<string, unknown>).exercises as Array<{ type: string; content: { vocabulary?: unknown[] } }>)?.find(ex => ex.type === 'vocabulary');
+                        const vocabulary = vocabExercise?.content?.vocabulary || [];
+                        return vocabulary.length > 6 && (
+                          <span className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded text-xs sm:text-sm">
+                            +{vocabulary.length - 6} more
                           </span>
                         );
-                      })}
-                      {((lesson.content as Record<string, unknown>).vocabulary as unknown[]).length > 6 && (
-                        <span className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded text-xs sm:text-sm">
-                          +{((lesson.content as Record<string, unknown>).vocabulary as unknown[]).length - 6} more
-                        </span>
-                      )}
+                      })()}
                     </div>
                   </div>
 
