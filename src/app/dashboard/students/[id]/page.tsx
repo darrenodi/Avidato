@@ -6,7 +6,7 @@ import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import DashboardLayout from '@/components/layout/DashboardLayout'
 import { getStudent } from '../../../actions/students'
-import { generateLearningPlan, generateLesson, getGenerationStats, getStudentLearningPlan, shareLesson } from '../../../actions/ai-generation'
+import { generateLearningPlan, generateLesson, getGenerationStats, getStudentLearningPlan, shareLesson, generateMoreLessons } from '../../../actions/ai-generation'
 import { languages, levels, ageGroups } from '@/lib/form-data-mappings'
 import type { LearningPlan } from '@/types/lesson-template'
 
@@ -73,6 +73,7 @@ export default function StudentProfilePage() {
   const [currentLearningPlan, setCurrentLearningPlan] = useState<LearningPlan | null>(null)
   const [lessons, setLessons] = useState<StudentLesson[]>([])
   const [loadingLessons, setLoadingLessons] = useState(false)
+  const [isGeneratingMoreLessons, setIsGeneratingMoreLessons] = useState(false)
   // Issue #37: Track which lesson is currently being marked as taught
   const [markingTaughtId, setMarkingTaughtId] = useState<string | null>(null)
   
@@ -251,6 +252,41 @@ export default function StudentProfilePage() {
       setError('Failed to generate learning plan. Please try again.')
     } finally {
       setIsGeneratingPlan(false)
+    }
+  }
+
+  // Handle generating 10 more lessons
+  const handleGenerateMoreLessons = async () => {
+    if (!student || isGeneratingMoreLessons) return
+
+    setIsGeneratingMoreLessons(true)
+    try {
+      const result = await generateMoreLessons(student.id)
+      if (result.success && result.data) {
+        setCurrentLearningPlan(result.data)
+        // Convert all topics to display format
+        const aiTopics: LearningTopic[] = result.data.topics.map((topic) => ({
+          id: topic.lessonNumber.toString(),
+          title: topic.title,
+          description: topic.objective,
+          difficulty: topic.lessonNumber <= 10 ? 'Beginner' : 
+                     topic.lessonNumber <= 20 ? 'Intermediate' : 'Advanced',
+          estimatedLessons: 1,
+          skills: topic.skills
+        }))
+        setLearningTopics(aiTopics)
+        
+        // Update generation stats
+        const stats = await getGenerationStats()
+        setGenerationStats(stats)
+      } else {
+        setError(result.error || 'Failed to generate more lessons')
+      }
+    } catch (err) {
+      console.error('Error generating more lessons:', err)
+      setError('Failed to generate more lessons. Please try again.')
+    } finally {
+      setIsGeneratingMoreLessons(false)
     }
   }
 
@@ -711,6 +747,7 @@ export default function StudentProfilePage() {
                     )}
 
                     {learningTopics.length > 0 && (
+                    <>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {learningTopics.map((topic, index) => {
                         const isGenerated = isLessonGenerated(topic.title)
@@ -764,6 +801,30 @@ export default function StudentProfilePage() {
                         )
                       })}
                     </div>
+
+                    {/* Generate 10 More Lessons Button */}
+                    {learningTopics.length < 30 && (
+                    <div className="mt-6 flex justify-center">
+                      <button
+                        onClick={handleGenerateMoreLessons}
+                        disabled={isGeneratingMoreLessons || generationStats.remaining <= 0}
+                        className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+                      >
+                        {isGeneratingMoreLessons && (
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                        )}
+                        <span>{isGeneratingMoreLessons ? 'Generating 10 More Lessons...' : 'Generate 10 More Lessons'}</span>
+                      </button>
+                    </div>
+                    )}
+                    {learningTopics.length >= 30 && (
+                    <div className="mt-6 flex justify-center">
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        ✓ Learning plan complete (30 lessons maximum reached)
+                      </p>
+                    </div>
+                    )}
+                    </>
                     )}
                   </div>
                     )}

@@ -53,14 +53,51 @@ export function cleanAndParseJSON<T>(jsonStr: string): T {
       .replace(/,\s*]/g, ']') // Remove trailing commas in arrays
       .replace(/,\s*}/g, '}'); // Remove trailing commas in objects
 
-    // Fix unescaped quotes within string values by properly escaping them
-    // Split by quote boundaries and fix quotes only within string values
-    const parts = cleanedJson.split('"');
-    for (let i = 1; i < parts.length; i += 2) {
-      // Odd indices are content within quotes - escape any unescaped quotes
-      parts[i] = parts[i].replace(/\\"/g, '\\"').replace(/"/g, '\\"');
+    // Fix unescaped quotes within string values using character-by-character parsing
+    let fixedJson = '';
+    let inString = false;
+    let escapeNext = false;
+
+    for (let i = 0; i < cleanedJson.length; i++) {
+      const char = cleanedJson[i];
+      
+      if (escapeNext) {
+        fixedJson += char;
+        escapeNext = false;
+        continue;
+      }
+      
+      if (char === '\\') {
+        fixedJson += char;
+        escapeNext = true;
+        continue;
+      }
+      
+      if (char === '"') {
+        inString = !inString;
+        fixedJson += char;
+        
+        if (!inString) {
+          // We just closed a string. Check for missing comma.
+          let j = i + 1;
+          while (j < cleanedJson.length && /\s/.test(cleanedJson[j])) {
+            j++;
+          }
+          if (j < cleanedJson.length) {
+            const nextChar = cleanedJson[j];
+            // If next char is a value starter or key starter, insert comma
+            if (nextChar === '"' || nextChar === '{' || nextChar === '[' || /[\d-]/.test(nextChar)) {
+              fixedJson += ',';
+            }
+          }
+        }
+        continue;
+      }
+      
+      fixedJson += char;
     }
-    cleanedJson = parts.join('"');
+    
+    cleanedJson = fixedJson;
 
     // Third pass: fix common JSON structural issues
     cleanedJson = cleanedJson

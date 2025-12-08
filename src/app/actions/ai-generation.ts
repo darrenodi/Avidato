@@ -260,10 +260,116 @@ export async function getStudentLearningPlan(studentId: string): Promise<{
     };
 
   } catch (error) {
-    console.error('Error fetching learning plan:', error);
+    console.error('Error getting learning plan:', error);
     return { 
       success: false, 
-      error: error instanceof Error ? error.message : 'Failed to fetch learning plan' 
+      error: error instanceof Error ? error.message : 'Failed to get learning plan' 
+    };
+  }
+}
+
+// Generate 10 more lessons and append to existing plan
+export async function generateMoreLessons(studentId: string): Promise<{
+  success: boolean;
+  data?: LearningPlan;
+  error?: string;
+}> {
+  try {
+    const session = await getServerSession(authOptions) as Session | null;
+    if (!session?.user?.id) {
+      return { success: false, error: 'Unauthorized' };
+    }
+
+    // Security: Check rate limit
+    const accessCheck = await validateServerActionAccess(session.user.id, 'generateLearningPlan');
+    if (!accessCheck.allowed) {
+      return { success: false, error: accessCheck.error };
+    }
+
+    // Check generation limit
+    const canGenerate = await checkAndUpdateGenerationLimit(session.user.id);
+    if (!canGenerate) {
+      return { success: false, error: 'Daily generation limit reached. Try again tomorrow.' };
+    }
+
+    // Get student data
+    const student = await prisma.student.findUnique({
+      where: { 
+        id: studentId,
+        tutorId: session.user.id,
+      },
+    });
+
+    if (!student) {
+      return { success: false, error: 'Student not found' };
+    }
+
+    // Get existing learning plan
+    const existingPlan = await prisma.learningPlan.findFirst({
+      where: { studentId },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    if (!existingPlan) {
+      return { success: false, error: 'No existing learning plan found' };
+    }
+
+    // Convert existing topics to LearningTopic array
+    const existingTopics = existingPlan.topics as Array<{
+      lessonNumber: number;
+      title: string;
+      objective: string;
+      vocabulary: string[];
+      grammarFocus?: string;
+      skills: string[];
+      context: string;
+      methodology: 'CLT' | 'TBLT' | 'PPP' | 'TTT';
+    }>;
+
+    // Convert to StudentProfile
+    const studentProfile: StudentProfile = {
+      name: student.name,
+      targetLanguage: student.targetLanguage,
+      nativeLanguage: student.nativeLanguage,
+      ageGroup: student.ageGroup,
+      level: student.level,
+      endGoals: student.endGoals,
+      occupation: student.occupation || undefined,
+      weaknesses: student.weaknesses || undefined,
+      interests: student.interests || undefined,
+    };
+
+    // Generate next 10 lessons
+    const newLessons = await geminiService.generateLearningPlan(studentProfile, existingTopics);
+
+    // Combine existing and new topics
+    const allTopics = [...existingTopics, ...newLessons.topics];
+
+    // Update learning plan in database
+    const updatedPlan = await prisma.learningPlan.update({
+      where: { id: existingPlan.id },
+      data: {
+        topics: JSON.parse(JSON.stringify(allTopics)),
+      },
+    });
+
+    const planData: LearningPlan = {
+      selectedMethodology: updatedPlan.selectedMethodology as 'CLT' | 'TBLT' | 'PPP' | 'TTT',
+      methodologyReasoning: updatedPlan.methodologyReasoning,
+      topics: allTopics,
+    };
+
+    revalidatePath(`/dashboard/students/${studentId}`);
+    return { 
+      success: true, 
+      data: planData 
+    };
+
+  } catch (error) {
+    console.error('Error generating more lessons:', error);
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : 'Failed to generate more lessons' 
     };
   }
 }
