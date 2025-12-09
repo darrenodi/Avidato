@@ -75,7 +75,12 @@ export function extractVocabularyFromLesson(lessonContent: unknown): ExtractedVo
     return [];
   }
 
-  return vocabExercise.content.vocabulary
+  // Ensure vocabulary is an array
+  const vocabularyArray = Array.isArray(vocabExercise.content.vocabulary) 
+    ? vocabExercise.content.vocabulary 
+    : [];
+
+  return vocabularyArray
     .filter(
       (item): item is { word: string; definition: string; example?: string; partOfSpeech?: string } =>
         typeof item.word === 'string' && typeof item.definition === 'string'
