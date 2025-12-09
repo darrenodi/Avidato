@@ -192,9 +192,6 @@ CRITICAL:
     const { rawText: text } = await generateWithOpenAIFailover({
       prompt,
       generationConfig: {
-        temperature: 0.1,
-        topK: 40,
-        topP: 0.95,
         maxOutputTokens: 8192,
       }
     })

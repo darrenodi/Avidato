@@ -38,9 +38,6 @@ export async function generateInstantLesson(params: InstantLessonParams): Promis
     const { rawText: text } = await generateWithFailover({
       prompt,
       generationConfig: {
-        temperature: 0.7,
-        topK: 40,
-        topP: 0.95,
         maxOutputTokens: 8192,
       },
     });
