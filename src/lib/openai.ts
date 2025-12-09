@@ -145,9 +145,6 @@ IMPORTANT:
       const { rawText: text } = await generateWithFailover({
         prompt,
         generationConfig: {
-          temperature: 0.1,
-          topK: 40,
-          topP: 0.95,
           maxOutputTokens: 8192,
         },
       });
@@ -328,9 +325,6 @@ CRITICAL: This exercise must appear as Exercise 5 in the exercises array. ALL se
       const { rawText: text } = await generateWithFailover({
         prompt,
         generationConfig: {
-          temperature: 0.1,
-          topK: 40,
-          topP: 0.95,
           maxOutputTokens: 8192,
         },
       });
