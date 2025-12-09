@@ -1,6 +1,6 @@
 'use server'
 
-import { generateWithFailover } from '@/lib/geminiFailover'
+import { generateWithFailover as generateWithOpenAIFailover } from '@/lib/openaiFailover';
 import { getStudent } from './students'
 
 /**
@@ -189,7 +189,7 @@ CRITICAL:
 -- Ensure vocabulary is appropriate for their level
 -- All dialogue should feel natural and relatable`;
 
-    const { rawText: text } = await generateWithFailover({
+    const { rawText: text } = await generateWithOpenAIFailover({
       prompt,
       generationConfig: {
         temperature: 0.1,

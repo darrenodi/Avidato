@@ -1,4 +1,4 @@
-import geminiService from '../src/lib/gemini';
+import openaiService from '../src/lib/openai';
 
 async function runDemo() {
   // Test with C1 Advanced Accountant - should NOT include basic accounting terms!
@@ -29,7 +29,7 @@ async function runDemo() {
   console.log('Generating advanced vocabulary for professional context...\n');
   
   try {
-    const lesson = await geminiService.generateLesson(studentProfile, learningTopic, 50);
+    const lesson = await openaiService.generateLesson(studentProfile, learningTopic, 50);
     
     // Display results
     console.log('📚 Generated Lesson Title:', lesson.title);

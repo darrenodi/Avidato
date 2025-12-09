@@ -32,8 +32,8 @@ STUDENT PROFILE:
 
 LESSON TOPIC: ${topic.title}
 OBJECTIVE: ${topic.objective}
-CONTEXT: ${topic.context}
-VOCABULARY WORDS: ${topic.vocabulary.join(', ')}${vocabularyContextSection}${under18Section}
+${topic.context ? `CONTEXT: ${topic.context}` : ''}
+${topic.vocabulary ? `VOCABULARY WORDS: ${topic.vocabulary.join(', ')}` : ''}${vocabularyContextSection}${under18Section}
 
 🎯 CRITICAL ENGOO-STYLE REQUIREMENT:
 The lesson topic "${topic.title}" must be ENACTED in the dialogue, NOT discussed as an abstract skill.
@@ -245,7 +245,8 @@ ${student.name} performs the ACTUAL task/event described in the lesson title:
   - Vocabulary words are used FUNCTIONALLY within the event
   - NEVER have characters introduce themselves unnecessarily
   - ALWAYS write NATURAL dialogue as people actually speak
-  - DIALOGUE MUST HAVE A CONCLUSIVE ENDING with a decision/agreement/resolution
+  - DIALOGUE MUST HAVE A CONCLUSIVE ENDING with a decision/agreement/resolution (no trailing off or unfinished sentences)
+  - NO EM DASHES (—) in dialogue - use periods, commas, or rephrase instead of em dashes
   - KEEP DIALOGUE CONCISE - 8 exchanges total (4 from student, 4 from other character)
   
 EXAMPLE PATTERNS:

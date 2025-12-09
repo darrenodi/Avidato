@@ -772,7 +772,7 @@ export default function StudentProfilePage() {
                             <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 mb-2">
                               <span>{topic.estimatedLessons} lesson{topic.estimatedLessons !== 1 ? 's' : ''}</span>
                               <div className="flex space-x-1">
-                                {topic.skills.map((skill) => (
+                                {(topic.skills || ['listening', 'speaking', 'reading']).map((skill) => (
                                   <span key={skill} className="bg-gray-200 dark:bg-gray-600 px-2 py-1 rounded">{skill}</span>
                                 ))}
                               </div>

@@ -1,5 +1,5 @@
 // src/lib/instantLessonGenerator.ts
-import { generateWithFailover } from './geminiFailover';
+import { generateWithFailover } from './openaiFailover';
 import { extractJSONFromText, cleanAndParseJSON } from './utils/json-parser';
 
 interface InstantLessonParams {
