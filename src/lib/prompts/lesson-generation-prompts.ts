@@ -24,8 +24,11 @@ export function buildLessonGenerationPrompt(
   levelGuide: string,
   cefrVocabGuide: string
 ): string {
-  const primaryRoleA = roles[0] || 'Manager';
-
+  console.log('[buildLessonGenerationPrompt] Topic:', topic.title);
+  console.log('[buildLessonGenerationPrompt] topic.vocabulary type:', typeof topic.vocabulary);
+  console.log('[buildLessonGenerationPrompt] topic.vocabulary is Array:', Array.isArray(topic.vocabulary));
+  console.log('[buildLessonGenerationPrompt] topic.vocabulary value:', topic.vocabulary);
+  
   return `You are an expert language instructor creating authentic Engoo-format lessons. Generate a complete lesson following the EXACT structure below.
 
 STUDENT PROFILE:
@@ -40,7 +43,7 @@ TOPIC: ${topic.title}
 OBJECTIVE: ${topic.objective}
 LESSON CONTEXT (Max 120 chars): Write a brief, clear statement of what the student will learn and practice - focus on learning outcomes (specific skills, communication approaches, or competencies) in the lesson context. Keep concise and direct.
 ${topic.context ? `CONTEXT: ${topic.context}` : ''}
-${topic.vocabulary ? `VOCABULARY: ${topic.vocabulary.join(', ')}` : ''}${vocabularyContextSection}${under18Section}
+${topic.vocabulary && Array.isArray(topic.vocabulary) ? `VOCABULARY: ${topic.vocabulary.join(', ')}` : ''}${vocabularyContextSection}${under18Section}
 
 CRITICAL LESSON RULE:
 The lesson "${topic.title}" must show ${student.name} PERFORMING the actual task (presenting, negotiating, processing order, reviewing code, etc.), NOT discussing how to do it.
