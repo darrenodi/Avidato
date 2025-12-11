@@ -560,7 +560,7 @@ const renderExerciseContent = (exercise: { type: string; content: BaseExerciseCo
       break
     case 'warmup':
       if (Array.isArray(content?.questions)) {
-        return <WarmupExercise questions={content.questions} instructions={content.instructions as string} />
+        return <WarmupExercise questions={content.questions} />
       }
       break
     case 'dialogue':
@@ -580,7 +580,7 @@ const renderExerciseContent = (exercise: { type: string; content: BaseExerciseCo
       break
     case 'comprehension':
       if (Array.isArray(content?.questions)) {
-        return <ComprehensionExercise questions={content.questions} />
+        return <ComprehensionExercise questions={content.questions} hideAnswers={true} />
       }
       break
     case 'roleplay':
@@ -791,49 +791,28 @@ export default function SharedLessonPage() {
                         </div>
                       </div>
                     </div>
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                      <div className="text-center">
-                        <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Skills</h3>
-                        {Array.isArray(lesson.content.skills) ? (
-                          <div className="flex flex-wrap justify-center gap-2">
-                            {lesson.content.skills.map((s: string) => (
-                              <span key={s} className="px-2 py-1 bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-300 rounded-full text-xs">{s}</span>
-                            ))}
-                          </div>
-                        ) : (
-                          <p className="text-xs text-gray-600 dark:text-gray-400">No skills listed</p>
-                        )}
-                      </div>
-                      <div className="text-center">
-                        <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Vocabulary</h3>
-                        {(() => {
-                          // Extract vocabulary from Exercise 1 (vocabulary exercise)
-                          const vocabExercise = lesson.content.exercises?.find((ex: { type: string }) => ex.type === 'vocabulary');
-                          const vocabulary = vocabExercise?.content?.vocabulary || [];
-                          
-                          return Array.isArray(vocabulary) && vocabulary.length > 0 ? (
-                            <div className="flex flex-wrap justify-center gap-2">
-                              {vocabulary.slice(0, 8).map((w: string | { word?: string; term?: string }, i: number) => {
-                                const word = typeof w === 'string' ? w : w.word || w.term || String(w)
-                                return (
-                                  <span key={i} className="px-2 py-1 bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-300 rounded-full text-xs">{word}</span>
-                                )
-                              })}
-                              {vocabulary.length > 8 && (
-                                <span className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-full text-xs">+{vocabulary.length - 8} more</span>
-                              )}
-                            </div>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+                      <div>
+                        <h3 className="font-semibold text-gray-900 dark:text-white mb-2 text-sm sm:text-base">Skills Practiced</h3>
+                        <div className="flex flex-wrap gap-2">
+                          {Array.isArray(lesson.content.skills) ? (
+                            lesson.content.skills.map((s: string) => (
+                              <span key={s} className="px-2 py-1 bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-400 rounded text-xs sm:text-sm">{s}</span>
+                            ))
                           ) : (
-                            <p className="text-xs text-gray-600 dark:text-gray-400">No vocabulary list</p>
-                          );
-                        })()}
+                            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">No skills listed</p>
+                          )}
+                        </div>
                       </div>
-                      <div className="text-center">
-                        <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Context</h3>
-                        <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">{lesson.content.context}</p>
-                        <div>
-                          <span className="font-medium text-gray-500 dark:text-gray-400 text-xs">Difficulty:</span>{' '}
-                          <span className="text-xs text-gray-900 dark:text-white">{lesson.content.difficulty}/10</span>
+
+                      <div>
+                        <h3 className="font-semibold text-gray-900 dark:text-white mb-2 text-sm sm:text-base">Objectives</h3>
+                        <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
+                          {lesson.content.context}
+                        </p>
+                        <div className="mt-2">
+                          <span className="font-medium text-gray-500 dark:text-gray-400 text-xs sm:text-sm">Difficulty: </span>
+                          <span className="text-xs sm:text-sm text-gray-900 dark:text-white">{lesson.content.difficulty}/10</span>
                         </div>
                       </div>
                     </div>
@@ -848,10 +827,14 @@ export default function SharedLessonPage() {
                           </div>
                           <div className="min-w-0 flex-1">
                             <h3 className="text-lg font-semibold text-gray-900 dark:text-white truncate">{exercise.title}</h3>
-                            <p className="text-xs text-gray-500 dark:text-gray-400">{getExerciseTitle(exercise.type)} • {exercise.timeMinutes} min</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">{exercise.timeMinutes} min</p>
                           </div>
                         </div>
-                        <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">{exercise.description}</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
+                          {exercise.type === 'vocabulary'
+                            ? 'Read the vocabulary and example sentence along with your tutor'
+                            : exercise.description}
+                        </p>
                         <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 overflow-x-auto">{renderExerciseContent({ type: exercise.type, content: exercise.content, timeMinutes: exercise.timeMinutes || 0 })}</div>
                       </div>
                     ))}
