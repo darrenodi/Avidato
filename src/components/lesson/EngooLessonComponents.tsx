@@ -328,7 +328,8 @@ export function DialogueExercise({
 
 // Comprehension Exercise Component
 export function ComprehensionExercise({ 
-  questions 
+  questions,
+  hideAnswers = false
 }: { 
   questions: Array<{
     question: string
@@ -336,6 +337,7 @@ export function ComprehensionExercise({
     options?: string[]
     answer?: string
   }>
+  hideAnswers?: boolean
 }) {
   const [selectedAnswers, setSelectedAnswers] = useState<{ [key: number]: string }>({})
   const [showAnswers, setShowAnswers] = useState<{ [key: number]: boolean }>({})
@@ -445,6 +447,12 @@ export function ComprehensionExercise({
                   })}
                 </div>
               )}
+              
+              {q.type === 'multiple-choice' && !q.options && (
+                <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3 mb-4 text-sm text-amber-700 dark:text-amber-300">
+                  ⚠️ MCQ options not available - this lesson may have been generated before the format was updated
+                </div>
+              )}
 
               {q.type === 'true-false' && (
                 <div className="space-y-2 mb-4">
@@ -497,19 +505,9 @@ export function ComprehensionExercise({
                 </div>
               )}
 
-              {q.type === 'short-answer' && (
-                <div className="space-y-3 mb-4">
-                  <textarea
-                    className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-800 dark:text-white"
-                    rows={3}
-                    placeholder="Write your answer here..."
-                    value={selectedAnswers[index] || ''}
-                    onChange={(e) => handleAnswerSelect(index, e.target.value)}
-                  />
-                </div>
-              )}
 
-              {q.answer && (
+
+              {q.answer && !hideAnswers && (
                 <div className="flex items-center space-x-4">
                   <button
                     type="button"
@@ -571,12 +569,12 @@ export function RolePlayExercise({
           <div key={index} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
             <h5 className="font-semibold text-gray-900 dark:text-white mb-2">
               <span dangerouslySetInnerHTML={{ 
-                __html: role.name.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') 
+                __html: (role.name || '').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') 
               }} />
             </h5>
             <p className="text-gray-700 dark:text-gray-300 text-sm mb-3">
               <span dangerouslySetInnerHTML={{ 
-                __html: role.description.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') 
+                __html: (role.description || '').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') 
               }} />
             </p>
             {role.keyPoints && (
