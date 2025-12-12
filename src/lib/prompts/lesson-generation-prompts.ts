@@ -37,8 +37,22 @@ STUDENT PROFILE:
 TOPIC: ${topic.title}
 OBJECTIVE: ${topic.objective}
 
-LESSON CONTEXT (Max 120 chars): Write a brief, clear statement of what the student will learn and practice - focus on learning outcomes (specific skills, communication approaches, or competencies) in the lesson context. Keep concise and direct.
-${topic.context ? `CONTEXT: ${topic.context}` : ''}
+**IMPORTANT: OBJECTIVE SPECIFICATION (MAX 120 CHARACTERS)**
+The objective MUST be outcome-focused and specific, showing exactly what the student will be ABLE TO DO after the lesson.
+
+FORMAT (concise version): "By the end of this lesson, ${student.name} will confidently [main skill], including [3-4 specific sub-skills]."
+
+
+CRITICAL RULES:
+- Maximum 120 characters (count carefully!)
+- Start with "By the end of this lesson, [Name] will confidently"
+- Use action verbs 
+- List 3 specific sub-skills separated by commas
+- Use "including" to introduce sub-skills
+- Be concrete and measurable, NOT vague
+- Do NOT repeat the lesson title or use generic statements
+- Keep it SHORT and punchy
+
 ${topic.vocabulary && Array.isArray(topic.vocabulary) ? `VOCABULARY: ${topic.vocabulary.join(', ')}` : ''}${vocabularyContextSection}${under18Section}
 
 CRITICAL LESSON RULE:
@@ -116,7 +130,7 @@ JSON OUTPUT:
 {
   "title": "${topic.title}",
   "lessonType": "${(student.ageGroup === 'child' || student.ageGroup === 'teenager') ? 'Under-18' : 'interactive'}",
-  "objective": "${topic.objective}",
+  "objective": "By the end of the lesson, ${student.name} will be able to confidently [INSERT SPECIFIC MAIN SKILL] in English, including [INSERT 3-4 SPECIFIC SUB-SKILLS]. FOLLOW THE FORMAT ABOVE EXACTLY.",
   "difficulty": ${student.level === 'beginner' ? '3' : student.level === 'elementary' ? '4' : student.level === 'intermediate' ? '6' : '8'},
   "duration": ${duration},
   "skills": ["Speaking", "Listening", "Reading", "Vocabulary"],

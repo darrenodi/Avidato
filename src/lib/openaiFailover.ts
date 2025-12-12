@@ -56,7 +56,6 @@ export async function generateWithFailover({
       if (!text || text.trim().length === 0) {
         throw new Error('Empty response text')
       }
-      console.log(`✅ OpenAI API Success - Model used: ${modelName}`)
       return { modelUsed: modelName, rawText: text }
     } catch (err) {
       console.warn(`❌ OpenAI API Failed - Model: ${modelName}, Error:`, err instanceof Error ? err.message : String(err))
