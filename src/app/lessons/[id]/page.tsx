@@ -525,13 +525,10 @@ export default function LessonPage() {
             {/* Lesson Header */}
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6 lg:p-8">
               <div className="mb-4 sm:mb-6">
-                <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white mb-4">
                   {lesson.content.title}
                 </h1>
-                <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 mb-3 sm:mb-4">
-                  {lesson.content.objective}
-                </p>
-                <div className="flex flex-wrap gap-3 sm:gap-4 text-xs sm:text-sm">
+                <div className="flex flex-wrap gap-3 sm:gap-4 text-xs sm:text-sm mb-6">
                   <div className="flex items-center space-x-2">
                     <span className="font-medium text-gray-500 dark:text-gray-400">Student:</span>
                     <span className="text-gray-900 dark:text-white">{lesson.student.name}</span>
@@ -553,9 +550,15 @@ export default function LessonPage() {
                 </div>
               </div>
 
-              {/* Lesson Overview */}
+              {/* Lesson Overview - Objectives & Skills */}
               {!(lesson.content as Record<string, unknown>).isGrammarLesson && (
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+                  <div>
+                    <h3 className="font-semibold text-gray-900 dark:text-white mb-2 text-sm sm:text-base">Objectives</h3>
+                    <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400">
+                      {lesson.content.objective}
+                    </p>
+                  </div>
                   <div>
                     <h3 className="font-semibold text-gray-900 dark:text-white mb-2 text-sm sm:text-base">Skills Practiced</h3>
                     <div className="flex flex-wrap gap-2">
