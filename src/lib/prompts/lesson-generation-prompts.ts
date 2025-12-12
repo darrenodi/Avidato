@@ -24,11 +24,6 @@ export function buildLessonGenerationPrompt(
   levelGuide: string,
   cefrVocabGuide: string
 ): string {
-  console.log('[buildLessonGenerationPrompt] Topic:', topic.title);
-  console.log('[buildLessonGenerationPrompt] topic.vocabulary type:', typeof topic.vocabulary);
-  console.log('[buildLessonGenerationPrompt] topic.vocabulary is Array:', Array.isArray(topic.vocabulary));
-  console.log('[buildLessonGenerationPrompt] topic.vocabulary value:', topic.vocabulary);
-  
   return `You are an expert language instructor creating authentic Engoo-format lessons. Generate a complete lesson following the EXACT structure below.
 
 STUDENT PROFILE:
