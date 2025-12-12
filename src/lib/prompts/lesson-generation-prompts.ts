@@ -36,6 +36,7 @@ STUDENT PROFILE:
 
 TOPIC: ${topic.title}
 OBJECTIVE: ${topic.objective}
+
 LESSON CONTEXT (Max 120 chars): Write a brief, clear statement of what the student will learn and practice - focus on learning outcomes (specific skills, communication approaches, or competencies) in the lesson context. Keep concise and direct.
 ${topic.context ? `CONTEXT: ${topic.context}` : ''}
 ${topic.vocabulary && Array.isArray(topic.vocabulary) ? `VOCABULARY: ${topic.vocabulary.join(', ')}` : ''}${vocabularyContextSection}${under18Section}
