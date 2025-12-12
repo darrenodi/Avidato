@@ -26,12 +26,19 @@ export const RoleplayRenderer: React.FC<RoleplayRendererProps> = ({
 }) => {
   return (
     <div className="space-y-6">
-      <div className="border-l-4 border-purple-500 pl-4 mb-6">
-        <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">{instructions}</p>
+      {instructions && (
+        <div className="border-l-4 border-purple-500 pl-4 mb-6">
+          <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">{instructions}</p>
+          <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+            ⏱️ {timeMinutes} minutes • {roles.length} roles
+          </p>
+        </div>
+      )}
+      {!instructions && (
         <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
           ⏱️ {timeMinutes} minutes • {roles.length} roles
         </p>
-      </div>
+      )}
 
       <div className="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg p-4 sm:p-6">
         <h3 className="text-sm font-semibold text-purple-900 dark:text-purple-300 mb-2">

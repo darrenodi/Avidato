@@ -128,7 +128,7 @@ OUTPUT FORMAT (JSON):
   "objective": "What students will learn (in English for teacher reference)",
   "skills": ["Speaking", "Listening", "Reading", "Vocabulary"],
   "vocabulary": [array of vocabulary items as specified above],
-  "context": "Brief context about the lesson topic (in English for teacher reference)",
+  "context": "Brief objectives about the lesson topic (in English for teacher reference)",
   "exercises": [
     {
       "type": "vocabulary",

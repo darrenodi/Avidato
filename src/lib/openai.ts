@@ -262,6 +262,7 @@ CRITICAL INSTRUCTION FOR DIALOGUE EXERCISE (Exercise 3):
   // Special instructions for under-18 students: Add grammar exercise
   let under18Section = '';
   if (student.ageGroup === 'child' || student.ageGroup === 'teenager') {
+    const vocabList = topic.vocabulary && Array.isArray(topic.vocabulary) ? topic.vocabulary.join(', ') : 'the lesson vocabulary';
     under18Section = `
 
 UNDER-18 STUDENT - GRAMMAR EXERCISE REQUIREMENT:
@@ -272,7 +273,7 @@ This exercise focuses on correcting common grammar errors in sentences DIRECTLY 
 
 IMPORTANT RULES:
 - Create 6-8 sentences ALL ABOUT THE LESSON TOPIC: "${topic.title}"
-- Sentences should use the lesson vocabulary: ${topic.vocabulary.join(', ')}
+- Sentences should use the lesson vocabulary: ${vocabList}
 - Errors should focus on verb tenses, verb forms, and subject-verb agreement
 - Sentences may contain common errors like:
   * Missing prepositions in phrasal verbs
@@ -297,7 +298,7 @@ RESPONSE FORMAT FOR EXERCISE 5:
         "incorrect": "A sentence about ${topic.title} with or without a grammar error",
         "correct": "The same sentence corrected, OR if already correct: 'This is already correct'"
       },
-      ... (6-8 total items, ALL using vocabulary from: ${topic.vocabulary.join(', ')})
+      ... (6-8 total items, ALL using vocabulary from: ${vocabList})
     ]
   },
   "timeMinutes": 5

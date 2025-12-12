@@ -69,12 +69,14 @@ interface Under18DisplayProps {
   lesson: Under18Lesson
   showObjectives?: boolean
   showProgressBar?: boolean
+  showHeader?: boolean
 }
 
 export const Under18LessonDisplay: React.FC<Under18DisplayProps> = ({
   lesson,
   showObjectives = true,
   showProgressBar = true,
+  showHeader = true,
 }) => {
   const [currentExerciseIndex, setCurrentExerciseIndex] = React.useState(0)
   const [completedExercises, setCompletedExercises] = React.useState<Set<number>>(new Set())
@@ -118,7 +120,7 @@ export const Under18LessonDisplay: React.FC<Under18DisplayProps> = ({
           <WarmUpRenderer
             title={exercise.title}
             description={exercise.description}
-            instructions={exercise.instructions}
+            instructions=""
             questions={content.questions as Parameters<typeof WarmUpRenderer>[0]['questions']}
             timeMinutes={exercise.timeMinutes}
           />
@@ -128,7 +130,7 @@ export const Under18LessonDisplay: React.FC<Under18DisplayProps> = ({
         return (
           <VocabularyRenderer
             title={exercise.title}
-            instructions={exercise.instructions}
+            instructions=""
             vocabulary={content.vocabulary as Parameters<typeof VocabularyRenderer>[0]['vocabulary']}
             practiceActivity={content.practice as Parameters<typeof VocabularyRenderer>[0]['practiceActivity']}
             timeMinutes={exercise.timeMinutes}
@@ -169,7 +171,7 @@ export const Under18LessonDisplay: React.FC<Under18DisplayProps> = ({
         return (
           <GrammarRenderer
             title={exercise.title}
-            instructions={exercise.instructions}
+            instructions=""
             sentences={content.sentences as Parameters<typeof GrammarRenderer>[0]['sentences']}
             timeMinutes={exercise.timeMinutes}
           />
@@ -191,7 +193,7 @@ export const Under18LessonDisplay: React.FC<Under18DisplayProps> = ({
         return (
           <ComprehensionRenderer
             title={exercise.title}
-            instructions={exercise.instructions}
+            instructions=""
             questions={content.questions as Parameters<typeof ComprehensionRenderer>[0]['questions']}
             timeMinutes={exercise.timeMinutes}
           />
@@ -211,7 +213,7 @@ export const Under18LessonDisplay: React.FC<Under18DisplayProps> = ({
         return (
           <RoleplayRenderer
             title={exercise.title}
-            instructions={exercise.instructions}
+            instructions=""
             scenario={content.scenario as string}
             roles={content.roles as Parameters<typeof RoleplayRenderer>[0]['roles']}
             timeMinutes={exercise.timeMinutes}
@@ -222,7 +224,7 @@ export const Under18LessonDisplay: React.FC<Under18DisplayProps> = ({
         return (
           <DiscussionRenderer
             title={exercise.title}
-            instructions={exercise.instructions}
+            instructions=""
             questions={content.questions as string[]}
             timeMinutes={exercise.timeMinutes}
           />
@@ -264,46 +266,48 @@ export const Under18LessonDisplay: React.FC<Under18DisplayProps> = ({
   return (
     <div className="space-y-6">
       {/* Lesson Header */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-          {lesson.metadata.title}
-        </h1>
-        <p className="text-lg text-gray-600 dark:text-gray-400 mb-4">
-          Level: {lesson.metadata.level} • Topic: {lesson.metadata.topic}
-        </p>
+      {showHeader && (
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+            {lesson.metadata.title}
+          </h1>
+          <p className="text-lg text-gray-600 dark:text-gray-400 mb-4">
+            Level: {lesson.metadata.level}
+          </p>
 
-        {/* Learning Objectives */}
-        {showObjectives && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-            <div>
-              <h3 className="font-semibold text-gray-900 dark:text-white text-sm mb-2">
-                Communicative Goals
-              </h3>
-              <ul className="space-y-1 text-sm text-gray-700 dark:text-gray-300">
-                {lesson.learningObjectives.communicative.slice(0, 3).map((goal, i) => (
-                  <li key={i} className="flex items-start gap-2">
-                    <span className="text-blue-500 mt-0.5">•</span>
-                    <span>{goal}</span>
-                  </li>
-                ))}
-              </ul>
+          {/* Learning Objectives */}
+          {showObjectives && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+              <div>
+                <h3 className="font-semibold text-gray-900 dark:text-white text-sm mb-2">
+                  Communicative Goals
+                </h3>
+                <ul className="space-y-1 text-sm text-gray-700 dark:text-gray-300">
+                  {lesson.learningObjectives.communicative.slice(0, 3).map((goal, i) => (
+                    <li key={i} className="flex items-start gap-2">
+                      <span className="text-blue-500 mt-0.5">•</span>
+                      <span>{goal}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-900 dark:text-white text-sm mb-2">
+                  Language Focus
+                </h3>
+                <ul className="space-y-1 text-sm text-gray-700 dark:text-gray-300">
+                  {lesson.learningObjectives.linguistic.slice(0, 3).map((goal, i) => (
+                    <li key={i} className="flex items-start gap-2">
+                      <span className="text-green-500 mt-0.5">•</span>
+                      <span>{goal}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
-            <div>
-              <h3 className="font-semibold text-gray-900 dark:text-white text-sm mb-2">
-                Language Focus
-              </h3>
-              <ul className="space-y-1 text-sm text-gray-700 dark:text-gray-300">
-                {lesson.learningObjectives.linguistic.slice(0, 3).map((goal, i) => (
-                  <li key={i} className="flex items-start gap-2">
-                    <span className="text-green-500 mt-0.5">•</span>
-                    <span>{goal}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        )}
-      </div>
+          )}
+        </div>
+      )}
 
       {/* Progress Bar */}
       {showProgressBar && (

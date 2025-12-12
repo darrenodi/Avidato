@@ -83,8 +83,8 @@ const transformToUnder18Lesson = (lessonData: LessonData) => {
       ageGroup: 'Under 18'
     },
     learningObjectives: {
-      communicative: [],
-      linguistic: [],
+      communicative: [lessonData.content.objective || ''],
+      linguistic: lessonData.content.skills || [],
       cultural: []
     },
     exercises: lessonData.content.exercises.map((exercise, index) => ({
@@ -94,7 +94,7 @@ const transformToUnder18Lesson = (lessonData: LessonData) => {
       title: exercise.title,
       description: exercise.description,
       timeMinutes: exercise.timeMinutes,
-      instructions: exercise.description,
+      instructions: exercise.description || '',
       content: (typeof exercise.content === 'object' && exercise.content !== null) 
         ? (exercise.content as Record<string, unknown>) 
         : {}
@@ -547,7 +547,7 @@ export default function LessonPage() {
                   <div className="flex items-center space-x-2">
                     <span className="font-medium text-gray-500 dark:text-gray-400">Lesson Type:</span>
                     <span className="px-2 py-1 bg-brand-primary/10 text-brand-primary rounded-full text-xs font-medium">
-                      {lesson.content.lessonType}
+                      {lesson.content.lessonType === 'Under-18' ? 'kids' : lesson.content.lessonType}
                     </span>
                   </div>
                 </div>
@@ -555,7 +555,7 @@ export default function LessonPage() {
 
               {/* Lesson Overview */}
               {!(lesson.content as Record<string, unknown>).isGrammarLesson && (
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
                   <div>
                     <h3 className="font-semibold text-gray-900 dark:text-white mb-2 text-sm sm:text-base">Skills Practiced</h3>
                     <div className="flex flex-wrap gap-2">
@@ -566,49 +566,6 @@ export default function LessonPage() {
                       ))}
                     </div>
                   </div>
-                  
-                  <div>
-                    <h3 className="font-semibold text-gray-900 dark:text-white mb-2 text-sm sm:text-base">Key Vocabulary</h3>
-                    <div className="flex flex-wrap gap-2">
-                      {(() => {
-                        // Extract vocabulary from Exercise 1 (vocabulary exercise)
-                        const vocabExercise = ((lesson.content as Record<string, unknown>).exercises as Array<{ type: string; content: { vocabulary?: unknown[] } }>)?.find(ex => ex.type === 'vocabulary');
-                        const vocabulary = vocabExercise?.content?.vocabulary || [];
-                        
-                        return vocabulary.slice(0, 6).map((word, index) => {
-                          // Handle both string vocabulary and object vocabulary
-                          const displayWord = typeof word === 'string' ? word : ((word as Record<string, unknown>).word || (word as Record<string, unknown>).term || String(word));
-                          const key = typeof word === 'string' ? word : `vocab-${index}`;
-                          
-                          return (
-                            <span key={key} className="px-2 py-1 bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-400 rounded text-xs sm:text-sm">
-                              {String(displayWord)}
-                            </span>
-                          );
-                        });
-                      })()}
-                      {(() => {
-                        const vocabExercise = ((lesson.content as Record<string, unknown>).exercises as Array<{ type: string; content: { vocabulary?: unknown[] } }>)?.find(ex => ex.type === 'vocabulary');
-                        const vocabulary = vocabExercise?.content?.vocabulary || [];
-                        return vocabulary.length > 6 && (
-                          <span className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded text-xs sm:text-sm">
-                            +{vocabulary.length - 6} more
-                          </span>
-                        );
-                      })()}
-                    </div>
-                  </div>
-
-                  <div>
-                    <h3 className="font-semibold text-gray-900 dark:text-white mb-2 text-sm sm:text-base">Context</h3>
-                    <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
-                      {String((lesson.content as Record<string, unknown>).context)}
-                    </p>
-                    <div className="mt-2">
-                      <span className="font-medium text-gray-500 dark:text-gray-400 text-xs sm:text-sm">Difficulty: </span>
-                      <span className="text-xs sm:text-sm text-gray-900 dark:text-white">{String((lesson.content as Record<string, unknown>).difficulty)}/10</span>
-                    </div>
-                  </div>
                 </div>
               )}
             </div>
@@ -617,8 +574,9 @@ export default function LessonPage() {
             {lesson.content.lessonType === 'Under-18' ? (
               <Under18LessonDisplay
                 lesson={transformToUnder18Lesson(lesson)}
-                showObjectives={true}
+                showObjectives={false}
                 showProgressBar={true}
+                showHeader={false}
               />
             ) : (lesson.content as Record<string, unknown>).isGrammarLesson ? (
               <GrammarLessonDisplay lesson={lesson.content as unknown as Record<string, unknown> & {
@@ -642,15 +600,19 @@ export default function LessonPage() {
                             {exercise.title}
                           </h3>
                           <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
-                            {getExerciseTitle(exercise.type)} • {exercise.timeMinutes} minutes
+                            {exercise.timeMinutes} minutes
                           </p>
                         </div>
                       </div>
                     </div>
                     
-                    <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300 mb-3 sm:mb-4">
-                      {exercise.description}
-                    </p>
+                    {exercise.type !== 'warmup' && (
+                      <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300 mb-3 sm:mb-4">
+                        {exercise.type === 'vocabulary' 
+                          ? 'Read the vocabulary and example sentence along with your tutor' 
+                          : exercise.description}
+                      </p>
+                    )}
                     
                     <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3 sm:p-4 overflow-x-auto">
                       {renderExerciseContent(exercise)}
