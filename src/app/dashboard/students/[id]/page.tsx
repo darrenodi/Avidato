@@ -297,9 +297,15 @@ export default function StudentProfilePage() {
     const selectedAITopic = currentLearningPlan.topics.find(t => t.lessonNumber.toString() === selectedTopic)
     if (!selectedAITopic) return
 
+    // Ensure vocabulary is always an array (default to empty if not provided)
+    const topicWithVocabulary = {
+      ...selectedAITopic,
+      vocabulary: selectedAITopic.vocabulary || []
+    }
+
     setIsGeneratingLesson(true)
     try {
-      const result = await generateLesson(student.id, selectedAITopic, 50)
+      const result = await generateLesson(student.id, topicWithVocabulary, 50)
       if (result.success && result.data) {
         // Refresh lessons list and generation stats
         await fetchLessons()

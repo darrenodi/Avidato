@@ -83,8 +83,9 @@ DIALOGUE RULES (Exercise 3):
 - NATURAL dialogue: Write as people actually speak, no forced vocabulary
 - CONCLUSIVE ENDING: Must have a decision, agreement, or resolution
 - NO EM DASHES (—)
+- CRITICAL: Use EXACT character names in the dialogue exchanges - use "${student.name}" and the selected role name EXACTLY as listed in the characters array
 
-Format: { "type": "dialogue", "title": "Exercise 3: Dialogue", "description": "Practice with realistic scenario", "content": { "setting": "Max 150 chars: WHO, WHERE, WHAT", "characters": [${student.name} and one other role], "dialogue": [10-15 natural exchanges], "instructions": "Read as ${student.name}" }, "timeMinutes": 12 }
+Format: { "type": "dialogue", "title": "Exercise 3: Dialogue", "description": "Practice with realistic scenario", "content": { "setting": "Max 150 chars: WHO, WHERE, WHAT", "characters": ["${student.name}", "Selected Role Name"], "dialogue": [{"character": "${student.name}", "text": "..."}, {"character": "Selected Role Name", "text": "..."}, ...8-12 total exchanges with alternating speakers], "instructions": "Read as ${student.name}" }, "timeMinutes": 12 }
 
 **Exercise 4: Dialogue Comprehension** (8 min)
 CRITICAL MCQ FORMAT:
@@ -119,12 +120,16 @@ JSON OUTPUT:
 {
   "title": "${topic.title}",
   "lessonType": "${(student.ageGroup === 'child' || student.ageGroup === 'teenager') ? 'Under-18' : 'interactive'}",
+  "objective": "${topic.objective}",
   "difficulty": ${student.level === 'beginner' ? '3' : student.level === 'elementary' ? '4' : student.level === 'intermediate' ? '6' : '8'},
   "duration": ${duration},
   "skills": ["Speaking", "Listening", "Reading", "Vocabulary"],
+  "vocabulary": [],
   "context": "${topic.context}",
   "exercises": [/* 7 exercises as formatted above */],
-  "homework": "Review vocabulary and practice dialogue"
+  "homework": "Review vocabulary and practice dialogue",
+  "materials": [],
+  "teachingNotes": ""
 }
 
 RETURN ONLY VALID JSON, NO EXPLANATION.`;
