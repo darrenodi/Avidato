@@ -93,7 +93,8 @@ const generateDetailedSetting = (
 }
 
 interface DialogueExchange {
-  character: string
+  character?: string
+  name?: string
   text: string
   translation?: string
 }
@@ -173,17 +174,44 @@ export const DialogueRenderer: React.FC<DialogueRendererProps> = ({
       {/* Dialogue - Clean List Format */}
       <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 divide-y divide-gray-200 dark:divide-gray-700">
         {dialogue.map((exchange, index) => {
-          const charIndex = characters.indexOf(exchange.character)
-          const color = getCharacterColor(charIndex)
+          // Normalize character name - handle various formats
+          let charName = exchange.character || '';
+          if (!charName && exchange.name) {
+            charName = exchange.name;
+          }
+          
+          // Try to find matching character (case-insensitive, or use the name if not found)
+          let displayName = charName;
+          let charIndex = characters.findIndex((c) => c.toLowerCase() === charName.toLowerCase());
+          
+          // If not found, try fuzzy match for partial names
+          if (charIndex === -1 && charName) {
+            charIndex = characters.findIndex((c) => 
+              c.toLowerCase().includes(charName.toLowerCase()) || 
+              charName.toLowerCase().includes(c.toLowerCase())
+            );
+          }
+          
+          // If still not found and we have characters, alternate between them
+          if (charIndex === -1) {
+            charIndex = Math.max(0, index % characters.length);
+            // Use the character from the array
+            displayName = characters[charIndex] || charName || 'Unknown';
+          } else {
+            displayName = characters[charIndex];
+          }
+          
+          const color = getCharacterColor(Math.max(0, charIndex))
+          
           return (
             <div key={index} className="p-4 sm:p-6">
               <div className="flex gap-3 mb-2">
                 <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs ${color.bg} ${color.text} border-2 ${color.border}`}>
-                  {exchange.character[0].toUpperCase()}
+                  {(displayName || 'U')[0].toUpperCase()}
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className={`font-bold text-sm mb-1 ${color.text}`}>
-                    {exchange.character}
+                    {displayName}
                   </p>
                   <p className="text-gray-900 dark:text-white text-base leading-relaxed">
                     {exchange.text}

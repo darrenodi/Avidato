@@ -42,12 +42,19 @@ export const VocabularyRenderer: React.FC<VocabularyRendererProps> = ({
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="border-l-4 border-green-500 pl-4">
-        <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">{instructions}</p>
+      {instructions && (
+        <div className="border-l-4 border-green-500 pl-4">
+          <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">{instructions}</p>
+          <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+            ⏱️ {timeMinutes} minutes
+          </p>
+        </div>
+      )}
+      {!instructions && (
         <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
           ⏱️ {timeMinutes} minutes
         </p>
-      </div>
+      )}
 
       {/* Vocabulary List - EXACT 18+ Layout */}
       <div className="space-y-6">

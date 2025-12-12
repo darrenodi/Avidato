@@ -459,6 +459,9 @@ export async function generateLesson(
       shouldReuseVocabularyInDialogue: vocabContext.shouldReuseInDialogue,
     };
 
+    console.log('[generateLesson action] lessonData.vocabulary:', lessonData.vocabulary);
+    console.log('[generateLesson action] lessonDataWithContext.vocabulary:', lessonDataWithContext.vocabulary);
+
     // Generate lesson
     const generatedLesson = await openaiService.generateLesson(
       studentProfile,

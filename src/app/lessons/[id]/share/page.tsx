@@ -745,7 +745,7 @@ export default function SharedLessonPage() {
                       id: lesson.id,
                       title: lesson.content.title || '',
                       level: lesson.student.level,
-                      topic: lesson.content.context || '',
+                      topic: lesson.content.title || '',
                       duration: lesson.content.duration || 0,
                       difficulty: lesson.content.difficulty || 0,
                       targetAudience: 'Under 18',
@@ -787,7 +787,7 @@ export default function SharedLessonPage() {
                         </div>
                         <div className="flex items-center gap-2">
                           <span className="font-medium text-gray-500 dark:text-gray-400">Type:</span>
-                          <span className="px-2 py-1 bg-brand-primary/10 text-brand-primary rounded-full">{lesson.content.lessonType}</span>
+                          <span className="px-2 py-1 bg-brand-primary/10 text-brand-primary rounded-full">{lesson.content.lessonType === 'Under-18' ? 'kids' : lesson.content.lessonType}</span>
                         </div>
                       </div>
                     </div>
@@ -802,17 +802,6 @@ export default function SharedLessonPage() {
                           ) : (
                             <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">No skills listed</p>
                           )}
-                        </div>
-                      </div>
-
-                      <div>
-                        <h3 className="font-semibold text-gray-900 dark:text-white mb-2 text-sm sm:text-base">Objectives</h3>
-                        <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
-                          {lesson.content.context}
-                        </p>
-                        <div className="mt-2">
-                          <span className="font-medium text-gray-500 dark:text-gray-400 text-xs sm:text-sm">Difficulty: </span>
-                          <span className="text-xs sm:text-sm text-gray-900 dark:text-white">{lesson.content.difficulty}/10</span>
                         </div>
                       </div>
                     </div>

@@ -41,12 +41,19 @@ export const ComprehensionRenderer: React.FC<ComprehensionRendererProps> = ({
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="border-l-4 border-indigo-500 pl-4 mb-6">
-        <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">{instructions}</p>
+      {instructions && (
+        <div className="border-l-4 border-indigo-500 pl-4 mb-6">
+          <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">{instructions}</p>
+          <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+            ⏱️ {timeMinutes} minutes • {questions.length} questions
+          </p>
+        </div>
+      )}
+      {!instructions && (
         <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
           ⏱️ {timeMinutes} minutes • {questions.length} questions
         </p>
-      </div>
+      )}
 
       {/* Questions */}
       <div className="space-y-4">

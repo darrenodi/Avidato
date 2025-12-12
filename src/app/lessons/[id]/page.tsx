@@ -83,8 +83,8 @@ const transformToUnder18Lesson = (lessonData: LessonData) => {
       ageGroup: 'Under 18'
     },
     learningObjectives: {
-      communicative: [],
-      linguistic: [],
+      communicative: [lessonData.content.objective || ''],
+      linguistic: lessonData.content.skills || [],
       cultural: []
     },
     exercises: lessonData.content.exercises.map((exercise, index) => ({
@@ -547,7 +547,7 @@ export default function LessonPage() {
                   <div className="flex items-center space-x-2">
                     <span className="font-medium text-gray-500 dark:text-gray-400">Lesson Type:</span>
                     <span className="px-2 py-1 bg-brand-primary/10 text-brand-primary rounded-full text-xs font-medium">
-                      {lesson.content.lessonType}
+                      {lesson.content.lessonType === 'Under-18' ? 'kids' : lesson.content.lessonType}
                     </span>
                   </div>
                 </div>
@@ -566,17 +566,6 @@ export default function LessonPage() {
                       ))}
                     </div>
                   </div>
-                  
-                  <div>
-                    <h3 className="font-semibold text-gray-900 dark:text-white mb-2 text-sm sm:text-base">Objectives</h3>
-                    <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
-                      {String((lesson.content as Record<string, unknown>).context)}
-                    </p>
-                    <div className="mt-2">
-                      <span className="font-medium text-gray-500 dark:text-gray-400 text-xs sm:text-sm">Difficulty: </span>
-                      <span className="text-xs sm:text-sm text-gray-900 dark:text-white">{String((lesson.content as Record<string, unknown>).difficulty)}/10</span>
-                    </div>
-                  </div>
                 </div>
               )}
             </div>
@@ -585,8 +574,9 @@ export default function LessonPage() {
             {lesson.content.lessonType === 'Under-18' ? (
               <Under18LessonDisplay
                 lesson={transformToUnder18Lesson(lesson)}
-                showObjectives={true}
+                showObjectives={false}
                 showProgressBar={true}
+                showHeader={false}
               />
             ) : (lesson.content as Record<string, unknown>).isGrammarLesson ? (
               <GrammarLessonDisplay lesson={lesson.content as unknown as Record<string, unknown> & {
