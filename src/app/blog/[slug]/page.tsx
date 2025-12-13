@@ -1,160 +1,111 @@
-import { getPostBySlug, getAllPosts } from '@/lib/posts';
-import { MDXRemote } from 'next-mdx-remote/rsc';
-import Image from 'next/image';
-import Link from 'next/link';
-import { format } from 'date-fns';
-import { notFound } from 'next/navigation';
-import PublicNavbar from '@/components/layout/PublicNavbar';
-import PublicFooter from '@/components/layout/PublicFooter';
+import Link from 'next/link'
+import { notFound } from 'next/navigation'
+import { getBlogPostBySlug, calculateReadingTime } from '@/lib/blog-service'
+import BlogPostContent from '../blog-post-content'
 
-export async function generateStaticParams() {
-  const posts = getAllPosts();
-  return posts.map((post) => ({
-    slug: post.slug,
-  }));
-}
-
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = await params;
-  const post = getPostBySlug(slug);
-  
-  if (!post) {
-    return {
-      title: 'Post Not Found',
-    };
-  }
-
-  return {
-    title: `${post.frontmatter.title} | Avidato Blog`,
-    description: post.frontmatter.description,
-    openGraph: {
-      title: post.frontmatter.title,
-      description: post.frontmatter.description,
-      images: post.frontmatter.image ? [post.frontmatter.image] : [],
-    },
-  };
+interface BlogPost {
+  id: string
+  title: string
+  slug: string
+  description: string
+  content: string
+  image: string | null
+  author: string
+  tags: string[]
+  createdAt: Date
+  updatedAt: Date
 }
 
 export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = await params;
-  const post = getPostBySlug(slug);
+  const resolvedParams = await params
+  let post: BlogPost | null = null
 
-  if (!post) {
-    notFound();
+  try {
+    const data = await getBlogPostBySlug(resolvedParams.slug)
+    if (data) {
+      post = data as BlogPost
+    }
+  } catch (error) {
+    console.error('Error loading blog post:', error)
   }
 
-  const { frontmatter, content } = post;
+  if (!post) {
+    notFound()
+  }
+
+  const readingTime = calculateReadingTime(post.content)
+  const publishDate = new Date(post.createdAt)
 
   return (
-    <>
-      <PublicNavbar />
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-        <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          {/* Back Link */}
+    <div className="min-h-screen bg-white">
+      {/* Hero Section */}
+      {post.image && (
+        <div className="h-96 bg-gray-100 overflow-hidden">
+          <img
+            src={post.image}
+            alt={post.title}
+            className="w-full h-full object-cover"
+          />
+        </div>
+      )}
+
+      <article className="max-w-3xl mx-auto px-4 py-12">
+        {/* Back Link */}
+        <Link href="/blog" className="text-blue-600 hover:text-blue-900 mb-6 inline-block">
+          ← Back to Blog
+        </Link>
+
+        {/* Title and Meta */}
+        <h1 className="text-4xl font-bold text-gray-900 mb-4">{post.title}</h1>
+
+        <div className="flex flex-wrap items-center gap-4 text-gray-600 mb-8 pb-8 border-b border-gray-200">
+          {post.author && <span>{post.author}</span>}
+          <span>{publishDate.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+          })}</span>
+          <span>{readingTime} min read</span>
+        </div>
+
+        {/* Tags */}
+        {post.tags && post.tags.length > 0 && (
+          <div className="flex flex-wrap gap-2 mb-8">
+            {post.tags.map((tag) => (
+              <Link
+                key={tag}
+                href={`/blog?tag=${encodeURIComponent(tag)}`}
+                className="inline-block px-3 py-1 bg-blue-50 text-blue-700 text-sm rounded-full hover:bg-blue-100 transition"
+              >
+                {tag}
+              </Link>
+            ))}
+          </div>
+        )}
+
+        {/* Content */}
+        <BlogPostContent content={post.content} />
+
+        {/* Footer */}
+        <div className="border-t border-gray-200 pt-8 mt-12">
+          <p className="text-gray-600 text-sm">
+            Last updated on {new Date(post.updatedAt).toLocaleDateString()}
+          </p>
+        </div>
+      </article>
+
+      {/* Related Posts Section - Optional */}
+      <div className="bg-gray-50 py-12 mt-12">
+        <div className="max-w-3xl mx-auto px-4">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">Read More</h2>
           <Link
             href="/blog"
-            className="inline-flex items-center text-brand-primary hover:text-brand-accent mb-8 transition-colors"
+            className="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
           >
-            <svg
-              className="w-5 h-5 mr-2"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15 19l-7-7 7-7"
-              />
-            </svg>
-            Back to Blog
+            Browse all posts
           </Link>
-
-          {/* Header */}
-          <header className="mb-8">
-            {/* Date */}
-            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-              {format(new Date(frontmatter.date), 'MMMM d, yyyy')}
-            </p>
-
-            {/* Title */}
-            <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-4">
-              {frontmatter.title}
-            </h1>
-
-            {/* Description */}
-            {frontmatter.description && (
-              <p className="text-xl text-gray-600 dark:text-gray-300 mb-6">
-                {frontmatter.description}
-              </p>
-            )}
-
-            {/* Author */}
-            {frontmatter.author && (
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                By {frontmatter.author}
-              </p>
-            )}
-
-            {/* Tags */}
-            {frontmatter.tags && frontmatter.tags.length > 0 && (
-              <div className="flex flex-wrap gap-2 mt-4">
-                {frontmatter.tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="px-3 py-1 text-sm font-medium bg-brand-primary/10 text-brand-primary rounded-full"
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            )}
-          </header>
-
-          {/* Featured Image */}
-          {frontmatter.image && (
-            <div className="relative w-full h-[400px] sm:h-[500px] mb-12 rounded-xl overflow-hidden">
-              <Image
-                src={frontmatter.image}
-                alt={frontmatter.title}
-                fill
-                className="object-cover"
-                priority
-              />
-            </div>
-          )}
-
-          {/* Content */}
-          <div className="prose prose-lg dark:prose-invert max-w-none prose-headings:text-gray-900 dark:prose-headings:text-white prose-p:text-gray-700 dark:prose-p:text-gray-300 prose-a:text-brand-primary hover:prose-a:text-brand-accent prose-strong:text-gray-900 dark:prose-strong:text-white">
-            <MDXRemote source={content} />
-          </div>
-
-          {/* Footer */}
-          <footer className="mt-12 pt-8 border-t border-gray-200 dark:border-gray-700">
-            <Link
-              href="/blog"
-              className="inline-flex items-center text-brand-primary hover:text-brand-accent transition-colors"
-            >
-              <svg
-                className="w-5 h-5 mr-2"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M15 19l-7-7 7-7"
-                />
-              </svg>
-              Back to all posts
-            </Link>
-          </footer>
-        </article>
+        </div>
       </div>
-      <PublicFooter />
-    </>
-  );
+    </div>
+  )
 }
