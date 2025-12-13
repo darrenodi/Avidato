@@ -95,6 +95,12 @@ export default function AdminLayout({
             >
               Send Notifications
             </Link>
+            <Link
+              href="/admin/blog"
+              className="px-3 py-4 border-b-2 border-transparent text-gray-600 dark:text-gray-400 hover:border-gray-300 dark:hover:border-gray-600 font-medium text-sm transition-colors"
+            >
+              Blog
+            </Link>
           </div>
         </div>
       </nav>

@@ -111,6 +111,41 @@ export default function AdminDashboard() {
           </div>
         </div>
 
+        {/* Blog Card */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 border border-gray-200 dark:border-gray-700">
+          <div className="flex items-center">
+            <div className="flex-1">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Blog</h3>
+              <p className="text-gray-600 dark:text-gray-400 text-sm mt-2">
+                Manage blog posts, create new articles, and organize content.
+              </p>
+            </div>
+            <div className="ml-4 p-3 bg-indigo-100 dark:bg-indigo-900 rounded-lg">
+              <svg
+                className="w-6 h-6 text-indigo-600 dark:text-indigo-200"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2m2 2a2 2 0 002-2m-2 2v-6a2 2 0 012-2h2a2 2 0 012 2v6a2 2 0 01-2 2m-4-15H9m4 0h4m-4 0a2 2 0 012-2h0a2 2 0 012 2m0 0h2"
+                />
+              </svg>
+            </div>
+          </div>
+          <div className="mt-4">
+            <a
+              href="/admin/blog"
+              className="inline-block px-4 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-accent transition-colors text-sm font-medium"
+            >
+              Manage Blog
+            </a>
+          </div>
+        </div>
+
         {/* Analytics Card */}
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 border border-gray-200 dark:border-gray-700">
           <div className="flex items-center">
