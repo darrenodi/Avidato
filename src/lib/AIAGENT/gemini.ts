@@ -1,17 +1,17 @@
 // src/lib/gemini.ts
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { generateWithFailover } from './geminiFailover';
-import { A1LessonModule } from './cefr/A1LessonModule';
-import { A2LessonModule } from './cefr/A2LessonModule';
-import { B1LessonModule } from './cefr/B1LessonModule';
-import { B2LessonModule } from './cefr/B2LessonModule';
-import { C1LessonModule } from './cefr/C1LessonModule';
-import { C2LessonModule } from './cefr/C2LessonModule';
-import { getSuggestedRolesAndScenarios, getOccupationExclusions } from './constants/occupation-roles';
-import { extractJSONFromText, cleanAndParseJSON } from './utils/json-parser';
-import { enforceSynonymConstraints } from './utils/vocabulary-validator';
-import { enforceDialogueStructure } from './utils/dialogue-validator';
-import { buildLessonGenerationPrompt } from './prompts/lesson-generation-prompts';
+import { A1LessonModule } from '../cefr/A1LessonModule';
+import { A2LessonModule } from '../cefr/A2LessonModule';
+import { B1LessonModule } from '../cefr/B1LessonModule';
+import { B2LessonModule } from '../cefr/B2LessonModule';
+import { C1LessonModule } from '../cefr/C1LessonModule';
+import { C2LessonModule } from '../cefr/C2LessonModule';
+import { getSuggestedRolesAndScenarios, getOccupationExclusions } from '../constants/occupation-roles';
+import { extractJSONFromText, cleanAndParseJSON } from '../utils/json-parser';
+import { enforceSynonymConstraints } from '../utils/vocabulary-validator';
+import { enforceDialogueStructure } from '../utils/dialogue-validator';
+import { buildLessonGenerationPrompt } from '../prompts/lesson-generation-prompts';
 
 if (!process.env.GOOGLE_API_KEY) {
   throw new Error('GOOGLE_API_KEY is not set');
@@ -24,7 +24,7 @@ import {
   LearningTopic,
   LearningPlan,
   GeneratedLesson
-} from '../types/lesson-template';
+} from '../../types/lesson-template';
 // NEVER EDIT THIS MODEL WITHOUT APPROVAL FROM THE OWNER
 class GeminiService {
   public model = genAI.getGenerativeModel({ 
