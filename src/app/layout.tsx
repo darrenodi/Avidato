@@ -9,8 +9,9 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 // --- Updated Metadata Object ---
 // We are adding the 'icons' and 'manifest' properties to your existing object.
 export const metadata: Metadata = {
-  title: "Avidato",
-  description: "Your AI-powered teaching assistant. English materials for Online English Tutors, share with your students. English ESL, ai, personalized, lesson plans, worksheets, flashcards, quizzes.",
+  title: "Avidato - AI English Teaching Assistant for ESL Tutors",
+  description: "Avidato is an AI-powered English teaching assistant for online ESL/EFL tutors. Generate personalized lesson plans, worksheets, quizzes, flashcards, and discussion questions. Free AI English teaching materials with CEFR level support.",
+  keywords: "ESL tutoring, EFL lessons, English teaching, AI lesson plans, CEFR levels, online tutoring, English worksheets, language learning, ESL resources, English tutor tools",
   icons: {
     icon: [
       { url: "/favicon.ico", type: "image/x-icon" },

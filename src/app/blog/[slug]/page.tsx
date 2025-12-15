@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getBlogPostBySlug, calculateReadingTime } from '@/lib/blog-service'
 import BlogPostContent from '../blog-post-content'
+import type { Metadata } from 'next'
 
 interface BlogPost {
   id: string
@@ -14,6 +15,39 @@ interface BlogPost {
   tags: string[]
   createdAt: Date
   updatedAt: Date
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const resolvedParams = await params
+  
+  try {
+    const post = await getBlogPostBySlug(resolvedParams.slug)
+    if (post) {
+      const description = post.description || `Read "${post.title}" on the Avidato blog. English teaching resources, ESL lessons, CEFR language learning tips, and online tutoring strategies for English tutors.`
+      return {
+        title: `${post.title} | Avidato Blog - English ESL Resources`,
+        description: description.length > 160 ? description.substring(0, 160) + '...' : description,
+        keywords: `ESL, EFL, English teaching, lesson plans, CEFR, language learning, online tutoring, English resources, ${post.tags?.join(', ') || ''}`,
+        openGraph: {
+          title: post.title,
+          description: description,
+          images: post.image ? [{ url: post.image, alt: post.title }] : [],
+          type: 'article',
+          publishedTime: new Date(post.createdAt).toISOString(),
+          authors: post.author ? [post.author] : [],
+          tags: post.tags || [],
+        },
+      }
+    }
+  } catch (error) {
+    console.error('Error generating metadata:', error)
+  }
+
+  return {
+    title: 'Blog Post | Avidato - English Teaching Resources',
+    description: 'Read articles about English teaching, ESL lesson plans, CEFR language learning, and online tutoring resources on the Avidato blog.',
+    keywords: 'ESL, EFL, English teaching, lesson plans, CEFR, language learning, online tutoring',
+  }
 }
 
 export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
