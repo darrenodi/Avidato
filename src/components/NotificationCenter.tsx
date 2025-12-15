@@ -136,7 +136,7 @@ export default function NotificationCenter() {
             <div className="p-4 text-center text-gray-500">No notifications yet</div>
           ) : (
             <div className="divide-y divide-gray-200 dark:divide-gray-800">
-              {notifications.map((notification) => (
+              {notifications.slice(0, 2).map((notification) => (
                 <button
                   key={notification.id}
                   onClick={() => handleNotificationClick(notification)}
