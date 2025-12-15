@@ -40,7 +40,7 @@ export default function DashboardPage() {
   const [currentDateTime, setCurrentDateTime] = useState('')
   const [dashboardStats, setDashboardStats] = useState<DashboardStats | null>(null)
   const [statsLoading, setStatsLoading] = useState(true)
-  const [generationStats, setGenerationStats] = useState({ used: 0, limit: 10, remaining: 10 })
+  const [generationStats, setGenerationStats] = useState({ used: 0, limit: 20, remaining: 20 })
 
   // Fetch dashboard statistics
   useEffect(() => {
@@ -233,7 +233,7 @@ export default function DashboardPage() {
                   {statsLoading ? (
                     <span className="animate-pulse bg-gray-200 dark:bg-gray-700 rounded w-6 sm:w-8 h-6 sm:h-8 block"></span>
                   ) : (
-                    generationStats.used
+                    `${generationStats.used}/${generationStats.limit}`
                   )}
                 </p>
                 <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Generated Today</p>

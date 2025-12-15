@@ -32,7 +32,7 @@ async function validateServerActionAccess(userId: string, operation: string): Pr
 
 
 // Check and update daily generation count
-async function checkAndUpdateGenerationLimit(userId: string): Promise<boolean> {
+export async function checkAndUpdateGenerationLimit(userId: string): Promise<boolean> {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 

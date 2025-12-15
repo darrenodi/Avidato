@@ -1,4 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { getServerSession } from 'next-auth/next'
+import { authOptions } from '@/lib/auth'
+import { checkAndUpdateGenerationLimit } from '@/app/actions/ai-generation'
 import { generateWithFailover } from '@/lib/openaiFailover'
 
 interface GenerateQuestionsRequest {
@@ -22,6 +25,15 @@ interface GenerateQuestionsResponse {
 
 export async function POST(request: NextRequest) {
   try {
+    // Get user session for tracking
+    const session = await getServerSession(authOptions)
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      )
+    }
+
     const body: GenerateQuestionsRequest = await request.json()
     const { topic, level, context } = body
 
@@ -29,6 +41,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: 'Topic and level are required' },
         { status: 400 }
+      )
+    }
+
+    // Check and update generation limit using the same logic as lesson generation
+    const canGenerate = await checkAndUpdateGenerationLimit(session.user.id)
+    if (!canGenerate) {
+      return NextResponse.json(
+        { error: 'Daily generation limit reached. Try again tomorrow.' },
+        { status: 429 }
       )
     }
 
@@ -79,7 +100,6 @@ Output format - respond with ONLY a valid JSON array, no other text:
 
     // Check if the AI refused to generate content
     if (responseText.includes("I'm not able") || responseText.includes("I can't") || responseText.includes("I cannot") || responseText.includes("unable to")) {
-      console.error('AI refused to generate content:', responseText)
       throw new Error(`The AI cannot generate discussion questions on this topic. ${responseText.substring(0, 150)}`)
     }
 
@@ -87,7 +107,6 @@ Output format - respond with ONLY a valid JSON array, no other text:
     let questions: DiscussionQuestion[]
     try {
       const parsed = JSON.parse(responseText)
-      console.log('Parsed response structure:', JSON.stringify(parsed).substring(0, 300))
       
       // Handle both wrapped and unwrapped responses
       if (Array.isArray(parsed)) {
@@ -97,11 +116,9 @@ Output format - respond with ONLY a valid JSON array, no other text:
       } else if (parsed.data && Array.isArray(parsed.data)) {
         questions = parsed.data
       } else {
-        console.error('Response structure:', Object.keys(parsed))
         throw new Error('Could not find questions array in response')
       }
     } catch (parseError) {
-      console.error('Parse error:', parseError)
       // Try to extract JSON if there's extra text
       const jsonMatch = responseText.match(/\[[\s\S]*\]/)
       if (jsonMatch) {
@@ -117,11 +134,9 @@ Output format - respond with ONLY a valid JSON array, no other text:
           } else if (parsed.data && Array.isArray(parsed.data)) {
             questions = parsed.data
           } else {
-            console.error('Raw response:', responseText)
             throw new Error(`Failed to parse questions from AI response: ${responseText.substring(0, 200)}`)
           }
         } else {
-          console.error('Raw response:', responseText)
           throw new Error(`Failed to parse questions from AI response: ${responseText.substring(0, 200)}`)
         }
       }
@@ -129,7 +144,6 @@ Output format - respond with ONLY a valid JSON array, no other text:
 
     // Validate and sanitize questions
     if (!Array.isArray(questions)) {
-      console.error('Parsed questions:', questions, 'Type:', typeof questions)
       throw new Error(`Questions response is not an array: ${typeof questions}`)
     }
 
@@ -148,7 +162,6 @@ Output format - respond with ONLY a valid JSON array, no other text:
 
     return NextResponse.json(response)
   } catch (error) {
-    console.error('Error generating discussion questions:', error)
     return NextResponse.json(
       {
         error: error instanceof Error ? error.message : 'Failed to generate discussion questions',
