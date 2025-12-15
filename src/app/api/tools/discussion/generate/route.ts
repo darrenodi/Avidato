@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { generateWithFailover } from '@/lib/openaiFailover'
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/lib/auth'
 import { checkAndUpdateGenerationLimit } from '@/app/actions/ai-generation'
-import { generateWithFailover } from '@/lib/openaiFailover'
 
 interface GenerateQuestionsRequest {
   topic: string
@@ -25,6 +25,24 @@ interface GenerateQuestionsResponse {
 
 export async function POST(request: NextRequest) {
   try {
+    // Check authentication
+    const session = await getServerSession(authOptions)
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      )
+    }
+
+    // Check rate limit
+    const allowed = await checkAndUpdateGenerationLimit(session.user.id)
+    if (!allowed) {
+      return NextResponse.json(
+        { error: 'Daily generation limit exceeded' },
+        { status: 429 }
+      )
+    }
+
     const body: GenerateQuestionsRequest = await request.json()
     const { topic, level, context } = body
 
