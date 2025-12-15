@@ -4,7 +4,6 @@ import { useSession } from 'next-auth/react'
 import React, { useState, useEffect } from 'react'
 import Image from 'next/image'
 import DashboardLayout from '@/components/layout/DashboardLayout'
-import SettingsIcon from '@/components/icons/SettingsIcon'
 import PersonIcon from '@/components/icons/PersonIcon'
 import { updateProfile, getUserProfile, checkUsernameAvailability, changePassword, getSecurityInfo, uploadProfilePicture } from '@/app/actions/settings'
 import type { UpdateProfileData } from '@/app/actions/settings'
@@ -24,13 +23,11 @@ import type { UpdateProfileData } from '@/app/actions/settings'
  * - Industry-standard security practices
  */
 
-type SettingsTab = 'profile' | 'security' | 'billing'
+type SettingsTab = 'profile' | 'password' | 'billing' | 'email' | 'notifications'
 
 interface TabConfig {
   id: SettingsTab
   label: string
-  icon: React.ReactNode
-  description: string
 }
 
 export default function SettingsPage() {
@@ -38,39 +35,25 @@ export default function SettingsPage() {
 
   // Tab configuration
   const tabs: TabConfig[] = [
-    {
-      id: 'profile',
-      label: 'Profile',
-      icon: <PersonIcon className="w-5 h-5" />,
-      description: 'Manage your personal information and preferences'
-    },
-    {
-      id: 'security',
-      label: 'Security',
-      icon: <SettingsIcon className="w-5 h-5" />,
-      description: 'Password, authentication, and security settings'
-    },
-    {
-      id: 'billing',
-      label: 'Billing',
-      icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
-                d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-        </svg>
-      ),
-      description: 'Billing and subscription settings'
-    }
+    { id: 'profile', label: 'Profile' },
+    { id: 'password', label: 'Password' },
+    { id: 'billing', label: 'Billing' },
+    { id: 'email', label: 'Email' },
+    { id: 'notifications', label: 'Notifications' }
   ]
 
   const renderTabContent = () => {
     switch (activeTab) {
       case 'profile':
         return <ProfileTab />
-      case 'security':
+      case 'password':
         return <SecurityTab />
       case 'billing':
         return <BillingTab />
+      case 'email':
+        return <EmailTab />
+      case 'notifications':
+        return <NotificationsTab />
       default:
         return <ProfileTab />
     }
@@ -79,72 +62,34 @@ export default function SettingsPage() {
   return (
     <DashboardLayout>
       <div className="p-4 sm:p-6 lg:p-8">
-        <div className="space-y-4 sm:space-y-6">
+        <div className="space-y-6">
           {/* Header */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
-            <div className="flex items-center space-x-3">
-              <div className="p-2 bg-primary/10 rounded-lg">
-                <SettingsIcon className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
-              </div>
-              <div>
-                <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
-                  Settings
-                </h1>
-                <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 mt-1">
-                  Manage your account settings and preferences
-                </p>
-              </div>
-            </div>
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Settings</h1>
+            <p className="text-gray-600 dark:text-gray-400">Manage your account settings and preferences.</p>
           </div>
 
-          {/* Tabs Navigation */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
-            {/* Tab Headers */}
-            <div className="border-b border-gray-200 dark:border-gray-700">
-              {/* Mobile Tab Dropdown */}
-              <div className="block sm:hidden px-4 py-4">
-                <select 
-                  value={activeTab}
-                  onChange={(e) => setActiveTab(e.target.value as SettingsTab)}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+          {/* Tabs Navigation - Horizontal Layout */}
+          <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+            {/* Tab Headers - Scrollable on mobile */}
+            <div className="flex overflow-x-auto border-b border-gray-200 dark:border-gray-700 scrollbar-hide">
+              {tabs.map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`px-4 sm:px-6 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
+                    activeTab === tab.id
+                      ? 'border-gray-900 dark:border-white text-gray-900 dark:text-white'
+                      : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                  }`}
                 >
-                  {tabs.map((tab) => (
-                    <option key={tab.id} value={tab.id}>
-                      {tab.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              
-              {/* Desktop Tab Navigation */}
-              <div className="hidden sm:flex overflow-x-auto scrollbar-hide">
-                {tabs.map((tab) => (
-                  <button
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id)}
-                    className={`flex items-center space-x-2 px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-medium border-b-2 transition-all duration-200 whitespace-nowrap ${
-                      activeTab === tab.id
-                        ? 'border-primary text-primary bg-primary/5 dark:bg-primary/10'
-                        : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary hover:bg-primary/5 dark:hover:bg-primary/10 hover:border-primary/30'
-                    }`}
-                  >
-                    {tab.icon}
-                    <span>{tab.label}</span>
-                  </button>
-                ))}
-              </div>
+                  {tab.label}
+                </button>
+              ))}
             </div>
 
             {/* Tab Content */}
-            <div className="p-4 sm:p-6">
-              {/* Tab Description */}
-              <div className="mb-4 sm:mb-6">
-                <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
-                  {tabs.find(tab => tab.id === activeTab)?.description}
-                </p>
-              </div>
-
-              {/* Active Tab Content */}
+            <div className="p-6 sm:p-8">
               {renderTabContent()}
             </div>
           </div>
@@ -1004,180 +949,114 @@ function AccountLinkingSection() {
  * Displays subscription information and billing details
  */
 function BillingTab() {
-  const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'annual'>('monthly')
-  const [hoveredCardIndex, setHoveredCardIndex] = useState<number>(1)
-
-  const plans = [
-    {
-      title: 'Starter',
-      description: 'Perfect for trying things out.',
-      price: { monthly: 0, annual: 0 },
-      buttonText: 'Current Plan',
-      isPopular: false,
-      isCurrent: true,
-      features: [
-        '20 generations / day',
-        'Unlimited students',
-        'Shareable lesson links'
-      ]
-    },
-    {
-      title: 'Pro',
-      description: 'For the dedicated professional tutor.',
-      price: { monthly: 6, annual: 60 },
-      buttonText: 'Upgrade to Pro',
-      isPopular: true,
-      isCurrent: false,
-      features: [
-        'Everything in Starter, plus:',
-        'Unlimited lesson plans',
-        'Priority email support'
-      ]
-    },
-    {
-      title: 'Premium',
-      description: 'For small teams and power users.',
-      price: { monthly: 10, annual: 100 },
-      buttonText: 'Choose Premium',
-      isPopular: false,
-      isCurrent: false,
-      features: [
-        'Everything in Pro, plus:',
-        'Team access (up to 3 tutors)',
-        'Custom branding on shared links'
-      ]
-    }
-  ]
-
   return (
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Billing & Subscription</h3>
-        <p className="text-sm text-gray-600 dark:text-gray-400">
-          Choose the perfect plan for your teaching needs
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Billing</h2>
+        <p className="text-gray-600 dark:text-gray-400">
+          Manage your subscription and billing details.
         </p>
       </div>
 
-      {/* Billing Period Toggle */}
-      <div className="flex justify-center mb-10">
-        <div className="inline-flex rounded-full bg-gray-200 dark:bg-gray-700 p-1">
-          <button 
-            onClick={() => setBillingPeriod('monthly')} 
-            className={`px-4 py-1.5 text-sm font-semibold rounded-full transition-colors ${
-              billingPeriod === 'monthly' 
-                ? 'bg-white dark:bg-gray-600 text-gray-800 dark:text-white shadow' 
-                : 'text-gray-500 dark:text-gray-400'
-            }`}
-          >
-            Monthly
-          </button>
-          <button 
-            onClick={() => setBillingPeriod('annual')} 
-            className={`px-4 py-1.5 text-sm font-semibold rounded-full transition-colors ${
-              billingPeriod === 'annual' 
-                ? 'bg-white dark:bg-gray-600 text-gray-800 dark:text-white shadow' 
-                : 'text-gray-500 dark:text-gray-400'
-            }`}
-          >
-            Annual (Save 20%)
-          </button>
+      {/* Subscription Overview */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Current Plan */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+          <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-4">Current Plan</h3>
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="inline-flex items-center px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300 rounded-full text-xs font-semibold mb-2">
+                Starter Plan
+              </div>
+              <p className="text-3xl font-bold text-gray-900 dark:text-white">
+                Free<span className="text-base font-normal text-gray-600 dark:text-gray-400"></span>
+              </p>
+            </div>
+            <button className="px-4 py-2 bg-gray-900 dark:bg-gray-700 text-white rounded-lg hover:bg-gray-800 dark:hover:bg-gray-600 transition-colors flex items-center gap-2">
+              Upgrade <span className="text-lg">↗</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Plan Features */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+          <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-4">Plan Includes</h3>
+          <ul className="space-y-2">
+            <li className="flex items-center text-sm text-gray-900 dark:text-white">
+              <svg className="w-4 h-4 mr-2 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+              Unlimited students
+            </li>
+            <li className="flex items-center text-sm text-gray-900 dark:text-white">
+              <svg className="w-4 h-4 mr-2 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+              Shareable lesson links
+            </li>
+            <li className="flex items-center text-sm text-gray-900 dark:text-white">
+              <svg className="w-4 h-4 mr-2 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+              20 generations / day
+            </li>
+          </ul>
         </div>
       </div>
 
-      {/* Plans Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
-        {plans.map((plan, index) => {
-          const isHighlighted = hoveredCardIndex === index
-          return (
-            <div 
-              key={plan.title} 
-              onMouseEnter={() => setHoveredCardIndex(index)} 
-              onMouseLeave={() => setHoveredCardIndex(1)} 
-              className={`p-8 rounded-xl flex flex-col h-full relative transition-all duration-300 ${
-                isHighlighted 
-                  ? 'bg-gradient-to-br from-primary via-primary to-brand-accent text-white shadow-2xl transform scale-105 dark:from-primary dark:via-primary dark:to-brand-accent' 
-                  : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700'
-              }`}
-            >
-              {/* Most Popular Badge - only show when highlighted */}
-              {plan.isPopular && isHighlighted && (
-                <div className="absolute top-0 -translate-y-1/2 left-1/2 -translate-x-1/2 bg-white text-primary px-3 py-1 rounded-full text-sm font-semibold shadow-md">
-                  Most Popular
-                </div>
-              )}
-
-              {/* Plan Title */}
-              <h3 className="text-xl font-bold">{plan.title}</h3>
-
-              {/* Plan Description */}
-              <p className={`mt-2 min-h-[48px] ${isHighlighted ? 'opacity-90' : 'text-gray-500 dark:text-gray-400'}`}>
-                {plan.description}
-              </p>
-
-              {/* Price */}
-              <div className="mt-6 text-4xl font-extrabold">
-                ${billingPeriod === 'monthly' ? plan.price.monthly : Math.round(plan.price.annual / 12)}
-                {plan.price.monthly > 0 && (
-                  <span className={`text-lg font-normal ${isHighlighted ? 'opacity-70' : 'text-gray-500 dark:text-gray-400'}`}>
-                    {' '}/ month
-                  </span>
-                )}
-              </div>
-
-              {/* Flex Grow */}
-              <div className="flex-grow" />
-
-              {/* Button */}
-              <button 
-                disabled={plan.isCurrent}
-                className={`block w-full text-center mt-8 py-2.5 rounded-md font-semibold transition-colors ${
-                  isHighlighted 
-                    ? 'bg-white text-primary hover:bg-gray-100' 
-                    : `${
-                        plan.isCurrent
-                          ? 'bg-gray-300 dark:bg-gray-600 text-gray-600 dark:text-gray-400 cursor-not-allowed'
-                          : 'border border-primary text-primary hover:bg-primary/5 dark:hover:bg-primary/10'
-                      }`
-                }`}
-              >
-                {plan.buttonText}
-              </button>
-
-              {/* Features */}
-              <ul className="mt-8 space-y-4 text-left text-sm">
-                {plan.features.map((feature, fIndex) => (
-                  <li key={fIndex} className="flex items-start">
-                    <svg 
-                      className={`w-5 h-5 mr-3 mt-0.5 flex-shrink-0 ${
-                        isHighlighted ? 'text-white' : 'text-primary'
-                      }`} 
-                      fill="currentColor" 
-                      viewBox="0 0 20 20"
-                    >
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                    </svg>
-                    <span dangerouslySetInnerHTML={{ __html: feature }} />
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )
-        })}
-      </div>
-
       {/* Billing History */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 sm:p-8">
+      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">Billing History</h3>
-        
         <div className="text-center py-12">
           <svg className="w-12 h-12 text-gray-400 dark:text-gray-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
           </svg>
-          <p className="text-gray-600 dark:text-gray-400 mb-2">No billing history yet</p>
-          <p className="text-sm text-gray-500 dark:text-gray-500">Your billing history will appear here once you upgrade to a paid plan</p>
+          <p className="text-gray-600 dark:text-gray-400 mb-2">No invoices available yet</p>
+          <p className="text-sm text-gray-500 dark:text-gray-500">Your invoices will appear here once you upgrade to a paid plan</p>
         </div>
       </div>
+
+      {/* Payment Method */}
+      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">Payment Method</h3>
+        <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-8 flex flex-col items-center justify-center hover:border-gray-400 dark:hover:border-gray-500 transition-colors cursor-pointer">
+          <svg className="w-12 h-12 text-gray-400 dark:text-gray-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+          </svg>
+          <p className="text-gray-700 dark:text-gray-300 font-medium mb-1">No payment method added</p>
+          <p className="text-sm text-gray-500 dark:text-gray-500">Add a payment method to upgrade to a paid plan</p>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+
+
+
+/**
+ * Email Tab Component
+ * Placeholder for email preferences
+ */
+function EmailTab() {
+  return (
+    <div className="space-y-6">
+      <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Email</h2>
+      <p className="text-gray-600 dark:text-gray-400">Manage your email addresses and preferences.</p>
+    </div>
+  )
+}
+
+/**
+ * Notifications Tab Component
+ * Placeholder for notification settings
+ */
+function NotificationsTab() {
+  return (
+    <div className="space-y-6">
+      <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Notifications</h2>
+      <p className="text-gray-600 dark:text-gray-400">Customize your notification preferences.</p>
     </div>
   )
 }

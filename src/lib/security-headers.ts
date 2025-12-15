@@ -18,7 +18,7 @@ export function addSecurityHeaders(response: NextResponse) {
       "img-src 'self' data: https: http://localhost:3000",
       "media-src 'self' data: https: blob: https://*.supabase.co",
       "connect-src 'self' https://challenges.cloudflare.com https://api.github.com",
-      "frame-src 'self' https://challenges.cloudflare.com",
+      "frame-src 'self' https://challenges.cloudflare.com https://drive.google.com",
       "object-src 'none'",
       "base-uri 'self'",
       "form-action 'self'",

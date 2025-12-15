@@ -1,4 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { getServerSession } from 'next-auth/next'
+import { authOptions } from '@/lib/auth'
+import { checkAndUpdateGenerationLimit } from '@/app/actions/ai-generation'
 import { generateWithFailover } from '@/lib/openaiFailover'
 
 interface GenerateQuestionsRequest {
