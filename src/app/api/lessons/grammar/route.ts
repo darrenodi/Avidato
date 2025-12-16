@@ -1,32 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth/next'
-import { Session } from 'next-auth'
-import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { generateGrammarLesson } from '@/app/actions/grammar-generation'
-import { checkRateLimit, recordFailedAttempt } from '@/lib/turnstile'
+import { protectApiRoute } from '@/lib/api-protection'
 
 export async function POST(request: NextRequest) {
   try {
-    // Check authentication
-    const session = await getServerSession(authOptions) as Session | null
-    if (!session?.user?.id) {
+    // Centralized API protection (authentication + rate limiting)
+    const protection = await protectApiRoute(request, 'grammar-generation')
+    if (!protection.allowed) {
       return NextResponse.json(
-        { error: 'Unauthorized' },
+        { error: protection.error },
         { status: 401 }
       )
     }
 
-    // Security: Rate limit per user (5 attempts per 15 minutes)
-    const rateLimitKey = `grammar-generation:${session.user.id}`
-    const rateLimit = checkRateLimit(rateLimitKey)
-    if (!rateLimit.allowed) {
-      recordFailedAttempt(rateLimitKey)
-      return NextResponse.json(
-        { error: 'Too many requests. Please wait before trying again.' },
-        { status: 429 }
-      )
-    }
+    const userId = protection.userId!
 
     // Parse request body
     const body = await request.json()
@@ -43,7 +31,7 @@ export async function POST(request: NextRequest) {
     const student = await prisma.student.findFirst({
       where: {
         id: studentId,
-        tutorId: session.user.id
+        tutorId: userId
       }
     })
 

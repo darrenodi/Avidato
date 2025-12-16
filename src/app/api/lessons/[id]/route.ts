@@ -1,21 +1,23 @@
 // src/app/api/lessons/[id]/route.ts
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth/next'
-import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
-import type { Session } from 'next-auth'
+import { protectApiRoute } from '@/lib/api-protection'
 
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await getServerSession(authOptions) as Session | null
-    
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    // Centralized API protection (authentication + rate limiting)
+    const protection = await protectApiRoute(request, 'lesson-fetch')
+    if (!protection.allowed) {
+      return NextResponse.json(
+        { error: protection.error },
+        { status: 401 }
+      )
     }
 
+    const userId = protection.userId!
     const { id: lessonId } = await params
 
     // Optimized single query with proper indexing hints
@@ -23,7 +25,7 @@ export async function GET(
       where: {
         id: lessonId,
         student: {
-          tutorId: session.user.id, // This uses the studentId -> tutorId index path
+          tutorId: userId, // This uses the studentId -> tutorId index path
         },
       },
       select: {

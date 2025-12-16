@@ -6,7 +6,7 @@ import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import DashboardLayout from '@/components/layout/DashboardLayout'
 import { getStudent, updateStudent } from '../../../../actions/students'
-import { languages, levels, ageGroups } from '@/lib/form-data-mappings'
+import { targetLanguages, nativeLanguages, levels, ageGroups } from '@/lib/form-data-mappings'
 
 /**
  * EditStudentPage Component
@@ -291,7 +291,7 @@ export default function EditStudentPage() {
                     required
                   >
                     <option value="">Select target language</option>
-                    {languages.map((lang) => (
+                    {targetLanguages.map((lang) => (
                       <option key={lang.value} value={lang.value}>
                         {lang.country} {lang.label}
                       </option>
@@ -312,7 +312,7 @@ export default function EditStudentPage() {
                     required
                   >
                     <option value="">Select native language</option>
-                    {languages.map((lang) => (
+                    {nativeLanguages.map((lang) => (
                       <option key={lang.value} value={lang.value}>
                         {lang.country} {lang.label}
                       </option>

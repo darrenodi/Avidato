@@ -7,7 +7,7 @@ import Link from 'next/link'
 import DashboardLayout from '@/components/layout/DashboardLayout'
 import { getStudent } from '../../../actions/students'
 import { generateLearningPlan, generateLesson, getGenerationStats, getStudentLearningPlan, shareLesson, generateMoreLessons } from '../../../actions/ai-generation'
-import { languages, levels, ageGroups } from '@/lib/form-data-mappings'
+import { nativeLanguages, levels, ageGroups } from '@/lib/form-data-mappings'
 import type { LearningPlan } from '@/types/lesson-template'
 
 /**
@@ -341,7 +341,7 @@ export default function StudentProfilePage() {
 
   // Get display labels for form data
   const getLanguageLabel = (value: string) => {
-    const lang = languages.find(l => l.value === value)
+    const lang = nativeLanguages.find(l => l.value === value)
     return lang ? `${lang.country} ${lang.label}` : value
   }
 

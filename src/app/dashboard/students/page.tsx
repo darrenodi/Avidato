@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import DashboardLayout from '@/components/layout/DashboardLayout'
 import { getStudents, toggleStudentArchive, deleteStudent } from '../../actions/students'
-import { languages, levels, ageGroups } from '@/lib/form-data-mappings'
+import { nativeLanguages, levels, ageGroups } from '@/lib/form-data-mappings'
 
 /**
  * StudentsPage Component
@@ -352,7 +352,7 @@ export default function StudentsPage() {
                 className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary dark:bg-gray-700 dark:text-white"
               >
                 <option value="">All Languages</option>
-                {languages.map((lang) => (
+                {nativeLanguages.map((lang) => (
                   <option key={lang.value} value={lang.value}>
                     {lang.country} {lang.label}
                   </option>

@@ -1,26 +1,21 @@
 // src/app/api/lessons/instant/route.ts
-import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
-import { generateInstantLesson } from '@/lib/instantLessonGenerator';
+import { NextRequest, NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
+import { generateInstantLesson } from '@/lib/instantLessonGenerator'
+import { protectApiRoute } from '@/lib/api-protection'
 
 export async function POST(request: NextRequest) {
   try {
-    // Check authentication
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.email) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    // Centralized API protection (authentication + rate limiting)
+    const protection = await protectApiRoute(request, 'instant-lesson-generation')
+    if (!protection.allowed) {
+      return NextResponse.json(
+        { error: protection.error },
+        { status: 401 }
+      )
     }
 
-    // Get user from database
-    const user = await prisma.user.findUnique({
-      where: { email: session.user.email },
-    });
-
-    if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
-    }
+    const userId = protection.userId!
 
     // Parse request body
     const {
@@ -45,7 +40,7 @@ export async function POST(request: NextRequest) {
     const student = await prisma.student.findFirst({
       where: {
         id: studentId,
-        tutorId: user.id,
+        tutorId: userId,
       },
     });
 
