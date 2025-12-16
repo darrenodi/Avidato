@@ -108,7 +108,6 @@ Output format - respond with ONLY a valid JSON array, no other text:
     let questions: DiscussionQuestion[]
     try {
       const parsed = JSON.parse(responseText)
-      console.log('Parsed response structure:', JSON.stringify(parsed).substring(0, 300))
       
       // Handle both wrapped and unwrapped responses
       if (Array.isArray(parsed)) {

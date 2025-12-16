@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import DashboardLayout from '@/components/layout/DashboardLayout'
-import { languages, levels, ageGroups } from '@/lib/form-data-mappings'
+import { targetLanguages, nativeLanguages, levels, ageGroups } from '@/lib/form-data-mappings'
 import { addStudent } from '../../../actions/students'
 
 /**
@@ -206,7 +206,7 @@ export default function AddStudentPage() {
                     }`}
                   >
                     <option value="">Select target language</option>
-                    {languages.map((lang) => (
+                    {targetLanguages.map((lang) => (
                       <option key={lang.value} value={lang.value}>
                         {lang.country} {lang.label}
                       </option>
@@ -230,7 +230,7 @@ export default function AddStudentPage() {
                     }`}
                   >
                     <option value="">Select native language</option>
-                    {languages.map((lang) => (
+                    {nativeLanguages.map((lang) => (
                       <option key={lang.value} value={lang.value}>
                         {lang.country} {lang.label}
                       </option>

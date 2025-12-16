@@ -23,11 +23,22 @@ export const languages = [
   { label: "Arabic", country: "🇸🇦", value: "Arabic" },
   { label: "Russian", country: "🇷🇺", value: "Russian" },
   { label: "Ukrainian", country: "🇺🇦", value: "Ukrainian" },
+  { label: "Turkish", country: "🇹🇷", value: "Turkish" },
   { label: "Chinese", country: "🇨🇳", value: "Chinese" },
   { label: "Japanese", country: "🇯🇵", value: "Japanese" },
+  { label: "Thai", country: "🇹🇭", value: "Thai" },
   { label: "Portuguese", country: "🇵🇹", value: "Portuguese" },
   { label: "Korean", country: "🇰🇷", value: "Korean" },
+  { label: "Czech", country: "🇨🇿", value: "Czech" },
 ];
+
+// Target languages - only English (what students learn)
+export const targetLanguages = [
+  { label: "English", country: "🇺🇸", value: "English" },
+];
+
+// Native languages - all other languages (what students speak natively)
+export const nativeLanguages = languages;
 
 // Language proficiency levels based on Common European Framework of Reference (CEFR)
 export const levels = [
