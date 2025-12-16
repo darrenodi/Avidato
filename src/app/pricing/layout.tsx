@@ -1,9 +1,9 @@
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Pricing Plans | Avidato - Affordable AI English Teaching Tools',
-  description: 'Avidato pricing plans for ESL tutors. Free Starter plan, Pro plan at $6/month, Premium at $10/month. Unlimited lesson generation, discussion questions, worksheets, and CEFR-level customization.',
-  keywords: 'ESL tutoring pricing, English teaching tools cost, affordable lesson planning, AI tutoring plans, CEFR level resources',
+  title: 'Pricing | Avidato',
+  description: 'Choose the right Avidato plan for your English teaching needs. Free Starter, affordable Pro and Premium plans with unlimited lesson generation and AI tools.',
+  keywords: 'ESL tutoring pricing, English teaching tools, lesson planning cost, AI tutoring plans, CEFR resources',
   openGraph: {
     title: 'Avidato Pricing - ESL Tutoring Plans',
     description: 'Choose the perfect plan for your English teaching needs. Free to Pro options available.',

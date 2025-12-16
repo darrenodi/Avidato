@@ -4,8 +4,8 @@ import BlogListClient from './blog-list-client'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Blog | Avidato - ESL English Teaching Resources',
-  description: 'Avidato blog: Free English teaching resources, ESL lesson plans, CEFR tips, and online tutoring strategies. Discover resources for language learning, vocabulary practice, grammar exercises, and student engagement techniques for EFL tutors.',
+  title: 'English Teaching Blog | Avidato',
+  description: 'Read articles about English teaching, ESL lesson plans, CEFR language levels, grammar tips, vocabulary strategies, and online tutoring best practices for language educators.',
   openGraph: {
     title: 'Avidato Blog - English ESL Teaching Resources',
     description: 'Free ESL lesson plans, English teaching resources, and CEFR language learning tips for online tutors',
