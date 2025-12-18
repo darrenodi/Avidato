@@ -113,7 +113,7 @@ UPDATED:
 Format: { "type": "roleplay", "title": "Exercise 5: Role Play", "description": "Practice in new situation", "content": { "scenario": "Max 150 chars: WHO, WHERE, WHAT ${student.name} does", "roles": [{ "name": "${student.name}", "description": "${student.occupation || 'Professional'} performing the task", "keyPoints": ["Step 1: [action - what to do]", "Step 2: [action - use vocabulary]", "Step 3: [action - conclude]"] }, { "name": "Tutor", "description": "Responds to ${student.name} to guide dialogue", "keyPoints": ["Listen and react naturally", "Ask clarifying questions", "Respond based on student's vocabulary use"] }], "instructions": "Student: Perform each step. Use new vocabulary naturally. Tutor: Guide the student with realistic responses and questions." }, "timeMinutes": 10 }
 
 **Exercise 6: Discussion** (6 min)
-Format: { "type": "discussion", "title": "Exercise 6: Discussion", "description": "Free practice", "content": { "questions": [3-4 discussion questions on the lesson topic], "instructions": "Use new vocabulary" }, "timeMinutes": 6 }
+Format: { "type": "discussion", "title": "Exercise 6: Discussion", "description": "Free practice", "content": { "questions": [5 discussion questions on the lesson topic], "instructions": "Use new vocabulary" }, "timeMinutes": 6 }
 
 **Exercise 7: Further Discussion** (6 min)
 UPDATED: Lighter, follow-up questions. Same structure and CSS format as Exercise 6.
