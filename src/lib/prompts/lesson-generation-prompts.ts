@@ -116,9 +116,9 @@ Format: { "type": "roleplay", "title": "Exercise 5: Role Play", "description": "
 Format: { "type": "discussion", "title": "Exercise 6: Discussion", "description": "Free practice", "content": { "questions": [3-4 discussion questions on the lesson topic], "instructions": "Use new vocabulary" }, "timeMinutes": 6 }
 
 **Exercise 7: Further Discussion** (6 min)
-UPDATED: Lighter, tech-related follow-up questions. Same structure and CSS format as Exercise 6.
+UPDATED: Lighter, follow-up questions. Same structure and CSS format as Exercise 6.
 - Questions should be engaging but lighter in tone
-- Related to tech/professional world but not the core lesson topic
+- Related to professional world but not the core lesson topic
 - Encourages natural conversation using vocabulary in different contexts
 Format: { "type": "discussion", "title": "Exercise 7: Further Discussion", "description": "Free practice", "content": { "questions": [2-3 lighter, tech-related discussion questions], "instructions": "Continue the conversation" }, "timeMinutes": 6 }
 
