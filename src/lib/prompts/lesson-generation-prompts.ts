@@ -99,10 +99,11 @@ Format: { "type": "dialogue", "title": "Exercise 3: Dialogue", "description": "P
 
 **Exercise 4: Dialogue Comprehension** (8 min)
 CRITICAL MCQ FORMAT:
+- MUST have EXACTLY 5 questions
 - Each MCQ MUST have: "question", "type": "multiple-choice", "options": ["A) Option 1", "B) Option 2", "C) Option 3", "D) Option 4"], "answer": "A" (use letter only)
-- Each MCQ answer MUST use DIFFERENT letters (Q1: A, Q2: D, Q3: B - never repeat a letter)
+- Each MCQ answer MUST use DIFFERENT letters (Q1: A, Q2: D, Q3: B, Q4: C, Q5: A - never repeat a letter within the same exercise)
 - Open-ended questions: "question", "type": "short-answer", "answer": "Full sentence answer"
-Format: { "type": "comprehension", "title": "Exercise 4: Comprehension", "description": "Answer questions about the dialogue", "content": { "questions": [{"question": "Q1 text", "type": "multiple-choice", "options": ["A) ...", "B) ...", "C) ...", "D) ..."], "answer": "A"}, {"question": "Q2 text", "type": "multiple-choice", "options": ["A) ...", "B) ...", "C) ...", "D) ..."], "answer": "D"}, {"question": "Q3 text", "type": "short-answer", "answer": "Full sentence"}] }, "timeMinutes": 8 }
+Format: { "type": "comprehension", "title": "Exercise 4: Comprehension", "description": "Answer questions about the dialogue", "content": { "questions": [{"question": "Q1 text", "type": "multiple-choice", "options": ["A) ...", "B) ...", "C) ...", "D) ..."], "answer": "A"}, {"question": "Q2 text", "type": "multiple-choice", "options": ["A) ...", "B) ...", "C) ...", "D) ..."], "answer": "D"}, {"question": "Q3 text", "type": "multiple-choice", "options": ["A) ...", "B) ...", "C) ...", "D) ..."], "answer": "B"}, {"question": "Q4 text", "type": "multiple-choice", "options": ["A) ...", "B) ...", "C) ...", "D) ..."], "answer": "C"}, {"question": "Q5 text", "type": "multiple-choice", "options": ["A) ...", "B) ...", "C) ...", "D) ..."], "answer": "A"}] }, "timeMinutes": 8 }
 
 **Exercise 5: Role Play** (10 min)
 UPDATED: 
@@ -118,9 +119,9 @@ Format: { "type": "discussion", "title": "Exercise 6: Discussion", "description"
 **Exercise 7: Further Discussion** (6 min)
 UPDATED: Lighter, follow-up questions. Same structure and CSS format as Exercise 6.
 - Questions should be engaging but lighter in tone
-- Related to professional world but not the core lesson topic
+- General questions that broaden the conversation beyond the specific lesson topic
 - Encourages natural conversation using vocabulary in different contexts
-Format: { "type": "discussion", "title": "Exercise 7: Further Discussion", "description": "Free practice", "content": { "questions": [2-3 lighter, tech-related discussion questions], "instructions": "Continue the conversation" }, "timeMinutes": 6 }
+Format: { "type": "discussion", "title": "Exercise 7: Further Discussion", "description": "Free practice", "content": { "questions": [5 general discussion questions that relate to the broader topic area], "instructions": "Continue the conversation" }, "timeMinutes": 6 }
 
 ${levelGuide}
 
