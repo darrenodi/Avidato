@@ -71,6 +71,24 @@ const LandingPage: React.FC = () => {
 
   return (
     <div className="flex flex-col min-h-screen bg-white">
+      {/* Schema Markup for Organization Logo in Search Results */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Organization",
+            "name": "Avidato",
+            "url": "https://avidato.com",
+            "logo": "https://avidato.com/logo.svg",
+            "description": "AI-powered English teaching assistant for online ESL/EFL tutors",
+            "sameAs": [
+              "https://twitter.com/avidato",
+              "https://linkedin.com/company/avidato"
+            ]
+          })
+        }}
+      />
       <PublicNavbar />
 
       <main className="flex-grow">

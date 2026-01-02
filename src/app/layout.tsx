@@ -12,6 +12,28 @@ export const metadata: Metadata = {
   title: "Avidato | AI-Powered English Teaching Assistant",
   description: "Avidato is an AI-powered English teaching assistant for online ESL/EFL tutors. Generate personalized lesson plans, worksheets, quizzes, flashcards, and discussion questions. Free AI English teaching materials with CEFR level support.",
   keywords: "ESL tutoring, EFL lessons, English teaching, AI lesson plans, CEFR levels, online tutoring, English worksheets, language learning, ESL resources, English tutor tools",
+  openGraph: {
+    title: "Avidato | AI-Powered English Teaching Assistant",
+    description: "Generate personalized English lesson plans in minutes with AI. Perfect for ESL/EFL tutors.",
+    url: "https://avidato.com",
+    siteName: "Avidato",
+    images: [
+      {
+        url: "https://avidato.com/logo.svg",
+        width: 1200,
+        height: 630,
+        alt: "Avidato Logo",
+        type: "image/svg+xml",
+      }
+    ],
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Avidato | AI-Powered English Teaching Assistant",
+    description: "Generate personalized English lesson plans in minutes with AI.",
+    images: ["https://avidato.com/logo.svg"],
+  },
   icons: {
     icon: [
       { url: "/favicon.ico", type: "image/x-icon" },
@@ -28,6 +50,27 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   // Light theme only for public pages (landing, login, signup)
   return (
     <html lang="en" className={inter.variable} suppressHydrationWarning>
+      <head>
+        {/* Organization Schema Markup for Search Engine Logo Display */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              "name": "Avidato",
+              "url": "https://avidato.com",
+              "logo": "https://avidato.com/logo.svg",
+              "image": "https://avidato.com/logo.svg",
+              "description": "AI-powered English teaching assistant for online ESL/EFL tutors. Generate personalized lesson plans, discussion questions, and teaching materials.",
+              "contactPoint": {
+                "@type": "ContactPoint",
+                "contactType": "Customer Support"
+              }
+            })
+          }}
+        />
+      </head>
       <body className="font-sans antialiased bg-white text-gray-900" suppressHydrationWarning>
         <AuthProvider>
           <main>
