@@ -32,9 +32,10 @@ export const languages = [
   { label: "Czech", country: "🇨🇿", value: "Czech" },
 ];
 
-// Target languages - only English (what students learn)
+// Target languages - languages that students learn
 export const targetLanguages = [
   { label: "English", country: "🇺🇸", value: "English" },
+  { label: "French", country: "🇫🇷", value: "French" },
 ];
 
 // Native languages - all other languages (what students speak natively)

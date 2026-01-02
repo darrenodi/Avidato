@@ -7,6 +7,7 @@ import { checkAndUpdateGenerationLimit } from '@/app/actions/ai-generation'
 interface GenerateQuestionsRequest {
   topic: string
   level: 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2'
+  language?: string
   context?: string
 }
 
@@ -19,6 +20,7 @@ interface DiscussionQuestion {
 interface GenerateQuestionsResponse {
   topic: string
   level: string
+  language: string
   questions: DiscussionQuestion[]
   generatedAt: string
 }
@@ -44,7 +46,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body: GenerateQuestionsRequest = await request.json()
-    const { topic, level, context } = body
+    const { topic, level, language = 'English', context } = body
 
     if (!topic || !level) {
       return NextResponse.json(
@@ -53,15 +55,16 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const prompt = `You are an expert English language teacher creating educational discussion materials for ESL/EFL learners.
+    const prompt = `You are an expert ${language} language teacher creating educational discussion materials for ESL/EFL learners.
 
-Create discussion questions for an English language classroom lesson.
+Create discussion questions for a ${language} language classroom lesson.
 
 Topic: ${topic}
 Student CEFR Level: ${level}
+Target Language: ${language}
 ${context ? `Additional Context: ${context}` : ''}
 
-Task: Generate ${getQuestionCount(level)} conversation starter questions appropriate for ${level} level English language learners studying this topic. These are for classroom discussion practice.
+Task: Generate ${getQuestionCount(level)} conversation starter questions in ${language} appropriate for ${level} level ${language} language learners studying this topic. These are for classroom discussion practice.
 ${context ? 'Please incorporate the additional context provided above in the question generation.' : ''}
 
 Question Distribution:
@@ -70,6 +73,7 @@ Question Distribution:
 - 2-3 deep-dive questions (challenging, for higher proficiency levels)
 
 Guidelines:
+- All questions must be in ${language}
 - Questions should encourage natural conversation
 - Vary question types (open-ended, opinion-based, personal experience)
 - Appropriate for educational context
@@ -162,6 +166,7 @@ Output format - respond with ONLY a valid JSON array, no other text:
     const response: GenerateQuestionsResponse = {
       topic,
       level,
+      language,
       questions: validatedQuestions,
       generatedAt: new Date().toISOString(),
     }

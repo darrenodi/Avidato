@@ -80,7 +80,8 @@ const transformToUnder18Lesson = (lessonData: LessonData) => {
       duration: lessonData.content.duration,
       difficulty: lessonData.content.difficulty,
       targetAudience: 'Students Under 18',
-      ageGroup: 'Under 18'
+      ageGroup: 'Under 18',
+      targetLanguage: lessonData.student.targetLanguage
     },
     learningObjectives: {
       communicative: [lessonData.content.objective || ''],

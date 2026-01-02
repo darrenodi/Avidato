@@ -14,7 +14,8 @@ const safeReplace = (text: string | undefined | null): string => {
 // Function to generate a comprehensive setting from dialogue content
 const generateDetailedSetting = (
   characters: string[], 
-  dialogue: DialogueExchange[]
+  dialogue: DialogueExchange[],
+  targetLanguage: string = 'English'
 ): string => {
   if (!dialogue || dialogue.length === 0) {
     const charNames = characters.slice(0, 3).join(', ')
@@ -84,11 +85,11 @@ const generateDetailedSetting = (
   
   // Build detailed setting message
   if (characters.length === 2) {
-    return `${charNames} are having a conversation ${topic}. This is a realistic dialogue you should read with your tutor to practice your English.`
+    return `${charNames} are having a conversation ${topic}. This is a realistic dialogue you should read with your tutor to practice your ${targetLanguage}.`
   } else if (characters.length === 3) {
-    return `${charNames} are having a discussion ${topic}. This is a realistic multi-person dialogue you should read with your tutor to practice natural conversation.`
+    return `${charNames} are having a discussion ${topic}. This is a realistic multi-person dialogue you should read with your tutor to practice natural ${targetLanguage} conversation.`
   } else {
-    return `${charNames} and others are engaged in a conversation ${topic}. This is a group dialogue you should read aloud with your tutor.`
+    return `${charNames} and others are engaged in a conversation ${topic}. This is a group dialogue you should read aloud with your tutor in ${targetLanguage}.`
   }
 }
 
@@ -109,6 +110,7 @@ interface DialogueRendererProps {
     options?: string[]
   }[]
   timeMinutes: number
+  targetLanguage?: string
 }
 
 export const DialogueRenderer: React.FC<DialogueRendererProps> = ({
@@ -117,11 +119,12 @@ export const DialogueRenderer: React.FC<DialogueRendererProps> = ({
   dialogue,
   comprehensionQuestions,
   timeMinutes,
+  targetLanguage = 'English',
 }) => {
   const [showTranslations, setShowTranslations] = React.useState(false)
   
   // Generate detailed setting if empty
-  const displaySetting = setting || generateDetailedSetting(characters, dialogue)
+  const displaySetting = setting || generateDetailedSetting(characters, dialogue, targetLanguage)
   
   const getCharacterColor = (index: number) => {
     const colors = [

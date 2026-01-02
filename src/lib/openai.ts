@@ -126,6 +126,8 @@ ${getOccupationExclusions(student.occupation || '')}
 
 🎯 FOCUS ON: Natural workplace language, domain-relevant phrases, and nuanced communication that challenges language skills (not lecturing professional knowledge). Avoid meta-teaching/coaching in dialogues and topics; make it a real conversation.
 
+🚨 CRITICAL: All topic titles and objectives MUST be in ${student.targetLanguage}. Do NOT use English or any other language.
+
 FORMAT YOUR RESPONSE AS VALID JSON ONLY (no markdown, no explanations):
 {
   "topics": [

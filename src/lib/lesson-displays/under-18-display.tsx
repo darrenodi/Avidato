@@ -46,6 +46,7 @@ interface Under18Lesson {
     difficulty: number
     targetAudience: string
     ageGroup: string
+    targetLanguage?: string
   }
   learningObjectives: {
     communicative: string[]
@@ -162,6 +163,7 @@ export const Under18LessonDisplay: React.FC<Under18DisplayProps> = ({
             dialogue={content.dialogue as Parameters<typeof DialogueRenderer>[0]['dialogue']}
             comprehensionQuestions={content.comprehensionQuestions as Parameters<typeof DialogueRenderer>[0]['comprehensionQuestions']}
             timeMinutes={exercise.timeMinutes}
+            targetLanguage={lesson.metadata.targetLanguage || 'English'}
           />
         )
       }

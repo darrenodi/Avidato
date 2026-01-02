@@ -83,8 +83,8 @@ export default function StudentProfilePage() {
   const [instantLessonDuration, setInstantLessonDuration] = useState<25 | 50>(50)
   const [isGeneratingInstantLesson, setIsGeneratingInstantLesson] = useState(false)
 
-  // Check if student is learning English
-  const isEnglishStudent = student?.targetLanguage.toLowerCase() === 'english'
+  // Check if student is learning a supported language (English or French)
+  const isEnglishStudent = ['english', 'french'].includes(student?.targetLanguage.toLowerCase() || '')
 
   // Helper function to check if a lesson already exists for a topic
   const isLessonGenerated = (topicTitle: string) => {

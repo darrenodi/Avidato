@@ -61,6 +61,16 @@ The lesson "${topic.title}" must show ${student.name} PERFORMING the actual task
 ✅ CORRECT: "Code Review Meeting" → ${student.name} reviews actual code with team, discusses technical details
 ❌ WRONG: "Code Review Meeting" → Team coaches ${student.name} on how to give feedback
 
+🚨 CRITICAL LANGUAGE REQUIREMENT:
+All lesson content MUST be generated in ${student.targetLanguage}. This includes:
+- All exercise instructions and descriptions
+- All dialogue lines
+- All vocabulary words, definitions, examples, expressions
+- All comprehension questions
+- All role-play scenarios
+- All discussion questions
+Do NOT use English or translate to English. Generate ONLY in ${student.targetLanguage}.
+
 VOCABULARY RULES:
 - EXACTLY 6 items, all SINGLE WORDS (verbs, adjectives, nouns, idioms, or phrasal verbs only)
 - NO compound phrases (e.g., NO "purchase order", "key stakeholder", "product code")

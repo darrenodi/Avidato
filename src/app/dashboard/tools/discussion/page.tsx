@@ -14,11 +14,17 @@ interface DiscussionQuestion {
 interface Discussion {
   topic: string
   level: string
+  language: string
   questions: DiscussionQuestion[]
   generatedAt: string
 }
 
 const CEFR_LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']
+
+const LANGUAGES = [
+  { value: 'English', label: 'English', flag: '🇺🇸' },
+  { value: 'French', label: 'French', flag: '🇫🇷' },
+]
 
 const LEVEL_DESCRIPTIONS: Record<string, string> = {
   A1: 'Elementary - Complete beginner',
@@ -34,6 +40,7 @@ export default function DiscussionToolPage() {
   const router = useRouter()
   const [topic, setTopic] = useState('')
   const [level, setLevel] = useState('B1')
+  const [language, setLanguage] = useState('English')
   const [context, setContext] = useState('')
   const [loading, setLoading] = useState(false)
   const [discussion, setDiscussion] = useState<Discussion | null>(null)
@@ -59,6 +66,7 @@ export default function DiscussionToolPage() {
         body: JSON.stringify({
           topic,
           level,
+          language,
           context: context || undefined,
         }),
       })
@@ -171,6 +179,28 @@ export default function DiscussionToolPage() {
                 </p>
               </div>
 
+              {/* Language Selection */}
+              <div>
+                <label htmlFor="language" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Target Language
+                </label>
+                <select
+                  id="language"
+                  value={language}
+                  onChange={(e) => setLanguage(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-primary focus:border-transparent"
+                >
+                  {LANGUAGES.map((lang) => (
+                    <option key={lang.value} value={lang.value}>
+                      {lang.flag} {lang.label}
+                    </option>
+                  ))}
+                </select>
+                <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                  Select the language your students are learning.
+                </p>
+              </div>
+
               {/* Context Input */}
               <div>
                 <label htmlFor="context" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -231,6 +261,9 @@ export default function DiscussionToolPage() {
               <div className="flex flex-wrap gap-3">
                 <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-300">
                   Level: {discussion.level}
+                </span>
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-100 dark:bg-purple-900/50 text-purple-800 dark:text-purple-300">
+                  Language: {discussion.language}
                 </span>
                 <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 dark:bg-gray-900/50 text-gray-800 dark:text-gray-300">
                   {discussion.questions.length} Questions
