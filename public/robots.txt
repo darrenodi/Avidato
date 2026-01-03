@@ -1,0 +1,24 @@
+# Avidato - Indexing Rules
+User-agent: *
+Allow: /
+
+# Allow indexing of public pages
+Allow: /pricing
+Allow: /features
+Allow: /blog
+Allow: /careers
+Allow: /fair-use
+Allow: /terms
+Allow: /privacy
+Allow: /refund-policy
+
+# Disallow private/authenticated pages from being indexed
+Disallow: /login
+Disallow: /signup
+Disallow: /auth/
+Disallow: /dashboard/
+Disallow: /lessons/
+Disallow: /admin/
+
+# Sitemap
+Sitemap: https://avidato.com/sitemap.xml
