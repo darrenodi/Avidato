@@ -84,7 +84,9 @@ const LandingPage: React.FC = () => {
             "description": "AI-powered English teaching assistant for online ESL/EFL tutors",
             "sameAs": [
               "https://twitter.com/avidato",
-              "https://linkedin.com/company/avidato"
+              "https://linkedin.com/company/avidato",
+              "https://www.facebook.com/p/Avidato-61583867944633/",
+              "https://www.instagram.com/avidato.ai/"
             ]
           })
         }}
