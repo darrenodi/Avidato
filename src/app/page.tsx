@@ -79,8 +79,8 @@ const LandingPage: React.FC = () => {
             "@context": "https://schema.org",
             "@type": "Organization",
             "name": "Avidato",
-            "url": "https://avidato.com",
-            "logo": "https://avidato.com/logo.svg",
+            "url": "https://www.avidato.com",
+            "logo": "https://www.avidato.com/logo.svg",
             "description": "AI-powered English teaching assistant for online ESL/EFL tutors",
             "sameAs": [
               "https://twitter.com/avidato",
