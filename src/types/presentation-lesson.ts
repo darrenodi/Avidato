@@ -75,12 +75,16 @@ export interface DiscussionExercise {
 export type PresentationExercise = VocabularyExercise | ExpressionsExercise | DialogueExercise | ExampleExercise | ManualExercise | RolePlayExercise | DiscussionExercise
 
 export interface PresentationLesson {
-  lessonType: 'presentation'
+  lessonType?: 'presentation'
   title: string
+  courseTitle?: string
+  lessonNumber?: number
   objective: string
   level: string
   duration: number
   presentationType: string
   audience: string
+  skills?: string[]
+  focusAreas?: string[]
   exercises: PresentationExercise[]
 }

@@ -505,13 +505,13 @@ export default function LessonPage() {
                     courseTitle: `Presentation Skills Lesson`,
                     lessonNumber: 1,
                     level: lesson.student?.level as any || 'Intermediate',
-                    duration: lesson.content?.duration || 50,
-                    presentationType: lesson.content?.presentationType || 'General Presentation',
-                    audience: lesson.content?.audience || 'General Audience',
-                    objective: lesson.content?.objective || '',
-                    skills: lesson.content?.skills || ['Speaking', 'Presentation', 'Confidence'],
-                    focusAreas: lesson.content?.focusAreas || ['Opening', 'Structure', 'Q&A', 'Delivery'],
-                    exercises: (lesson.content?.exercises || []).map((ex: any, i: number) => ({
+                    duration: (lesson.content as any)?.duration || 50,
+                    presentationType: (lesson.content as any)?.presentationType || 'General Presentation',
+                    audience: (lesson.content as any)?.audience || 'General Audience',
+                    objective: (lesson.content as any)?.objective || '',
+                    skills: (lesson.content as any)?.skills || ['Speaking', 'Presentation', 'Confidence'],
+                    focusAreas: (lesson.content as any)?.focusAreas || ['Opening', 'Structure', 'Q&A', 'Delivery'],
+                    exercises: ((lesson.content as any)?.exercises || []).map((ex: any, i: number) => ({
                       number: i + 1,
                       title: ex.title,
                       type: ex.type as any,
@@ -552,10 +552,10 @@ export default function LessonPage() {
               </div>
             ) : isPresentationLesson({
               title: lesson.content?.title || '',
-              objective: lesson.content?.objective || '',
-              endGoals: lesson.student?.endGoals || '',
-              occupation: lesson.student?.occupation || '',
-              methodology: lesson.content?.methodology || ''
+              objective: (lesson.content as any)?.objective || '',
+              endGoals: (lesson.student as any)?.endGoals || '',
+              occupation: (lesson.student as any)?.occupation || '',
+              methodology: (lesson.content as any)?.methodology || ''
             }) ? (
               // Render as presentation lesson
               <div className="space-y-4 sm:space-y-6">
@@ -607,25 +607,25 @@ export default function LessonPage() {
                     duration: lesson.content?.duration || 50,
                     presentationType: extractPresentationContext(
                       lesson.content?.title || '',
-                      lesson.student?.endGoals,
-                      lesson.student?.occupation
+                      (lesson.student as any)?.endGoals,
+                      (lesson.student as any)?.occupation
                     ).presentationType,
                     audience: extractPresentationContext(
                       lesson.content?.title || '',
-                      lesson.student?.endGoals,
-                      lesson.student?.occupation
+                      (lesson.student as any)?.endGoals,
+                      (lesson.student as any)?.occupation
                     ).audience,
                     objective: lesson.content?.objective || '',
                     skills: lesson.content?.skills || ['Speaking', 'Presentation', 'Confidence'],
                     focusAreas: ['Opening', 'Structure', 'Q&A', 'Delivery'],
-                    exercises: (lesson.content?.exercises || []).map((ex: any, i: number) => ({
+                    exercises: ((lesson.content?.exercises || []).map((ex: any, i: number) => ({
                       number: i + 1,
                       title: ex.title,
                       type: ex.type as any,
                       timeMinutes: ex.timeMinutes || 0,
                       description: ex.description,
                       content: ex.content || {}
-                    }))
+                    }))) as any
                   }}
                 />
               </div>
