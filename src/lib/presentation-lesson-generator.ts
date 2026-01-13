@@ -3,6 +3,8 @@
  * Generates presentation lessons in Engoo Global format
  */
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { generateWithFailover } from './openaiFailover'
 import { extractJSONFromText, cleanAndParseJSON } from './utils/json-parser'
 import { StudentProfile } from '../types/lesson-template'
