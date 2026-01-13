@@ -3,6 +3,7 @@ import { Suspense, lazy } from 'react'
 
 // Import types
 import type { VocabularyItem, DialogueLine } from '@/types/lesson-template'
+import type { PresentationLesson } from '@/types/presentation-lesson'
 
 // Lazy load heavy exercise components
 const VocabularyExercise = lazy(() => 
@@ -20,6 +21,12 @@ const DialogueExercise = lazy(() =>
 const FinalPrepExercise = lazy(() => 
   import('./EngooLessonComponents').then(module => ({ 
     default: module.FinalPrepExercise 
+  }))
+)
+
+const PresentationLessonDisplay = lazy(() =>
+  import('./PresentationLessonDisplay').then(module => ({
+    default: module.PresentationLessonDisplay
   }))
 )
 
@@ -63,6 +70,18 @@ export function LazyExerciseRenderer({
           confidence={content.confidence as string[] || []}
         />
       )}
+    </Suspense>
+  )
+}
+
+export function LazyPresentationLessonRenderer({
+  lesson
+}: {
+  lesson: PresentationLesson
+}) {
+  return (
+    <Suspense fallback={<ExerciseLoadingSkeleton />}>
+      <PresentationLessonDisplay lesson={lesson} />
     </Suspense>
   )
 }

@@ -21,6 +21,7 @@ interface Exercise {
 interface LessonLoaderProps {
   exercises: Exercise[]
   priorityCount?: number // Load first N exercises immediately
+  lessonType?: 'engoo' | 'presentation' // The lesson format type
 }
 
 export function LessonLoader({ exercises, priorityCount = 2 }: LessonLoaderProps) {

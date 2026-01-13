@@ -9,6 +9,8 @@ import { shareLesson } from '@/app/actions/ai-generation'
 import { Under18LessonDisplay } from '@/lib/lesson-displays'
 import GrammarLessonDisplay from '@/components/lesson/GrammarLessonDisplay'
 import InstantLessonDisplay from '@/components/lesson/InstantLessonDisplay'
+import { PresentationLessonDisplay } from '@/components/lesson/PresentationLessonDisplay'
+import { isPresentationLesson, extractPresentationContext } from '@/lib/presentation-detection'
 import { 
   VocabularyExercise, 
   WarmupExercise, 
@@ -453,8 +455,73 @@ export default function LessonPage() {
             {/* Lesson Content */}
             {!loading && !error && lesson && (
           <>
-            {/* Check if it's an instant lesson and use dedicated renderer */}
-            {lesson.content?.lessonType === 'instant' ? (
+            {/* Check if it's a presentation lesson */}
+            {lesson.content?.lessonType === 'presentation' ? (
+              <div className="space-y-4 sm:space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 sm:mb-8">
+                  <Link
+                    href={`/dashboard/students/${lesson.student.id}`}
+                    className="inline-flex items-center text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 text-sm sm:text-base"
+                  >
+                    <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                    </svg>
+                    Back to {lesson.student.name}
+                  </Link>
+                  
+                  <button
+                    onClick={copyShareLink}
+                    disabled={isMarking}
+                    className="inline-flex items-center justify-center px-3 sm:px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-sm sm:text-base w-full sm:w-auto disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isTaught ? (
+                      <>
+                        <svg className="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                        <span className="text-green-500">✓ Taught</span>
+                      </>
+                    ) : isMarking ? (
+                      <>
+                        <div className="w-4 h-4 mr-2 border-2 border-gray-300 border-t-brand-primary rounded-full animate-spin"></div>
+                        <span>Marking...</span>
+                      </>
+                    ) : (
+                      <>
+                        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
+                        </svg>
+                        Copy Student Link
+                      </>
+                    )}
+                  </button>
+                </div>
+
+                <PresentationLessonDisplay
+                  lesson={{
+                    title: lesson.content?.title || '',
+                    courseTitle: `Presentation Skills Lesson`,
+                    lessonNumber: 1,
+                    level: lesson.student?.level as any || 'Intermediate',
+                    duration: lesson.content?.duration || 50,
+                    presentationType: lesson.content?.presentationType || 'General Presentation',
+                    audience: lesson.content?.audience || 'General Audience',
+                    objective: lesson.content?.objective || '',
+                    skills: lesson.content?.skills || ['Speaking', 'Presentation', 'Confidence'],
+                    focusAreas: lesson.content?.focusAreas || ['Opening', 'Structure', 'Q&A', 'Delivery'],
+                    exercises: (lesson.content?.exercises || []).map((ex: any, i: number) => ({
+                      number: i + 1,
+                      title: ex.title,
+                      type: ex.type as any,
+                      timeMinutes: ex.timeMinutes || 0,
+                      description: ex.description,
+                      // Pass the exercise itself, with all properties flattened
+                      ...ex
+                    }))
+                  }}
+                />
+              </div>
+            ) : lesson.content?.lessonType === 'instant' ? (
               <div className="space-y-4 sm:space-y-6">
                 {/* Header with Back Button */}
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 sm:mb-8">
@@ -480,6 +547,85 @@ export default function LessonPage() {
                     phonetics?: string
                   }>
                 }} />
+              </div>
+            ) : isPresentationLesson({
+              title: lesson.content?.title || '',
+              objective: lesson.content?.objective || '',
+              endGoals: lesson.student?.endGoals || '',
+              occupation: lesson.student?.occupation || '',
+              methodology: lesson.content?.methodology || ''
+            }) ? (
+              // Render as presentation lesson
+              <div className="space-y-4 sm:space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 sm:mb-8">
+                  <Link
+                    href={`/dashboard/students/${lesson.student.id}`}
+                    className="inline-flex items-center text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 text-sm sm:text-base"
+                  >
+                    <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                    </svg>
+                    Back to {lesson.student.name}
+                  </Link>
+                  
+                  <button
+                    onClick={copyShareLink}
+                    disabled={isMarking}
+                    className="inline-flex items-center justify-center px-3 sm:px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-sm sm:text-base w-full sm:w-auto disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isTaught ? (
+                      <>
+                        <svg className="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                        <span className="text-green-500">✓ Taught</span>
+                      </>
+                    ) : isMarking ? (
+                      <>
+                        <div className="w-4 h-4 mr-2 border-2 border-gray-300 border-t-brand-primary rounded-full animate-spin"></div>
+                        <span>Marking...</span>
+                      </>
+                    ) : (
+                      <>
+                        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
+                        </svg>
+                        Copy Student Link
+                      </>
+                    )}
+                  </button>
+                </div>
+
+                <PresentationLessonDisplay
+                  lesson={{
+                    title: lesson.content?.title || '',
+                    courseTitle: `Presentation Skills Lesson`,
+                    lessonNumber: 1,
+                    level: lesson.student?.level as any || 'Intermediate',
+                    duration: lesson.content?.duration || 50,
+                    presentationType: extractPresentationContext(
+                      lesson.content?.title || '',
+                      lesson.student?.endGoals,
+                      lesson.student?.occupation
+                    ).presentationType,
+                    audience: extractPresentationContext(
+                      lesson.content?.title || '',
+                      lesson.student?.endGoals,
+                      lesson.student?.occupation
+                    ).audience,
+                    objective: lesson.content?.objective || '',
+                    skills: lesson.content?.skills || ['Speaking', 'Presentation', 'Confidence'],
+                    focusAreas: ['Opening', 'Structure', 'Q&A', 'Delivery'],
+                    exercises: (lesson.content?.exercises || []).map((ex: any, i: number) => ({
+                      number: i + 1,
+                      title: ex.title,
+                      type: ex.type as any,
+                      timeMinutes: ex.timeMinutes || 0,
+                      description: ex.description,
+                      content: ex.content || {}
+                    }))
+                  }}
+                />
               </div>
             ) : (
           <div className="space-y-4 sm:space-y-6">
