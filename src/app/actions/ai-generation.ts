@@ -10,6 +10,8 @@ import { revalidatePath } from 'next/cache';
 import type { Session } from 'next-auth';
 import { getVocabularyContext } from '@/lib/vocabulary-tracker';
 import { checkRateLimit, recordFailedAttempt } from '@/lib/turnstile';
+import { generatePresentationLesson } from '@/lib/presentation-lesson-generator';
+import { isPresentationLesson } from '@/lib/presentation-detection';
 
 /**
  * Security wrapper for AI generation operations
@@ -459,18 +461,36 @@ export async function generateLesson(
       shouldReuseVocabularyInDialogue: vocabContext.shouldReuseInDialogue,
     };
 
-    // Generate lesson
-    const generatedLesson = await openaiService.generateLesson(
-      studentProfile,
-      lessonDataWithContext as Parameters<typeof openaiService.generateLesson>[1],
-      duration
-    );
+    // Check if this should be a presentation lesson
+    const isPresentationLessonNeeded = isPresentationLesson({
+      title: lessonData.title,
+      objective: lessonData.objective,
+      endGoals: student.endGoals,
+      occupation: student.occupation,
+    });
+
+    // Generate lesson - use presentation generator if appropriate
+    let generatedLesson: any;
+    if (isPresentationLessonNeeded) {
+      generatedLesson = await generatePresentationLesson({
+        student: studentProfile,
+        topic: lessonData.title,
+        objective: lessonData.objective
+      });
+    } else {
+      generatedLesson = await openaiService.generateLesson(
+        studentProfile,
+        lessonDataWithContext as Parameters<typeof openaiService.generateLesson>[1],
+        duration
+      );
+    }
 
     // Store lesson in database
+    const skills = generatedLesson.skills || ['Language Learning'];
     const savedLesson = await prisma.lesson.create({
       data: {
         title: generatedLesson.title,
-        overview: `${generatedLesson.objective} | Skills: ${generatedLesson.skills.join(', ')} | Type: ${generatedLesson.lessonType}`,
+        overview: `${generatedLesson.objective} | Skills: ${skills.join(', ')} | Type: ${generatedLesson.lessonType}`,
         content: JSON.parse(JSON.stringify(generatedLesson)), // Convert to JSON-compatible format
         studentId: studentId,
         isRefined: true, // AI-generated lessons are considered refined
