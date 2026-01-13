@@ -15,7 +15,7 @@ interface PresentationDetectionContext {
   title: string;
   objective?: string;
   endGoals?: string;
-  occupation?: string;
+  occupation?: string | null;
   methodology?: string;
 }
 
