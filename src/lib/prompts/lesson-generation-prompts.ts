@@ -108,12 +108,13 @@ DIALOGUE RULES (Exercise 3):
 Format: { "type": "dialogue", "title": "Exercise 3: Dialogue", "description": "Practice with realistic scenario", "content": { "setting": "Max 150 chars: WHO, WHERE, WHAT", "characters": ["${student.name}", "Selected Role Name"], "dialogue": [{"character": "${student.name}", "text": "..."}, {"character": "Selected Role Name", "text": "..."}, ...8-12 total exchanges with alternating speakers], "instructions": "Read as ${student.name}" }, "timeMinutes": 12 }
 
 **Exercise 4: Dialogue Comprehension** (8 min)
-CRITICAL MCQ FORMAT:
-- MUST have EXACTLY 5 questions
-- Each MCQ MUST have: "question", "type": "multiple-choice", "options": ["A) Option 1", "B) Option 2", "C) Option 3", "D) Option 4"], "answer": "A" (use letter only)
-- Each MCQ answer MUST use DIFFERENT letters (Q1: A, Q2: D, Q3: B, Q4: C, Q5: A - never repeat a letter within the same exercise)
-- Open-ended questions: "question", "type": "short-answer", "answer": "Full sentence answer"
-Format: { "type": "comprehension", "title": "Exercise 4: Comprehension", "description": "Answer questions about the dialogue", "content": { "questions": [{"question": "Q1 text", "type": "multiple-choice", "options": ["A) ...", "B) ...", "C) ...", "D) ..."], "answer": "A"}, {"question": "Q2 text", "type": "multiple-choice", "options": ["A) ...", "B) ...", "C) ...", "D) ..."], "answer": "D"}, {"question": "Q3 text", "type": "multiple-choice", "options": ["A) ...", "B) ...", "C) ...", "D) ..."], "answer": "B"}, {"question": "Q4 text", "type": "multiple-choice", "options": ["A) ...", "B) ...", "C) ...", "D) ..."], "answer": "C"}, {"question": "Q5 text", "type": "multiple-choice", "options": ["A) ...", "B) ...", "C) ...", "D) ..."], "answer": "A"}] }, "timeMinutes": 8 }
+CRITICAL FORMAT:
+- MUST have EXACTLY 5 questions total: 2 MCQ + 3 open-ended (structural)
+- MCQ questions (2): MUST have: "question", "type": "multiple-choice", "options": ["A) Option 1", "B) Option 2", "C) Option 3", "D) Option 4"], "answer": "A" or "B" or "C" or "D" (use letter only)
+- MCQ answers MUST be DIFFERENT letters (e.g., Q1: A, Q2: D - rotate answer positions)
+- Open-ended questions (3): "question", "type": "short-answer", "answer": "Full sentence answer" (structural/comprehension based, not personal opinion)
+- Order: Start with 2 MCQ, then 3 open-ended questions
+Format: { "type": "comprehension", "title": "Exercise 4: Comprehension", "description": "Answer questions about the dialogue", "content": { "questions": [{"question": "MCQ 1 text - factual detail from dialogue", "type": "multiple-choice", "options": ["A) ...", "B) ...", "C) ...", "D) ..."], "answer": "A"}, {"question": "MCQ 2 text - factual detail from dialogue", "type": "multiple-choice", "options": ["A) ...", "B) ...", "C) ...", "D) ..."], "answer": "C"}, {"question": "What happened/was decided in [specific part of dialogue]?", "type": "short-answer", "answer": "Structural answer based on dialogue content"}, {"question": "Why did [character] [action/decision] in the dialogue?", "type": "short-answer", "answer": "Structural answer based on dialogue logic"}, {"question": "What would [character] likely do next based on the conversation?", "type": "short-answer", "answer": "Structural answer based on dialogue context"}] }, "timeMinutes": 8 }
 
 **Exercise 5: Role Play** (10 min)
 UPDATED: 

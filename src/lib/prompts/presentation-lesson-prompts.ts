@@ -41,11 +41,23 @@ EXERCISE TYPES AND FORMATS:
   ]
 }
 
-2. EXPRESSIONS Exercise
+2. EXPRESSIONS Exercise - GENERAL PRESENTATION PHRASES (NOT topic-specific)
 {
   "type": "expressions",
   "title": "Useful Expressions for Presentations",
-  "items": ["phrase 1 in ${student.targetLanguage}", "phrase 2 in ${student.targetLanguage}", ...]
+  "items": [
+    "In today's presentation, I would like to talk about...",
+    "To begin with/First of all...",
+    "Please take a look at this chart/graph...",
+    "As you can see here...",
+    "This illustrates/shows...",
+    "Moving on to the next point...",
+    "In conclusion/To summarize...",
+    "I'd be happy to answer any questions you might have.",
+    "If you have any questions, please feel free to ask.",
+    "That brings me to the end of my presentation.",
+    "Thank you for your time."
+  ]
 }
 
 3. EXAMPLE Exercise
@@ -101,8 +113,8 @@ RULES:
 - Return ONLY valid JSON, no markdown
 - ALL content MUST be in ${student.targetLanguage}
 - Choose 4-5 exercises (mix types intelligently for the topic)
-- Vocabulary: 6-8 words
-- Expressions: 10-15 phrases
+- Vocabulary: 6-8 words related to the presentation topic
+- Expressions: 10-15 GENERAL presentation phrases (openings, transitions, conclusions) - NOT topic-specific
 - Example: 250-400 words
 - Dialogue: 3-4 exchanges + 3-4 comprehension questions
 - Manual: introduction + 4-6 tips
