@@ -8,6 +8,8 @@ import Image from 'next/image'
 import ClientThemeProvider from '@/components/ClientThemeProvider'
 import { Under18LessonDisplay } from '@/lib/lesson-displays/under-18-display'
 import InstantLessonDisplay from '@/components/lesson/InstantLessonDisplay'
+import { PresentationLessonDisplay } from '@/components/lesson/PresentationLessonDisplay'
+import { isPresentationLesson } from '@/lib/presentation-detection'
 import {
   VocabularyExercise,
   WarmupExercise,
@@ -710,6 +712,38 @@ export default function SharedLessonPage() {
             <>
               {lesson.content?.isGrammarLesson ? (
                 <SharedGrammarLesson lesson={lesson} />
+              ) : isPresentationLesson({
+                title: lesson.content?.title || '',
+                objective: (lesson.content as any)?.objective || '',
+                endGoals: (lesson.student as any)?.endGoals || '',
+                occupation: (lesson.student as any)?.occupation || '',
+                methodology: (lesson.content as any)?.methodology || ''
+              }) ? (
+                // Render as presentation lesson
+                <div className="space-y-4 sm:space-y-6">
+                  <PresentationLessonDisplay
+                    lesson={{
+                      title: lesson.content?.title || '',
+                      courseTitle: `Presentation Skills Lesson`,
+                      lessonNumber: 1,
+                      level: lesson.student?.level as any || 'Intermediate',
+                      duration: (lesson.content as any)?.duration || 50,
+                      presentationType: (lesson.content as any)?.presentationType || 'General Presentation',
+                      audience: (lesson.content as any)?.audience || 'General Audience',
+                      objective: (lesson.content as any)?.objective || '',
+                      skills: (lesson.content as any)?.skills || ['Speaking', 'Presentation', 'Confidence'],
+                      focusAreas: (lesson.content as any)?.focusAreas || ['Opening', 'Structure', 'Q&A', 'Delivery'],
+                      exercises: (((lesson.content as any)?.exercises || []).map((ex: any, i: number) => ({
+                        number: i + 1,
+                        title: ex.title,
+                        type: ex.type as any,
+                        timeMinutes: ex.timeMinutes || 0,
+                        description: ex.description,
+                        ...ex
+                      }))) as any
+                    }}
+                  />
+                </div>
               ) : lesson.content?.lessonType === 'instant' ? (
                 <InstantLessonDisplay lesson={{
                   title: lesson.content.title || '',

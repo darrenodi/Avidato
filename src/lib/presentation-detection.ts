@@ -5,7 +5,9 @@
 
 const PRESENTATION_KEYWORDS = [
   'presentation',
+  'presenting',
   'pitch',
+  'present',
   'public speaking',
   'conference presentation',
   'keynote',
