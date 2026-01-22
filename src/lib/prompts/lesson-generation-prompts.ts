@@ -109,11 +109,25 @@ Format: { "type": "dialogue", "title": "Exercise 3: Dialogue", "description": "P
 
 **Exercise 4: Dialogue Comprehension** (8 min)
 CRITICAL MCQ FORMAT:
-- MUST have EXACTLY 5 questions
-- Each MCQ MUST have: "question", "type": "multiple-choice", "options": ["A) Option 1", "B) Option 2", "C) Option 3", "D) Option 4"], "answer": "A" (use letter only)
-- Each MCQ answer MUST use DIFFERENT letters (Q1: A, Q2: D, Q3: B, Q4: C, Q5: A - never repeat a letter within the same exercise)
+- VARY the question mix: Either 2 MCQ + 3 open OR 3 MCQ + 2 open (randomize for each lesson)
+- MCQ answer positions MUST be randomized: Distribute correct answers randomly across A, B, C, D positions
+- Each MCQ MUST have: "question", "type": "multiple-choice", "options": ["A) Option 1", "B) Option 2", "C) Option 3", "D) Option 4"], "answer": "[random letter]"
 - Open-ended questions: "question", "type": "short-answer", "answer": "Full sentence answer"
-Format: { "type": "comprehension", "title": "Exercise 4: Comprehension", "description": "Answer questions about the dialogue", "content": { "questions": [{"question": "Q1 text", "type": "multiple-choice", "options": ["A) ...", "B) ...", "C) ...", "D) ..."], "answer": "A"}, {"question": "Q2 text", "type": "multiple-choice", "options": ["A) ...", "B) ...", "C) ...", "D) ..."], "answer": "D"}, {"question": "Q3 text", "type": "multiple-choice", "options": ["A) ...", "B) ...", "C) ...", "D) ..."], "answer": "B"}, {"question": "Q4 text", "type": "multiple-choice", "options": ["A) ...", "B) ...", "C) ...", "D) ..."], "answer": "C"}, {"question": "Q5 text", "type": "multiple-choice", "options": ["A) ...", "B) ...", "C) ...", "D) ..."], "answer": "A"}] }, "timeMinutes": 8 }
+- Total: Always 5 questions (either 2+3 or 3+2 mix)
+
+Format: { "type": "comprehension", "title": "Exercise 4: Comprehension", "description": "Answer questions about the dialogue", "content": { "questions": [
+  (FOR 2 MCQ + 3 OPEN) {"question": "Q1 text", "type": "multiple-choice", "options": ["A) ...", "B) ...", "C) ...", "D) ..."], "answer": "[random A-D]"},
+  {"question": "Q2 text", "type": "multiple-choice", "options": ["A) ...", "B) ...", "C) ...", "D) ..."], "answer": "[random A-D]"},
+  {"question": "Q3 text", "type": "short-answer", "answer": "Full sentence answer"},
+  {"question": "Q4 text", "type": "short-answer", "answer": "Full sentence answer"},
+  {"question": "Q5 text", "type": "short-answer", "answer": "Full sentence answer"}
+  OR
+  (FOR 3 MCQ + 2 OPEN) {"question": "Q1 text", "type": "multiple-choice", "options": ["A) ...", "B) ...", "C) ...", "D) ..."], "answer": "[random A-D]"},
+  {"question": "Q2 text", "type": "multiple-choice", "options": ["A) ...", "B) ...", "C) ...", "D) ..."], "answer": "[random A-D]"},
+  {"question": "Q3 text", "type": "multiple-choice", "options": ["A) ...", "B) ...", "C) ...", "D) ..."], "answer": "[random A-D]"},
+  {"question": "Q4 text", "type": "short-answer", "answer": "Full sentence answer"},
+  {"question": "Q5 text", "type": "short-answer", "answer": "Full sentence answer"}
+] }, "timeMinutes": 8 }
 
 **Exercise 5: Role Play** (10 min)
 UPDATED: 
