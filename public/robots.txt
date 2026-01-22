@@ -1,8 +1,9 @@
-# Avidato - Indexing Rules
+# Avidato - Robots Rules
+# Allow all crawlers to index public pages
 User-agent: *
 Allow: /
 
-# Allow indexing of public pages
+# Public pages that should be indexed
 Allow: /pricing
 Allow: /features
 Allow: /blog
@@ -19,6 +20,16 @@ Disallow: /auth/
 Disallow: /dashboard/
 Disallow: /lessons/
 Disallow: /admin/
+Disallow: /_next/
+Disallow: /*.json$
 
-# Sitemap
+# Allow Google indexing specifically
+User-agent: Googlebot
+Allow: /
+
+# Sitemaps for both www and non-www
 Sitemap: https://avidato.com/sitemap.xml
+Sitemap: https://www.avidato.com/sitemap.xml
+
+# Crawl delay (in seconds)
+Crawl-delay: 1

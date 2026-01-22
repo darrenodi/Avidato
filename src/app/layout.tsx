@@ -19,11 +19,18 @@ export const metadata: Metadata = {
     siteName: "Avidato",
     images: [
       {
-        url: "https://avidato.com/logo.svg",
+        url: "https://avidato.com/logo.png",
         width: 1200,
         height: 630,
         alt: "Avidato Logo",
-        type: "image/svg+xml",
+        type: "image/png",
+      },
+      {
+        url: "https://avidato.com/android-chrome-512x512.png",
+        width: 512,
+        height: 512,
+        alt: "Avidato Logo",
+        type: "image/png",
       }
     ],
     type: "website",
@@ -32,7 +39,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Avidato | AI-Powered English Teaching Assistant",
     description: "Generate personalized English lesson plans in minutes with AI.",
-    images: ["https://avidato.com/logo.svg"],
+    images: ["https://avidato.com/android-chrome-512x512.png"],
   },
   icons: {
     icon: [
@@ -59,13 +66,36 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               "@context": "https://schema.org",
               "@type": "Organization",
               "name": "Avidato",
+              "alternateName": "Avidato - AI English Teaching Assistant",
               "url": "https://avidato.com",
-              "logo": "https://avidato.com/logo.svg",
-              "image": "https://avidato.com/logo.svg",
-              "description": "AI-powered English teaching assistant for online ESL/EFL tutors. Generate personalized lesson plans, discussion questions, and teaching materials.",
+              "logo": {
+                "@type": "ImageObject",
+                "url": "https://avidato.com/android-chrome-512x512.png",
+                "width": 512,
+                "height": 512
+              },
+              "image": {
+                "@type": "ImageObject",
+                "url": "https://avidato.com/android-chrome-512x512.png",
+                "width": 512,
+                "height": 512
+              },
+              "description": "AI-powered English teaching assistant for online ESL/EFL tutors. Generate personalized lesson plans, discussion questions, and teaching materials with CEFR level support.",
+              "sameAs": [
+                "https://twitter.com/avidato",
+                "https://linkedin.com/company/avidato",
+                "https://www.facebook.com/p/Avidato-61583867944633/",
+                "https://www.instagram.com/avidato.ai/"
+              ],
               "contactPoint": {
                 "@type": "ContactPoint",
-                "contactType": "Customer Support"
+                "contactType": "Customer Support",
+                "url": "https://avidato.com"
+              },
+              "potentialAction": {
+                "@type": "SearchAction",
+                "target": "https://avidato.com/blog?q={search_term_string}",
+                "query-input": "required name=search_term_string"
               }
             })
           }}
