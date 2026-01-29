@@ -32,11 +32,11 @@ export const WarmUpRenderer: React.FC<WarmUpRendererProps> = ({
   timeMinutes,
 }) => {
   // Normalize questions to handle both string[] and object[] formats
-  const normalizedQuestions = questions?.map(q => 
+  const normalizedQuestions = (questions || []).map(q => 
     typeof q === 'string' 
       ? { question: q, hint: undefined }
       : q
-  ) || []
+  )
 
   return (
     <div className="space-y-4">
@@ -66,7 +66,7 @@ export const WarmUpRenderer: React.FC<WarmUpRendererProps> = ({
                 </span>
                 <div className="flex-1">
                   <p className="text-gray-900 dark:text-white font-medium mb-2 leading-relaxed">
-                    <span dangerouslySetInnerHTML={{ __html: safeReplace(q?.question) }} />
+                    <span dangerouslySetInnerHTML={{ __html: safeReplace(q?.question || '') }} />
                   </p>
                   {q?.hint && (
                     <p className="text-sm text-gray-600 dark:text-gray-400 italic">

@@ -137,7 +137,12 @@ For each of the 10 topics, generate 6 vocabulary words that are:
 - Unique and distinct across all 10 lessons (NO REPETITION across lessons)
 - Relevant to the topic and student's occupation
 - Progressively building (early lessons simpler, later lessons more advanced)
-- MIX OF: technical terms + practical nouns + adjectives + verbs (not all super technical)
+- BALANCED MIX: 2-3 nouns + 2 verbs + 1-2 adjectives (NOT all the same part of speech)
+- STYLE EXAMPLE: tolerance, snap, durable, route, fatigue, validate - DIFFERENT words for each topic, different parts of speech
+- Avoiding: generic clichés ("bottleneck", "backlog", "compliance", "leverage", "synergy", "paradigm")
+- Focused on PRACTICAL, NICHE terminology that makes each lesson valuable and accessible
+- CRITICAL: NO HYPHENS or UNDERSCORES in ANY VOCABULARY WORDS. Ever. Just simple, single words (no compound words).
+- Words must be clean: "feedback" not "feedback-loop", "demo" not "demo-script", "workaround" is okay (already simple)
 - STYLE EXAMPLE: tolerance, snap, durable, route, fatigue, validate - DIFFERENT words for each topic
 - Avoiding: generic clichés ("bottleneck", "backlog", "compliance", "leverage", "synergy", "paradigm")
 - Focused on PRACTICAL, NICHE terminology that makes each lesson valuable and accessible

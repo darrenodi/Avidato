@@ -10,8 +10,9 @@ import React, { useState, useRef } from 'react'
  */
 
 // Utility function to safely handle string replacements
-const safeReplace = (text: string | undefined | null): string => {
-  return (text || '').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+const safeReplace = (text: string | undefined | null | Record<string, unknown>): string => {
+  const str = String(text || '')
+  return str.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
 }
 
 interface VocabularyItem {
@@ -170,7 +171,7 @@ export function VocabularyExercise({ vocabulary }: { vocabulary: VocabularyItem[
 }
 
 // Warm-up Exercise Component
-export function WarmupExercise({ questions, instructions }: { questions: string[], instructions?: string }) {
+export function WarmupExercise({ questions, instructions }: { questions: (string | Record<string, unknown>)[], instructions?: string }) {
   return (
     <div className="space-y-4 max-w-4xl">
       {instructions && (
@@ -181,18 +182,25 @@ export function WarmupExercise({ questions, instructions }: { questions: string[
         </p>
       )}
       <div className="space-y-3">
-        {questions.map((question, index) => (
-          <div key={index} className="flex items-start space-x-3">
-            <span className="flex-shrink-0 w-6 h-6 bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-400 rounded-full flex items-center justify-center text-sm font-medium">
-              {index + 1}
-            </span>
-            <p className="text-gray-900 dark:text-white">
-              <span dangerouslySetInnerHTML={{ 
-                __html: safeReplace(question) 
-              }} />
-            </p>
-          </div>
-        ))}
+        {questions.map((question, index) => {
+          // Handle both string and object formats
+          const questionText: string = typeof question === 'string' 
+            ? question 
+            : ((question as Record<string, unknown>)?.question as string) || '';
+          
+          return (
+            <div key={index} className="flex items-start space-x-3">
+              <span className="flex-shrink-0 w-6 h-6 bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-400 rounded-full flex items-center justify-center text-sm font-medium">
+                {index + 1}
+              </span>
+              <p className="text-gray-900 dark:text-white">
+                <span dangerouslySetInnerHTML={{ 
+                  __html: safeReplace(questionText) 
+                }} />
+              </p>
+            </div>
+          )
+        })}
       </div>
     </div>
   )
@@ -373,6 +381,10 @@ export function ComprehensionExercise({
       
       // Otherwise, do exact match
       return selectedAnswer === correctAnswer
+    }
+    if (question.type === 'true-false' && question.answer) {
+      // For true-false, compare case-insensitively (answer could be "true"/"false" or "True"/"False")
+      return selectedAnswer.toLowerCase() === question.answer.toLowerCase()
     }
     return false
   }

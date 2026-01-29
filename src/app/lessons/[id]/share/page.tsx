@@ -600,15 +600,39 @@ const renderExerciseContent = (exercise: { type: string; content: BaseExerciseCo
         return <PreparationExercise questions={content.questions} tips={content.tips as string[]} />
       }
       break
-  case 'final-prep':
-  case 'finalPrep':
-  case 'finalprep':
+    case 'sentenceCorrection':
+    case 'sentence_correction':
+    case 'sentence-correction':
+      if (Array.isArray(content?.sentences)) {
+        return (
+          <div className="space-y-3">
+            {(content.sentences as Array<{incorrect: string; correct: string; errorType: string}>).map((item, index) => (
+              <div key={index} className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
+                <div className="flex gap-3">
+                  <span className="flex-shrink-0 w-8 h-8 bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 rounded-full flex items-center justify-center text-sm font-semibold">
+                    {index + 1}
+                  </span>
+                  <div className="flex-1">
+                    <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-1">❌ Incorrect:</p>
+                    <p className="text-gray-900 dark:text-white font-medium bg-red-50 dark:bg-red-900/20 p-3 rounded mb-3 border border-red-200 dark:border-red-800">
+                      {item.incorrect}
+                    </p>
+                    <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded text-sm text-blue-700 dark:text-blue-300">
+                      ✏️ <strong>Your turn:</strong> Write the corrected version of this sentence.
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )
+      }
+      break
+    case 'final-prep':
+    case 'finalPrep':
+    case 'finalprep':
       return (
         <FinalPrepExercise phrases={(content.phrases as string[]) || []} checklist={(content.checklist as string[]) || []} confidence={(content.confidence as string[]) || []} />
-      )
-    default:
-      return (
-        <div className="whitespace-pre-wrap text-gray-900 dark:text-white">{typeof exercise.content === 'string' ? exercise.content : JSON.stringify(exercise.content, null, 2)}</div>
       )
   }
   return (

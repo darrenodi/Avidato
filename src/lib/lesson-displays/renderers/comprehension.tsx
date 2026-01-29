@@ -151,7 +151,8 @@ export const ComprehensionRenderer: React.FC<ComprehensionRendererProps> = ({
                 <div className="flex gap-3 mb-4">
                   {['True', 'False'].map((option) => {
                     const isSelected = selectedAnswers[index] === option
-                    const isCorrect = q.answer === option
+                    // Answer can be "true"/"false" (lowercase) or "True"/"False" (capitalized)
+                    const isCorrect = q.answer?.toLowerCase() === option.toLowerCase()
                     const hasAnswered = answeredQuestions.has(index)
                     const showCorrect = hasAnswered && isCorrect
                     const showWrong = hasAnswered && isSelected && !isCorrect
