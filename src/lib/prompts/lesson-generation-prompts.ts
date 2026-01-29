@@ -88,8 +88,21 @@ ENGOO STRUCTURE (7 exercises in this exact order):
 Format: { "type": "vocabulary", "title": "Exercise 1: Vocabulary", "content": { "vocabulary": [{ "word": "word1", "partOfSpeech": "verb", "phonetics": "/fəˈnetɪks/", "definition": "clear definition", "example": "example sentence", "synonym": "simple synonym or empty", "expressions": ["collocation 1", "collocation 2", "collocation 3"] }, ...6 items total] }, "timeMinutes": 8 }
 
 **Exercise 2: Warm-up** (8 min)
-UPDATED: Natural, engaging questions that set context for the lesson. No generic openers.
-Format: { "type": "warmup", "title": "Exercise 2: Warm-up", "description": "Discussion questions", "content": { "questions": [2-3 natural, contextual questions that engage student with the topic], "instructions": "Discuss the questions." }, "timeMinutes": 8 }
+WARMUP STRUCTURE: Always 3 questions with specific pedagogical purposes:
+1. Breaking the Ice: Personal experience/opinion question about communication situation (builds confidence)
+2. Product Knowledge: Activate prior knowledge about the service/product domain (primes context)
+3. Communication Skills: Thought-provoking question about communication balance or technique (primes key concept)
+
+WARMUP GUIDELINES:
+- 3 questions ALWAYS (not 2, not 4)
+- Each question has a clear purpose tied to lesson success
+- Natural, conversational tone - NOT textbook style
+- Questions should take 5-7 minutes to discuss
+- Questions directly relate to the work scenario in the dialogue
+- Include follow-up potential ("Why?" or "What made you..." style)
+- Questions should activate student's professional experience and perspective
+
+Format: { "type": "warmup", "title": "Exercise 2: Warm-up", "description": "Discussion questions", "content": { "questions": [{"question": "Q1: Breaking the Ice (personal experience/opinion)", "purpose": "Builds confidence and establishes rapport"}, {"question": "Q2: Product Knowledge (activate prior knowledge)", "purpose": "Primes context and customer needs awareness"}, {"question": "Q3: Communication Skills (thought-provoking about technique)", "purpose": "Primes the key communication concept for the lesson"}], "instructions": "Discuss the questions." }, "timeMinutes": 8 }
 
 **Exercise 3: Dialogue** (12 min)
 UPDATED: Natural dialogue with organic length - LIMITED TO 8-12 TOTAL TURNS. Dialogue should start naturally, develop authentically, and end with resolution/conclusion. Write as people actually speak in the real situation.
