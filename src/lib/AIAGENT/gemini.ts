@@ -132,6 +132,14 @@ ${getOccupationExclusions(student.occupation || '')}
 
 🎯 FOCUS ON: Natural workplace language, domain-relevant phrases, and nuanced communication that challenges language skills (not lecturing professional knowledge). Avoid meta-teaching/coaching in dialogues and topics; make it a real conversation.
 
+🎓 VOCABULARY GENERATION FOR FULL LEARNING PLAN:
+For each of the 10 topics, generate 6 DOMAIN-SPECIFIC vocabulary words that are:
+- Unique and distinct across all 10 lessons (NO REPETITION across lessons)
+- Relevant to the topic and student's occupation
+- Progressively building (early lessons simpler, later lessons more advanced)
+- Avoiding generic business clichés: "bottleneck", "backlog", "compliance", "leverage", "synergy", "paradigm"
+- Focused on NICHE, SPECIFIC terminology that makes each lesson valuable
+
 FORMAT YOUR RESPONSE AS VALID JSON ONLY (no markdown, no explanations):
 {
   "topics": [
@@ -139,7 +147,7 @@ FORMAT YOUR RESPONSE AS VALID JSON ONLY (no markdown, no explanations):
       "lessonNumber": 1,
       "title": "Topic title",
       "objective": "What the student will learn/achieve",
-      "vocabulary": ["word1", "word2", "phrase1"],
+      "vocabulary": ["word1", "word2", "word3", "word4", "word5", "word6"],
       "grammarFocus": "Grammar point if applicable",
       "skills": ["speaking", "listening", "reading", "writing"],
       "context": "Real-world scenario or domain context",
@@ -148,7 +156,10 @@ FORMAT YOUR RESPONSE AS VALID JSON ONLY (no markdown, no explanations):
   ]
 }
 
-IMPORTANT: Return ONLY the JSON object. No additional text, markdown formatting, or explanations.`;
+IMPORTANT: 
+- Return ONLY the JSON object. No additional text, markdown formatting, or explanations.
+- Vocabulary must be 6 words per topic, 60 words total for all 10 topics.
+- ENSURE ALL 60 VOCABULARY WORDS ARE UNIQUE AND NOT REPEATED ACROSS ANY LESSONS.`;
 
     try {
       const { rawText: text } = await generateWithFailover({
@@ -245,6 +256,27 @@ IMPORTANT: Return ONLY the JSON object. No additional text, markdown formatting,
     topic: LearningTopic, 
     duration: 25 | 50 = 50
   ): Promise<GeneratedLesson> {
+  
+  // VOCABULARY FROM LEARNING PLAN: Use pre-generated vocabulary from the learning plan
+  // If vocabulary is provided, use it directly instead of generating new
+  const hasPreGeneratedVocabulary = topic.vocabulary && Array.isArray(topic.vocabulary) && topic.vocabulary.length > 0;
+  
+  let vocabularyGuideSection = '';
+  if (hasPreGeneratedVocabulary) {
+    const vocabList = topic.vocabulary.join(', ');
+    vocabularyGuideSection = `
+
+VOCABULARY FOR THIS LESSON (PRE-SELECTED FROM LEARNING PLAN):
+${vocabList}
+
+CRITICAL: You MUST use EXACTLY these 6 vocabulary words for the vocabulary exercise.
+- Do NOT generate new vocabulary
+- Do NOT substitute or replace any words
+- These words were carefully selected to be unique across the entire learning plan
+- Generate detailed definitions, examples, and synonyms for each word
+- Use these words naturally in the dialogue (Exercise 3)`;
+  }
+  
   // Issue #37: Build vocabulary context section
   let vocabularyContextSection = '';
   if (topic.shouldReuseVocabularyInDialogue && topic.previousVocabulary && topic.previousVocabulary.length > 0) {
@@ -323,7 +355,7 @@ CRITICAL: This exercise must appear as Exercise 5 in the exercises array. ALL se
     student,
     topic,
     duration,
-    vocabularyContextSection,
+    vocabularyGuideSection + vocabularyContextSection,
     under18Section,
     roles,
     examples.join('; '),

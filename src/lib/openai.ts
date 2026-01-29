@@ -128,20 +128,31 @@ ${getOccupationExclusions(student.occupation || '')}
 
 🚨 CRITICAL: All topic titles and objectives MUST be in ${student.targetLanguage}. Do NOT use English or any other language.
 
+🎓 VOCABULARY GENERATION FOR FULL LEARNING PLAN:
+For each of the 10 topics, generate 6 DOMAIN-SPECIFIC vocabulary words that are:
+- Unique and distinct across all 10 lessons (NO REPETITION across lessons)
+- Relevant to the topic and student's occupation
+- Progressively building (early lessons simpler, later lessons more advanced)
+- Avoiding generic business clichés: "bottleneck", "backlog", "compliance", "leverage", "synergy", "paradigm"
+- Focused on NICHE, SPECIFIC terminology that makes each lesson valuable
+
 FORMAT YOUR RESPONSE AS VALID JSON ONLY (no markdown, no explanations):
 {
   "topics": [
     {
       "lessonNumber": 1,
       "title": "Topic title (max 60 characters)",
-      "objective": "What the student will learn/achieve (max 120 characters)"
+      "objective": "What the student will learn/achieve (max 120 characters)",
+      "vocabulary": ["word1", "word2", "word3", "word4", "word5", "word6"]
     }
   ]
 }
 
 IMPORTANT: 
 - Return ONLY the JSON object. No additional text, markdown formatting, or explanations.
-- Keep titles concise (under 60 chars) and objectives concise (under 120 chars).`;
+- Keep titles concise (under 60 chars) and objectives concise (under 120 chars).
+- Vocabulary must be 6 words per topic, 60 words total for all 10 topics.
+- ENSURE ALL 60 VOCABULARY WORDS ARE UNIQUE AND NOT REPEATED ACROSS ANY LESSONS.`;
 
     try {
       const { rawText: text } = await generateWithFailover({
@@ -240,6 +251,26 @@ IMPORTANT:
     topic.context = topic.objective;
   }
   
+  // VOCABULARY FROM LEARNING PLAN: Use pre-generated vocabulary from the learning plan
+  // If vocabulary is provided, use it directly instead of generating new
+  const hasPreGeneratedVocabulary = topic.vocabulary && Array.isArray(topic.vocabulary) && topic.vocabulary.length > 0;
+  
+  let vocabularyGuideSection = '';
+  if (hasPreGeneratedVocabulary) {
+    const vocabList = topic.vocabulary.join(', ');
+    vocabularyGuideSection = `
+
+VOCABULARY FOR THIS LESSON (PRE-SELECTED FROM LEARNING PLAN):
+${vocabList}
+
+CRITICAL: You MUST use EXACTLY these 6 vocabulary words for the vocabulary exercise.
+- Do NOT generate new vocabulary
+- Do NOT substitute or replace any words
+- These words were carefully selected to be unique across the entire learning plan
+- Generate detailed definitions, examples, and synonyms for each word
+- Use these words naturally in the dialogue (Exercise 3)`;
+  }
+  
   // Issue #37: Build vocabulary context section
   let vocabularyContextSection = '';
   if (topic.shouldReuseVocabularyInDialogue && topic.previousVocabulary && topic.previousVocabulary.length > 0) {
@@ -316,7 +347,7 @@ CRITICAL: This exercise must appear as Exercise 5 in the exercises array. ALL se
     student,
     topic,
     duration,
-    vocabularyContextSection,
+    vocabularyGuideSection + vocabularyContextSection,
     under18Section,
     roles,
     examples.join('; '),

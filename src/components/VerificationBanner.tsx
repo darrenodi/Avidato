@@ -9,7 +9,7 @@ export function VerificationBanner() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
   const [emailSent, setEmailSent] = useState(false)
   const [canResend, setCanResend] = useState(true)

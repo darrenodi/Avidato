@@ -1,5 +1,7 @@
 'use client';
 
+import BackupCard from './backup-card';
+
 export default function AdminDashboard() {
   return (
     <div>
@@ -180,6 +182,9 @@ export default function AdminDashboard() {
             </button>
           </div>
         </div>
+
+        {/* Database Backup Card */}
+        <BackupCard />
       </div>
     </div>
   );

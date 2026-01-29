@@ -1017,11 +1017,11 @@ export default function StudentProfilePage() {
                               // Navigate to the new lesson
                               router.push(`/lessons/${result.data.id}`)
                             } else {
-                              const error = await response.json()
-                              alert(`Error: ${error.error || 'Failed to generate lesson'}`)
+                              const errorData = await response.json()
+                              alert(`Error: ${errorData.error || 'Failed to generate lesson'}`)
                             }
-                          } catch (error) {
-                            console.error('Error generating lesson:', error)
+                          } catch (err) {
+                            console.error('Error generating lesson:', err)
                             alert('Failed to generate lesson. Please try again.')
                           } finally {
                             setIsGeneratingInstantLesson(false)
