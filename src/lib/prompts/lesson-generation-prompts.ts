@@ -129,10 +129,14 @@ Format: { "type": "dialogue", "title": "Exercise 3: Dialogue", "description": "P
 **Exercise 4: Dialogue Comprehension** (8 min)
 COMPREHENSION FORMAT (FIXED - DO NOT VARY):
 - 2 MCQ questions with 3 options only (A, B, C)
-  * Correct answer MUST be randomly distributed across A, B, or C positions
+  * CRITICAL: Correct answer MUST be randomly distributed - never put both answers in the same position (e.g., both in A, both in B)
+  * For 2 MCQ questions: one correct answer should be in position A or C, the other in a DIFFERENT position (B or C, or A or B)
   * Each MCQ: "question", "type": "multiple-choice", "options": ["A) Option 1", "B) Option 2", "C) Option 3"], "answer": "A" or "B" or "C" (MUST be just the letter, not full text)
+  * EXAMPLE of good randomization: Q1 answer "B", Q2 answer "C" - NOT "A" then "A"
 - 1 True/False question
+  * CRITICAL: Alternate the answer - if previous true/false was "true", this should lean toward "false", or vice versa to avoid patterns
   * Format: "question", "type": "true-false", "answer": "true" (lowercase string) OR "false" (lowercase string) - MUST be the literal string value, not "true or false"
+  * Vary which one is correct - don't always make the first true/false question "true"
 - 2 Structural open-ended questions
   * Format: "question", "type": "short-answer", "answer": "Full sentence answer"
 - Total: Always 5 questions in this exact structure
@@ -141,10 +145,12 @@ CRITICAL VALIDATION:
 - MCQ answers MUST be exactly "A", "B", or "C" (single uppercase letter only)
 - True/False answers MUST be exactly "true" or "false" (lowercase string literals, not "true or false")
 - Do NOT include placeholder text like "[random A, B, or C]" - use actual values
+- DO NOT create patterns like: all answers in position A or B
+- DO randomize across all positions naturally
 
 Format: { "type": "comprehension", "title": "Exercise 4: Comprehension", "description": "Answer questions about the dialogue", "content": { "questions": [
-  {"question": "Q1 text (MCQ)", "type": "multiple-choice", "options": ["A) ...", "B) ...", "C) ..."], "answer": "A"},
-  {"question": "Q2 text (MCQ)", "type": "multiple-choice", "options": ["A) ...", "B) ...", "C) ..."], "answer": "B"},
+  {"question": "Q1 text (MCQ)", "type": "multiple-choice", "options": ["A) ...", "B) ...", "C) ..."], "answer": "B"},
+  {"question": "Q2 text (MCQ)", "type": "multiple-choice", "options": ["A) ...", "B) ...", "C) ..."], "answer": "C"},
   {"question": "Q3 text (True/False)", "type": "true-false", "answer": "true"},
   {"question": "Q4 text (Open - structural)", "type": "short-answer", "answer": "Full sentence answer"},
   {"question": "Q5 text (Open - structural)", "type": "short-answer", "answer": "Full sentence answer"}

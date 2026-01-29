@@ -172,6 +172,9 @@ export function VocabularyExercise({ vocabulary }: { vocabulary: VocabularyItem[
 
 // Warm-up Exercise Component
 export function WarmupExercise({ questions, instructions }: { questions: (string | Record<string, unknown>)[], instructions?: string }) {
+  // Filter to ensure only exactly 3 questions (no 4th item like "Discuss the questions")
+  const filteredQuestions = (questions || []).slice(0, 3);
+  
   return (
     <div className="space-y-4 max-w-4xl">
       {instructions && (
@@ -182,7 +185,7 @@ export function WarmupExercise({ questions, instructions }: { questions: (string
         </p>
       )}
       <div className="space-y-3">
-        {questions.map((question, index) => {
+        {filteredQuestions.map((question, index) => {
           // Handle both string and object formats
           const questionText: string = typeof question === 'string' 
             ? question 

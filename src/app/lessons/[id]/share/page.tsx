@@ -613,13 +613,9 @@ const renderExerciseContent = (exercise: { type: string; content: BaseExerciseCo
                     {index + 1}
                   </span>
                   <div className="flex-1">
-                    <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-1">❌ Incorrect:</p>
-                    <p className="text-gray-900 dark:text-white font-medium bg-red-50 dark:bg-red-900/20 p-3 rounded mb-3 border border-red-200 dark:border-red-800">
+                    <p className="text-gray-900 dark:text-white font-medium">
                       {item.incorrect}
                     </p>
-                    <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded text-sm text-blue-700 dark:text-blue-300">
-                      ✏️ <strong>Your turn:</strong> Write the corrected version of this sentence.
-                    </div>
                   </div>
                 </div>
               </div>
