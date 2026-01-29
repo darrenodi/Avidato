@@ -138,9 +138,10 @@ For each of the 10 topics, generate 6 vocabulary words that are:
 - Relevant to the topic and student's occupation
 - Progressively building (early lessons simpler, later lessons more advanced)
 - MIX OF: technical terms + practical nouns + adjectives + verbs (not all super technical)
-- STYLE EXAMPLE: mix like "tolerance" (technical), "snap" (practical), "durable" (adjective), "route" (verb), "fatigue" (technical), "validate" (verb) - but use DIFFERENT words appropriate to each topic
-- Avoiding: artificial compounds (don't use underscores unless truly essential), generic clichés ("bottleneck", "backlog", "compliance", "leverage", "synergy", "paradigm")
+- STYLE EXAMPLE: tolerance, snap, durable, route, fatigue, validate - DIFFERENT words for each topic
+- Avoiding: generic clichés ("bottleneck", "backlog", "compliance", "leverage", "synergy", "paradigm")
 - Focused on PRACTICAL, NICHE terminology that makes each lesson valuable and accessible
+- CRITICAL: NO UNDERSCORES IN ANY VOCABULARY WORDS. Ever. Just simple words.
 
 FORMAT YOUR RESPONSE AS VALID JSON ONLY (no markdown, no explanations):
 {
@@ -162,7 +163,7 @@ IMPORTANT:
 - Return ONLY the JSON object. No additional text, markdown formatting, or explanations.
 - Vocabulary must be 6 words per topic, 60 words total for all 10 topics.
 - ENSURE ALL 60 VOCABULARY WORDS ARE UNIQUE AND NOT REPEATED ACROSS ANY LESSONS.
-- Use SIMPLE, NATURAL compound terms like "snap_fit" only when necessary, not artificial ones.`;
+- VOCABULARY WORDS MUST BE SIMPLE - NO UNDERSCORES, NO UNDERSCORES, NO UNDERSCORES.`;
 
     try {
       const { rawText: text } = await generateWithFailover({
