@@ -133,12 +133,14 @@ ${getOccupationExclusions(student.occupation || '')}
 🎯 FOCUS ON: Natural workplace language, domain-relevant phrases, and nuanced communication that challenges language skills (not lecturing professional knowledge). Avoid meta-teaching/coaching in dialogues and topics; make it a real conversation.
 
 🎓 VOCABULARY GENERATION FOR FULL LEARNING PLAN:
-For each of the 10 topics, generate 6 DOMAIN-SPECIFIC vocabulary words that are:
+For each of the 10 topics, generate 6 vocabulary words that are:
 - Unique and distinct across all 10 lessons (NO REPETITION across lessons)
 - Relevant to the topic and student's occupation
 - Progressively building (early lessons simpler, later lessons more advanced)
-- Avoiding generic business clichés: "bottleneck", "backlog", "compliance", "leverage", "synergy", "paradigm"
-- Focused on NICHE, SPECIFIC terminology that makes each lesson valuable
+- MIX OF: technical terms + practical nouns + adjectives + verbs (not all super technical)
+- STYLE EXAMPLE: mix like "tolerance" (technical), "snap" (practical), "durable" (adjective), "route" (verb), "fatigue" (technical), "validate" (verb) - but use DIFFERENT words appropriate to each topic
+- Avoiding: artificial compounds (don't use underscores unless truly essential), generic clichés ("bottleneck", "backlog", "compliance", "leverage", "synergy", "paradigm")
+- Focused on PRACTICAL, NICHE terminology that makes each lesson valuable and accessible
 
 FORMAT YOUR RESPONSE AS VALID JSON ONLY (no markdown, no explanations):
 {
@@ -159,7 +161,8 @@ FORMAT YOUR RESPONSE AS VALID JSON ONLY (no markdown, no explanations):
 IMPORTANT: 
 - Return ONLY the JSON object. No additional text, markdown formatting, or explanations.
 - Vocabulary must be 6 words per topic, 60 words total for all 10 topics.
-- ENSURE ALL 60 VOCABULARY WORDS ARE UNIQUE AND NOT REPEATED ACROSS ANY LESSONS.`;
+- ENSURE ALL 60 VOCABULARY WORDS ARE UNIQUE AND NOT REPEATED ACROSS ANY LESSONS.
+- Use SIMPLE, NATURAL compound terms like "snap_fit" only when necessary, not artificial ones.`;
 
     try {
       const { rawText: text } = await generateWithFailover({
