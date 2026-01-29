@@ -632,6 +632,9 @@ export function RolePlayExercise({
 
 // Discussion Exercise Component  
 export function DiscussionExercise({ questions, instructions }: { questions: string[], instructions?: string }) {
+  // Enforce exactly 5 questions (filter out any extras)
+  const filteredQuestions = (questions || []).slice(0, 5);
+  
   return (
     <div className="space-y-4 max-w-4xl">
       {instructions && (
@@ -643,7 +646,7 @@ export function DiscussionExercise({ questions, instructions }: { questions: str
       )}
       
       <div className="space-y-4">
-        {questions.map((question, index) => (
+        {filteredQuestions.map((question, index) => (
           <div key={index} className="flex items-start space-x-3">
             <span className="flex-shrink-0 w-6 h-6 bg-purple-100 dark:bg-purple-900/20 text-purple-800 dark:text-purple-400 rounded-full flex items-center justify-center text-sm font-medium">
               {index + 1}

@@ -41,7 +41,7 @@ export const SentenceCorrectionRenderer: React.FC<SentenceCorrectionRendererProp
           </p>
           {isTutorVersion && (
             <p className="text-xs text-orange-600 dark:text-orange-400 mt-2 font-semibold">
-              👨‍🏫 Tutor Version - Answers Visible
+              👨‍🏫 Tutor Version - Answers Available
             </p>
           )}
           {!isTutorVersion && (
@@ -76,7 +76,7 @@ export const SentenceCorrectionRenderer: React.FC<SentenceCorrectionRendererProp
                     </p>
                   </div>
 
-                  {/* Tutor Version: Show answers and toggle button */}
+                  {/* Tutor Version: Show Answer Button */}
                   {isTutorVersion ? (
                     <>
                       <button
@@ -86,10 +86,10 @@ export const SentenceCorrectionRenderer: React.FC<SentenceCorrectionRendererProp
                         className="text-sm font-semibold text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 transition-colors flex items-center gap-2 mb-2"
                       >
                         <span>{expandedIndex === index ? '▼' : '▶'}</span>
-                        {expandedIndex === index ? 'Hide Correct Answer' : 'Show Correct Answer'}
+                        {expandedIndex === index ? 'Hide Answer' : 'Show Answer'}
                       </button>
 
-                      {/* Expanded Answer Section */}
+                      {/* Answer Content - Only shown when button is clicked */}
                       {expandedIndex === index && (
                         <div className="space-y-3 mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
                           <div>

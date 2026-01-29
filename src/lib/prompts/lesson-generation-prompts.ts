@@ -82,7 +82,7 @@ VOCABULARY RULES:
 
 For vocabulary that's already been taught, naturally incorporate 2-3 of them in the dialogue ONLY - don't teach them again.
 
-ENGOO STRUCTURE (7 exercises in this exact order):
+ENGOO STRUCTURE (6 exercises in this exact order):
 
 **Exercise 1: Vocabulary** (8 min)
 Format: { "type": "vocabulary", "title": "Exercise 1: Vocabulary", "content": { "vocabulary": [{ "word": "word1", "partOfSpeech": "verb", "phonetics": "/fəˈnetɪks/", "definition": "clear definition", "example": "example sentence", "synonym": "simple synonym or empty", "expressions": ["collocation 1", "collocation 2", "collocation 3"] }, ...6 items total] }, "timeMinutes": 8 }
@@ -127,33 +127,18 @@ DIALOGUE RULES (Exercise 3):
 Format: { "type": "dialogue", "title": "Exercise 3: Dialogue", "description": "Practice with realistic scenario", "content": { "setting": "Max 150 chars: WHO, WHERE, WHAT", "characters": ["${student.name}", "Selected Role Name"], "dialogue": [{"character": "${student.name}", "text": "..."}, {"character": "Selected Role Name", "text": "..."}, ...8-12 total exchanges with alternating speakers], "instructions": "Read as ${student.name}" }, "timeMinutes": 12 }
 
 **Exercise 4: Dialogue Comprehension** (8 min)
-COMPREHENSION FORMAT (FIXED - DO NOT VARY):
-- 2 MCQ questions with 3 options only (A, B, C)
-  * CRITICAL: Correct answer MUST be randomly distributed - never put both answers in the same position (e.g., both in A, both in B)
-  * For 2 MCQ questions: one correct answer should be in position A or C, the other in a DIFFERENT position (B or C, or A or B)
-  * Each MCQ: "question", "type": "multiple-choice", "options": ["A) Option 1", "B) Option 2", "C) Option 3"], "answer": "A" or "B" or "C" (MUST be just the letter, not full text)
-  * EXAMPLE of good randomization: Q1 answer "B", Q2 answer "C" - NOT "A" then "A"
-- 1 True/False question
-  * CRITICAL: Alternate the answer - if previous true/false was "true", this should lean toward "false", or vice versa to avoid patterns
-  * Format: "question", "type": "true-false", "answer": "true" (lowercase string) OR "false" (lowercase string) - MUST be the literal string value, not "true or false"
-  * Vary which one is correct - don't always make the first true/false question "true"
-- 2 Structural open-ended questions
+COMPREHENSION FORMAT (SIMPLIFIED - OPEN-ENDED ONLY):
+- 3 Structural open-ended questions ONLY
   * Format: "question", "type": "short-answer", "answer": "Full sentence answer"
-- Total: Always 5 questions in this exact structure
+  * Questions should test understanding of dialogue content, decisions made, reasoning, and key points
+  * Each answer should be 1-2 sentences that directly address the question
 
-CRITICAL VALIDATION:
-- MCQ answers MUST be exactly "A", "B", or "C" (single uppercase letter only)
-- True/False answers MUST be exactly "true" or "false" (lowercase string literals, not "true or false")
-- Do NOT include placeholder text like "[random A, B, or C]" - use actual values
-- DO NOT create patterns like: all answers in position A or B
-- DO randomize across all positions naturally
+- Total: Always 3 questions in this exact structure (open-ended only, no MCQ or True/False)
 
 Format: { "type": "comprehension", "title": "Exercise 4: Comprehension", "description": "Answer questions about the dialogue", "content": { "questions": [
-  {"question": "Q1 text (MCQ)", "type": "multiple-choice", "options": ["A) ...", "B) ...", "C) ..."], "answer": "B"},
-  {"question": "Q2 text (MCQ)", "type": "multiple-choice", "options": ["A) ...", "B) ...", "C) ..."], "answer": "C"},
-  {"question": "Q3 text (True/False)", "type": "true-false", "answer": "true"},
-  {"question": "Q4 text (Open - structural)", "type": "short-answer", "answer": "Full sentence answer"},
-  {"question": "Q5 text (Open - structural)", "type": "short-answer", "answer": "Full sentence answer"}
+  {"question": "Q1 text (Open - structural)", "type": "short-answer", "answer": "Full sentence answer"},
+  {"question": "Q2 text (Open - structural)", "type": "short-answer", "answer": "Full sentence answer"},
+  {"question": "Q3 text (Open - structural)", "type": "short-answer", "answer": "Full sentence answer"}
 ] }, "timeMinutes": 8 }
 
 /*
@@ -182,15 +167,27 @@ Format: { "type": "sentence-correction", "title": "Exercise 5: Sentence Correcti
   ...10 total sentences with variety of error types
 ] }, "timeMinutes": 10 }
 
-**Exercise 6: Discussion** (6 min)
-Format: { "type": "discussion", "title": "Exercise 6: Discussion", "description": "Free practice", "content": { "questions": [5 discussion questions on the lesson topic], "instructions": "Use new vocabulary" }, "timeMinutes": 6 }
+**Exercise 6: Discussion** (12 min)
+MERGED DISCUSSION EXERCISE - Combines free practice and extended conversation into one section:
+- Generate exactly 5 questions total
+- Questions should be short, direct, and conversational
+- NO instructional language (avoid "explain", "describe", "how do you approach", "tell me about")
+- NO framing or explanations before questions
+- Assume the student has real work experience
+- Questions should sound like everyday conversation
+- Mix of: personal experience, practical application, and related perspectives
+- Questions can build on lesson topic OR broaden to related context
+- Natural, engaging tone - NOT academic
 
-**Exercise 7: Further Discussion** (6 min)
-UPDATED: Lighter, follow-up questions. Same structure and CSS format as Exercise 6.
-- Questions should be engaging but lighter in tone
-- General questions that broaden the conversation beyond the specific lesson topic
-- Encourages natural conversation using vocabulary in different contexts
-Format: { "type": "discussion", "title": "Exercise 7: Further Discussion", "description": "Free practice", "content": { "questions": [5 general discussion questions that relate to the broader topic area], "instructions": "Continue the conversation" }, "timeMinutes": 6 }
+QUESTION STYLE EXAMPLES (Engoo format):
+- Instead of: "Can you describe your experience with presenting to clients?"
+- Use: "What's the toughest part of client presentations for you?"
+- Instead of: "How would you approach..."
+- Use: "What would you do if...?"
+- Instead of: "Tell me about your experience with..."
+- Use: "When was the last time you...?"
+
+Format: { "type": "discussion", "title": "Exercise 6: Discussion", "description": "Free practice", "content": { "questions": ["Question 1 - short and direct", "Question 2 - practical and relatable", "Question 3 - personal experience", "Question 4 - related perspective", "Question 5 - broader context or reflection"], "instructions": "Discuss freely" }, "timeMinutes": 12 }
 
 ${levelGuide}
 
@@ -206,7 +203,7 @@ JSON OUTPUT:
   "skills": ["Speaking", "Listening", "Reading", "Vocabulary"],
   "vocabulary": [],
   "context": "${topic.context}",
-  "exercises": [/* 7 exercises as formatted above */],
+  "exercises": [/* 6 exercises as formatted above - Exercises 1-6 (Exercise 6 merges old Exercises 6 and 7) */],
   "homework": "Review vocabulary and practice dialogue",
   "materials": [],
   "teachingNotes": ""
