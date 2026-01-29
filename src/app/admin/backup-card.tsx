@@ -2,10 +2,22 @@
 
 import { useState, useEffect } from 'react';
 
+interface BackupStatus {
+  status: string;
+  provider?: string;
+  lastBackup?: string;
+  message?: string;
+  backupFrequency?: string;
+  statistics?: {
+    users: number;
+    students: number;
+    lessons: number;
+  };
+}
+
 export default function BackupCard() {
   const [isLoading, setIsLoading] = useState(false);
-  const [backupStatus, setBackupStatus] = useState<string>('');
-  const [statusInfo, setStatusInfo] = useState<any>(null);
+  const [statusInfo, setStatusInfo] = useState<BackupStatus | null>(null);
   const [successMessage, setSuccessMessage] = useState('');
 
   useEffect(() => {
@@ -23,13 +35,9 @@ export default function BackupCard() {
       if (response.ok) {
         const data = await response.json();
         setStatusInfo(data);
-        setBackupStatus('ready');
-      } else {
-        setBackupStatus('error');
       }
     } catch (error) {
       console.error('Failed to fetch backup status:', error);
-      setBackupStatus('error');
     }
   };
 
