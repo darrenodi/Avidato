@@ -19,6 +19,7 @@ import {
   PreparationExercise,
   FinalPrepExercise
 } from '@/components/lesson/EngooLessonComponents'
+import { SentenceCorrectionRenderer } from '@/lib/lesson-displays'
 
 /**
  * Individual Lesson View Page
@@ -364,57 +365,13 @@ export default function LessonPage() {
       case 'sentence_correction':
         if (content?.sentences && Array.isArray(content.sentences)) {
           return (
-            <div className="space-y-6">
-              <div className="border-l-4 border-orange-500 pl-4">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                  Sentence Correction
-                </h3>
-                <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">
-                  {(content.instructions as string) || 'Correct the errors in each sentence.'}
-                </p>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                  ⏱️ {exercise.timeMinutes} minutes
-                </p>
-                {isTutorVersion && (
-                  <p className="text-xs text-orange-600 dark:text-orange-400 mt-2 font-semibold">
-                    👨‍🏫 Tutor Version - Answers Visible
-                  </p>
-                )}
-              </div>
-              <div className="space-y-3">
-                {content.sentences.map((item: Record<string, string>, index: number) => (
-                  <div key={index} className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
-                    <div className="flex gap-3">
-                      <span className="flex-shrink-0 w-8 h-8 bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 rounded-full flex items-center justify-center text-sm font-semibold">
-                        {index + 1}
-                      </span>
-                      <div className="flex-1">
-                        <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-1">❌ Incorrect:</p>
-                        <p className="text-gray-900 dark:text-white font-medium bg-red-50 dark:bg-red-900/20 p-3 rounded mb-3 border border-red-200 dark:border-red-800">
-                          {item.incorrect}
-                        </p>
-                        {isTutorVersion ? (
-                          <>
-                            <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-1">✅ Correct:</p>
-                            <p className="text-gray-900 dark:text-white font-medium bg-green-50 dark:bg-green-900/20 p-3 rounded mb-2 border border-green-200 dark:border-green-800">
-                              {item.correct}
-                            </p>
-                            <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-1">📌 Error Type:</p>
-                            <p className="text-sm text-gray-700 dark:text-gray-300 bg-blue-50 dark:bg-blue-900/20 p-2 rounded border border-blue-200 dark:border-blue-800">
-                              {item.errorType}
-                            </p>
-                          </>
-                        ) : (
-                          <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded text-sm text-blue-700 dark:text-blue-300">
-                            ✏️ <strong>Your turn:</strong> Write the corrected version of this sentence.
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+            <SentenceCorrectionRenderer
+              title="Sentence Correction"
+              instructions={(content.instructions as string) || 'Correct the errors in each sentence.'}
+              sentences={content.sentences as Array<{ incorrect: string; correct: string; errorType: string }>}
+              timeMinutes={exercise.timeMinutes || 10}
+              isTutorVersion={isTutorVersion}
+            />
           )
         }
         break

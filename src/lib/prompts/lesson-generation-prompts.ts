@@ -153,18 +153,44 @@ Format: { "type": "roleplay", "title": "Exercise 5: Role Play", "description": "
 
 **Exercise 5: Sentence Correction** (10 min)
 SENTENCE CORRECTION EXERCISE:
-- Generate 10 sentences with intentional mistakes related to: tenses, word order, prepositions, subject-verb agreement, article usage, etc.
-- Each sentence should be relevant to the lesson topic and use vocabulary from Exercise 1
-- Provide CORRECTED versions of all 10 sentences
-- Each item has: incorrect sentence, correct version, the error type (e.g., "verb tense", "word order", "preposition")
+Generate 10 sentences with VARIED and CREATIVE grammar mistakes. Use a mix of error types - distribute them creatively across the 10 sentences:
 
-TUTOR VERSION: Shows [Correct] button that reveals the corrected sentence and error explanation
-STUDENT VERSION: Shows ONLY the incorrect sentence, no answers visible (student writes their correction)
+ERROR TYPE VARIETY (use at least 8 different types, be creative with examples):
+1. **Conditional forms** - mixing real/unreal conditions: "If you will know the answer..." → "If you knew the answer..."
+2. **Reported speech** - indirect speech mistakes: "He said me that..." → "He told me that..."
+3. **Tenses** - mixing present/past, simple/continuous: "I am here for 5 years" → "I have been here for 5 years"
+4. **Prepositions** - common prep errors: "Discuss about the topic" → "Discuss the topic"
+5. **Make vs Do** - confusing these verbs: "make a decision" vs "do homework": "She made her homework" → "She did her homework"
+6. **Gerund vs Infinitive** - wrong verb form: "I suggest you studying" → "I suggest you study" or "I enjoy to read" → "I enjoy reading"
+7. **Adverb position** - word order mistakes: "He speaks English fluently well" → "He speaks English fluently"
+8. **Subject-verb agreement** - singular/plural: "The team are ready" (US) → "The team is ready" (for US English)
+9. **Articles (a/an/the)** - missing or incorrect: "He is doctor" → "He is a doctor"
+10. **Passive voice** - active/passive confusion: "The report was completed by them yesterday" (awkward) → "They completed the report yesterday"
+11. **Relative clauses** - wrong pronouns/missing verbs: "The person which I met..." → "The person who I met..." or "The person I met..."
+12. **Word order** - general ordering issues: "She very much likes coffee" → "She likes coffee very much"
+
+RULES:
+- Each sentence MUST use real vocabulary from Exercise 1 or domain-specific terms
+- Create realistic, contextual sentences (not artificial)
+- Vary error types across the 10 sentences - NO repeated error types
+- Each error should be subtle but clear when corrected (not trivial)
+- Keep sentences professional and task-relevant
+- Errors should be common learner mistakes, not obscure grammar
+
+TUTOR VERSION: Shows [Show Answer] button that reveals the corrected sentence and error type label
+STUDENT VERSION: Shows ONLY the incorrect sentence numbered 1-10, no answers visible (student writes their correction)
 
 Format: { "type": "sentence-correction", "title": "Exercise 5: Sentence Correction", "description": "Fix grammar and syntax errors", "content": { "sentences": [
-  { "incorrect": "I am working here since 2 years.", "correct": "I have been working here for 2 years.", "errorType": "verb tense" },
-  { "incorrect": "She go to the office every day.", "correct": "She goes to the office every day.", "errorType": "subject-verb agreement" },
-  ...10 total sentences with variety of error types
+  { "incorrect": "If you will complete the project on time, we will celebrate.", "correct": "If you complete the project on time, we will celebrate.", "errorType": "conditional form" },
+  { "incorrect": "He said me that the deadline was important.", "correct": "He told me that the deadline was important.", "errorType": "reported speech" },
+  { "incorrect": "I am working in this company since 2019.", "correct": "I have been working in this company since 2019.", "errorType": "verb tense" },
+  { "incorrect": "Let's discuss about the strategy for next quarter.", "correct": "Let's discuss the strategy for next quarter.", "errorType": "preposition" },
+  { "incorrect": "She made her assignments very carefully.", "correct": "She did her assignments very carefully.", "errorType": "make vs do" },
+  { "incorrect": "I suggest you studying the documentation before the meeting.", "correct": "I suggest you study the documentation before the meeting.", "errorType": "infinitive vs gerund" },
+  { "incorrect": "The manager has decided that wisely.", "correct": "The manager has wisely decided that.", "errorType": "adverb position" },
+  { "incorrect": "The data from our users are very important.", "correct": "The data from our users is very important.", "errorType": "subject-verb agreement" },
+  { "incorrect": "I need to send the email to a manager.", "correct": "I need to send the email to the manager.", "errorType": "article" },
+  { "incorrect": "The strategy was implemented by the team successfully.", "correct": "The team successfully implemented the strategy.", "errorType": "passive voice awkwardness" }
 ] }, "timeMinutes": 10 }
 
 **Exercise 6: Discussion** (12 min)
