@@ -153,44 +153,49 @@ Format: { "type": "roleplay", "title": "Exercise 5: Role Play", "description": "
 
 **Exercise 5: Sentence Correction** (10 min)
 SENTENCE CORRECTION EXERCISE:
-Generate 10 sentences with VARIED and CREATIVE grammar mistakes. Use a mix of error types - distribute them creatively across the 10 sentences:
+Generate 10 sentences with REAL MISTAKES that students actually make. These should reflect authentic learner errors across diverse grammar areas, not limited to a fixed set.
 
-ERROR TYPE VARIETY (use at least 8 different types, be creative with examples):
-1. **Conditional forms** - mixing real/unreal conditions: "If you will know the answer..." → "If you knew the answer..."
-2. **Reported speech** - indirect speech mistakes: "He said me that..." → "He told me that..."
-3. **Tenses** - mixing present/past, simple/continuous: "I am here for 5 years" → "I have been here for 5 years"
-4. **Prepositions** - common prep errors: "Discuss about the topic" → "Discuss the topic"
-5. **Make vs Do** - confusing these verbs: "make a decision" vs "do homework": "She made her homework" → "She did her homework"
-6. **Gerund vs Infinitive** - wrong verb form: "I suggest you studying" → "I suggest you study" or "I enjoy to read" → "I enjoy reading"
-7. **Adverb position** - word order mistakes: "He speaks English fluently well" → "He speaks English fluently"
-8. **Subject-verb agreement** - singular/plural: "The team are ready" (US) → "The team is ready" (for US English)
-9. **Articles (a/an/the)** - missing or incorrect: "He is doctor" → "He is a doctor"
-10. **Passive voice** - active/passive confusion: "The report was completed by them yesterday" (awkward) → "They completed the report yesterday"
-11. **Relative clauses** - wrong pronouns/missing verbs: "The person which I met..." → "The person who I met..." or "The person I met..."
-12. **Word order** - general ordering issues: "She very much likes coffee" → "She likes coffee very much"
+EACH SENTENCE MUST HAVE:
+- incorrect: the wrong sentence (realistic student error)
+- correct: the corrected version  
+- errorType: the specific grammar rule that was violated
+- explanation: ONE SHORT SENTENCE max 10 words explaining the rule or why it's wrong
 
-RULES:
-- Each sentence MUST use real vocabulary from Exercise 1 or domain-specific terms
-- Create realistic, contextual sentences (not artificial)
-- Vary error types across the 10 sentences - NO repeated error types
-- Each error should be subtle but clear when corrected (not trivial)
-- Keep sentences professional and task-relevant
-- Errors should be common learner mistakes, not obscure grammar
+BROAD CATEGORIES OF REAL LEARNER ERRORS (draw from across all of these - not limited to just a few):
+- **Verb forms & tenses**: Present perfect vs simple past, continuous vs simple, modal usage, phrasal verb forms, auxiliary verb omission
+- **Articles**: A/an/the usage, omission in various contexts, overuse with proper nouns, definite vs indefinite
+- **Prepositions**: In/on/at, wrong preposition with verbs/nouns, missing/extra prepositions, phrasal verb particles
+- **Subject-verb agreement**: Collective nouns, plural nouns treated as singular, uncountable nouns, intervening phrases
+- **Word order**: Adverb placement (frequency, manner, time), adjective order, auxiliary inversion, object position
+- **Pronouns**: Pronoun agreement, reflexive vs personal, relative pronouns (who/which/that), possessive forms, ambiguous reference
+- **Comparatives & superlatives**: Irregular forms, than vs as comparisons, double comparatives
+- **Conditionals**: If/when confusion, wrong tense sequence, mixed conditionals, inversion in conditionals
+- **Gerunds & infinitives**: After specific verbs, with prepositions, perfect forms, subject vs object position
+- **Reported speech**: Say vs tell, tense shifts, question formation, pronoun changes, punctuation
+- **Passive voice**: Overuse, agent inclusion, word order, auxiliary problems, passive with intransitives
+- **Countable/uncountable nouns**: Wrong form, wrong quantifier (much/many/few/little), plural forms, singular/plural confusion
+- **Noun forms**: Singular/plural patterns, mass vs count, proper vs common nouns, noun phrases
+- **Relative & dependent clauses**: Formation, defining vs non-defining, missing verbs, pronoun choice
+- **Collocations & verb patterns**: Make vs do, take vs get, begin to/begin -ing, prevent from, etc.
+- **Spelling & homophones**: Common confusions from speaking (their/there/they're, to/too/two, etc.)
+- **Negation**: Double negatives, negation placement, using not with negatives, negative questions
+- **Ellipsis**: Omitting necessary words, adding unnecessary words, subject/auxiliary omission
 
-TUTOR VERSION: Shows [Show Answer] button that reveals the corrected sentence and error type label
-STUDENT VERSION: Shows ONLY the incorrect sentence numbered 1-10, no answers visible (student writes their correction)
+CRITICAL RULES FOR GENERATION:
+- Generate REALISTIC mistakes that students actually make (observe real ESL/EFL learner errors)
+- Vary error types widely - no repeated types across 10 sentences
+- Each sentence MUST use vocabulary from Exercise 1 or realistic domain-specific terms
+- Mix error difficulty levels (beginner to intermediate)
+- Include less obvious error types alongside common ones
+- Errors should be subtle but clear when corrected
+- Make explanations brief, teaching-focused, and rule-based
+
+TUTOR VERSION: Shows [Show Answer] button revealing corrected sentence, error type, and brief explanation
+STUDENT VERSION: Shows ONLY incorrect sentence numbered 1-10, no answers visible
 
 Format: { "type": "sentence-correction", "title": "Exercise 5: Sentence Correction", "description": "Fix grammar and syntax errors", "content": { "sentences": [
-  { "incorrect": "If you will complete the project on time, we will celebrate.", "correct": "If you complete the project on time, we will celebrate.", "errorType": "conditional form" },
-  { "incorrect": "He said me that the deadline was important.", "correct": "He told me that the deadline was important.", "errorType": "reported speech" },
-  { "incorrect": "I am working in this company since 2019.", "correct": "I have been working in this company since 2019.", "errorType": "verb tense" },
-  { "incorrect": "Let's discuss about the strategy for next quarter.", "correct": "Let's discuss the strategy for next quarter.", "errorType": "preposition" },
-  { "incorrect": "She made her assignments very carefully.", "correct": "She did her assignments very carefully.", "errorType": "make vs do" },
-  { "incorrect": "I suggest you studying the documentation before the meeting.", "correct": "I suggest you study the documentation before the meeting.", "errorType": "infinitive vs gerund" },
-  { "incorrect": "The manager has decided that wisely.", "correct": "The manager has wisely decided that.", "errorType": "adverb position" },
-  { "incorrect": "The data from our users are very important.", "correct": "The data from our users is very important.", "errorType": "subject-verb agreement" },
-  { "incorrect": "I need to send the email to a manager.", "correct": "I need to send the email to the manager.", "errorType": "article" },
-  { "incorrect": "The strategy was implemented by the team successfully.", "correct": "The team successfully implemented the strategy.", "errorType": "passive voice awkwardness" }
+  { "incorrect": "...", "correct": "...", "errorType": "...", "explanation": "..." },
+  ...10 total sentences with realistic, diverse student mistakes
 ] }, "timeMinutes": 10 }
 
 **Exercise 6: Discussion** (12 min)
