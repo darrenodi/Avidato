@@ -34,24 +34,17 @@ export const SentenceCorrectionRenderer: React.FC<SentenceCorrectionRendererProp
   return (
     <div className="space-y-6">
       {/* Header */}
-      {instructions && (
-        <div className="border-l-4 border-orange-500 pl-4">
+      <div className="border-l-4 border-orange-500 pl-4">
+        <p className="text-sm font-semibold text-gray-900 dark:text-white mb-2">Fix grammar and syntax errors</p>
+        {instructions && (
           <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">{instructions}</p>
-          <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
-            ⏱️ {timeMinutes} minutes
+        )}
+        {isTutorVersion && (
+          <p className="text-xs text-orange-600 dark:text-orange-400 mt-2 font-semibold">
+            👨‍🏫 Student cannot see answers
           </p>
-          {isTutorVersion && (
-            <p className="text-xs text-orange-600 dark:text-orange-400 mt-2 font-semibold">
-              👨‍🏫 Tutor Version - Answers Available
-            </p>
-          )}
-          {!isTutorVersion && (
-            <p className="text-xs text-blue-600 dark:text-blue-400 mt-2 font-semibold">
-              👤 Student Version - No Answers Shown
-            </p>
-          )}
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Sentences */}
       <div className="space-y-3">
@@ -67,18 +60,25 @@ export const SentenceCorrectionRenderer: React.FC<SentenceCorrectionRendererProp
                   {index + 1}
                 </span>
                 <div className="flex-1">
-                  {/* Incorrect Sentence - marked as error */}
+                  {/* Display sentence - with or without error label */}
                   <div className="mb-3">
-                    <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-1">
-                      ❌ Incorrect:
-                    </p>
-                    <p className="text-gray-900 dark:text-white font-medium bg-red-50 dark:bg-red-900/20 p-3 rounded border border-red-200 dark:border-red-800">
+                    {/* Only show "Incorrect" label if there's an error type */}
+                    {item.errorType && (
+                      <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-1">
+                        ❌ Incorrect:
+                      </p>
+                    )}
+                    <p className={`text-gray-900 dark:text-white font-medium p-3 rounded border ${
+                      item.errorType
+                        ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'
+                        : 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800'
+                    }`}>
                       {item.incorrect}
                     </p>
                   </div>
 
-                  {/* Tutor Version: Show Answer Button */}
-                  {isTutorVersion ? (
+                  {/* Tutor Version: Show Answer Button (only for incorrect sentences) */}
+                  {isTutorVersion && item.errorType ? (
                     <>
                       <button
                         onClick={() =>
@@ -119,6 +119,9 @@ export const SentenceCorrectionRenderer: React.FC<SentenceCorrectionRendererProp
                         </div>
                       )}
                     </>
+                  ) : isTutorVersion && !item.errorType ? (
+                    /* Tutor version - correct sentence with note */
+                    <p className="text-xs text-green-600 dark:text-green-400 font-semibold">✓ Correct sentence</p>
                   ) : (
                     /* Student Version: No answers shown */
                     <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded text-sm text-blue-700 dark:text-blue-300">
@@ -132,13 +135,6 @@ export const SentenceCorrectionRenderer: React.FC<SentenceCorrectionRendererProp
         ))}
       </div>
 
-      {/* Footer Guidance */}
-      <div className="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg p-4">
-        <p className="text-sm text-orange-800 dark:text-orange-300">
-          💡 <strong>Focus on:</strong> Tenses, word order, prepositions, subject-verb agreement, and articles.
-          {isTutorVersion && ' Use the correct answers to guide feedback.'}
-        </p>
-      </div>
     </div>
   )
 }

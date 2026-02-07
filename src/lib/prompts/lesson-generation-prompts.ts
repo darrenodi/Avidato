@@ -124,7 +124,7 @@ DIALOGUE RULES (Exercise 3):
 - NO EM DASHES (—)
 - CRITICAL: Use EXACT character names in the dialogue exchanges - use "${student.name}" and the selected role name EXACTLY as listed in the characters array
 
-Format: { "type": "dialogue", "title": "Exercise 3: Dialogue", "description": "Practice with realistic scenario", "content": { "setting": "Max 150 chars: WHO, WHERE, WHAT", "characters": ["${student.name}", "Selected Role Name"], "dialogue": [{"character": "${student.name}", "text": "..."}, {"character": "Selected Role Name", "text": "..."}, ...8-12 total exchanges with alternating speakers], "instructions": "Read as ${student.name}" }, "timeMinutes": 12 }
+Format: { "type": "dialogue", "title": "Exercise 3: Dialogue", "description": "Practice with realistic scenario. Read as ${student.name}", "content": { "setting": "Max 150 chars: WHO, WHERE, WHAT", "characters": ["${student.name}", "Selected Role Name"], "dialogue": [{"character": "${student.name}", "text": "..."}, {"character": "Selected Role Name", "text": "..."}, ...8-12 total exchanges with alternating speakers], "instructions": "Read as ${student.name}" }, "timeMinutes": 12 }
 
 **Exercise 4: Dialogue Comprehension** (8 min)
 COMPREHENSION FORMAT (SIMPLIFIED - OPEN-ENDED ONLY):
@@ -156,12 +156,12 @@ SENTENCE CORRECTION EXERCISE:
 Generate 10 sentences with REAL MISTAKES that students actually make. These should reflect authentic learner errors across diverse grammar areas, not limited to a fixed set.
 
 EACH SENTENCE MUST HAVE:
-- incorrect: the wrong sentence (realistic student error)
-- correct: the corrected version  
-- errorType: the specific grammar rule that was violated
-- explanation: ONE SHORT SENTENCE max 10 words explaining the rule or why it's wrong
+- incorrect: the sentence to display (may be incorrect or correct)
+- correct: the corrected version (if correct sentence, put "correct" as the label)
+- errorType: the specific grammar rule violated (EMPTY STRING "" if the sentence is already correct)
+- explanation: ONE SHORT SENTENCE max 10 words explaining the rule or why it's wrong (EMPTY STRING "" if correct)
 
-BROAD CATEGORIES OF REAL LEARNER ERRORS (draw from across all of these - not limited to just a few):
+BROAD CATEGORIES OF REAL LEARNER ERRORS (draw from across all of these):
 - **Verb forms & tenses**: Present perfect vs simple past, continuous vs simple, modal usage, phrasal verb forms, auxiliary verb omission
 - **Articles**: A/an/the usage, omission in various contexts, overuse with proper nouns, definite vs indefinite
 - **Prepositions**: In/on/at, wrong preposition with verbs/nouns, missing/extra prepositions, phrasal verb particles
@@ -183,11 +183,15 @@ BROAD CATEGORIES OF REAL LEARNER ERRORS (draw from across all of these - not lim
 
 CRITICAL RULES FOR GENERATION:
 - Generate REALISTIC mistakes that students actually make (observe real ESL/EFL learner errors)
-- Vary error types widely - no repeated types across 10 sentences
+- **EACH INCORRECT SENTENCE HAS ONLY ONE MISTAKE** - not multiple errors (no 2-in-1)
+- Vary error types WIDELY and MIX THEM RANDOMLY - don't group similar errors or follow predictable order
+- Some sentences (2-3 out of 10) should be CORRECT with empty errorType and explanation
 - Each sentence MUST use vocabulary from Exercise 1 or realistic domain-specific terms
 - Mix error difficulty levels (beginner to intermediate)
 - Include less obvious error types alongside common ones
 - Errors should be subtle but clear when corrected
+- Make explanations brief, teaching-focused, and rule-based
+- Do NOT use a predictable pattern or sequence of error types
 - Make explanations brief, teaching-focused, and rule-based
 
 TUTOR VERSION: Shows [Show Answer] button revealing corrected sentence, error type, and brief explanation
