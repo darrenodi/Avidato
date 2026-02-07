@@ -60,14 +60,8 @@ export const SentenceCorrectionRenderer: React.FC<SentenceCorrectionRendererProp
                   {index + 1}
                 </span>
                 <div className="flex-1">
-                  {/* Display sentence - with or without error label */}
+                  {/* Display sentence */}
                   <div className="mb-3">
-                    {/* Only show "Incorrect" label if there's an error type */}
-                    {item.errorType && (
-                      <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-1">
-                        ❌ Incorrect:
-                      </p>
-                    )}
                     <p className={`text-gray-900 dark:text-white font-medium p-3 rounded border ${
                       item.errorType
                         ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'

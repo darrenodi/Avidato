@@ -124,7 +124,7 @@ DIALOGUE RULES (Exercise 3):
 - NO EM DASHES (—)
 - CRITICAL: Use EXACT character names in the dialogue exchanges - use "${student.name}" and the selected role name EXACTLY as listed in the characters array
 
-Format: { "type": "dialogue", "title": "Exercise 3: Dialogue", "description": "Practice with realistic scenario. Read as ${student.name}", "content": { "setting": "Max 150 chars: WHO, WHERE, WHAT", "characters": ["${student.name}", "Selected Role Name"], "dialogue": [{"character": "${student.name}", "text": "..."}, {"character": "Selected Role Name", "text": "..."}, ...8-12 total exchanges with alternating speakers], "instructions": "Read as ${student.name}" }, "timeMinutes": 12 }
+Format: { "type": "dialogue", "title": "Exercise 3: Dialogue", "description": "Practice with realistic scenario. Read as ${student.name}", "content": { "setting": "Max 150 chars: WHO, WHERE, WHAT", "characters": ["${student.name}", "Selected Role Name"], "dialogue": [{"character": "${student.name}", "text": "..."}, {"character": "Selected Role Name", "text": "..."}, ...8-12 total exchanges with alternating speakers] }, "timeMinutes": 12 }
 
 **Exercise 4: Dialogue Comprehension** (8 min)
 COMPREHENSION FORMAT (SIMPLIFIED - OPEN-ENDED ONLY):
@@ -197,7 +197,7 @@ CRITICAL RULES FOR GENERATION:
 TUTOR VERSION: Shows [Show Answer] button revealing corrected sentence, error type, and brief explanation
 STUDENT VERSION: Shows ONLY incorrect sentence numbered 1-10, no answers visible
 
-Format: { "type": "sentence-correction", "title": "Exercise 5: Sentence Correction", "description": "Fix grammar and syntax errors", "content": { "sentences": [
+Format: { "type": "sentence-correction", "title": "Exercise 5: Sentence Correction", "content": { "sentences": [
   { "incorrect": "...", "correct": "...", "errorType": "...", "explanation": "..." },
   ...10 total sentences with realistic, diverse student mistakes
 ] }, "timeMinutes": 10 }
