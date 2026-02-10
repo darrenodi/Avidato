@@ -4,7 +4,7 @@
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import openaiService from '@/lib/openai';
+import geminiService from '@/lib/AIAGENT/gemini';
 import { StudentProfile, LearningPlan, GeneratedLesson } from '@/types/lesson-template';
 import { revalidatePath } from 'next/cache';
 import type { Session } from 'next-auth';
@@ -174,7 +174,7 @@ export async function generateLearningPlan(studentId: string): Promise<{
     };
 
     // Generate learning plan
-    const learningPlan = await openaiService.generateLearningPlan(studentProfile);
+    const learningPlan = await geminiService.generateLearningPlan(studentProfile);
 
     // Save learning plan to database
     const savedLearningPlan = await prisma.learningPlan.create({
@@ -340,7 +340,7 @@ export async function generateMoreLessons(studentId: string): Promise<{
     };
 
     // Generate next 10 lessons
-    const newLessons = await openaiService.generateLearningPlan(studentProfile, existingTopics);
+    const newLessons = await geminiService.generateLearningPlan(studentProfile, existingTopics);
 
     // Combine existing and new topics
     const allTopics = [...existingTopics, ...newLessons.topics];
@@ -460,9 +460,9 @@ export async function generateLesson(
     };
 
     // Generate lesson
-    const generatedLesson = await openaiService.generateLesson(
+    const generatedLesson = await geminiService.generateLesson(
       studentProfile,
-      lessonDataWithContext as Parameters<typeof openaiService.generateLesson>[1],
+      lessonDataWithContext as Parameters<typeof geminiService.generateLesson>[1],
       duration
     );
 
