@@ -9,7 +9,8 @@ import { getYouTubeTranscript, isTranscriptUnavailableError } from '@/lib/youtub
 type CEFRLevel = 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2'
 
 interface GenerateYouTubeLessonRequest {
-  youtubeUrl: string
+  youtubeUrl?: string
+  transcriptText?: string
   level: CEFRLevel
 }
 
@@ -42,6 +43,11 @@ interface YouTubeLessonResponse {
 
 const CEFR_LEVELS: CEFRLevel[] = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']
 const MAX_VIDEO_DURATION_SECONDS = 5 * 60
+const MAX_TRANSCRIPT_CHARS = 18000
+
+function normalizeManualTranscript(input: string): string {
+  return input.replace(/\s+/g, ' ').trim()
+}
 
 function buildTranscriptPrompt(transcriptText: string, level: CEFRLevel) {
   return `You are an expert language tutor building a DISCUSSION lesson from a YouTube transcript.
@@ -117,26 +123,57 @@ export async function POST(request: NextRequest) {
 
     const body: GenerateYouTubeLessonRequest = await request.json()
     const youtubeUrl = body.youtubeUrl?.trim()
+    const transcriptText = body.transcriptText?.trim()
     const level = body.level
 
-    if (!youtubeUrl) {
-      return NextResponse.json({ error: 'YouTube URL is required' }, { status: 400 })
+    if (!youtubeUrl && !transcriptText) {
+      return NextResponse.json(
+        { error: 'Provide a YouTube URL or paste transcript text.' },
+        { status: 400 }
+      )
     }
 
     if (!level || !CEFR_LEVELS.includes(level)) {
       return NextResponse.json({ error: 'Valid CEFR level is required' }, { status: 400 })
     }
 
-    const transcriptData = await getYouTubeTranscript(youtubeUrl)
+    let resolvedTranscriptText = ''
+    let resolvedVideoId = 'manual'
+    let resolvedSourceUrl = ''
 
-    if (transcriptData.durationSeconds > MAX_VIDEO_DURATION_SECONDS) {
+    if (transcriptText) {
+      const normalizedManualTranscript = normalizeManualTranscript(transcriptText)
+      if (!normalizedManualTranscript) {
+        return NextResponse.json(
+          { error: 'Transcript text was empty after cleanup. Please paste readable transcript text.' },
+          { status: 400 }
+        )
+      }
+
+      resolvedTranscriptText = normalizedManualTranscript.slice(0, MAX_TRANSCRIPT_CHARS)
+    } else if (youtubeUrl) {
+      const transcriptData = await getYouTubeTranscript(youtubeUrl)
+
+      if (transcriptData.durationSeconds > MAX_VIDEO_DURATION_SECONDS) {
+        return NextResponse.json(
+          { error: 'Video is too long. Maximum supported duration is 5 minutes.' },
+          { status: 400 }
+        )
+      }
+
+      resolvedTranscriptText = transcriptData.transcriptText
+      resolvedVideoId = transcriptData.videoId
+      resolvedSourceUrl = transcriptData.sourceUrl
+    }
+
+    if (!resolvedTranscriptText) {
       return NextResponse.json(
-        { error: 'Video is too long. Maximum supported duration is 5 minutes.' },
+        { error: 'Could not resolve transcript text from input.' },
         { status: 400 }
       )
     }
 
-    const prompt = buildTranscriptPrompt(transcriptData.transcriptText, level)
+    const prompt = buildTranscriptPrompt(resolvedTranscriptText, level)
 
     const aiResult = await generateWithProviderFailover({
       prompt,
@@ -150,11 +187,11 @@ export async function POST(request: NextRequest) {
       Omit<YouTubeLessonResponse, 'videoId' | 'sourceUrl' | 'level' | 'transcriptPreview' | 'generatedAt'>
     >(rawJSON)
 
-    const transcriptPreview = transcriptData.transcriptText.slice(0, 1200)
+    const transcriptPreview = resolvedTranscriptText.slice(0, 1200)
 
     const response: YouTubeLessonResponse = {
-      videoId: transcriptData.videoId,
-      sourceUrl: transcriptData.sourceUrl,
+      videoId: resolvedVideoId,
+      sourceUrl: resolvedSourceUrl,
       level,
       title: parsed.title,
       summary: parsed.summary,
@@ -175,7 +212,7 @@ export async function POST(request: NextRequest) {
         : 'Transcript is unavailable for this video. Try another video with captions.'
 
       return NextResponse.json(
-        { error: transcriptErrorMessage },
+        { error: `${transcriptErrorMessage} If this video has no accessible captions, paste transcript text manually.` },
         { status: 400 }
       )
     }

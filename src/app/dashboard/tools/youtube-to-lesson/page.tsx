@@ -50,6 +50,7 @@ export default function YouTubeToLessonPage() {
   const router = useRouter()
 
   const [youtubeUrl, setYoutubeUrl] = useState('')
+  const [manualTranscript, setManualTranscript] = useState('')
   const [level, setLevel] = useState<CEFRLevel>('B1')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -73,7 +74,8 @@ export default function YouTubeToLessonPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          youtubeUrl,
+          youtubeUrl: youtubeUrl || undefined,
+          transcriptText: manualTranscript || undefined,
           level,
         }),
       })
@@ -127,13 +129,16 @@ export default function YouTubeToLessonPage() {
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
             Maximum supported video length: 5 minutes.
           </p>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+            If captions are unavailable, paste the transcript manually below.
+          </p>
         </div>
 
         <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 shadow-sm mb-8">
           <form onSubmit={handleGenerate} className="space-y-6">
             <div>
               <label htmlFor="youtubeUrl" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                YouTube URL
+                YouTube URL (optional if transcript is pasted)
               </label>
               <input
                 id="youtubeUrl"
@@ -144,6 +149,23 @@ export default function YouTubeToLessonPage() {
                 className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-primary focus:border-transparent"
                 required
               />
+            </div>
+
+            <div>
+              <label htmlFor="manualTranscript" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Manual Transcript (optional)
+              </label>
+              <textarea
+                id="manualTranscript"
+                value={manualTranscript}
+                onChange={(e) => setManualTranscript(e.target.value)}
+                placeholder="Paste transcript text here if YouTube captions are unavailable..."
+                rows={8}
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-primary focus:border-transparent"
+              />
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                You can use either URL or transcript text, or both.
+              </p>
             </div>
 
             <div>
@@ -172,7 +194,7 @@ export default function YouTubeToLessonPage() {
 
             <button
               type="submit"
-              disabled={loading || !youtubeUrl.trim()}
+              disabled={loading || (!youtubeUrl.trim() && !manualTranscript.trim())}
               className="w-full px-6 py-3 bg-brand-primary hover:bg-brand-primary/90 disabled:bg-gray-300 dark:disabled:bg-gray-600 text-white font-medium rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
             >
               {loading ? (
@@ -197,14 +219,18 @@ export default function YouTubeToLessonPage() {
             <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 shadow-sm">
               <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{result.title}</h2>
-                <a
-                  href={result.sourceUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-brand-primary hover:underline text-sm font-medium"
-                >
-                  Open Video
-                </a>
+                {result.sourceUrl ? (
+                  <a
+                    href={result.sourceUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-brand-primary hover:underline text-sm font-medium"
+                  >
+                    Open Video
+                  </a>
+                ) : (
+                  <span className="text-xs text-gray-500 dark:text-gray-400">Source: Manual transcript</span>
+                )}
               </div>
               <p className="text-gray-600 dark:text-gray-300 mb-3">{result.summary}</p>
               <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-300">
