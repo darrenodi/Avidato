@@ -152,67 +152,54 @@ Format: { "type": "roleplay", "title": "Exercise 5: Role Play", "description": "
 */
 
 **Exercise 5: Sentence Correction** (10 min)
-SENTENCE CORRECTION EXERCISE:
-Generate 10 sentences — ALL 10 MUST CONTAIN EXACTLY ONE MISTAKE. No correct sentences. Every sentence the student sees is wrong and needs fixing.
 
-EACH SENTENCE MUST HAVE:
-- incorrect: the sentence with exactly ONE error (NEVER more than one mistake per sentence)
-- correct: the fully corrected version
-- errorType: the specific grammar/usage rule violated (e.g., "Subject-verb agreement", "Wrong preposition")
-- explanation: ONE clear sentence (max 12 words) stating the rule — e.g., "Use 'have' with plural subjects, not 'has'."
+🚨 ABSOLUTE REQUIREMENT: Every single sentence MUST contain a REAL, VISIBLE grammar mistake. The "incorrect" field and "correct" field MUST be DIFFERENT strings. If they are identical, you have FAILED.
 
-LEVEL-DEPENDENT ERROR TYPES — Match errors to student level (${student.level}):
+GOOD EXAMPLES (the incorrect version has a clear, visible error):
+{ "incorrect": "She have been working here for five years.", "correct": "She has been working here for five years.", "errorType": "Subject-verb agreement", "explanation": "Use 'has' with third-person singular subjects." }
+{ "incorrect": "I enjoy to read technical documentation.", "correct": "I enjoy reading technical documentation.", "errorType": "Gerund vs infinitive", "explanation": "'Enjoy' requires a gerund, not an infinitive." }
+{ "incorrect": "The team discussed about the new proposal.", "correct": "The team discussed the new proposal.", "errorType": "Unnecessary preposition", "explanation": "'Discuss' is transitive — no preposition needed." }
+{ "incorrect": "He suggested me to check the report.", "correct": "He suggested that I check the report.", "errorType": "Verb pattern", "explanation": "'Suggest' takes a that-clause, not object + infinitive." }
 
-🔴 BEGINNER / A1-A2 errors (simple, high-frequency grammar):
-- Subject-verb agreement ("She have" → "She has")
-- Basic article errors ("I need umbrella" → "I need an umbrella")
-- Simple preposition errors ("I arrived to work" → "I arrived at work")
-- Basic word order ("I go always" → "I always go")
-- Simple plural/singular ("Two informations" → "Two pieces of information")
-- Basic tense confusion ("Yesterday I go" → "Yesterday I went")
-- Pronoun errors ("Me and him went" → "He and I went")
-- Common spelling/homophones ("their/there/they're", "your/you're")
+BAD EXAMPLES (DO NOT generate these — the sentence is already correct or the "error" is trivial/invented):
+❌ { "incorrect": "The adhesive bonds the components securely.", "correct": "The adhesive bonds the components securely." } ← IDENTICAL! No real error!
+❌ { "incorrect": "Great, thank you.", "correct": "Great, thank you." , "errorType": "Punctuation" } ← Not a real teaching moment!
+❌ { "incorrect": "We can laminate different types of plastics to create a material which has unique properties.", "correct": "...a material that has...", "errorType": "Relative pronoun" } ← Both 'which' and 'that' are acceptable here. NOT a real error!
 
-🟡 INTERMEDIATE / B1-B2 errors (more nuanced grammar & usage):
-- Present perfect vs simple past ("I have seen him yesterday" → "I saw him yesterday")
-- Gerund vs infinitive ("I enjoy to read" → "I enjoy reading")
-- Conditional tense errors ("If I would know" → "If I knew")
-- Relative pronoun choice ("The man which called" → "The man who called")
-- Comparative/superlative ("More better" → "Better")
-- Collocation errors ("make a decision" vs "do a decision")
-- Reported speech shifts ("He said he is coming" → "He said he was coming")
-- Passive voice formation ("The report was wrote" → "The report was written")
-- Countable/uncountable quantifiers ("less people" → "fewer people")
+PICK 10 ERRORS FROM THIS LIST (match to student level ${student.level}):
 
-🟢 ADVANCED / C1-C2 errors (subtle, sophisticated):
-- Subjunctive mood ("I suggest that he goes" → "I suggest that he go")
-- Inversion after negative adverbials ("Never I have seen" → "Never have I seen")
-- Mixed conditionals ("If I had studied, I will pass" → "If I had studied, I would have passed")
-- Subtle collocation/register errors ("We discussed about the issue" → "We discussed the issue")
-- Dangling/misplaced modifiers ("Running late, the bus left" → "Running late, she missed the bus")
-- Parallel structure ("She likes hiking, swimming, and to run" → "...hiking, swimming, and running")
-- Article nuance with abstract nouns ("The life is short" → "Life is short")
-- Ellipsis/redundancy ("The reason is because" → "The reason is that")
-- Advanced verb patterns ("prevent him to leave" → "prevent him from leaving")
+FOR ALL LEVELS — these are the most common, highest-value learner errors:
+1. Subject-verb agreement: "The results shows..." → "show"; "Everyone have..." → "has"
+2. Tense misuse: "I live here since 2020" → "have lived"; "Yesterday I go" → "went"
+3. Preposition errors: "interested for" → "in"; "depend of" → "on"; "arrive to" → "at"
+4. Article errors: "She is doctor" → "a doctor"; "I need advice" (when countable needed)
+5. Gerund vs infinitive: "enjoy to read" → "reading"; "suggest to go" → "suggest going"
+6. Word order: "I eat always breakfast" → "always eat"; "She speaks well English" → "speaks English well"
+7. Countable/uncountable: "informations" → "information"; "less people" → "fewer"; "an advice" → "some advice"
+8. Collocations: "do a mistake" → "make"; "say me" → "tell me"; "make homework" → "do homework"
+9. Conditionals: "If I would know" → "If I knew"; "If I studied, I will pass" → "would pass"
+10. Relative pronouns: "The man which called" → "who"; "The reason why is because" → "is that"
 
-CRITICAL RULES:
-1. ALL 10 sentences are INCORRECT — zero correct sentences. The student must find and fix every one.
-2. EXACTLY ONE mistake per sentence — never two or more errors. The rest of the sentence must be perfectly correct.
-3. Choose error types from the LEVEL-APPROPRIATE category above. For ${student.level} students, use errors from the matching tier. You may include 1-2 errors from the tier below for confidence, but NEVER from tiers above.
-4. Vary error types WIDELY — no two sentences should test the same grammar rule. All 10 errorTypes must be DIFFERENT.
-5. Each sentence MUST use vocabulary from Exercise 1 or topic-related terms from the lesson.
-6. Sentences should be natural, realistic, and contextually related to the lesson topic — not random.
-7. The mistake must be SUBTLE but CLEAR once identified — avoid obviously absurd sentences.
-8. Explanations must state the RULE, not just describe the fix. Bad: "Changed 'has' to 'have'." Good: "Use 'have' with plural subjects."
-9. Do NOT use a predictable pattern or sequence of error types — randomize the order.
-10. Each sentence should be 8-20 words — long enough to be meaningful, short enough to scan.
+ADDITIONAL FOR B2+ ONLY:
+11. Reported speech: "He said he is coming" → "was coming"
+12. Passive voice: "The report was wrote" → "written"
+13. Parallel structure: "likes hiking, swimming, and to run" → "and running"
+14. Verb patterns: "prevent him to leave" → "from leaving"; "discussed about" → "discussed"
 
-TUTOR VERSION: Shows [Show Answer] button revealing corrected sentence, error type, and brief explanation
-STUDENT VERSION: Shows ONLY incorrect sentence numbered 1-10, no answers visible
+RULES:
+1. ALL 10 sentences MUST be WRONG. Zero correct sentences. The "incorrect" and "correct" fields MUST DIFFER.
+2. ONE mistake per sentence. The rest of the sentence must be grammatically perfect.
+3. The error must be OBVIOUS when pointed out — not a stylistic preference or debatable usage.
+4. Use vocabulary from Exercise 1 and keep sentences relevant to the lesson topic.
+5. Each sentence: 8-18 words. No overly complex or technical sentences that hide the error.
+6. All 10 errorTypes must be DIFFERENT — never repeat the same grammar rule.
+7. Explanation states the RULE: "Use 'has' with third-person singular" — NOT "Changed 'have' to 'has'."
+
+SELF-CHECK BEFORE OUTPUT: Read each sentence pair. If "incorrect" === "correct", DELETE IT and write a new one with a real error.
 
 Format: { "type": "sentence-correction", "title": "Exercise 5: Sentence Correction", "content": { "sentences": [
-  { "incorrect": "...", "correct": "...", "errorType": "...", "explanation": "..." },
-  ...ALL 10 sentences must be incorrect with exactly one mistake each
+  { "incorrect": "Sentence WITH a visible grammar mistake", "correct": "Same sentence with the mistake FIXED", "errorType": "Specific rule name", "explanation": "Brief rule statement max 12 words" },
+  ...10 total, ALL incorrect, ALL different error types
 ] }, "timeMinutes": 10 }
 
 **Exercise 6: Discussion** (12 min)
