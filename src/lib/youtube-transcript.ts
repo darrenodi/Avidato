@@ -32,6 +32,8 @@ function decodeHtmlEntities(input: string): string {
     .replace(/&amp;/g, '&')
     .replace(/&lt;/g, '<')
     .replace(/&gt;/g, '>')
+    .replace(/&#x27;/g, "'")
+    .replace(/&#(\d+);/g, (_, code) => String.fromCharCode(Number(code)))
 }
 
 function normalizeCaptionUrl(baseUrl: string): string {
@@ -130,6 +132,108 @@ async function fetchTranscriptViaCaptionTracks(videoId: string): Promise<Transcr
   return transcriptSegments
 }
 
+interface TimedTextTrack {
+  langCode: string
+  kind?: string
+}
+
+function parseTimedTextTracks(xml: string): TimedTextTrack[] {
+  const trackRegex = /<track\b([^>]*?)\/?>(?:<\/track>)?/g
+  const attrRegex = /(\w+)="([^"]*)"/g
+  const tracks: TimedTextTrack[] = []
+
+  let trackMatch: RegExpExecArray | null
+  while ((trackMatch = trackRegex.exec(xml)) !== null) {
+    const attrsRaw = trackMatch[1]
+    const attrs: Record<string, string> = {}
+
+    let attrMatch: RegExpExecArray | null
+    while ((attrMatch = attrRegex.exec(attrsRaw)) !== null) {
+      attrs[attrMatch[1]] = attrMatch[2]
+    }
+
+    const langCode = attrs.lang_code
+    if (!langCode) continue
+
+    tracks.push({
+      langCode,
+      kind: attrs.kind,
+    })
+  }
+
+  return tracks
+}
+
+function parseTimedTextTranscript(xml: string): TranscriptResponse[] {
+  const textRegex = /<text\s+([^>]*?)>([\s\S]*?)<\/text>/g
+  const attrRegex = /(\w+)="([^"]*)"/g
+
+  const segments: TranscriptResponse[] = []
+  let textMatch: RegExpExecArray | null
+
+  while ((textMatch = textRegex.exec(xml)) !== null) {
+    const attrsRaw = textMatch[1]
+    const textRaw = textMatch[2] || ''
+    const attrs: Record<string, string> = {}
+
+    let attrMatch: RegExpExecArray | null
+    while ((attrMatch = attrRegex.exec(attrsRaw)) !== null) {
+      attrs[attrMatch[1]] = attrMatch[2]
+    }
+
+    const start = Number(attrs.start || 0)
+    const duration = Number(attrs.dur || 0)
+    const text = decodeHtmlEntities(textRaw).replace(/\n/g, ' ').trim()
+
+    if (!text) continue
+
+    segments.push({
+      text,
+      offset: Number.isFinite(start) ? start : 0,
+      duration: Number.isFinite(duration) ? duration : 0,
+    })
+  }
+
+  return segments
+}
+
+async function fetchTranscriptViaTimedTextApi(videoId: string): Promise<TranscriptResponse[]> {
+  const listUrl = `https://www.youtube.com/api/timedtext?type=list&v=${videoId}`
+  const listResponse = await fetch(listUrl, { cache: 'no-store' })
+
+  if (!listResponse.ok) {
+    throw new YouTubeTranscriptUnavailableError('Timedtext track list request failed.')
+  }
+
+  const listXml = await listResponse.text()
+  const tracks = parseTimedTextTracks(listXml)
+  if (tracks.length === 0) {
+    throw new YouTubeTranscriptUnavailableError('No timedtext tracks found for this video.')
+  }
+
+  const preferredTrack =
+    tracks.find((track) => track.langCode.toLowerCase().startsWith('en') && track.kind !== 'asr') ||
+    tracks.find((track) => track.langCode.toLowerCase().startsWith('en')) ||
+    tracks.find((track) => track.kind !== 'asr') ||
+    tracks[0]
+
+  const transcriptUrl = `https://www.youtube.com/api/timedtext?v=${videoId}&lang=${encodeURIComponent(preferredTrack.langCode)}${preferredTrack.kind ? `&kind=${encodeURIComponent(preferredTrack.kind)}` : ''}`
+  const transcriptResponse = await fetch(transcriptUrl, { cache: 'no-store' })
+
+  if (!transcriptResponse.ok) {
+    throw new YouTubeTranscriptUnavailableError('Timedtext transcript request failed.')
+  }
+
+  const transcriptXml = await transcriptResponse.text()
+  const segments = parseTimedTextTranscript(transcriptXml)
+
+  if (segments.length === 0) {
+    throw new YouTubeTranscriptUnavailableError('Timedtext transcript payload was empty.')
+  }
+
+  return segments
+}
+
 function normalizeTranscriptText(segments: TranscriptResponse[]): string {
   return segments
     .map((segment) => segment.text?.trim())
@@ -203,9 +307,13 @@ export async function getYouTubeTranscript(input: string): Promise<YouTubeTransc
 
   try {
     transcriptSegments = await YoutubeTranscript.fetchTranscript(videoId)
-  } catch (error) {
-    primaryError = error
-    transcriptSegments = await fetchTranscriptViaCaptionTracks(videoId)
+  } catch {
+    try {
+      transcriptSegments = await fetchTranscriptViaCaptionTracks(videoId)
+    } catch (captionTrackError) {
+      primaryError = captionTrackError
+      transcriptSegments = await fetchTranscriptViaTimedTextApi(videoId)
+    }
   }
 
   if (!Array.isArray(transcriptSegments) || transcriptSegments.length === 0) {
