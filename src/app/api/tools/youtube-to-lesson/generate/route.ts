@@ -5,7 +5,7 @@ import { checkAndUpdateGenerationLimit } from '@/app/actions/ai-generation'
 import { generateWithProviderFailover } from '@/lib/ai/generate-with-provider-failover'
 import { extractJSONFromText, cleanAndParseJSON } from '@/lib/utils/json-parser'
 import { getYouTubeTranscript, isTranscriptUnavailableError } from '@/lib/youtube-transcript'
-import { transcribeYouTubeAudio } from '@/lib/youtube-audio-transcription'
+import { transcribeYouTubeAudio, isYouTubeASRUnavailableError } from '@/lib/youtube-audio-transcription'
 
 type CEFRLevel = 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2'
 
@@ -228,6 +228,17 @@ export async function POST(request: NextRequest) {
 
       return NextResponse.json(
         { error: `${transcriptErrorMessage} If this video has no accessible captions, paste transcript text manually.` },
+        { status: 400 }
+      )
+    }
+
+    if (isYouTubeASRUnavailableError(error)) {
+      const asrErrorMessage = error instanceof Error
+        ? error.message
+        : 'Automatic audio transcription fallback is unavailable.'
+
+      return NextResponse.json(
+        { error: `${asrErrorMessage} Please paste transcript text manually to continue.` },
         { status: 400 }
       )
     }

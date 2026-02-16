@@ -120,5 +120,26 @@ export async function transcribeYouTubeAudio(input: string, maxDurationSeconds: 
 }
 
 export function isYouTubeASRUnavailableError(error: unknown): boolean {
-  return error instanceof YouTubeASRUnavailableError
+  if (error instanceof YouTubeASRUnavailableError) {
+    return true
+  }
+
+  if (!error || typeof error !== 'object') {
+    return false
+  }
+
+  const maybeError = error as { name?: unknown; message?: unknown }
+  const name = typeof maybeError.name === 'string' ? maybeError.name : ''
+  const message = typeof maybeError.message === 'string' ? maybeError.message.toLowerCase() : ''
+
+  if (name === 'YouTubeASRUnavailableError') {
+    return true
+  }
+
+  return (
+    message.includes('asr') ||
+    message.includes('transcription fallback') ||
+    message.includes('audio is too large') ||
+    message.includes('could not determine video duration')
+  )
 }

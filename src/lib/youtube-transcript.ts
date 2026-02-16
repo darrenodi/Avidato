@@ -342,5 +342,26 @@ export async function getYouTubeTranscript(input: string): Promise<YouTubeTransc
 }
 
 export function isTranscriptUnavailableError(error: unknown): boolean {
-  return error instanceof YouTubeTranscriptUnavailableError
+  if (error instanceof YouTubeTranscriptUnavailableError) {
+    return true
+  }
+
+  if (!error || typeof error !== 'object') {
+    return false
+  }
+
+  const maybeError = error as { name?: unknown; message?: unknown }
+  const name = typeof maybeError.name === 'string' ? maybeError.name : ''
+  const message = typeof maybeError.message === 'string' ? maybeError.message.toLowerCase() : ''
+
+  if (name === 'YouTubeTranscriptUnavailableError') {
+    return true
+  }
+
+  return (
+    message.includes('no captions tracks found') ||
+    message.includes('no timedtext tracks found') ||
+    message.includes('no transcript available') ||
+    message.includes('caption')
+  )
 }
