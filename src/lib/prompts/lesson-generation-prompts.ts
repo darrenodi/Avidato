@@ -156,10 +156,10 @@ SENTENCE CORRECTION EXERCISE:
 Generate 10 sentences with REAL MISTAKES that students actually make. These should reflect authentic learner errors across diverse grammar areas, not limited to a fixed set.
 
 EACH SENTENCE MUST HAVE:
-- incorrect: the sentence to display (may be incorrect or correct)
-- correct: the corrected version (if correct sentence, put "correct" as the label)
-- errorType: the specific grammar rule violated (EMPTY STRING "" if the sentence is already correct)
-- explanation: ONE SHORT SENTENCE max 10 words explaining the rule or why it's wrong (EMPTY STRING "" if correct)
+- incorrect: the sentence to display (must be incorrect)
+- correct: the corrected version
+- errorType: the specific grammar rule violated (required, never empty)
+- explanation: ONE SHORT SENTENCE max 10 words explaining the rule
 
 BROAD CATEGORIES OF REAL LEARNER ERRORS (draw from across all of these):
 - **Verb forms & tenses**: Present perfect vs simple past, continuous vs simple, modal usage, phrasal verb forms, auxiliary verb omission
@@ -183,11 +183,14 @@ BROAD CATEGORIES OF REAL LEARNER ERRORS (draw from across all of these):
 
 CRITICAL RULES FOR GENERATION:
 - Generate REALISTIC mistakes that students actually make (observe real ESL/EFL learner errors)
-- **EACH INCORRECT SENTENCE HAS ONLY ONE MISTAKE** - not multiple errors (no 2-in-1)
+- ALL 10 sentences must be incorrect
+- EACH sentence must have exactly ONE mistake - never more than one error per sentence
 - Vary error types WIDELY and MIX THEM RANDOMLY - don't group similar errors or follow predictable order
-- Some sentences (2-3 out of 10) should be CORRECT with empty errorType and explanation
 - Each sentence MUST use vocabulary from Exercise 1 or realistic domain-specific terms
-- Mix error difficulty levels (beginner to intermediate)
+- Match mistake difficulty to student level (${student.level}):
+  * A1-A2: basic verb form/tense, be/have/do, articles, simple prepositions, basic word order
+  * B1-B2: tense contrast (perfect/simple), modal patterns, gerund/infinitive, relative pronouns, quantifiers, phrasal particles
+  * C1-C2: advanced aspect/control, inversion/emphasis structures, complex clause issues, collocation/verb-pattern precision, register-sensitive grammar
 - Include less obvious error types alongside common ones
 - Errors should be subtle but clear when corrected
 - Make explanations brief, teaching-focused, and rule-based

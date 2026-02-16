@@ -71,8 +71,8 @@ export const SentenceCorrectionRenderer: React.FC<SentenceCorrectionRendererProp
                     </p>
                   </div>
 
-                  {/* Tutor Version: Show Answer Button (only for incorrect sentences) */}
-                  {isTutorVersion && item.errorType ? (
+                  {/* Tutor Version: Show Answer Button */}
+                  {isTutorVersion ? (
                     <>
                       <button
                         onClick={() =>
@@ -101,7 +101,7 @@ export const SentenceCorrectionRenderer: React.FC<SentenceCorrectionRendererProp
                               📌 Error Type:
                             </p>
                             <p className="text-sm text-gray-700 dark:text-gray-300 bg-blue-50 dark:bg-blue-900/20 p-3 rounded border border-blue-200 dark:border-blue-800">
-                              <strong>{item.errorType}</strong>
+                              <strong>{item.errorType || 'Grammar correction'}</strong>
                               {item.explanation && (
                                 <>
                                   <br />
@@ -113,9 +113,6 @@ export const SentenceCorrectionRenderer: React.FC<SentenceCorrectionRendererProp
                         </div>
                       )}
                     </>
-                  ) : isTutorVersion && !item.errorType ? (
-                    /* Tutor version - correct sentence with note */
-                    <p className="text-xs text-green-600 dark:text-green-400 font-semibold">✓ Correct sentence</p>
                   ) : (
                     /* Student Version: No answers shown */
                     <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded text-sm text-blue-700 dark:text-blue-300">

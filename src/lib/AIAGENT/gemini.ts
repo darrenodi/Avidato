@@ -324,29 +324,27 @@ This exercise focuses on correcting common grammar errors in sentences DIRECTLY 
 IMPORTANT RULES:
 - Create 6-8 sentences ALL ABOUT THE LESSON TOPIC: "${topic.title}"
 - Sentences should use the lesson vocabulary: ${vocabList}
-- Errors should focus on verb tenses, verb forms, and subject-verb agreement
-- Sentences may contain common errors like:
-  * Missing prepositions in phrasal verbs
-  * Incorrect verb tenses (e.g., present simple vs present perfect)
-  * Wrong verb forms (e.g., base form vs past participle)
-  * Subject-verb agreement errors (e.g., singular/plural mismatch)
-  * Incorrect auxiliary verbs (e.g., "are" vs "have" with participles)
-  * Word order issues
-- Do NOT make the same type of error twice - vary the error types
-- Include 2-3 sentences that are grammatically correct (to make it more challenging)
+- ALL sentences MUST be grammatically incorrect
+- EACH sentence must contain exactly ONE mistake (never more than one)
+- The mistake type MUST match student level (${student.level}):
+  * A1-A2: basic present/past tense form, be/have/do, subject-verb agreement, simple articles, basic prepositions, simple word order
+  * B1-B2: perfect vs simple tense choice, modal verb form, gerund/infinitive choice, relative pronouns, countable/uncountable quantifiers, phrasal verb particles
+  * C1-C2: advanced tense/aspect nuance, inversion/cleft style issues, complex clause linking, advanced collocation/verb pattern, register-sensitive grammar choice
+- Do NOT make the same type of mistake twice - vary mistake types
 - ALL sentences must relate to the lesson context: "${topic.context}"
 
 RESPONSE FORMAT FOR EXERCISE 5:
 {
   "type": "grammar",
   "title": "Exercise 5: Find the Mistake",
-  "description": "Find and correct the mistake in each sentence. Be careful — not all sentences have a mistake!",
-  "instructions": "Find and correct the mistake in each sentence. Remember to check verb tenses, verb forms, and word order.",
+  "description": "Find and correct the one mistake in each sentence.",
+  "instructions": "Each sentence has exactly one mistake. Find it and correct it.",
   "content": {
     "sentences": [
       {
-        "incorrect": "A sentence about ${topic.title} with or without a grammar error",
-        "correct": "The same sentence corrected, OR if already correct: 'This is already correct'"
+        "incorrect": "A sentence about ${topic.title} with exactly one grammar mistake",
+        "correct": "The same sentence fully corrected",
+        "errorType": "Name of the grammar area for this one mistake"
       },
       ... (6-8 total items, ALL using vocabulary from: ${vocabList})
     ]
