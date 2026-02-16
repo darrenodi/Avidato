@@ -4,7 +4,7 @@ import { authOptions } from '@/lib/auth'
 import { checkAndUpdateGenerationLimit } from '@/app/actions/ai-generation'
 import { generateWithProviderFailover } from '@/lib/ai/generate-with-provider-failover'
 import { extractJSONFromText, cleanAndParseJSON } from '@/lib/utils/json-parser'
-import { getYouTubeTranscript } from '@/lib/youtube-transcript'
+import { getYouTubeTranscript, isTranscriptUnavailableError } from '@/lib/youtube-transcript'
 
 type CEFRLevel = 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2'
 
@@ -168,6 +168,14 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(response)
   } catch (error) {
     console.error('Error generating YouTube lesson:', error)
+
+    if (isTranscriptUnavailableError(error)) {
+      return NextResponse.json(
+        { error: error.message || 'Transcript is unavailable for this video. Try another video with captions.' },
+        { status: 400 }
+      )
+    }
+
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Failed to generate lesson from YouTube video' },
       { status: 500 }
