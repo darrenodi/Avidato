@@ -11,6 +11,7 @@ import { getSuggestedRolesAndScenarios, getOccupationExclusions } from '../const
 import { extractJSONFromText, cleanAndParseJSON } from '../utils/json-parser';
 import { enforceSynonymConstraints } from '../utils/vocabulary-validator';
 import { enforceDialogueStructure } from '../utils/dialogue-validator';
+import { validateSentenceCorrectionConstraints } from '../utils/sentence-correction-validator';
 import { buildLessonGenerationPrompt } from '../prompts/lesson-generation-prompts';
 
 if (!process.env.GOOGLE_API_KEY) {
@@ -358,7 +359,7 @@ CRITICAL: This exercise must appear as Exercise 5 in the exercises array. ALL se
   const { roles, examples } = getSuggestedRolesAndScenarios(student.occupation);
   
   // Build the prompt using the extracted template function
-  const prompt = buildLessonGenerationPrompt(
+  const basePrompt = buildLessonGenerationPrompt(
     student,
     topic,
     duration,
@@ -371,37 +372,61 @@ CRITICAL: This exercise must appear as Exercise 5 in the exercises array. ALL se
   );
 
     try {
-      const { rawText: text } = await generateWithFailover({
-        prompt,
-        generationConfig: {
-          temperature: 0.1,
-          topK: 40,
-          topP: 0.95,
-          maxOutputTokens: 8192,
-        },
-      });
+      for (let attempt = 0; attempt < 2; attempt++) {
+        const retryBlock = attempt === 0
+          ? ''
+          : `\n\nRETRY REQUIREMENT (MANDATORY):
+Exercise 5 must have ONLY incorrect sentences.
+Each sentence must contain exactly one mistake.
+Never output errorType as None/empty/N-A.
+If any sentence is already correct, regenerate Exercise 5 before returning JSON.`;
 
-      // Extract and parse JSON using imported utilities
-      const jsonStr = extractJSONFromText(text);
-      const parsedResponse = cleanAndParseJSON<GeneratedLesson>(jsonStr);
+        const { rawText: text } = await generateWithFailover({
+          prompt: `${basePrompt}${retryBlock}`,
+          generationConfig: {
+            temperature: 0.1,
+            topK: 40,
+            topP: 0.95,
+            maxOutputTokens: 8192,
+          },
+        });
 
-      // Sanitize and enforce synonym rules based on CEFR level before returning
-      try {
-        enforceSynonymConstraints(parsedResponse, student.level);
-      } catch (err) {
-        // If sanitization fails, log and continue returning raw parsed response
-        console.warn('Failed to sanitize synonyms:', err);
+        // Extract and parse JSON using imported utilities
+        const jsonStr = extractJSONFromText(text);
+        const parsedResponse = cleanAndParseJSON<GeneratedLesson>(jsonStr);
+
+        // Sanitize and enforce synonym rules based on CEFR level before returning
+        try {
+          enforceSynonymConstraints(parsedResponse, student.level);
+        } catch (err) {
+          // If sanitization fails, log and continue returning raw parsed response
+          console.warn('Failed to sanitize synonyms:', err);
+        }
+
+        // Validate and fix dialogue structure (student speaks after every speaker)
+        try {
+          enforceDialogueStructure(parsedResponse, student.name || 'Student');
+        } catch (err) {
+          // If dialogue validation fails, log and continue
+          console.warn('Failed to validate dialogue structure:', err);
+        }
+
+        const sentenceValidation = validateSentenceCorrectionConstraints(parsedResponse);
+        if (!sentenceValidation.isValid) {
+          console.warn(
+            `Sentence correction constraints failed on attempt ${attempt + 1}:`,
+            sentenceValidation.issues
+          );
+          if (attempt === 0) {
+            continue;
+          }
+          throw new Error('Sentence correction validation failed after retry.');
+        }
+
+        return parsedResponse;
       }
 
-      // Validate and fix dialogue structure (student speaks after every speaker)
-      try {
-        enforceDialogueStructure(parsedResponse, student.name || 'Student');
-      } catch (err) {
-        // If dialogue validation fails, log and continue
-        console.warn('Failed to validate dialogue structure:', err);
-      }
-
-      return parsedResponse;
+      throw new Error('Lesson generation failed to produce valid sentence correction exercise.');
     } catch (error) {
       console.error('Error generating lesson:', error);
       throw new Error('Failed to generate lesson. Please try again.');

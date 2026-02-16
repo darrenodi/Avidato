@@ -62,11 +62,7 @@ export const SentenceCorrectionRenderer: React.FC<SentenceCorrectionRendererProp
                 <div className="flex-1">
                   {/* Display sentence */}
                   <div className="mb-3">
-                    <p className={`text-gray-900 dark:text-white font-medium p-3 rounded border ${
-                      item.errorType
-                        ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'
-                        : 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800'
-                    }`}>
+                    <p className="text-gray-900 dark:text-white font-medium p-3 rounded border bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800">
                       {item.incorrect}
                     </p>
                   </div>
