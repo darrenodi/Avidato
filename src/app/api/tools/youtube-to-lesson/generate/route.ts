@@ -5,6 +5,7 @@ import { checkAndUpdateGenerationLimit } from '@/app/actions/ai-generation'
 import { generateWithProviderFailover } from '@/lib/ai/generate-with-provider-failover'
 import { extractJSONFromText, cleanAndParseJSON } from '@/lib/utils/json-parser'
 import { getYouTubeTranscript, isTranscriptUnavailableError } from '@/lib/youtube-transcript'
+import { transcribeYouTubeAudio } from '@/lib/youtube-audio-transcription'
 
 type CEFRLevel = 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2'
 
@@ -152,18 +153,32 @@ export async function POST(request: NextRequest) {
 
       resolvedTranscriptText = normalizedManualTranscript.slice(0, MAX_TRANSCRIPT_CHARS)
     } else if (youtubeUrl) {
-      const transcriptData = await getYouTubeTranscript(youtubeUrl)
+      let transcriptData
+      try {
+        transcriptData = await getYouTubeTranscript(youtubeUrl)
+      } catch (error) {
+        if (!isTranscriptUnavailableError(error)) {
+          throw error
+        }
 
-      if (transcriptData.durationSeconds > MAX_VIDEO_DURATION_SECONDS) {
-        return NextResponse.json(
-          { error: 'Video is too long. Maximum supported duration is 5 minutes.' },
-          { status: 400 }
-        )
+        const asrData = await transcribeYouTubeAudio(youtubeUrl, MAX_VIDEO_DURATION_SECONDS)
+        resolvedTranscriptText = asrData.transcriptText
+        resolvedVideoId = asrData.videoId
+        resolvedSourceUrl = asrData.sourceUrl
       }
 
-      resolvedTranscriptText = transcriptData.transcriptText
-      resolvedVideoId = transcriptData.videoId
-      resolvedSourceUrl = transcriptData.sourceUrl
+      if (!resolvedTranscriptText && transcriptData) {
+        if (transcriptData.durationSeconds > MAX_VIDEO_DURATION_SECONDS) {
+          return NextResponse.json(
+            { error: 'Video is too long. Maximum supported duration is 5 minutes.' },
+            { status: 400 }
+          )
+        }
+
+        resolvedTranscriptText = transcriptData.transcriptText
+        resolvedVideoId = transcriptData.videoId
+        resolvedSourceUrl = transcriptData.sourceUrl
+      }
     }
 
     if (!resolvedTranscriptText) {

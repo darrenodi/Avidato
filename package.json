@@ -12,6 +12,7 @@
     "generate:blog": "node scripts/generatePost.js"
   },
   "dependencies": {
+    "@distube/ytdl-core": "^4.16.12",
     "@google/generative-ai": "^0.24.1",
     "@jridgewell/gen-mapping": "^0.3.13",
     "@next-auth/prisma-adapter": "^1.0.7",
