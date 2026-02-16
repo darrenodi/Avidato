@@ -3,6 +3,7 @@ import { generateWithProviderFailover } from '@/lib/ai/generate-with-provider-fa
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/lib/auth'
 import { checkAndUpdateGenerationLimit } from '@/app/actions/ai-generation'
+import { cleanAndParseJSON } from '@/lib/utils/json-parser'
 
 interface GenerateExerciseRequest {
   topic: string
@@ -24,6 +25,56 @@ interface GenerateExerciseResponse {
   wordsOnly: string[]
   definitionsShuffled: string[]
   generatedAt: string
+}
+
+function normalizeDefinitions(definitions: unknown): Word[] {
+  if (!Array.isArray(definitions)) return []
+
+  return definitions
+    .map((item) => {
+      if (!item || typeof item !== 'object') return null
+      const entry = item as { word?: unknown; definition?: unknown }
+      const word = typeof entry.word === 'string' ? entry.word.trim() : ''
+      const definition = typeof entry.definition === 'string' ? entry.definition.trim() : ''
+      if (!word || !definition) return null
+      return { word, definition }
+    })
+    .filter((item): item is Word => Boolean(item))
+}
+
+function parseDefinitionsResponse(rawText: string): Word[] {
+  const trimmed = rawText.trim()
+
+  const candidates: string[] = [trimmed]
+
+  const fencedJson = trimmed.match(/```(?:json)?\s*([\s\S]*?)```/i)?.[1]
+  if (fencedJson) candidates.push(fencedJson.trim())
+
+  const objectMatch = trimmed.match(/\{[\s\S]*\}/)
+  if (objectMatch?.[0]) candidates.push(objectMatch[0])
+
+  const arrayMatch = trimmed.match(/\[[\s\S]*\]/)
+  if (arrayMatch?.[0]) candidates.push(arrayMatch[0])
+
+  for (const candidate of candidates) {
+    try {
+      const parsed = cleanAndParseJSON<unknown>(candidate)
+
+      if (Array.isArray(parsed)) {
+        const normalizedFromArray = normalizeDefinitions(parsed)
+        if (normalizedFromArray.length > 0) return normalizedFromArray
+      }
+
+      if (parsed && typeof parsed === 'object') {
+        const normalizedFromObject = normalizeDefinitions((parsed as { definitions?: unknown }).definitions)
+        if (normalizedFromObject.length > 0) return normalizedFromObject
+      }
+    } catch {
+      // Try next candidate shape.
+    }
+  }
+
+  throw new Error('Could not parse definitions JSON from model output')
 }
 
 const LEVEL_GUIDANCE: Record<string, string> = {
@@ -177,39 +228,38 @@ Format your response as valid JSON:
 
 IMPORTANT: Respond ONLY with valid JSON object, starting with { and ending with }, no additional text.`
 
-    const defResult = await generateWithProviderFailover({
-      prompt: defPrompt,
-      generationConfig: {
-        maxOutputTokens: 800,
-      },
-    })
+    let wordsWithDefinitions: Word[] = []
+    let lastDefinitionError: unknown = null
 
-    // Parse definitions
-    let parsedDefinitions
-    try {
-      const cleanDefResult = defResult.rawText.trim()
-      const jsonMatch = cleanDefResult.match(/\{[\s\S]*\}/)
-      if (!jsonMatch) {
-        throw new Error('No JSON found')
+    for (let attempt = 1; attempt <= 2; attempt++) {
+      const retryInstruction = attempt === 1
+        ? ''
+        : '\n\nYour previous response was invalid. Return ONLY valid JSON with this exact shape: {"definitions":[{"word":"...","definition":"..."}]}. No markdown, no commentary.'
+
+      try {
+        const defResult = await generateWithProviderFailover({
+          prompt: `${defPrompt}${retryInstruction}`,
+          generationConfig: {
+            maxOutputTokens: 800,
+          },
+        })
+
+        wordsWithDefinitions = parseDefinitionsResponse(defResult.rawText)
+        if (wordsWithDefinitions.length > 0) break
+      } catch (error) {
+        lastDefinitionError = error
+        console.error(`Definitions parse/generation attempt ${attempt} failed:`, error)
       }
-      parsedDefinitions = JSON.parse(jsonMatch[0])
-    } catch (parseError) {
-      console.error('Definitions parse error:', parseError)
+    }
+
+    if (!Array.isArray(wordsWithDefinitions) || wordsWithDefinitions.length === 0) {
+      console.error('Definitions parsing failed after retries:', lastDefinitionError)
       return NextResponse.json(
         { error: 'Failed to parse generated definitions. Please try again.' },
         { status: 500 }
       )
     }
 
-    // Validate definitions structure
-    if (!parsedDefinitions.definitions || !Array.isArray(parsedDefinitions.definitions)) {
-      return NextResponse.json(
-        { error: 'Invalid definitions structure from AI' },
-        { status: 500 }
-      )
-    }
-
-    const wordsWithDefinitions = (parsedDefinitions.definitions as Word[])
     if (wordsWithDefinitions.length !== wordCount) {
       console.warn(`Expected ${wordCount} definitions, got ${wordsWithDefinitions.length}`)
     }
