@@ -170,8 +170,12 @@ export async function POST(request: NextRequest) {
     console.error('Error generating YouTube lesson:', error)
 
     if (isTranscriptUnavailableError(error)) {
+      const transcriptErrorMessage = error instanceof Error
+        ? error.message
+        : 'Transcript is unavailable for this video. Try another video with captions.'
+
       return NextResponse.json(
-        { error: error.message || 'Transcript is unavailable for this video. Try another video with captions.' },
+        { error: transcriptErrorMessage },
         { status: 400 }
       )
     }
