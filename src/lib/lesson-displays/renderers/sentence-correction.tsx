@@ -35,7 +35,7 @@ export const SentenceCorrectionRenderer: React.FC<SentenceCorrectionRendererProp
     <div className="space-y-6">
       {/* Header */}
       <div className="border-l-4 border-orange-500 pl-4">
-        <p className="text-sm font-semibold text-gray-900 dark:text-white mb-2">Fix grammar and syntax errors</p>
+        <p className="text-sm font-semibold text-gray-900 dark:text-white mb-2">Each sentence has one mistake — find and correct it</p>
         {instructions && (
           <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">{instructions}</p>
         )}
@@ -60,7 +60,7 @@ export const SentenceCorrectionRenderer: React.FC<SentenceCorrectionRendererProp
                   {index + 1}
                 </span>
                 <div className="flex-1">
-                  {/* Display sentence */}
+                  {/* Display incorrect sentence */}
                   <div className="mb-3">
                     <p className="text-gray-900 dark:text-white font-medium p-3 rounded border bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800">
                       {item.incorrect}
@@ -97,7 +97,7 @@ export const SentenceCorrectionRenderer: React.FC<SentenceCorrectionRendererProp
                               📌 Error Type:
                             </p>
                             <p className="text-sm text-gray-700 dark:text-gray-300 bg-blue-50 dark:bg-blue-900/20 p-3 rounded border border-blue-200 dark:border-blue-800">
-                              <strong>{item.errorType || 'Grammar correction'}</strong>
+                              <strong>{item.errorType}</strong>
                               {item.explanation && (
                                 <>
                                   <br />
@@ -112,7 +112,7 @@ export const SentenceCorrectionRenderer: React.FC<SentenceCorrectionRendererProp
                   ) : (
                     /* Student Version: No answers shown */
                     <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded text-sm text-blue-700 dark:text-blue-300">
-                      ✏️ <strong>Your turn:</strong> Write the corrected version of this sentence.
+                      ✏️ <strong>Your turn:</strong> Find and correct the mistake in this sentence.
                     </div>
                   )}
                 </div>

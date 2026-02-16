@@ -153,56 +153,66 @@ Format: { "type": "roleplay", "title": "Exercise 5: Role Play", "description": "
 
 **Exercise 5: Sentence Correction** (10 min)
 SENTENCE CORRECTION EXERCISE:
-Generate 10 sentences with REAL MISTAKES that students actually make. These should reflect authentic learner errors across diverse grammar areas, not limited to a fixed set.
+Generate 10 sentences — ALL 10 MUST CONTAIN EXACTLY ONE MISTAKE. No correct sentences. Every sentence the student sees is wrong and needs fixing.
 
 EACH SENTENCE MUST HAVE:
-- incorrect: the sentence to display (must be incorrect)
-- correct: the corrected version
-- errorType: the specific grammar rule violated (required, never empty)
-- explanation: ONE SHORT SENTENCE max 10 words explaining the rule
+- incorrect: the sentence with exactly ONE error (NEVER more than one mistake per sentence)
+- correct: the fully corrected version
+- errorType: the specific grammar/usage rule violated (e.g., "Subject-verb agreement", "Wrong preposition")
+- explanation: ONE clear sentence (max 12 words) stating the rule — e.g., "Use 'have' with plural subjects, not 'has'."
 
-BROAD CATEGORIES OF REAL LEARNER ERRORS (draw from across all of these):
-- **Verb forms & tenses**: Present perfect vs simple past, continuous vs simple, modal usage, phrasal verb forms, auxiliary verb omission
-- **Articles**: A/an/the usage, omission in various contexts, overuse with proper nouns, definite vs indefinite
-- **Prepositions**: In/on/at, wrong preposition with verbs/nouns, missing/extra prepositions, phrasal verb particles
-- **Subject-verb agreement**: Collective nouns, plural nouns treated as singular, uncountable nouns, intervening phrases
-- **Word order**: Adverb placement (frequency, manner, time), adjective order, auxiliary inversion, object position
-- **Pronouns**: Pronoun agreement, reflexive vs personal, relative pronouns (who/which/that), possessive forms, ambiguous reference
-- **Comparatives & superlatives**: Irregular forms, than vs as comparisons, double comparatives
-- **Conditionals**: If/when confusion, wrong tense sequence, mixed conditionals, inversion in conditionals
-- **Gerunds & infinitives**: After specific verbs, with prepositions, perfect forms, subject vs object position
-- **Reported speech**: Say vs tell, tense shifts, question formation, pronoun changes, punctuation
-- **Passive voice**: Overuse, agent inclusion, word order, auxiliary problems, passive with intransitives
-- **Countable/uncountable nouns**: Wrong form, wrong quantifier (much/many/few/little), plural forms, singular/plural confusion
-- **Noun forms**: Singular/plural patterns, mass vs count, proper vs common nouns, noun phrases
-- **Relative & dependent clauses**: Formation, defining vs non-defining, missing verbs, pronoun choice
-- **Collocations & verb patterns**: Make vs do, take vs get, begin to/begin -ing, prevent from, etc.
-- **Spelling & homophones**: Common confusions from speaking (their/there/they're, to/too/two, etc.)
-- **Negation**: Double negatives, negation placement, using not with negatives, negative questions
-- **Ellipsis**: Omitting necessary words, adding unnecessary words, subject/auxiliary omission
+LEVEL-DEPENDENT ERROR TYPES — Match errors to student level (${student.level}):
 
-CRITICAL RULES FOR GENERATION:
-- Generate REALISTIC mistakes that students actually make (observe real ESL/EFL learner errors)
-- ALL 10 sentences must be incorrect
-- EACH sentence must have exactly ONE mistake - never more than one error per sentence
-- Vary error types WIDELY and MIX THEM RANDOMLY - don't group similar errors or follow predictable order
-- Each sentence MUST use vocabulary from Exercise 1 or realistic domain-specific terms
-- Match mistake difficulty to student level (${student.level}):
-  * A1-A2: basic verb form/tense, be/have/do, articles, simple prepositions, basic word order
-  * B1-B2: tense contrast (perfect/simple), modal patterns, gerund/infinitive, relative pronouns, quantifiers, phrasal particles
-  * C1-C2: advanced aspect/control, inversion/emphasis structures, complex clause issues, collocation/verb-pattern precision, register-sensitive grammar
-- Include less obvious error types alongside common ones
-- Errors should be subtle but clear when corrected
-- Make explanations brief, teaching-focused, and rule-based
-- Do NOT use a predictable pattern or sequence of error types
-- Make explanations brief, teaching-focused, and rule-based
+🔴 BEGINNER / A1-A2 errors (simple, high-frequency grammar):
+- Subject-verb agreement ("She have" → "She has")
+- Basic article errors ("I need umbrella" → "I need an umbrella")
+- Simple preposition errors ("I arrived to work" → "I arrived at work")
+- Basic word order ("I go always" → "I always go")
+- Simple plural/singular ("Two informations" → "Two pieces of information")
+- Basic tense confusion ("Yesterday I go" → "Yesterday I went")
+- Pronoun errors ("Me and him went" → "He and I went")
+- Common spelling/homophones ("their/there/they're", "your/you're")
+
+🟡 INTERMEDIATE / B1-B2 errors (more nuanced grammar & usage):
+- Present perfect vs simple past ("I have seen him yesterday" → "I saw him yesterday")
+- Gerund vs infinitive ("I enjoy to read" → "I enjoy reading")
+- Conditional tense errors ("If I would know" → "If I knew")
+- Relative pronoun choice ("The man which called" → "The man who called")
+- Comparative/superlative ("More better" → "Better")
+- Collocation errors ("make a decision" vs "do a decision")
+- Reported speech shifts ("He said he is coming" → "He said he was coming")
+- Passive voice formation ("The report was wrote" → "The report was written")
+- Countable/uncountable quantifiers ("less people" → "fewer people")
+
+🟢 ADVANCED / C1-C2 errors (subtle, sophisticated):
+- Subjunctive mood ("I suggest that he goes" → "I suggest that he go")
+- Inversion after negative adverbials ("Never I have seen" → "Never have I seen")
+- Mixed conditionals ("If I had studied, I will pass" → "If I had studied, I would have passed")
+- Subtle collocation/register errors ("We discussed about the issue" → "We discussed the issue")
+- Dangling/misplaced modifiers ("Running late, the bus left" → "Running late, she missed the bus")
+- Parallel structure ("She likes hiking, swimming, and to run" → "...hiking, swimming, and running")
+- Article nuance with abstract nouns ("The life is short" → "Life is short")
+- Ellipsis/redundancy ("The reason is because" → "The reason is that")
+- Advanced verb patterns ("prevent him to leave" → "prevent him from leaving")
+
+CRITICAL RULES:
+1. ALL 10 sentences are INCORRECT — zero correct sentences. The student must find and fix every one.
+2. EXACTLY ONE mistake per sentence — never two or more errors. The rest of the sentence must be perfectly correct.
+3. Choose error types from the LEVEL-APPROPRIATE category above. For ${student.level} students, use errors from the matching tier. You may include 1-2 errors from the tier below for confidence, but NEVER from tiers above.
+4. Vary error types WIDELY — no two sentences should test the same grammar rule. All 10 errorTypes must be DIFFERENT.
+5. Each sentence MUST use vocabulary from Exercise 1 or topic-related terms from the lesson.
+6. Sentences should be natural, realistic, and contextually related to the lesson topic — not random.
+7. The mistake must be SUBTLE but CLEAR once identified — avoid obviously absurd sentences.
+8. Explanations must state the RULE, not just describe the fix. Bad: "Changed 'has' to 'have'." Good: "Use 'have' with plural subjects."
+9. Do NOT use a predictable pattern or sequence of error types — randomize the order.
+10. Each sentence should be 8-20 words — long enough to be meaningful, short enough to scan.
 
 TUTOR VERSION: Shows [Show Answer] button revealing corrected sentence, error type, and brief explanation
 STUDENT VERSION: Shows ONLY incorrect sentence numbered 1-10, no answers visible
 
 Format: { "type": "sentence-correction", "title": "Exercise 5: Sentence Correction", "content": { "sentences": [
   { "incorrect": "...", "correct": "...", "errorType": "...", "explanation": "..." },
-  ...10 total sentences with realistic, diverse student mistakes
+  ...ALL 10 sentences must be incorrect with exactly one mistake each
 ] }, "timeMinutes": 10 }
 
 **Exercise 6: Discussion** (12 min)
