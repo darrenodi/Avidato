@@ -11,7 +11,6 @@ import { getSuggestedRolesAndScenarios, getOccupationExclusions } from './consta
 import { extractJSONFromText, cleanAndParseJSON } from './utils/json-parser';
 import { enforceSynonymConstraints } from './utils/vocabulary-validator';
 import { enforceDialogueStructure } from './utils/dialogue-validator';
-import { validateSentenceCorrectionConstraints } from './utils/sentence-correction-validator';
 import { buildLessonGenerationPrompt } from './prompts/lesson-generation-prompts';
 
 if (!process.env.OPENAI_API_KEY) {
@@ -313,27 +312,29 @@ This exercise focuses on correcting common grammar errors in sentences DIRECTLY 
 IMPORTANT RULES:
 - Create 6-8 sentences ALL ABOUT THE LESSON TOPIC: "${topic.title}"
 - Sentences should use the lesson vocabulary: ${vocabList}
-- ALL sentences MUST be grammatically incorrect
-- EACH sentence must contain exactly ONE mistake (never more than one)
-- The mistake type MUST match student level (${student.level}):
-  * A1-A2: basic present/past tense form, be/have/do, subject-verb agreement, simple articles, basic prepositions, simple word order
-  * B1-B2: perfect vs simple tense choice, modal verb form, gerund/infinitive choice, relative pronouns, countable/uncountable quantifiers, phrasal verb particles
-  * C1-C2: advanced tense/aspect nuance, inversion/cleft style issues, complex clause linking, advanced collocation/verb pattern, register-sensitive grammar choice
-- Do NOT make the same type of mistake twice - vary mistake types
+- Errors should focus on verb tenses, verb forms, and subject-verb agreement
+- Sentences may contain common errors like:
+  * Missing prepositions in phrasal verbs
+  * Incorrect verb tenses (e.g., present simple vs present perfect)
+  * Wrong verb forms (e.g., base form vs past participle)
+  * Subject-verb agreement errors (e.g., singular/plural mismatch)
+  * Incorrect auxiliary verbs (e.g., "are" vs "have" with participles)
+  * Word order issues
+- Do NOT make the same type of error twice - vary the error types
+- Include 2-3 sentences that are grammatically correct (to make it more challenging)
 - ALL sentences must relate to the lesson context: "${topic.context}"
 
 RESPONSE FORMAT FOR EXERCISE 5:
 {
   "type": "grammar",
   "title": "Exercise 5: Find the Mistake",
-  "description": "Find and correct the one mistake in each sentence.",
-  "instructions": "Each sentence has exactly one mistake. Find it and correct it.",
+  "description": "Find and correct the mistake in each sentence. Be careful — not all sentences have a mistake!",
+  "instructions": "Find and correct the mistake in each sentence. Remember to check verb tenses, verb forms, and word order.",
   "content": {
     "sentences": [
       {
-        "incorrect": "A sentence about ${topic.title} with exactly one grammar mistake",
-        "correct": "The same sentence fully corrected",
-        "errorType": "Name of the grammar area for this one mistake"
+        "incorrect": "A sentence about ${topic.title} with or without a grammar error",
+        "correct": "The same sentence corrected, OR if already correct: 'This is already correct'"
       },
       ... (6-8 total items, ALL using vocabulary from: ${vocabList})
     ]
@@ -347,7 +348,7 @@ CRITICAL: This exercise must appear as Exercise 5 in the exercises array. ALL se
   const { roles, examples } = getSuggestedRolesAndScenarios(student.occupation);
   
   // Build the prompt using the extracted template function
-  const basePrompt = buildLessonGenerationPrompt(
+  const prompt = buildLessonGenerationPrompt(
     student,
     topic,
     duration,
@@ -360,58 +361,34 @@ CRITICAL: This exercise must appear as Exercise 5 in the exercises array. ALL se
   );
 
     try {
-      for (let attempt = 0; attempt < 2; attempt++) {
-        const retryBlock = attempt === 0
-          ? ''
-          : `\n\nRETRY REQUIREMENT (MANDATORY):
-Exercise 5 must have ONLY incorrect sentences.
-Each sentence must contain exactly one mistake.
-Never output errorType as None/empty/N-A.
-If any sentence is already correct, regenerate Exercise 5 before returning JSON.`;
+      const { rawText: text } = await generateWithFailover({
+        prompt,
+        generationConfig: {
+          maxOutputTokens: 8192,
+        },
+      });
 
-        const { rawText: text } = await generateWithFailover({
-          prompt: `${basePrompt}${retryBlock}`,
-          generationConfig: {
-            maxOutputTokens: 8192,
-          },
-        });
+      // Extract and parse JSON using imported utilities
+      const jsonStr = extractJSONFromText(text);
+      const parsedResponse = cleanAndParseJSON<GeneratedLesson>(jsonStr);
 
-        // Extract and parse JSON using imported utilities
-        const jsonStr = extractJSONFromText(text);
-        const parsedResponse = cleanAndParseJSON<GeneratedLesson>(jsonStr);
-
-        // Sanitize and enforce synonym rules based on CEFR level before returning
-        try {
-          enforceSynonymConstraints(parsedResponse, student.level);
-        } catch (err) {
-          // If sanitization fails, log and continue returning raw parsed response
-          console.warn('Failed to sanitize synonyms:', err);
-        }
-
-        // Validate and fix dialogue structure (student speaks after every speaker)
-        try {
-          enforceDialogueStructure(parsedResponse, student.name || 'Student');
-        } catch (err) {
-          // If dialogue validation fails, log and continue
-          console.warn('Failed to validate dialogue structure:', err);
-        }
-
-        const sentenceValidation = validateSentenceCorrectionConstraints(parsedResponse);
-        if (!sentenceValidation.isValid) {
-          console.warn(
-            `Sentence correction constraints failed on attempt ${attempt + 1}:`,
-            sentenceValidation.issues
-          );
-          if (attempt === 0) {
-            continue;
-          }
-          throw new Error('Sentence correction validation failed after retry.');
-        }
-
-        return parsedResponse;
+      // Sanitize and enforce synonym rules based on CEFR level before returning
+      try {
+        enforceSynonymConstraints(parsedResponse, student.level);
+      } catch (err) {
+        // If sanitization fails, log and continue returning raw parsed response
+        console.warn('Failed to sanitize synonyms:', err);
       }
 
-      throw new Error('Lesson generation failed to produce valid sentence correction exercise.');
+      // Validate and fix dialogue structure (student speaks after every speaker)
+      try {
+        enforceDialogueStructure(parsedResponse, student.name || 'Student');
+      } catch (err) {
+        // If dialogue validation fails, log and continue
+        console.warn('Failed to validate dialogue structure:', err);
+      }
+
+      return parsedResponse;
     } catch (error) {
       console.error('Error generating lesson:', error);
       throw new Error('Failed to generate lesson. Please try again.');
