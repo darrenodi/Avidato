@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { generateWithFailover } from '@/lib/openaiFailover'
+import { generateWithProviderFailover } from '@/lib/ai/generate-with-provider-failover'
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/lib/auth'
 import { checkAndUpdateGenerationLimit } from '@/app/actions/ai-generation'
@@ -106,7 +106,7 @@ Example format:
 
 Generate the words now:`
 
-    const vocabResult = await generateWithFailover({
+    const vocabResult = await generateWithProviderFailover({
       prompt: vocabPrompt,
       generationConfig: {
         maxOutputTokens: 500,
@@ -177,7 +177,7 @@ Format your response as valid JSON:
 
 IMPORTANT: Respond ONLY with valid JSON object, starting with { and ending with }, no additional text.`
 
-    const defResult = await generateWithFailover({
+    const defResult = await generateWithProviderFailover({
       prompt: defPrompt,
       generationConfig: {
         maxOutputTokens: 800,

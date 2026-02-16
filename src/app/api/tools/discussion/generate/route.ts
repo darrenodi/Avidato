@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { generateWithFailover } from '@/lib/openaiFailover'
+import { generateWithProviderFailover } from '@/lib/ai/generate-with-provider-failover'
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/lib/auth'
 import { checkAndUpdateGenerationLimit } from '@/app/actions/ai-generation'
@@ -93,7 +93,7 @@ Output format - respond with ONLY a valid JSON array, no other text:
   }
 ]`
 
-    const result = await generateWithFailover({
+    const result = await generateWithProviderFailover({
       prompt,
       generationConfig: {
         maxOutputTokens: 2048,

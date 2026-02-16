@@ -15,6 +15,15 @@ bun dev
 ```
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
+## AI Provider Switch
+
+Set `AI_PROVIDER` in your `.env` to choose the active model backend:
+
+- `AI_PROVIDER=gemini` to use Gemini
+- `AI_PROVIDER=openai` to use OpenAI
+
+If `AI_PROVIDER` is not set, the app defaults to `gemini`.
+
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.

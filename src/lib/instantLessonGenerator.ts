@@ -1,5 +1,5 @@
 // src/lib/instantLessonGenerator.ts
-import { generateWithFailover } from './openaiFailover';
+import { generateWithProviderFailover } from './ai/generate-with-provider-failover';
 import { extractJSONFromText, cleanAndParseJSON } from './utils/json-parser';
 
 interface InstantLessonParams {
@@ -35,7 +35,7 @@ export async function generateInstantLesson(params: InstantLessonParams): Promis
   const prompt = buildInstantLessonPrompt(params);
 
   try {
-    const { rawText: text } = await generateWithFailover({
+    const { rawText: text } = await generateWithProviderFailover({
       prompt,
       generationConfig: {
         maxOutputTokens: 8192,

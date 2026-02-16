@@ -1,6 +1,6 @@
 'use server'
 
-import { generateWithFailover as generateWithOpenAIFailover } from '@/lib/openaiFailover';
+import { generateWithProviderFailover } from '@/lib/ai/generate-with-provider-failover';
 import { getStudent } from './students'
 
 /**
@@ -189,7 +189,7 @@ CRITICAL:
 -- Ensure vocabulary is appropriate for their level
 -- All dialogue should feel natural and relatable`;
 
-    const { rawText: text } = await generateWithOpenAIFailover({
+    const { rawText: text } = await generateWithProviderFailover({
       prompt,
       generationConfig: {
         maxOutputTokens: 8192,
