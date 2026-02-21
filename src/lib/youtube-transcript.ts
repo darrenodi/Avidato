@@ -1,16 +1,15 @@
 /**
  * YouTube Transcript Fetcher
  *
- * Self-contained implementation with zero third-party YouTube dependencies.
- * Fetches transcripts by scraping the YouTube watch page for the embedded
- * player response, extracting caption track URLs, and fetching the subtitle XML.
+ * Spawns a Python script that uses the youtube-transcript-api library
+ * (which actually works, unlike every Node.js YouTube transcript package).
  *
- * Fallback order:
- *   1. ytInitialPlayerResponse from watch page HTML → caption track XML
- *   2. InnerTube /player API → caption track XML
- *
- * Both methods ultimately fetch the same XML caption files.
+ * The Python script outputs JSON to stdout with the transcript data.
+ * This module parses it and returns a typed result.
  */
+
+import { spawn } from 'child_process'
+import path from 'path'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -18,9 +17,7 @@
 
 export interface TranscriptSegment {
   text: string
-  /** Start time in seconds */
   start: number
-  /** Duration in seconds */
   duration: number
 }
 
@@ -50,17 +47,8 @@ export class YouTubeTranscriptError extends Error {
 // ---------------------------------------------------------------------------
 
 const YOUTUBE_ID_REGEX = /^[a-zA-Z0-9_-]{11}$/
-
-const USER_AGENT =
-  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'
-
-const DEFAULT_HEADERS: Record<string, string> = {
-  'User-Agent': USER_AGENT,
-  'Accept-Language': 'en-US,en;q=0.9',
-  Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-}
-
 const MAX_TRANSCRIPT_CHARS = 18_000
+const PYTHON_TIMEOUT_MS = 30_000
 
 // ---------------------------------------------------------------------------
 // Video ID extraction
@@ -98,281 +86,75 @@ export function extractYouTubeVideoId(input: string): string | null {
 }
 
 // ---------------------------------------------------------------------------
-// HTML entity decoding
+// Spawn Python script
 // ---------------------------------------------------------------------------
 
-function decodeHtmlEntities(input: string): string {
-  return input
-    .replace(/&#39;/g, "'")
-    .replace(/&quot;/g, '"')
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&#x27;/g, "'")
-    .replace(/&#(\d+);/g, (_, code) => String.fromCharCode(Number(code)))
+interface PythonTranscriptResult {
+  videoId: string
+  language: string
+  segments: TranscriptSegment[]
+  text: string
 }
 
-// ---------------------------------------------------------------------------
-// Caption track types
-// ---------------------------------------------------------------------------
+function runPythonTranscript(videoId: string): Promise<PythonTranscriptResult> {
+  return new Promise((resolve, reject) => {
+    const scriptPath = path.join(process.cwd(), 'scripts', 'get_transcript.py')
+    const proc = spawn('python3', [scriptPath, videoId])
 
-interface CaptionTrack {
-  baseUrl: string
-  languageCode: string
-  name?: string
-  kind?: string // "asr" = auto-generated
-}
+    let stdout = ''
+    let stderr = ''
 
-// ---------------------------------------------------------------------------
-// Method 1: Scrape ytInitialPlayerResponse from the watch page
-// ---------------------------------------------------------------------------
+    const timeout = setTimeout(() => {
+      proc.kill('SIGTERM')
+      reject(new YouTubeTranscriptError('Python transcript script timed out after 30s.'))
+    }, PYTHON_TIMEOUT_MS)
 
-async function fetchCaptionTracksFromWatchPage(videoId: string): Promise<CaptionTrack[]> {
-  const url = `https://www.youtube.com/watch?v=${videoId}&hl=en`
-
-  const res = await fetch(url, {
-    headers: DEFAULT_HEADERS,
-    cache: 'no-store',
-  })
-
-  if (!res.ok) {
-    throw new YouTubeTranscriptError(`YouTube watch page returned ${res.status}`)
-  }
-
-  const html = await res.text()
-
-  // Handle consent page (GDPR)
-  if (html.includes('action="https://consent.youtube.com/s"')) {
-    throw new YouTubeTranscriptError(
-      'YouTube consent page encountered — cannot extract transcript from server.'
-    )
-  }
-
-  // Extract ytInitialPlayerResponse — try multiple patterns
-  const match =
-    html.match(/var\s+ytInitialPlayerResponse\s*=\s*(\{.+?\})\s*;\s*var\s/) ||
-    html.match(/ytInitialPlayerResponse\s*=\s*(\{[\s\S]*?\})\s*;/)
-
-  if (!match?.[1]) {
-    throw new YouTubeTranscriptError('Could not find player response in watch page HTML.')
-  }
-
-  let playerResponse: Record<string, unknown>
-  try {
-    playerResponse = JSON.parse(match[1])
-  } catch {
-    throw new YouTubeTranscriptError('Failed to parse ytInitialPlayerResponse JSON.')
-  }
-
-  // Check playability
-  const playability = playerResponse.playabilityStatus as Record<string, unknown> | undefined
-  if (playability && playability.status !== 'OK') {
-    const reason = (playability.reason as string) || 'Video is not playable'
-    throw new YouTubeTranscriptError(reason)
-  }
-
-  const captions = playerResponse.captions as Record<string, unknown> | undefined
-  const renderer = captions?.playerCaptionsTracklistRenderer as Record<string, unknown> | undefined
-  const tracks = renderer?.captionTracks as CaptionTrack[] | undefined
-
-  if (!tracks || tracks.length === 0) {
-    throw new YouTubeTranscriptError('No caption tracks found for this video.')
-  }
-
-  return tracks.map((t) => ({
-    baseUrl: t.baseUrl.replace(/\\u0026/g, '&').replace(/\\\//g, '/'),
-    languageCode: t.languageCode || 'unknown',
-    name:
-      typeof t.name === 'object'
-        ? ((t.name as { simpleText?: string }).simpleText ?? undefined)
-        : undefined,
-    kind: t.kind,
-  }))
-}
-
-// ---------------------------------------------------------------------------
-// Method 2: InnerTube /player API
-// ---------------------------------------------------------------------------
-
-async function fetchCaptionTracksFromInnerTube(videoId: string): Promise<CaptionTrack[]> {
-  const body = {
-    context: {
-      client: {
-        clientName: 'WEB',
-        clientVersion: '2.20260101.00.00',
-        hl: 'en',
-      },
-    },
-    videoId,
-  }
-
-  const res = await fetch('https://www.youtube.com/youtubei/v1/player?prettyPrint=false', {
-    method: 'POST',
-    headers: {
-      ...DEFAULT_HEADERS,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(body),
-    cache: 'no-store',
-  })
-
-  if (!res.ok) {
-    throw new YouTubeTranscriptError(`InnerTube /player returned ${res.status}`)
-  }
-
-  const data = (await res.json()) as Record<string, unknown>
-
-  const playability = data.playabilityStatus as Record<string, unknown> | undefined
-  if (playability && playability.status !== 'OK') {
-    const reason = (playability.reason as string) || 'Video is not playable'
-    throw new YouTubeTranscriptError(reason)
-  }
-
-  const captions = data.captions as Record<string, unknown> | undefined
-  const renderer = captions?.playerCaptionsTracklistRenderer as Record<string, unknown> | undefined
-  const tracks = renderer?.captionTracks as CaptionTrack[] | undefined
-
-  if (!tracks || tracks.length === 0) {
-    throw new YouTubeTranscriptError('No caption tracks found via InnerTube.')
-  }
-
-  return tracks.map((t) => ({
-    baseUrl: t.baseUrl.replace(/\\u0026/g, '&').replace(/\\\//g, '/'),
-    languageCode: t.languageCode || 'unknown',
-    name:
-      typeof t.name === 'object'
-        ? ((t.name as { simpleText?: string }).simpleText ?? undefined)
-        : undefined,
-    kind: t.kind,
-  }))
-}
-
-// ---------------------------------------------------------------------------
-// Pick the best caption track (prefer manual English → any English → first)
-// ---------------------------------------------------------------------------
-
-function pickBestTrack(tracks: CaptionTrack[]): CaptionTrack {
-  return (
-    tracks.find((t) => t.languageCode.startsWith('en') && t.kind !== 'asr') ||
-    tracks.find((t) => t.languageCode.startsWith('en')) ||
-    tracks.find((t) => t.kind !== 'asr') ||
-    tracks[0]
-  )
-}
-
-// ---------------------------------------------------------------------------
-// Fetch + parse subtitle content into segments
-// ---------------------------------------------------------------------------
-
-async function fetchSubtitleContent(track: CaptionTrack): Promise<TranscriptSegment[]> {
-  // Try JSON3 first — more reliable than XML
-  const json3Url = `${track.baseUrl}&fmt=json3`
-
-  try {
-    const res = await fetch(json3Url, {
-      headers: DEFAULT_HEADERS,
-      cache: 'no-store',
+    proc.stdout.on('data', (data: Buffer) => {
+      stdout += data.toString()
     })
 
-    if (res.ok) {
-      const text = await res.text()
-      if (text.length > 0) {
-        // Might be JSON or XML depending on YouTube's mood
-        if (text.trimStart().startsWith('{')) {
-          const segments = parseJson3Response(JSON.parse(text))
-          if (segments.length > 0) return segments
+    proc.stderr.on('data', (data: Buffer) => {
+      stderr += data.toString()
+    })
+
+    proc.on('close', (code) => {
+      clearTimeout(timeout)
+
+      if (code !== 0) {
+        // Try to parse structured error from stderr
+        let errorMsg = `Python script exited with code ${code}`
+        try {
+          const errJson = JSON.parse(stderr.trim())
+          if (errJson.error) errorMsg = errJson.error
+        } catch {
+          if (stderr.trim()) errorMsg = stderr.trim()
         }
+        reject(new YouTubeTranscriptError(errorMsg))
+        return
       }
-    }
-  } catch {
-    // Fall through to plain XML
-  }
 
-  // Fallback: fetch raw XML subtitle file
-  const res = await fetch(track.baseUrl, {
-    headers: DEFAULT_HEADERS,
-    cache: 'no-store',
+      try {
+        const data = JSON.parse(stdout.trim()) as PythonTranscriptResult
+        resolve(data)
+      } catch {
+        reject(new YouTubeTranscriptError('Failed to parse Python script output.'))
+      }
+    })
+
+    proc.on('error', (err) => {
+      clearTimeout(timeout)
+      reject(
+        new YouTubeTranscriptError(
+          `Failed to spawn Python process: ${err.message}. Ensure python3 and youtube-transcript-api are installed.`
+        )
+      )
+    })
   })
-
-  if (!res.ok) {
-    throw new YouTubeTranscriptError(`Caption request returned ${res.status}`)
-  }
-
-  const xml = await res.text()
-  if (!xml || xml.length === 0) {
-    throw new YouTubeTranscriptError('Caption response was empty.')
-  }
-
-  return parseSubtitleXML(xml)
-}
-
-function parseJson3Response(data: unknown): TranscriptSegment[] {
-  const events = (
-    data as {
-      events?: Array<{
-        tStartMs?: number
-        dDurationMs?: number
-        segs?: Array<{ utf8?: string }>
-      }>
-    }
-  ).events
-
-  if (!events?.length) return []
-
-  const segments: TranscriptSegment[] = []
-
-  for (const event of events) {
-    const text = (event.segs || [])
-      .map((s) => s.utf8 || '')
-      .join('')
-      .replace(/\n/g, ' ')
-      .trim()
-
-    if (!text) continue
-
-    segments.push({
-      text: decodeHtmlEntities(text),
-      start: (event.tStartMs || 0) / 1000,
-      duration: (event.dDurationMs || 0) / 1000,
-    })
-  }
-
-  return segments
-}
-
-function parseSubtitleXML(xml: string): TranscriptSegment[] {
-  const segments: TranscriptSegment[] = []
-  const regex = /<text\s+start="([^"]*?)"\s+dur="([^"]*?)"[^>]*>([\s\S]*?)<\/text>/g
-
-  let m: RegExpExecArray | null
-  while ((m = regex.exec(xml)) !== null) {
-    const text = decodeHtmlEntities(m[3] || '')
-      .replace(/\n/g, ' ')
-      .trim()
-    if (!text) continue
-
-    segments.push({
-      text,
-      start: parseFloat(m[1]) || 0,
-      duration: parseFloat(m[2]) || 0,
-    })
-  }
-
-  return segments
 }
 
 // ---------------------------------------------------------------------------
-// Normalize + truncate
+// Helpers
 // ---------------------------------------------------------------------------
-
-function buildTranscriptText(segments: TranscriptSegment[]): string {
-  return segments
-    .map((s) => s.text.trim())
-    .filter(Boolean)
-    .join(' ')
-    .replace(/\s+/g, ' ')
-    .trim()
-}
 
 function getDurationSeconds(segments: TranscriptSegment[]): number {
   return segments.reduce((max, s) => {
@@ -404,50 +186,40 @@ export async function getYouTubeTranscript(input: string): Promise<YouTubeTransc
     throw new YouTubeTranscriptError('Invalid YouTube URL or video ID.')
   }
 
-  // Try to get caption tracks — watch page first, then InnerTube fallback
-  let tracks: CaptionTrack[]
-  let lastError: Error | undefined
+  const data = await runPythonTranscript(videoId)
 
-  try {
-    tracks = await fetchCaptionTracksFromWatchPage(videoId)
-  } catch (e) {
-    lastError = e instanceof Error ? e : new Error(String(e))
-    try {
-      tracks = await fetchCaptionTracksFromInnerTube(videoId)
-    } catch (e2) {
-      const msg1 = lastError.message
-      const msg2 = e2 instanceof Error ? e2.message : String(e2)
-      throw new YouTubeTranscriptError(
-        `Could not get caption tracks. Watch page: ${msg1}. InnerTube: ${msg2}`
-      )
-    }
+  if (!data.segments || data.segments.length === 0) {
+    throw new YouTubeTranscriptError('Transcript returned no segments.')
   }
 
-  const track = pickBestTrack(tracks)
+  // Clean up segment text (replace newlines, decode entities, normalize whitespace)
+  const cleanedSegments = data.segments.map((s) => ({
+    ...s,
+    text: s.text.replace(/\n/g, ' ').trim(),
+  }))
 
-  // Fetch the actual subtitle content
-  const segments = await fetchSubtitleContent(track)
+  const rawText = cleanedSegments
+    .map((s) => s.text)
+    .filter(Boolean)
+    .join(' ')
+    .replace(/\s+/g, ' ')
+    .trim()
 
-  if (segments.length === 0) {
-    throw new YouTubeTranscriptError('Caption track returned no transcript segments.')
-  }
-
-  const rawText = buildTranscriptText(segments)
   if (!rawText) {
     throw new YouTubeTranscriptError('Transcript was empty after processing.')
   }
 
   const { text, isTruncated } = truncateTranscript(rawText)
-  const durationSeconds = getDurationSeconds(segments)
+  const durationSeconds = getDurationSeconds(cleanedSegments)
 
   return {
-    videoId,
-    sourceUrl: `https://www.youtube.com/watch?v=${videoId}`,
+    videoId: data.videoId,
+    sourceUrl: `https://www.youtube.com/watch?v=${data.videoId}`,
     transcriptText: text,
-    segments,
+    segments: cleanedSegments,
     isTruncated,
     durationSeconds,
-    language: track.languageCode,
+    language: data.language || 'en',
   }
 }
 
