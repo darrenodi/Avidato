@@ -1,6 +1,7 @@
 'use server'
 
 import { generateWithProviderFailover } from '@/lib/ai/generate-with-provider-failover';
+import { extractJSONFromText, cleanAndParseJSON } from '@/lib/utils/json-parser';
 import { getStudent } from './students'
 
 /**
@@ -196,48 +197,9 @@ CRITICAL:
       }
     })
 
-    // Extract and parse JSON
-    const startIdx = text.indexOf('{')
-    const lastIdx = text.lastIndexOf('}')
-
-    if (startIdx === -1 || lastIdx === -1 || startIdx >= lastIdx) {
-      throw new Error('No valid JSON found in AI response')
-    }
-
-    const jsonStr = text.substring(startIdx, lastIdx + 1)
-
-    // Clean JSON
-    let cleanedJson = jsonStr
-      .replace(/\r\n/g, '\n')
-      .replace(/\n/g, ' ')
-      .replace(/\t/g, ' ')
-      .replace(/  +/g, ' ')
-      .replace(/,\s*]/g, ']')
-      .replace(/,\s*}/g, '}')
-
-    let parsedResponse: GrammarLesson
-    try {
-      parsedResponse = JSON.parse(cleanedJson)
-    } catch {
-      // More aggressive cleanup
-      cleanedJson = cleanedJson
-        .replace(/[\x00-\x1F\x7F]/g, ' ')
-        .replace(/\\+n/g, ' ')
-        .replace(/\\+r/g, '')
-        .replace(/\\+t/g, ' ')
-        .replace(/  +/g, ' ')
-
-      // Fix unescaped quotes
-      const parts = cleanedJson.split('"')
-      for (let i = 1; i < parts.length; i += 2) {
-        parts[i] = parts[i]
-          .replace(/\\"/g, '\\"')
-          .replace(/(?<!\\)"/g, '\\"')
-      }
-      cleanedJson = parts.join('"')
-
-      parsedResponse = JSON.parse(cleanedJson)
-    }
+    // Extract and parse JSON using shared utilities (handles markdown fences, control chars, etc.)
+    const jsonStr = extractJSONFromText(text)
+    const parsedResponse = cleanAndParseJSON<GrammarLesson>(jsonStr)
 
     return parsedResponse
   } catch (error) {

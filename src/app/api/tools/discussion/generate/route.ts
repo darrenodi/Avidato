@@ -3,6 +3,7 @@ import { generateWithProviderFailover } from '@/lib/ai/generate-with-provider-fa
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/lib/auth'
 import { checkAndUpdateGenerationLimit } from '@/app/actions/ai-generation'
+import { extractJSONFromText, cleanAndParseJSON } from '@/lib/utils/json-parser'
 
 interface GenerateQuestionsRequest {
   topic: string
@@ -108,47 +109,21 @@ Output format - respond with ONLY a valid JSON array, no other text:
       throw new Error(`The AI cannot generate discussion questions on this topic. ${responseText.substring(0, 150)}`)
     }
 
-    // Parse the JSON response
+    // Extract and parse JSON using shared utilities (handles markdown fences, arrays, objects)
+    const jsonStr = extractJSONFromText(responseText)
+    const parsed = cleanAndParseJSON<DiscussionQuestion[] | { questions?: DiscussionQuestion[]; data?: DiscussionQuestion[] }>(jsonStr)
+
+    // Handle both wrapped and unwrapped responses
     let questions: DiscussionQuestion[]
-    try {
-      const parsed = JSON.parse(responseText)
-      
-      // Handle both wrapped and unwrapped responses
-      if (Array.isArray(parsed)) {
-        questions = parsed
-      } else if (parsed.questions && Array.isArray(parsed.questions)) {
-        questions = parsed.questions
-      } else if (parsed.data && Array.isArray(parsed.data)) {
-        questions = parsed.data
-      } else {
-        console.error('Response structure:', Object.keys(parsed))
-        throw new Error('Could not find questions array in response')
-      }
-    } catch (parseError) {
-      console.error('Parse error:', parseError)
-      // Try to extract JSON if there's extra text
-      const jsonMatch = responseText.match(/\[[\s\S]*\]/)
-      if (jsonMatch) {
-        questions = JSON.parse(jsonMatch[0])
-      } else {
-        const objMatch = responseText.match(/\{[\s\S]*\}/)
-        if (objMatch) {
-          const parsed = JSON.parse(objMatch[0])
-          if (Array.isArray(parsed)) {
-            questions = parsed
-          } else if (parsed.questions && Array.isArray(parsed.questions)) {
-            questions = parsed.questions
-          } else if (parsed.data && Array.isArray(parsed.data)) {
-            questions = parsed.data
-          } else {
-            console.error('Raw response:', responseText)
-            throw new Error(`Failed to parse questions from AI response: ${responseText.substring(0, 200)}`)
-          }
-        } else {
-          console.error('Raw response:', responseText)
-          throw new Error(`Failed to parse questions from AI response: ${responseText.substring(0, 200)}`)
-        }
-      }
+    if (Array.isArray(parsed)) {
+      questions = parsed
+    } else if (parsed.questions && Array.isArray(parsed.questions)) {
+      questions = parsed.questions
+    } else if (parsed.data && Array.isArray(parsed.data)) {
+      questions = parsed.data
+    } else {
+      console.error('Response structure:', Object.keys(parsed))
+      throw new Error('Could not find questions array in response')
     }
 
     // Validate and sanitize questions

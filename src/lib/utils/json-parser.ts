@@ -3,17 +3,52 @@
  */
 
 /**
- * Extract JSON from text that may contain markdown or other formatting
+ * Strip markdown code fences (```json ... ```) that LLMs (especially Gemini)
+ * commonly wrap around JSON output.
+ */
+export function stripMarkdownFences(text: string): string {
+  return text
+    .replace(/^```(?:json)?\s*\n?/i, '')
+    .replace(/\n?\s*```\s*$/i, '')
+    .trim();
+}
+
+/**
+ * Extract JSON from text that may contain markdown or other formatting.
+ * Handles both top-level objects ({...}) and arrays ([...]).
  */
 export function extractJSONFromText(text: string): string {
-  const startIdx = text.indexOf('{');
-  const lastIdx = text.lastIndexOf('}');
+  // First strip any markdown fences
+  const cleaned = stripMarkdownFences(text);
 
-  if (startIdx === -1 || lastIdx === -1 || startIdx >= lastIdx) {
+  // Try to find a JSON object
+  const objStart = cleaned.indexOf('{');
+  const objEnd = cleaned.lastIndexOf('}');
+
+  // Try to find a JSON array
+  const arrStart = cleaned.indexOf('[');
+  const arrEnd = cleaned.lastIndexOf(']');
+
+  const hasObj = objStart !== -1 && objEnd !== -1 && objEnd > objStart;
+  const hasArr = arrStart !== -1 && arrEnd !== -1 && arrEnd > arrStart;
+
+  if (!hasObj && !hasArr) {
     throw new Error('No valid JSON found in AI response');
   }
 
-  return text.substring(startIdx, lastIdx + 1);
+  // Pick whichever starts first (outermost structure)
+  if (hasObj && hasArr) {
+    if (objStart <= arrStart) {
+      return cleaned.substring(objStart, objEnd + 1);
+    }
+    return cleaned.substring(arrStart, arrEnd + 1);
+  }
+
+  if (hasObj) {
+    return cleaned.substring(objStart, objEnd + 1);
+  }
+
+  return cleaned.substring(arrStart, arrEnd + 1);
 }
 
 /**

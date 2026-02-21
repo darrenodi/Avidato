@@ -181,72 +181,9 @@ IMPORTANT:
         },
       });
       
-      // Extract JSON - more robust parsing for gemini-2.5-flash
-      const startIdx = text.indexOf('{');
-      const lastIdx = text.lastIndexOf('}');
-      
-      if (startIdx === -1 || lastIdx === -1 || startIdx >= lastIdx) {
-        console.error('No JSON found in response:', text.substring(0, 200));
-        throw new Error('No valid JSON found in AI response');
-      }
-      
-      const jsonStr = text.substring(startIdx, lastIdx + 1);
-      
-      // Carefully clean the JSON
-      let cleanedJson = jsonStr
-        .replace(/\r\n/g, '\n') // Normalize line endings
-        .replace(/\n/g, ' ') // Replace newlines with space
-        .replace(/\t/g, ' ') // Replace tabs with space
-        .replace(/  +/g, ' ') // Collapse multiple spaces
-        .replace(/,\s*]/g, ']') // Remove trailing commas in arrays
-        .replace(/,\s*}/g, '}'); // Remove trailing commas in objects
-      
-      // Try parsing
-      let parsedResponse;
-      try {
-        parsedResponse = JSON.parse(cleanedJson);
-      } catch (firstError) {
-        // Log the problematic JSON segment around error position
-        const syntaxError = firstError as SyntaxError;
-        const positionMatch = syntaxError.message.match(/position (\d+)/);
-        const errorPos = positionMatch ? parseInt(positionMatch[1]) : -1;
-        
-        if (errorPos > 0) {
-          const start = Math.max(0, errorPos - 100);
-          const end = Math.min(cleanedJson.length, errorPos + 100);
-          console.error(
-            `JSON syntax error at position ${errorPos}:`,
-            cleanedJson.substring(start, end)
-          );
-        }
-
-        // Try more aggressive cleanup
-        cleanedJson = cleanedJson
-          .replace(/[\x00-\x1F\x7F]/g, ' ') // Replace control chars with spaces
-          .replace(/\\+n/g, ' ') // Fix double-escaped newlines
-          .replace(/\\+r/g, '') // Remove escaped carriage returns
-          .replace(/\\+t/g, ' ') // Fix escaped tabs
-          .replace(/  +/g, ' '); // Collapse multiple spaces again
-
-        // Fix unescaped quotes within string values
-        const parts = cleanedJson.split('"');
-        for (let i = 1; i < parts.length; i += 2) {
-          // Odd indices are content within quotes - escape any unescaped quotes
-          parts[i] = parts[i].replace(/\\"/g, '\\"').replace(/"/g, '\\"');
-        }
-        cleanedJson = parts.join('"');
-
-        // Fix common JSON structural issues
-        cleanedJson = cleanedJson
-          .replace(/}\s+{/g, '},{') // Fix missing commas between objects
-          .replace(/]\s+{/g, '],[') // Fix missing commas between array and object
-          .replace(/}\s+\[/g, '},[') // Fix missing commas between object and array
-          .replace(/]\s+[{[\d"]/g, (match) => '],' + match.slice(1)) // Fix missing commas after arrays
-          .replace(/}\s+[{[\d"]/g, (match) => '},' + match.slice(1)); // Fix missing commas after objects
-        
-        console.error('JSON parse error:', syntaxError.message);
-        parsedResponse = JSON.parse(cleanedJson);
-      }
+      // Extract and parse JSON using shared utilities (handles markdown fences, control chars, etc.)
+      const jsonStr = extractJSONFromText(text);
+      const parsedResponse = cleanAndParseJSON<{ topics: LearningTopic[] }>(jsonStr);
       
       return {
         selectedMethodology: methodology,

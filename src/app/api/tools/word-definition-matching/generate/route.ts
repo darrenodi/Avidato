@@ -3,7 +3,7 @@ import { generateWithProviderFailover } from '@/lib/ai/generate-with-provider-fa
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/lib/auth'
 import { checkAndUpdateGenerationLimit } from '@/app/actions/ai-generation'
-import { cleanAndParseJSON } from '@/lib/utils/json-parser'
+import { cleanAndParseJSON, stripMarkdownFences } from '@/lib/utils/json-parser'
 
 interface GenerateExerciseRequest {
   topic: string
@@ -167,7 +167,7 @@ Generate the words now:`
     // Parse vocabulary
     let words: string[] = []
     try {
-      const cleanVocabResult = vocabResult.rawText.trim()
+      const cleanVocabResult = stripMarkdownFences(vocabResult.rawText)
       
       // Log what we received for debugging
       console.log('Vocab result received:', cleanVocabResult.substring(0, 200))

@@ -38,6 +38,7 @@ export async function generateWithProviderFailover({
       signal,
       generationConfig: {
         maxOutputTokens: generationConfig?.maxOutputTokens,
+        temperature: generationConfig?.temperature,
       },
     })
 

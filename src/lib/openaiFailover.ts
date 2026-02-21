@@ -30,6 +30,7 @@ interface GenerateOptions {
   prompt: string
   generationConfig?: {
     maxOutputTokens?: number
+    temperature?: number
   }
   models?: string[] // optional custom chain
   signal?: AbortSignal
@@ -50,6 +51,7 @@ export async function generateWithFailover({
         model: modelName,
         messages: [{ role: 'user', content: prompt }],
         max_completion_tokens: generationConfig.maxOutputTokens,
+        ...(generationConfig.temperature !== undefined && { temperature: generationConfig.temperature }),
         response_format: { type: 'json_object' },
       })
       const text = completion.choices[0]?.message?.content
