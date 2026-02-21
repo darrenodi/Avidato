@@ -117,12 +117,23 @@ Output format - respond with ONLY a valid JSON array, no other text:
     let questions: DiscussionQuestion[]
     if (Array.isArray(parsed)) {
       questions = parsed
-    } else if (parsed.questions && Array.isArray(parsed.questions)) {
-      questions = parsed.questions
-    } else if (parsed.data && Array.isArray(parsed.data)) {
-      questions = parsed.data
+    } else if (parsed && typeof parsed === 'object') {
+      // Look for any key whose value is an array of objects with a "question" property
+      // Gemini may wrap in "questions", "data", "discussionQuestions", etc.
+      const obj = parsed as Record<string, unknown>
+      const arrayKey = Object.keys(obj).find((key) => {
+        const val = obj[key]
+        return Array.isArray(val) && val.length > 0 && typeof val[0] === 'object' && val[0] !== null && 'question' in val[0]
+      })
+
+      if (arrayKey) {
+        questions = obj[arrayKey] as DiscussionQuestion[]
+      } else {
+        console.error('Response structure:', JSON.stringify(Object.keys(obj)), 'Full response:', JSON.stringify(parsed).substring(0, 500))
+        throw new Error('Could not find questions array in response')
+      }
     } else {
-      console.error('Response structure:', Object.keys(parsed))
+      console.error('Unexpected parsed type:', typeof parsed)
       throw new Error('Could not find questions array in response')
     }
 
