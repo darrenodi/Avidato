@@ -47,9 +47,17 @@ export async function generateWithFailover({
 
   for (const modelName of models) {
     try {
-    const model = genAI.getGenerativeModel({ model: modelName, generationConfig })
+    const model = genAI.getGenerativeModel({
+      model: modelName,
+      generationConfig: {
+        ...generationConfig,
+        // Force structured JSON output — same as OpenAI's response_format: json_object
+        // This prevents Gemini from wrapping JSON in markdown fences or adding prose
+        responseMimeType: 'application/json',
+      },
+    })
     // Note: current SDK generateContent signature doesn't accept AbortSignal directly; omit if unsupported
-    const result = await model.generateContent({ contents: [{ role: 'user', parts: [{ text: prompt }] }], safetySettings: [], generationConfig })
+    const result = await model.generateContent({ contents: [{ role: 'user', parts: [{ text: prompt }] }], safetySettings: [] })
       const text = result.response.text()
       if (!text || text.trim().length === 0) {
         throw new Error('Empty response text')

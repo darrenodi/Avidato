@@ -4,51 +4,93 @@
 
 /**
  * Strip markdown code fences (```json ... ```) that LLMs (especially Gemini)
- * commonly wrap around JSON output.
+ * commonly wrap around JSON output. Handles varied fence formats.
  */
 export function stripMarkdownFences(text: string): string {
-  return text
-    .replace(/^```(?:json)?\s*\n?/i, '')
-    .replace(/\n?\s*```\s*$/i, '')
-    .trim();
+  let result = text.trim();
+  // Strip opening fence with any language tag: ```json, ```JSON, ```jsonc, etc.
+  result = result.replace(/^```\w*\s*\n?/, '');
+  // Strip closing fence
+  result = result.replace(/\n?\s*```\s*$/, '');
+  return result.trim();
 }
 
 /**
- * Extract JSON from text that may contain markdown or other formatting.
- * Handles both top-level objects ({...}) and arrays ([...]).
+ * Extract JSON from text that may contain markdown, preamble, or trailing text.
+ * Uses bracket-matching (respecting strings) so it finds the exact balanced
+ * JSON structure rather than relying on lastIndexOf which can grab stray
+ * brackets from surrounding prose.
  */
 export function extractJSONFromText(text: string): string {
-  // First strip any markdown fences
   const cleaned = stripMarkdownFences(text);
 
-  // Try to find a JSON object
-  const objStart = cleaned.indexOf('{');
-  const objEnd = cleaned.lastIndexOf('}');
+  // Collect every position where [ or { appears (potential JSON start)
+  const starts: number[] = [];
+  for (let i = 0; i < cleaned.length; i++) {
+    if (cleaned[i] === '[' || cleaned[i] === '{') {
+      starts.push(i);
+    }
+  }
 
-  // Try to find a JSON array
-  const arrStart = cleaned.indexOf('[');
-  const arrEnd = cleaned.lastIndexOf(']');
-
-  const hasObj = objStart !== -1 && objEnd !== -1 && objEnd > objStart;
-  const hasArr = arrStart !== -1 && arrEnd !== -1 && arrEnd > arrStart;
-
-  if (!hasObj && !hasArr) {
+  if (starts.length === 0) {
     throw new Error('No valid JSON found in AI response');
   }
 
-  // Pick whichever starts first (outermost structure)
-  if (hasObj && hasArr) {
-    if (objStart <= arrStart) {
-      return cleaned.substring(objStart, objEnd + 1);
+  // Try bracket-matching from each start position (earliest first)
+  for (const start of starts) {
+    let depth = 0;
+    let inString = false;
+    let escape = false;
+
+    for (let i = start; i < cleaned.length; i++) {
+      const ch = cleaned[i];
+
+      if (escape) {
+        escape = false;
+        continue;
+      }
+
+      if (ch === '\\' && inString) {
+        escape = true;
+        continue;
+      }
+
+      if (ch === '"') {
+        inString = !inString;
+        continue;
+      }
+
+      if (inString) continue;
+
+      if (ch === '[' || ch === '{') depth++;
+      if (ch === ']' || ch === '}') depth--;
+
+      if (depth === 0) {
+        const result = cleaned.substring(start, i + 1);
+        // Only accept if it looks like real JSON (not a tiny fragment like "{level}")
+        if (result.length > 20) return result;
+        break; // Too short — try next start position
+      }
     }
-    return cleaned.substring(arrStart, arrEnd + 1);
   }
 
-  if (hasObj) {
-    return cleaned.substring(objStart, objEnd + 1);
-  }
+  // Fallback: return from first bracket to last matching bracket (old approach)
+  const objStart = cleaned.indexOf('{');
+  const objEnd = cleaned.lastIndexOf('}');
+  const arrStart = cleaned.indexOf('[');
+  const arrEnd = cleaned.lastIndexOf(']');
+  const hasObj = objStart !== -1 && objEnd !== -1 && objEnd > objStart;
+  const hasArr = arrStart !== -1 && arrEnd !== -1 && arrEnd > arrStart;
 
-  return cleaned.substring(arrStart, arrEnd + 1);
+  if (hasArr && hasObj) {
+    return arrStart <= objStart
+      ? cleaned.substring(arrStart, arrEnd + 1)
+      : cleaned.substring(objStart, objEnd + 1);
+  }
+  if (hasArr) return cleaned.substring(arrStart, arrEnd + 1);
+  if (hasObj) return cleaned.substring(objStart, objEnd + 1);
+
+  throw new Error('No valid JSON found in AI response');
 }
 
 /**
