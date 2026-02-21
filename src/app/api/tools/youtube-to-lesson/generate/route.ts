@@ -5,7 +5,6 @@ import { checkAndUpdateGenerationLimit } from '@/app/actions/ai-generation'
 import { generateWithProviderFailover } from '@/lib/ai/generate-with-provider-failover'
 import { extractJSONFromText, cleanAndParseJSON } from '@/lib/utils/json-parser'
 import { getYouTubeTranscript, isTranscriptUnavailableError } from '@/lib/youtube-transcript'
-import { transcribeYouTubeAudio, isYouTubeASRUnavailableError } from '@/lib/youtube-audio-transcription'
 
 type CEFRLevel = 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2'
 
@@ -64,7 +63,7 @@ TASK:
 Create a lesson pack from this transcript focused on DISCUSSION (not comprehension).
 
 STRICT RULES:
-1) Do NOT produce factual recall questions (no “what happened first”, no quiz style).
+1) Do NOT produce factual recall questions (no "what happened first", no quiz style).
 2) Questions must invite opinions, interpretation, personal experience, and application.
 3) Include language-in-context questions about specific words/phrases used in the transcript.
 4) Extract vocabulary that fits CEFR ${level}, and also extract interesting phrases from the transcript.
@@ -153,32 +152,18 @@ export async function POST(request: NextRequest) {
 
       resolvedTranscriptText = normalizedManualTranscript.slice(0, MAX_TRANSCRIPT_CHARS)
     } else if (youtubeUrl) {
-      let transcriptData
-      try {
-        transcriptData = await getYouTubeTranscript(youtubeUrl)
-      } catch (error) {
-        if (!isTranscriptUnavailableError(error)) {
-          throw error
-        }
+      const transcriptData = await getYouTubeTranscript(youtubeUrl)
 
-        const asrData = await transcribeYouTubeAudio(youtubeUrl, MAX_VIDEO_DURATION_SECONDS)
-        resolvedTranscriptText = asrData.transcriptText
-        resolvedVideoId = asrData.videoId
-        resolvedSourceUrl = asrData.sourceUrl
+      if (transcriptData.durationSeconds > MAX_VIDEO_DURATION_SECONDS) {
+        return NextResponse.json(
+          { error: 'Video is too long. Maximum supported duration is 5 minutes.' },
+          { status: 400 }
+        )
       }
 
-      if (!resolvedTranscriptText && transcriptData) {
-        if (transcriptData.durationSeconds > MAX_VIDEO_DURATION_SECONDS) {
-          return NextResponse.json(
-            { error: 'Video is too long. Maximum supported duration is 5 minutes.' },
-            { status: 400 }
-          )
-        }
-
-        resolvedTranscriptText = transcriptData.transcriptText
-        resolvedVideoId = transcriptData.videoId
-        resolvedSourceUrl = transcriptData.sourceUrl
-      }
+      resolvedTranscriptText = transcriptData.transcriptText
+      resolvedVideoId = transcriptData.videoId
+      resolvedSourceUrl = transcriptData.sourceUrl
     }
 
     if (!resolvedTranscriptText) {
@@ -222,23 +207,12 @@ export async function POST(request: NextRequest) {
     console.error('Error generating YouTube lesson:', error)
 
     if (isTranscriptUnavailableError(error)) {
-      const transcriptErrorMessage = error instanceof Error
+      const msg = error instanceof Error
         ? error.message
-        : 'Transcript is unavailable for this video. Try another video with captions.'
+        : 'Transcript is unavailable for this video.'
 
       return NextResponse.json(
-        { error: `${transcriptErrorMessage} If this video has no accessible captions, paste transcript text manually.` },
-        { status: 400 }
-      )
-    }
-
-    if (isYouTubeASRUnavailableError(error)) {
-      const asrErrorMessage = error instanceof Error
-        ? error.message
-        : 'Automatic audio transcription fallback is unavailable.'
-
-      return NextResponse.json(
-        { error: `${asrErrorMessage} Please paste transcript text manually to continue.` },
+        { error: `${msg} Try a video with captions enabled, or paste transcript text manually.` },
         { status: 400 }
       )
     }
