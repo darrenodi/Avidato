@@ -54,10 +54,17 @@ export async function generateWithFailover({
         ...(generationConfig.temperature !== undefined && { temperature: generationConfig.temperature }),
         response_format: { type: 'json_object' },
       })
-      const text = completion.choices[0]?.message?.content
+      const choice = completion.choices[0]
+      const text = choice?.message?.content
       if (!text || text.trim().length === 0) {
         throw new Error('Empty response text')
       }
+
+      // Truncation detection: check if OpenAI stopped because of token limit
+      if (choice?.finish_reason === 'length') {
+        console.warn(`⚠️ OpenAI response truncated (finish_reason=length) - Model: ${modelName}, maxOutputTokens: ${generationConfig.maxOutputTokens}`)
+      }
+
       return { modelUsed: modelName, rawText: text }
     } catch (err) {
       console.warn(`❌ OpenAI API Failed - Model: ${modelName}, Error:`, err instanceof Error ? err.message : String(err))

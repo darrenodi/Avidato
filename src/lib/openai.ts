@@ -163,7 +163,7 @@ IMPORTANT:
       const { rawText: text } = await generateWithFailover({
         prompt,
         generationConfig: {
-          maxOutputTokens: 8192,
+          maxOutputTokens: 16384,
         },
       });
       
@@ -301,7 +301,7 @@ CRITICAL: This exercise must appear as Exercise 5 in the exercises array. ALL se
       const { rawText: text } = await generateWithFailover({
         prompt,
         generationConfig: {
-          maxOutputTokens: 8192,
+          maxOutputTokens: 16384,
         },
       });
 

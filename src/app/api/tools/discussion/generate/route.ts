@@ -80,7 +80,7 @@ Guidelines:
 - Appropriate for educational context
 - Questions relate to "${topic}"
 
-Output format - respond with ONLY a valid JSON array, no other text:
+Output format - respond with ONLY a valid JSON array containing ALL ${getQuestionCount(level)} questions. Do NOT return a single object. Return the complete array:
 [
   {
     "id": 1,
@@ -91,13 +91,16 @@ Output format - respond with ONLY a valid JSON array, no other text:
     "id": 2,
     "question": "Your question here?",
     "type": "main"
-  }
-]`
+  },
+  ...continue for all ${getQuestionCount(level)} questions
+]
+
+IMPORTANT: Your response must be a JSON array starting with [ and ending with ]. Include every question in one array.`
 
     const result = await generateWithProviderFailover({
       prompt,
       generationConfig: {
-        maxOutputTokens: 2048,
+        maxOutputTokens: 8192,
       },
     })
 

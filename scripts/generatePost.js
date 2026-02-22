@@ -47,7 +47,7 @@ async function generateBlogPost() {
             temperature: 0.8,
             topK: 40,
             topP: 0.95,
-            maxOutputTokens: 2048,
+            maxOutputTokens: 4096,
           },
         });
 

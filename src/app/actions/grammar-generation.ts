@@ -193,7 +193,7 @@ CRITICAL:
     const { rawText: text } = await generateWithProviderFailover({
       prompt,
       generationConfig: {
-        maxOutputTokens: 8192,
+        maxOutputTokens: 16384,
       }
     })
 

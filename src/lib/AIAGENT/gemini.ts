@@ -29,12 +29,6 @@ import {
 class GeminiService {
   public model = genAI.getGenerativeModel({ 
     model: 'gemini-2.5-pro',
-    generationConfig: {
-      temperature: 0.1, // Lower temperature for consistent JSON output
-      topK: 40,
-      topP: 0.95,
-      maxOutputTokens: 8192, // Increased for comprehensive lessons
-    },
   });
 
   // Methodology selection based on student profile
@@ -177,7 +171,7 @@ IMPORTANT:
           temperature: 0.1,
           topK: 40,
           topP: 0.95,
-          maxOutputTokens: 8192,
+          maxOutputTokens: 16384,
         },
       });
       
@@ -316,7 +310,7 @@ CRITICAL: This exercise must appear as Exercise 5 in the exercises array. ALL se
           temperature: 0.1,
           topK: 40,
           topP: 0.95,
-          maxOutputTokens: 8192,
+          maxOutputTokens: 16384,
         },
       });
 

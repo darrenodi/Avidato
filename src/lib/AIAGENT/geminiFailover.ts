@@ -49,19 +49,22 @@ export async function generateWithFailover({
     try {
     const model = genAI.getGenerativeModel({
       model: modelName,
-      generationConfig: {
-        ...generationConfig,
-        // Force structured JSON output — same as OpenAI's response_format: json_object
-        // This prevents Gemini from wrapping JSON in markdown fences or adding prose
-        responseMimeType: 'application/json',
-      },
+      generationConfig,
     })
     // Note: current SDK generateContent signature doesn't accept AbortSignal directly; omit if unsupported
     const result = await model.generateContent({ contents: [{ role: 'user', parts: [{ text: prompt }] }], safetySettings: [] })
-      const text = result.response.text()
+      const response = result.response
+      const text = response.text()
       if (!text || text.trim().length === 0) {
         throw new Error('Empty response text')
       }
+
+      // Truncation detection: check if Gemini stopped because of token limit
+      const finishReason = response.candidates?.[0]?.finishReason
+      if (finishReason === 'MAX_TOKENS') {
+        console.warn(`⚠️ Gemini response truncated (MAX_TOKENS) - Model: ${modelName}, maxOutputTokens: ${generationConfig.maxOutputTokens}`)
+      }
+
       console.log(`✅ Gemini API Success - Model used: ${modelName}`)
       return { modelUsed: modelName, rawText: text }
     } catch (err) {

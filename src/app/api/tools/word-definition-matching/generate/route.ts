@@ -160,7 +160,7 @@ Generate the words now:`
     const vocabResult = await generateWithProviderFailover({
       prompt: vocabPrompt,
       generationConfig: {
-        maxOutputTokens: 500,
+        maxOutputTokens: 2048,
       },
     })
 
@@ -187,7 +187,12 @@ Generate the words now:`
         throw new Error(`No JSON array found. Got: ${cleanVocabResult.substring(0, 100)}`)
       }
       
-      words = JSON.parse(jsonMatch[0])
+      try {
+        words = JSON.parse(jsonMatch[0])
+      } catch {
+        // Fallback: use cleanAndParseJSON for handling malformed JSON from Gemini
+        words = cleanAndParseJSON<string[]>(jsonMatch[0])
+      }
       
       if (!Array.isArray(words) || words.length === 0) {
         throw new Error('Invalid word list')
@@ -240,7 +245,7 @@ IMPORTANT: Respond ONLY with valid JSON object, starting with { and ending with 
         const defResult = await generateWithProviderFailover({
           prompt: `${defPrompt}${retryInstruction}`,
           generationConfig: {
-            maxOutputTokens: 800,
+            maxOutputTokens: 4096,
           },
         })
 
