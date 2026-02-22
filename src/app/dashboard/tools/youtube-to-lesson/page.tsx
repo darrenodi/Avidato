@@ -4,6 +4,7 @@ import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import DashboardLayout from '@/components/layout/DashboardLayout'
+import { fetchTranscriptViaProxy, extractVideoId } from '@/lib/youtube-transcript-client'
 
 type CEFRLevel = 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2'
 
@@ -53,7 +54,9 @@ export default function YouTubeToLessonPage() {
   const [manualTranscript, setManualTranscript] = useState('')
   const [level, setLevel] = useState<CEFRLevel>('B1')
   const [loading, setLoading] = useState(false)
+  const [loadingStage, setLoadingStage] = useState<'transcript' | 'lesson' | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [transcriptError, setTranscriptError] = useState<string | null>(null)
   const [result, setResult] = useState<YouTubeLessonResult | null>(null)
 
   useEffect(() => {
@@ -65,17 +68,56 @@ export default function YouTubeToLessonPage() {
   const handleGenerate = async (event: React.FormEvent) => {
     event.preventDefault()
     setError(null)
+    setTranscriptError(null)
     setLoading(true)
 
     try {
+      let transcriptText = manualTranscript.trim()
+      const url = youtubeUrl.trim()
+
+      // Step 1: If URL provided and no manual transcript, fetch transcript first
+      if (url && !transcriptText) {
+        setLoadingStage('transcript')
+        try {
+          const transcriptResult = await fetchTranscriptViaProxy(url)
+          transcriptText = transcriptResult.transcriptText
+
+          // Check duration (5 min max)
+          if (transcriptResult.durationSeconds && transcriptResult.durationSeconds > 300) {
+            throw new Error('Video is too long. Maximum supported duration is 5 minutes.')
+          }
+        } catch (err) {
+          const msg = err instanceof Error ? err.message : 'Failed to fetch transcript'
+          // Show transcript error but let user paste manually
+          setTranscriptError(
+            `Could not fetch transcript automatically: ${msg}. Please paste the transcript manually below, or try a different video.`
+          )
+          setLoading(false)
+          setLoadingStage(null)
+          return
+        }
+      }
+
+      if (!transcriptText) {
+        setError('Please provide a YouTube URL or paste transcript text.')
+        setLoading(false)
+        setLoadingStage(null)
+        return
+      }
+
+      // Step 2: Generate lesson from transcript text
+      setLoadingStage('lesson')
+      const videoId = url ? extractVideoId(url) : null
+
       const response = await fetch('/api/tools/youtube-to-lesson/generate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          youtubeUrl: youtubeUrl || undefined,
-          transcriptText: manualTranscript || undefined,
+          // Send transcript text directly — skip server-side YouTube fetch
+          transcriptText,
+          youtubeUrl: url || undefined,
           level,
         }),
       })
@@ -85,11 +127,18 @@ export default function YouTubeToLessonPage() {
         throw new Error(data.error || 'Failed to generate lesson from YouTube video')
       }
 
+      // Ensure videoId and sourceUrl are correct
+      if (videoId && !data.videoId) {
+        data.videoId = videoId
+        data.sourceUrl = `https://www.youtube.com/watch?v=${videoId}`
+      }
+
       setResult(data)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred')
     } finally {
       setLoading(false)
+      setLoadingStage(null)
     }
   }
 
@@ -147,13 +196,12 @@ export default function YouTubeToLessonPage() {
                 onChange={(e) => setYoutubeUrl(e.target.value)}
                 placeholder="https://www.youtube.com/watch?v=..."
                 className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-primary focus:border-transparent"
-                required
               />
             </div>
 
             <div>
               <label htmlFor="manualTranscript" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Manual Transcript (optional)
+                Manual Transcript (paste here if auto-fetch fails)
               </label>
               <textarea
                 id="manualTranscript"
@@ -186,6 +234,19 @@ export default function YouTubeToLessonPage() {
               </select>
             </div>
 
+            {transcriptError && (
+              <div className="p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
+                <p className="text-sm text-amber-800 dark:text-amber-300 mb-2">{transcriptError}</p>
+                <p className="text-xs text-amber-600 dark:text-amber-400">
+                  Tip: You can get the transcript from{' '}
+                  <a href="https://www.youtube-transcript.io/" target="_blank" rel="noreferrer" className="underline font-medium">
+                    youtube-transcript.io
+                  </a>{' '}
+                  and paste it below.
+                </p>
+              </div>
+            )}
+
             {error && (
               <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
                 <p className="text-sm text-red-800 dark:text-red-300">{error}</p>
@@ -200,7 +261,7 @@ export default function YouTubeToLessonPage() {
               {loading ? (
                 <>
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                  Generating Lesson...
+                  {loadingStage === 'transcript' ? 'Fetching Transcript...' : 'Generating Lesson...'}
                 </>
               ) : (
                 <>

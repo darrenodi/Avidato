@@ -4,7 +4,7 @@ import { authOptions } from '@/lib/auth'
 import { checkAndUpdateGenerationLimit } from '@/app/actions/ai-generation'
 import { generateWithProviderFailover } from '@/lib/ai/generate-with-provider-failover'
 import { extractJSONFromText, cleanAndParseJSON } from '@/lib/utils/json-parser'
-import { getYouTubeTranscript, isTranscriptUnavailableError } from '@/lib/youtube-transcript'
+import { getYouTubeTranscript, extractYouTubeVideoId, isTranscriptUnavailableError } from '@/lib/youtube-transcript'
 
 type CEFRLevel = 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2'
 
@@ -151,7 +151,17 @@ export async function POST(request: NextRequest) {
       }
 
       resolvedTranscriptText = normalizedManualTranscript.slice(0, MAX_TRANSCRIPT_CHARS)
+
+      // If a YouTube URL was also provided, extract video ID for metadata
+      if (youtubeUrl) {
+        const vid = extractYouTubeVideoId(youtubeUrl)
+        if (vid) {
+          resolvedVideoId = vid
+          resolvedSourceUrl = `https://www.youtube.com/watch?v=${vid}`
+        }
+      }
     } else if (youtubeUrl) {
+      // Fallback: fetch transcript server-side (may fail on Vercel due to bot detection)
       const transcriptData = await getYouTubeTranscript(youtubeUrl)
 
       if (transcriptData.durationSeconds > MAX_VIDEO_DURATION_SECONDS) {
