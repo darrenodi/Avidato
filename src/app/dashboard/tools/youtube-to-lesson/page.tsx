@@ -9,7 +9,7 @@ import { fetchTranscriptViaProxy, extractVideoId } from '@/lib/youtube-transcrip
 type CEFRLevel = 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2'
 
 // ---------------------------------------------------------------------------
-// Types — matches backend 5-stage structure
+// Types — matches backend 6-stage structure
 // ---------------------------------------------------------------------------
 
 interface WarmUpQuestion { id: number; question: string }
@@ -24,6 +24,18 @@ interface PreTeachItem {
 
 interface GistQuestion { id: number; question: string }
 interface DetailQuestion { id: number; question: string; answer: string }
+
+interface PhraseItem {
+  term: string
+  type: 'phrase' | 'collocation' | 'idiom' | 'expression'
+  meaning: string
+}
+
+interface FillBlankItem {
+  id: number
+  sentence: string
+  answer: string
+}
 
 interface DiscussionQuestion { id: number; question: string; followUp: string }
 interface ReflectionPrompt { id: number; prompt: string }
@@ -41,6 +53,8 @@ interface YouTubeLessonResult {
   preTeach: PreTeachItem[]
   gistQuestions: GistQuestion[]
   detailQuestions: DetailQuestion[]
+  phrases: PhraseItem[]
+  fillBlanks: FillBlankItem[]
   discussion: DiscussionQuestion[]
   wrapUp: ReflectionPrompt[]
   homework: HomeworkTask
@@ -55,6 +69,200 @@ const LEVEL_DESCRIPTIONS: Record<CEFRLevel, string> = {
   B2: 'Intermediate - Can discuss most topics fluently',
   C1: 'Advanced - Can use language flexibly',
   C2: 'Mastery - Native-like proficiency',
+}
+
+// ---------------------------------------------------------------------------
+// Interactive matching game
+// ---------------------------------------------------------------------------
+
+interface MatchState { [wordIndex: number]: number | null }
+interface MatchFeedback { [wordIndex: number]: 'correct' | 'incorrect' | null }
+
+function PhraseMatchingGame({ phrases }: { phrases: PhraseItem[] }) {
+  const [shuffledMeanings] = useState(() =>
+    phrases.map((p) => p.meaning).sort(() => Math.random() - 0.5)
+  )
+  const [matches, setMatches] = useState<MatchState>({})
+  const [feedback, setFeedback] = useState<MatchFeedback>({})
+  const [draggedDef, setDraggedDef] = useState<number | null>(null)
+  const [allCorrect, setAllCorrect] = useState(false)
+
+  const checkAnswers = () => {
+    const newFeedback: MatchFeedback = {}
+    let correctCount = 0
+    phrases.forEach((item, wordIdx) => {
+      const selectedDefIdx = matches[wordIdx]
+      if (selectedDefIdx !== null && selectedDefIdx !== undefined) {
+        if (shuffledMeanings[selectedDefIdx] === item.meaning) {
+          newFeedback[wordIdx] = 'correct'
+          correctCount++
+        } else {
+          newFeedback[wordIdx] = 'incorrect'
+        }
+      }
+    })
+    setFeedback(newFeedback)
+    setAllCorrect(correctCount === phrases.length)
+  }
+
+  const resetGame = () => {
+    setMatches({})
+    setFeedback({})
+    setAllCorrect(false)
+    setDraggedDef(null)
+  }
+
+  const handleDropOnWord = (wordIdx: number, defIdx: number) => {
+    setMatches({ ...matches, [wordIdx]: defIdx })
+    setFeedback({ ...feedback, [wordIdx]: null })
+    setDraggedDef(null)
+  }
+
+  const clearMatch = (wordIdx: number) => {
+    const m = { ...matches }; delete m[wordIdx]
+    setMatches(m)
+    setFeedback({ ...feedback, [wordIdx]: null })
+  }
+
+  const getMatchedDef = (wordIdx: number) => {
+    const di = matches[wordIdx]
+    return di !== null && di !== undefined ? shuffledMeanings[di] : null
+  }
+
+  const isDefMatched = (defIdx: number) => Object.values(matches).includes(defIdx)
+  const progress = Object.keys(matches).length
+  const total = phrases.length
+
+  return (
+    <div className="mt-6 space-y-4">
+      {/* Header */}
+      <div className="p-4 rounded-lg bg-teal-50 dark:bg-teal-900/10 border border-teal-200 dark:border-teal-800/30">
+        <h4 className="text-sm font-semibold text-teal-800 dark:text-teal-300 mb-2">
+          🎯 Match the Phrases to Their Meanings
+        </h4>
+        <p className="text-xs text-gray-600 dark:text-gray-400 mb-3">
+          Drag a meaning from the right and drop it next to the matching phrase.
+        </p>
+        <div className="flex items-center justify-between">
+          <span className="text-xs font-medium text-gray-600 dark:text-gray-300">
+            Progress: {progress}/{total} matched
+          </span>
+          {allCorrect && progress === total && (
+            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200">
+              ✓ Perfect!
+            </span>
+          )}
+        </div>
+        <div className="mt-2 w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+          <div
+            className={`h-2 rounded-full transition-all ${allCorrect && progress === total ? 'bg-green-500' : 'bg-teal-500'}`}
+            style={{ width: `${total > 0 ? (progress / total) * 100 : 0}%` }}
+          />
+        </div>
+      </div>
+
+      {/* Matching grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        {/* Phrases + drop zones */}
+        <div className="lg:col-span-2 space-y-3">
+          {phrases.map((item, wordIdx) => {
+            const matchedDef = getMatchedDef(wordIdx)
+            const isCorrect = feedback[wordIdx] === 'correct'
+            const isIncorrect = feedback[wordIdx] === 'incorrect'
+            return (
+              <div
+                key={wordIdx}
+                onDragOver={(e) => e.preventDefault()}
+                onDrop={() => draggedDef !== null && handleDropOnWord(wordIdx, draggedDef)}
+                className={`flex items-start gap-4 p-4 rounded-lg border-2 transition-colors ${
+                  isCorrect ? 'bg-green-50 dark:bg-green-900/20 border-green-300 dark:border-green-700'
+                  : isIncorrect ? 'bg-red-50 dark:bg-red-900/20 border-red-300 dark:border-red-700'
+                  : draggedDef !== null ? 'bg-teal-50 dark:bg-teal-900/10 border-teal-200 dark:border-teal-700'
+                  : 'bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600'
+                }`}
+              >
+                <div className="flex-shrink-0 min-w-[120px]">
+                  <div className="font-semibold text-gray-900 dark:text-white text-sm">{item.term}</div>
+                </div>
+                <div className="flex-1">
+                  {matchedDef ? (
+                    <div className={`p-3 rounded-lg text-sm transition-colors ${
+                      isCorrect ? 'bg-green-200 dark:bg-green-800 text-green-900 dark:text-green-100 border border-green-400'
+                      : isIncorrect ? 'bg-red-200 dark:bg-red-800 text-red-900 dark:text-red-100 border border-red-400'
+                      : 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-900 dark:text-yellow-100 border border-yellow-300'
+                    }`}>
+                      <div className="flex items-start justify-between gap-2">
+                        <span>{matchedDef}</span>
+                        <button onClick={() => clearMatch(wordIdx)} className="text-lg hover:opacity-70 transition-opacity flex-shrink-0 leading-none">✕</button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="p-3 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600 text-center text-gray-500 dark:text-gray-400 text-sm">
+                      Drop meaning here
+                    </div>
+                  )}
+                </div>
+                <div className="flex-shrink-0">
+                  {isCorrect && <span className="text-2xl">✓</span>}
+                  {isIncorrect && <span className="text-2xl">✗</span>}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+
+        {/* Meanings to drag */}
+        <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4 h-fit border border-gray-200 dark:border-gray-600">
+          <h4 className="font-bold text-gray-900 dark:text-white mb-3 text-sm">Meanings</h4>
+          <div className="space-y-2">
+            {shuffledMeanings.map((meaning, defIdx) => {
+              const matched = isDefMatched(defIdx)
+              const isDragging = draggedDef === defIdx
+              return (
+                <div
+                  key={defIdx}
+                  draggable={!matched}
+                  onDragStart={() => !matched && setDraggedDef(defIdx)}
+                  onDragEnd={() => setDraggedDef(null)}
+                  onClick={() => {
+                    if (draggedDef === defIdx) setDraggedDef(null)
+                    else if (!matched) setDraggedDef(defIdx)
+                  }}
+                  className={`p-3 rounded-lg text-xs leading-relaxed transition-all border-2 select-none ${
+                    isDragging ? 'border-teal-400 bg-teal-100 dark:bg-teal-900/40 text-gray-900 dark:text-white transform scale-105 shadow-lg cursor-grabbing'
+                    : matched ? 'border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed opacity-50'
+                    : 'border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:border-teal-400 dark:hover:border-teal-600 hover:shadow cursor-grab'
+                  }`}
+                >
+                  {meaning}
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* Buttons */}
+      <div className="flex gap-3">
+        <button onClick={checkAnswers} disabled={progress === 0}
+          className="flex-1 py-3 px-4 bg-brand-primary text-white rounded-lg hover:bg-brand-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium">
+          Check Answers
+        </button>
+        <button onClick={resetGame}
+          className="flex-1 py-3 px-4 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors font-medium">
+          Reset
+        </button>
+      </div>
+
+      {allCorrect && progress === total && (
+        <div className="bg-green-100 dark:bg-green-900/30 border border-green-300 dark:border-green-700 rounded-lg p-6 text-center">
+          <div className="text-4xl mb-3">🎉</div>
+          <h3 className="text-lg font-bold text-green-800 dark:text-green-200 mb-2">Excellent Work!</h3>
+          <p className="text-green-700 dark:text-green-300">All phrases matched correctly!</p>
+        </div>
+      )}
+    </div>
+  )
 }
 
 // ---------------------------------------------------------------------------
@@ -147,6 +355,11 @@ export default function YouTubeToLessonPage() {
         })),
         gistQuestions: result.gistQuestions,
         detailQuestions: (result.detailQuestions || []).map(({ id, question }) => ({ id, question })),
+        phrases: (result.phrases || []).map(({ term, type, meaning }) => ({
+          term, type, meaning,
+        })),
+        fillBlanks: (result.fillBlanks || []).map(({ id, sentence }) => ({ id, sentence })),
+        fillBlanksWordBox: (result.fillBlanks || []).map(fb => fb.answer).sort(() => Math.random() - 0.5),
         discussion: (result.discussion || []).map(({ id, question }) => ({ id, question })),
         wrapUp: result.wrapUp,
       }
@@ -256,7 +469,7 @@ export default function YouTubeToLessonPage() {
             Generate a complete 45-minute ESL lesson plan from a YouTube video transcript.
           </p>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-            Max video length: 5 minutes. The lesson includes 5 stages from warm-up to wrap-up.
+            Max video length: 5 minutes. The lesson includes 6 stages from warm-up to wrap-up.
           </p>
         </div>
 
@@ -380,7 +593,7 @@ export default function YouTubeToLessonPage() {
         </Card>
 
         {/* ============================================================== */}
-        {/* LESSON PLAN RESULT — 5 Stages                                   */}
+        {/* LESSON PLAN RESULT — 6 Stages                                   */}
         {/* ============================================================== */}
         {result && (
           <div className="space-y-6 mt-8">
@@ -542,12 +755,59 @@ export default function YouTubeToLessonPage() {
               )}
             </Card>
 
-            {/* ---- STAGE 4: Discussion ---- */}
+            {/* ---- STAGE 4: Language Focus — Matching & Fill-in-the-Blanks ---- */}
+            {result.phrases && result.phrases.length > 0 && (
+              <Card>
+                <StageHeader num={4} label="Language Focus: Phrases & Expressions" time="10-12 min" icon="🗣️" />
+                <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
+                  Reusable phrases, collocations and expressions from the video. These make the student sound more natural.
+                </p>
+
+                {/* 4a — Matching exercise */}
+                <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">4a — Match Phrase to Meaning</h4>
+                <PhraseMatchingGame phrases={result.phrases} />
+
+                {/* 4b — Fill-in-the-blanks */}
+                {result.fillBlanks && result.fillBlanks.length > 0 && (
+                  <div className="mt-8">
+                    <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">4b — Fill in the Blanks</h4>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
+                      Use the phrases from the word box to complete each sentence.
+                    </p>
+
+                    {/* Word box */}
+                    <div className="flex flex-wrap gap-2 mb-5 p-3 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+                      {result.fillBlanks.map((fb, i) => (
+                        <span key={`wb-${i}`} className="text-sm px-3 py-1.5 rounded-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-800 dark:text-gray-200 font-medium">
+                          {showAnswers ? fb.answer : '•••'}
+                        </span>
+                      ))}
+                    </div>
+
+                    {/* Sentences */}
+                    <div className="space-y-3">
+                      {result.fillBlanks.map((fb) => (
+                        <div key={`fb-${fb.id}`} className="p-3 rounded-lg bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-800/30">
+                          <p className="text-gray-900 dark:text-white">{fb.id}. {fb.sentence}</p>
+                          {showAnswers && (
+                            <p className="text-sm text-amber-700 dark:text-amber-400 mt-2 pt-2 border-t border-amber-200 dark:border-amber-700/40">
+                              <span className="font-medium">Answer:</span> {fb.answer}
+                            </p>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </Card>
+            )}
+
+            {/* ---- STAGE 5: Discussion ---- */}
             {result.discussion.length > 0 && (
               <Card>
-                <StageHeader num={4} label="Discussion" time="10-12 min" icon="💡" />
+                <StageHeader num={5} label="Discussion" time="10-12 min" icon="💡" />
                 <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
-                  Encourage the student to use the vocabulary from stage 2.
+                  Encourage the student to use the vocabulary from stages 2 and 4.
                 </p>
                 <div className="space-y-4">
                   {result.discussion.map((q) => (
@@ -564,10 +824,10 @@ export default function YouTubeToLessonPage() {
               </Card>
             )}
 
-            {/* ---- STAGE 5: Wrap-Up ---- */}
+            {/* ---- STAGE 6: Wrap-Up ---- */}
             {(result.wrapUp.length > 0 || result.homework?.task) && (
               <Card>
-                <StageHeader num={5} label="Wrap-Up" time="3-5 min" icon="✅" />
+                <StageHeader num={6} label="Wrap-Up" time="3-5 min" icon="✅" />
                 {result.wrapUp.length > 0 && (
                   <div className="space-y-3 mb-4">
                     {result.wrapUp.map((r) => (
