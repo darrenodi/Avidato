@@ -139,26 +139,33 @@ general understanding. After watching, ask detail questions for specific informa
   Mix question types: true/false, short answer, "What does the speaker mean when they say...?"
 
 STAGE 4 — LANGUAGE FOCUS: MATCHING & FILL-IN-THE-BLANKS (10-12 min)
-Extract 8 REUSABLE phrases, collocations, semi-idiomatic expressions and natural chunks
-from the transcript — NOT isolated single words.
+Extract 8 SHORT, REUSABLE phrases and collocations from the transcript.
+Each phrase must be 2-4 words maximum. NOT isolated single words. NOT long clauses or sentences.
 Focus on language that makes a student sound more fluent:
-- Common collocations (e.g., "trigger a response", "a sense of accomplishment")
-- Phrasal verbs and multi-word verbs (e.g., "get caught up in", "switch over to")
-- Idiomatic / figurative expressions (e.g., "has a bad rap", "natural high")
-- Useful everyday phrases (e.g., "for starters", "make it through")
+- Common collocations (e.g., "make a decision", "take into account")
+- Phrasal verbs (e.g., "get caught up in", "switch over to")
+- Fixed expressions (e.g., "for starters", "make it through", "on the spot")
 
-For each phrase provide a clear, concise meaning.
+CRITICAL RULES FOR PHRASES:
+- Maximum 4 words per phrase. NEVER exceed this.
+- Use phrases EXACTLY as they appear in the transcript — do not invent new ones.
+- Each phrase must be a recognizable, reusable chunk of language.
+- Do NOT use full clauses like "tackle the subject of climate change" — just "tackle the subject".
+- Do NOT use abstract or poetic language like "dive into the bottomless ocean".
+
+For each phrase provide a clear, concise meaning (one short sentence).
 
 The student will do TWO exercises with these phrases:
 
 Exercise 4a — MATCHING: match each phrase to its meaning.
 Make sure meanings are clear, concise, and distinguishable from each other.
 
-Exercise 4b — FILL-IN-THE-BLANKS: create sentences using 6 of the 8 phrases.
-Each sentence should have ONE blank where the phrase goes.
-The sentence must be NEW (not from the transcript) and provide enough context
-to work out the correct phrase. Put the answer phrase in the "answer" field.
-The student sees a word box with all 6 phrases above the exercise.
+Exercise 4b — FILL-IN-THE-BLANKS: create 6 gap-fill sentences using 6 of the 8 phrases.
+RULES:
+- Each sentence has ONE blank where the phrase fits naturally.
+- The answer in the "answer" field must be the EXACT phrase from the phrases list (2-4 words).
+- The sentence must be NEW (not from the transcript) and give enough context to identify the phrase.
+- Keep sentences simple and natural — not literary or abstract.
 
 STAGE 5 — DISCUSSION (10-12 min)
 Write 5 discussion questions that invite opinions, personal experience, and application.
@@ -196,9 +203,9 @@ OUTPUT JSON ONLY — no markdown, no explanation:
   ],
   "phrases": [
     {
-      "term": "multi-word expression or collocation",
+      "term": "get caught up in",
       "type": "phrase",
-      "meaning": "clear meaning at target level"
+      "meaning": "to become so involved in something that you forget other things"
     }
   ],
   "fillBlanks": [
@@ -225,8 +232,8 @@ COUNTS (strict):
 - preTeach: exactly 5 items (use type: "noun", "verb", or "adjective")
 - gistQuestions: exactly 3 items
 - detailQuestions: exactly 5 items
-- phrases: exactly 8 items (use type: "phrase", "collocation", "idiom", or "expression")
-- fillBlanks: exactly 6 items (use 6 of the 8 phrases above)
+- phrases: exactly 8 items, each term 2-4 words max (use type: "phrase", "collocation", "idiom", or "expression")
+- fillBlanks: exactly 6 items (answer must be an exact phrase from the list above, 2-4 words)
 - discussion: exactly 5 items
 - wrapUp: exactly 2 items
 - homework: exactly 1 item
