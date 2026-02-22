@@ -14,29 +14,79 @@ interface GenerateYouTubeLessonRequest {
   level: CEFRLevel
 }
 
-interface DiscussionQuestion {
+// ---------------------------------------------------------------------------
+// Lesson stage types — 7-stage 45-minute ESL lesson plan
+// ---------------------------------------------------------------------------
+
+interface WarmUpQuestion {
   id: number
   question: string
-  focus: 'theme' | 'opinion' | 'language-in-context' | 'application'
+}
+
+interface PreTeachItem {
+  term: string
+  type: 'word' | 'phrase'
+  definition: string
+  exampleSentence: string
+  conceptCheckQuestion: string
+}
+
+interface GistQuestion {
+  id: number
+  question: string
+}
+
+interface DetailQuestion {
+  id: number
+  question: string
+  answer: string
 }
 
 interface VocabularyItem {
   term: string
-  termType: 'word' | 'phrase'
+  type: 'word' | 'phrase'
   contextQuote: string
   meaning: string
-  discussionPrompt: string
+  exampleSentence: string
 }
+
+interface DiscussionQuestion {
+  id: number
+  question: string
+  followUp: string
+}
+
+interface ReflectionPrompt {
+  id: number
+  prompt: string
+}
+
+interface HomeworkTask {
+  task: string
+  type: 'writing' | 'speaking' | 'research'
+}
+
+// ---------------------------------------------------------------------------
+// Full lesson response
+// ---------------------------------------------------------------------------
 
 interface YouTubeLessonResponse {
   videoId: string
   sourceUrl: string
   level: CEFRLevel
   title: string
-  summary: string
-  discussionQuestions: DiscussionQuestion[]
+  topic: string
+  teacherNotes: string
+  estimatedMinutes: number
+  warmUp: WarmUpQuestion[]
+  preTeach: PreTeachItem[]
+  gistQuestions: GistQuestion[]
+  detailQuestions: DetailQuestion[]
   vocabulary: VocabularyItem[]
   phrases: VocabularyItem[]
+  discussion: DiscussionQuestion[]
+  wrapUp: ReflectionPrompt[]
+  homework: HomeworkTask
   transcriptPreview: string
   generatedAt: string
 }
@@ -50,7 +100,7 @@ function normalizeManualTranscript(input: string): string {
 }
 
 function buildTranscriptPrompt(transcriptText: string, level: CEFRLevel) {
-  return `You are an expert language tutor building a DISCUSSION lesson from a YouTube transcript.
+  return `You are an expert ESL lesson planner creating a structured 45-minute lesson from a YouTube video transcript.
 
 TARGET CEFR LEVEL: ${level}
 
@@ -60,53 +110,112 @@ ${transcriptText}
 """
 
 TASK:
-Create a lesson pack from this transcript focused on DISCUSSION (not comprehension).
+Create a complete 7-stage lesson plan that a teacher can pick up and follow top-to-bottom.
+Every item must be level-appropriate for CEFR ${level}.
 
-STRICT RULES:
-1) Do NOT produce factual recall questions (no "what happened first", no quiz style).
-2) Questions must invite opinions, interpretation, personal experience, and application.
-3) Include language-in-context questions about specific words/phrases used in the transcript.
-4) Extract vocabulary that fits CEFR ${level}, and also extract interesting phrases from the transcript.
-5) Every vocabulary/phrase item must include a short context quote from the transcript.
-6) Keep language natural and learner-appropriate for level ${level}.
+LESSON STAGES:
 
-OUTPUT JSON ONLY:
+STAGE 1 — WARM-UP (5 min)
+Generate 3 lead-in questions to activate prior knowledge about the video's topic.
+These are asked BEFORE the student sees the video. They should be personal, easy to answer,
+and related to the theme. Purpose: get the student talking and lower the affective filter.
+
+STAGE 2 — PRE-TEACH KEY VOCABULARY (5-7 min)
+Pick 5 words/phrases from the transcript that the student NEEDS to understand the video.
+Choose items that would block comprehension if unknown. For each: give a simple definition,
+an example sentence (NOT from the transcript), and a concept-check question (CCQ).
+
+STAGE 3 — FIRST WATCH: GIST QUESTIONS (5 min)
+Write 3 simple gist questions the student answers after watching/reading the first time.
+These check global understanding only: "What is the main topic?", "Who is speaking and why?"
+NOT detail questions. Short answer expected.
+
+STAGE 4 — SECOND WATCH: DETAIL QUESTIONS (5-7 min)
+Write 5 specific detail questions that require careful listening/reading.
+Include a short teacher reference answer for each. Mix question types:
+true/false, short answer, "What does the speaker mean when they say...?"
+
+STAGE 5 — LANGUAGE FOCUS (8-10 min)
+Extract 6 vocabulary words and 4 useful phrases/expressions from the transcript.
+For each: include a short context quote from the transcript, a clear meaning,
+and a natural example sentence showing how to use it.
+
+STAGE 6 — DISCUSSION (10-12 min)
+Write 5 discussion questions that invite opinions, personal experience, and application.
+NO factual recall. Include a teacher follow-up prompt for each (a secondary question
+the teacher can ask to push the conversation deeper). Encourage the student to
+use vocabulary from stages 2 and 5.
+
+STAGE 7 — WRAP-UP (3-5 min)
+Write 2 reflection prompts: e.g., "What was the most interesting thing you learned?"
+Also include 1 optional homework task (writing, speaking, or research).
+
+OUTPUT JSON ONLY — no markdown, no explanation:
 {
-  "title": "Short lesson title",
-  "summary": "2-3 sentence teacher-facing summary",
-  "discussionQuestions": [
+  "title": "Short engaging lesson title",
+  "topic": "1-3 word topic label",
+  "teacherNotes": "2-3 sentence teacher-facing summary of the lesson and its goals",
+  "estimatedMinutes": 45,
+  "warmUp": [
+    { "id": 1, "question": "warm-up question" }
+  ],
+  "preTeach": [
     {
-      "id": 1,
-      "question": "discussion question",
-      "focus": "theme"
+      "term": "word or phrase",
+      "type": "word",
+      "definition": "simple learner-friendly definition",
+      "exampleSentence": "Example using the word (not from transcript)",
+      "conceptCheckQuestion": "Is X the same as Y? (yes/no style CCQ)"
     }
+  ],
+  "gistQuestions": [
+    { "id": 1, "question": "gist question" }
+  ],
+  "detailQuestions": [
+    { "id": 1, "question": "detail question", "answer": "short reference answer" }
   ],
   "vocabulary": [
     {
       "term": "word",
-      "termType": "word",
+      "type": "word",
       "contextQuote": "short quote from transcript",
-      "meaning": "simple learner-friendly meaning",
-      "discussionPrompt": "question that uses this word in context"
+      "meaning": "simple meaning",
+      "exampleSentence": "natural example sentence"
     }
   ],
   "phrases": [
     {
-      "term": "phrase from transcript",
-      "termType": "phrase",
+      "term": "multi-word expression",
+      "type": "phrase",
       "contextQuote": "short quote from transcript",
-      "meaning": "simple learner-friendly meaning",
-      "discussionPrompt": "question that uses this phrase in context"
+      "meaning": "simple meaning",
+      "exampleSentence": "natural example sentence"
     }
-  ]
+  ],
+  "discussion": [
+    { "id": 1, "question": "discussion question", "followUp": "follow-up prompt for teacher" }
+  ],
+  "wrapUp": [
+    { "id": 1, "prompt": "reflection prompt" }
+  ],
+  "homework": {
+    "task": "description of homework task",
+    "type": "writing"
+  }
 }
 
-COUNTS:
-- discussionQuestions: 10 items with mixed focus values from [theme, opinion, language-in-context, application]
-- vocabulary: 8 items (single words)
-- phrases: 6 items (multi-word expressions)
+COUNTS (strict):
+- warmUp: 3 items
+- preTeach: 5 items
+- gistQuestions: 3 items
+- detailQuestions: 5 items
+- vocabulary: 6 items (single words)
+- phrases: 4 items (multi-word expressions)
+- discussion: 5 items
+- wrapUp: 2 items
+- homework: 1 item
 
-Return JSON only.`
+Return ONLY valid JSON.`
 }
 
 export async function POST(request: NextRequest) {
@@ -188,7 +297,7 @@ export async function POST(request: NextRequest) {
     const aiResult = await generateWithProviderFailover({
       prompt,
       generationConfig: {
-        maxOutputTokens: 8192,
+        maxOutputTokens: 16384,
       },
     })
 
@@ -203,11 +312,19 @@ export async function POST(request: NextRequest) {
       videoId: resolvedVideoId,
       sourceUrl: resolvedSourceUrl,
       level,
-      title: parsed.title,
-      summary: parsed.summary,
-      discussionQuestions: Array.isArray(parsed.discussionQuestions) ? parsed.discussionQuestions : [],
+      title: parsed.title || 'Untitled Lesson',
+      topic: parsed.topic || '',
+      teacherNotes: parsed.teacherNotes || '',
+      estimatedMinutes: parsed.estimatedMinutes || 45,
+      warmUp: Array.isArray(parsed.warmUp) ? parsed.warmUp : [],
+      preTeach: Array.isArray(parsed.preTeach) ? parsed.preTeach : [],
+      gistQuestions: Array.isArray(parsed.gistQuestions) ? parsed.gistQuestions : [],
+      detailQuestions: Array.isArray(parsed.detailQuestions) ? parsed.detailQuestions : [],
       vocabulary: Array.isArray(parsed.vocabulary) ? parsed.vocabulary : [],
       phrases: Array.isArray(parsed.phrases) ? parsed.phrases : [],
+      discussion: Array.isArray(parsed.discussion) ? parsed.discussion : [],
+      wrapUp: Array.isArray(parsed.wrapUp) ? parsed.wrapUp : [],
+      homework: parsed.homework || { task: '', type: 'writing' },
       transcriptPreview,
       generatedAt: new Date().toISOString(),
     }
