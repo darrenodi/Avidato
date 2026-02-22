@@ -47,14 +47,7 @@ interface PhraseItem {
   type: 'phrase' | 'collocation' | 'idiom' | 'expression'
   contextQuote: string
   meaning: string
-  exampleSentence: string
   cefrTag: string
-}
-
-interface FillBlankItem {
-  id: number
-  sentence: string
-  answer: string
 }
 
 interface DiscussionQuestion {
@@ -90,11 +83,9 @@ interface YouTubeLessonResponse {
   gistQuestions: GistQuestion[]
   detailQuestions: DetailQuestion[]
   phrases: PhraseItem[]
-  fillBlanks: FillBlankItem[]
   discussion: DiscussionQuestion[]
   wrapUp: ReflectionPrompt[]
   homework: HomeworkTask
-  transcriptPreview: string
   generatedAt: string
 }
 
@@ -157,11 +148,8 @@ a learner would typically first encounter this expression).
 Focus the selection around the target CEFR ${level} — most items should be AT or near
 ${level}, with 1-2 items slightly below (review/consolidation) and 1-2 slightly above (stretch).
 
-Then create a FILL-IN-THE-BLANKS exercise using 6 of those 8 phrases.
-Each sentence should have ONE blank where the phrase goes.
-The sentence must be NEW (not from the transcript) and provide enough context
-to work out the correct phrase. Put the answer phrase in the "answer" field.
-The student sees a word box with all 6 phrases above the exercise.
+The student will do a MATCHING exercise: match each phrase to its meaning.
+Make sure meanings are clear, concise, and distinguishable from each other.
 
 STAGE 5 — DISCUSSION (10-12 min)
 Write 5 discussion questions that invite opinions, personal experience, and application.
@@ -203,15 +191,7 @@ OUTPUT JSON ONLY — no markdown, no explanation:
       "type": "phrase",
       "contextQuote": "short quote from transcript where it appears",
       "meaning": "clear meaning at target level",
-      "exampleSentence": "natural example sentence (not from transcript)",
       "cefrTag": "B1"
-    }
-  ],
-  "fillBlanks": [
-    {
-      "id": 1,
-      "sentence": "I ________ watching a documentary and forgot about dinner.",
-      "answer": "got caught up in"
     }
   ],
   "discussion": [
@@ -232,7 +212,6 @@ COUNTS (strict):
 - gistQuestions: exactly 3 items
 - detailQuestions: exactly 5 items
 - phrases: exactly 8 items (use type: "phrase", "collocation", "idiom", or "expression")
-- fillBlanks: exactly 6 items (use 6 of the 8 phrases above)
 - discussion: exactly 5 items
 - wrapUp: exactly 2 items
 - homework: exactly 1 item
@@ -325,10 +304,8 @@ export async function POST(request: NextRequest) {
 
     const rawJSON = extractJSONFromText(aiResult.rawText)
     const parsed = cleanAndParseJSON<
-      Omit<YouTubeLessonResponse, 'videoId' | 'sourceUrl' | 'level' | 'transcriptPreview' | 'generatedAt'>
+      Omit<YouTubeLessonResponse, 'videoId' | 'sourceUrl' | 'level' | 'generatedAt'>
     >(rawJSON)
-
-    const transcriptPreview = resolvedTranscriptText.slice(0, 1200)
 
     const response: YouTubeLessonResponse = {
       videoId: resolvedVideoId,
@@ -343,11 +320,9 @@ export async function POST(request: NextRequest) {
       gistQuestions: Array.isArray(parsed.gistQuestions) ? parsed.gistQuestions : [],
       detailQuestions: Array.isArray(parsed.detailQuestions) ? parsed.detailQuestions : [],
       phrases: Array.isArray(parsed.phrases) ? parsed.phrases : [],
-      fillBlanks: Array.isArray(parsed.fillBlanks) ? parsed.fillBlanks : [],
       discussion: Array.isArray(parsed.discussion) ? parsed.discussion : [],
       wrapUp: Array.isArray(parsed.wrapUp) ? parsed.wrapUp : [],
       homework: parsed.homework || { task: '', type: 'writing' },
-      transcriptPreview,
       generatedAt: new Date().toISOString(),
     }
 

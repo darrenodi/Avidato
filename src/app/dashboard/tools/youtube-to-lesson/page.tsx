@@ -30,11 +30,9 @@ interface PhraseItem {
   type: 'phrase' | 'collocation' | 'idiom' | 'expression'
   contextQuote: string
   meaning: string
-  exampleSentence: string
   cefrTag: string
 }
 
-interface FillBlankItem { id: number; sentence: string; answer: string }
 interface DiscussionQuestion { id: number; question: string; followUp: string }
 interface ReflectionPrompt { id: number; prompt: string }
 interface HomeworkTask { task: string; type: 'writing' | 'speaking' | 'research' }
@@ -52,11 +50,9 @@ interface YouTubeLessonResult {
   gistQuestions: GistQuestion[]
   detailQuestions: DetailQuestion[]
   phrases: PhraseItem[]
-  fillBlanks: FillBlankItem[]
   discussion: DiscussionQuestion[]
   wrapUp: ReflectionPrompt[]
   homework: HomeworkTask
-  transcriptPreview: string
   generatedAt: string
 }
 
@@ -126,6 +122,200 @@ function Card({ children }: { children: React.ReactNode }) {
 }
 
 // ---------------------------------------------------------------------------
+// Interactive matching game (same pattern as word-definition-matching tool)
+// ---------------------------------------------------------------------------
+
+interface MatchState { [wordIndex: number]: number | null }
+interface MatchFeedback { [wordIndex: number]: 'correct' | 'incorrect' | null }
+
+function PhraseMatchingGame({ phrases }: { phrases: PhraseItem[] }) {
+  const [shuffledMeanings] = useState(() =>
+    phrases.map((p) => p.meaning).sort(() => Math.random() - 0.5)
+  )
+  const [matches, setMatches] = useState<MatchState>({})
+  const [feedback, setFeedback] = useState<MatchFeedback>({})
+  const [draggedDef, setDraggedDef] = useState<number | null>(null)
+  const [allCorrect, setAllCorrect] = useState(false)
+
+  const checkAnswers = () => {
+    const newFeedback: MatchFeedback = {}
+    let correctCount = 0
+    phrases.forEach((item, wordIdx) => {
+      const selectedDefIdx = matches[wordIdx]
+      if (selectedDefIdx !== null && selectedDefIdx !== undefined) {
+        if (shuffledMeanings[selectedDefIdx] === item.meaning) {
+          newFeedback[wordIdx] = 'correct'
+          correctCount++
+        } else {
+          newFeedback[wordIdx] = 'incorrect'
+        }
+      }
+    })
+    setFeedback(newFeedback)
+    setAllCorrect(correctCount === phrases.length)
+  }
+
+  const resetGame = () => {
+    setMatches({})
+    setFeedback({})
+    setAllCorrect(false)
+    setDraggedDef(null)
+  }
+
+  const handleDropOnWord = (wordIdx: number, defIdx: number) => {
+    setMatches({ ...matches, [wordIdx]: defIdx })
+    setFeedback({ ...feedback, [wordIdx]: null })
+    setDraggedDef(null)
+  }
+
+  const clearMatch = (wordIdx: number) => {
+    const m = { ...matches }; delete m[wordIdx]
+    setMatches(m)
+    setFeedback({ ...feedback, [wordIdx]: null })
+  }
+
+  const getMatchedDef = (wordIdx: number) => {
+    const di = matches[wordIdx]
+    return di !== null && di !== undefined ? shuffledMeanings[di] : null
+  }
+
+  const isDefMatched = (defIdx: number) => Object.values(matches).includes(defIdx)
+  const progress = Object.keys(matches).length
+  const total = phrases.length
+
+  return (
+    <div className="mt-6 space-y-4">
+      {/* Header */}
+      <div className="p-4 rounded-lg bg-teal-50 dark:bg-teal-900/10 border border-teal-200 dark:border-teal-800/30">
+        <h4 className="text-sm font-semibold text-teal-800 dark:text-teal-300 mb-2">
+          🎯 Match the Phrases to Their Meanings
+        </h4>
+        <p className="text-xs text-gray-600 dark:text-gray-400 mb-3">
+          Drag a meaning from the right and drop it next to the matching phrase.
+        </p>
+        <div className="flex items-center justify-between">
+          <span className="text-xs font-medium text-gray-600 dark:text-gray-300">
+            Progress: {progress}/{total} matched
+          </span>
+          {allCorrect && progress === total && (
+            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200">
+              ✓ Perfect!
+            </span>
+          )}
+        </div>
+        <div className="mt-2 w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+          <div
+            className={`h-2 rounded-full transition-all ${allCorrect && progress === total ? 'bg-green-500' : 'bg-teal-500'}`}
+            style={{ width: `${total > 0 ? (progress / total) * 100 : 0}%` }}
+          />
+        </div>
+      </div>
+
+      {/* Matching grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        {/* Phrases + drop zones */}
+        <div className="lg:col-span-2 space-y-3">
+          {phrases.map((item, wordIdx) => {
+            const matchedDef = getMatchedDef(wordIdx)
+            const isCorrect = feedback[wordIdx] === 'correct'
+            const isIncorrect = feedback[wordIdx] === 'incorrect'
+            return (
+              <div
+                key={wordIdx}
+                onDragOver={(e) => e.preventDefault()}
+                onDrop={() => draggedDef !== null && handleDropOnWord(wordIdx, draggedDef)}
+                className={`flex items-start gap-4 p-4 rounded-lg border-2 transition-colors ${
+                  isCorrect ? 'bg-green-50 dark:bg-green-900/20 border-green-300 dark:border-green-700'
+                  : isIncorrect ? 'bg-red-50 dark:bg-red-900/20 border-red-300 dark:border-red-700'
+                  : draggedDef !== null ? 'bg-teal-50 dark:bg-teal-900/10 border-teal-200 dark:border-teal-700'
+                  : 'bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600'
+                }`}
+              >
+                <div className="flex-shrink-0 min-w-[120px]">
+                  <div className="font-semibold text-gray-900 dark:text-white text-sm">{item.term}</div>
+                </div>
+                <div className="flex-1">
+                  {matchedDef ? (
+                    <div className={`p-3 rounded-lg text-sm transition-colors ${
+                      isCorrect ? 'bg-green-200 dark:bg-green-800 text-green-900 dark:text-green-100 border border-green-400'
+                      : isIncorrect ? 'bg-red-200 dark:bg-red-800 text-red-900 dark:text-red-100 border border-red-400'
+                      : 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-900 dark:text-yellow-100 border border-yellow-300'
+                    }`}>
+                      <div className="flex items-start justify-between gap-2">
+                        <span>{matchedDef}</span>
+                        <button onClick={() => clearMatch(wordIdx)} className="text-lg hover:opacity-70 transition-opacity flex-shrink-0 leading-none">✕</button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="p-3 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600 text-center text-gray-500 dark:text-gray-400 text-sm">
+                      Drop meaning here
+                    </div>
+                  )}
+                </div>
+                <div className="flex-shrink-0">
+                  {isCorrect && <span className="text-2xl">✓</span>}
+                  {isIncorrect && <span className="text-2xl">✗</span>}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+
+        {/* Meanings to drag */}
+        <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4 h-fit border border-gray-200 dark:border-gray-600">
+          <h4 className="font-bold text-gray-900 dark:text-white mb-3 text-sm">Meanings</h4>
+          <div className="space-y-2">
+            {shuffledMeanings.map((meaning, defIdx) => {
+              const matched = isDefMatched(defIdx)
+              const isDragging = draggedDef === defIdx
+              return (
+                <div
+                  key={defIdx}
+                  draggable={!matched}
+                  onDragStart={() => !matched && setDraggedDef(defIdx)}
+                  onDragEnd={() => setDraggedDef(null)}
+                  onClick={() => {
+                    if (draggedDef === defIdx) setDraggedDef(null)
+                    else if (!matched) setDraggedDef(defIdx)
+                  }}
+                  className={`p-3 rounded-lg text-xs leading-relaxed transition-all border-2 select-none ${
+                    isDragging ? 'border-teal-400 bg-teal-100 dark:bg-teal-900/40 text-gray-900 dark:text-white transform scale-105 shadow-lg cursor-grabbing'
+                    : matched ? 'border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed opacity-50'
+                    : 'border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:border-teal-400 dark:hover:border-teal-600 hover:shadow cursor-grab'
+                  }`}
+                >
+                  {meaning}
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* Buttons */}
+      <div className="flex gap-3">
+        <button onClick={checkAnswers} disabled={progress === 0}
+          className="flex-1 py-3 px-4 bg-brand-primary text-white rounded-lg hover:bg-brand-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium">
+          Check Answers
+        </button>
+        <button onClick={resetGame}
+          className="flex-1 py-3 px-4 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors font-medium">
+          Reset
+        </button>
+      </div>
+
+      {allCorrect && progress === total && (
+        <div className="bg-green-100 dark:bg-green-900/30 border border-green-300 dark:border-green-700 rounded-lg p-6 text-center">
+          <div className="text-4xl mb-3">🎉</div>
+          <h3 className="text-lg font-bold text-green-800 dark:text-green-200 mb-2">Excellent Work!</h3>
+          <p className="text-green-700 dark:text-green-300">All phrases matched correctly!</p>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
 // Main page
 // ---------------------------------------------------------------------------
 
@@ -169,11 +359,9 @@ export default function YouTubeToLessonPage() {
         })),
         gistQuestions: result.gistQuestions,
         detailQuestions: (result.detailQuestions || []).map(({ id, question }) => ({ id, question })),
-        phrases: (result.phrases || []).map(({ term, type, meaning, exampleSentence, cefrTag }) => ({
-          term, type, meaning, exampleSentence, cefrTag,
+        phrases: (result.phrases || []).map(({ term, type, meaning, cefrTag }) => ({
+          term, type, meaning, cefrTag,
         })),
-        fillBlanks: (result.fillBlanks || []).map(({ id, sentence }) => ({ id, sentence })),
-        fillBlanksWordBox: (result.fillBlanks || []).map(fb => fb.answer),
         discussion: (result.discussion || []).map(({ id, question }) => ({ id, question })),
         wrapUp: result.wrapUp,
       }
@@ -570,7 +758,7 @@ export default function YouTubeToLessonPage() {
             </Card>
 
             {/* ---- STAGE 4: Language Focus — Phrases & Expressions ---- */}
-            {(result.phrases.length > 0 || result.fillBlanks.length > 0) && (
+            {result.phrases.length > 0 && (
               <Card>
                 <StageHeader num={4} label="Language Focus: Phrases & Expressions" time="10-12 min" icon="🗣️" />
                 <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
@@ -578,59 +766,28 @@ export default function YouTubeToLessonPage() {
                 </p>
 
                 {/* Phrases list */}
-                {result.phrases.length > 0 && (
-                  <div className="space-y-3 mb-6">
-                    {result.phrases.map((item, i) => (
-                      <div key={`ph-${i}`} className="p-4 rounded-lg bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-100 dark:border-emerald-800/30">
-                        <div className="flex items-baseline gap-2 mb-1">
-                          <span className="font-bold text-gray-900 dark:text-white">{item.term}</span>
-                          <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-800/40 text-emerald-700 dark:text-emerald-300">
-                            {item.type}
-                          </span>
-                          {item.cefrTag && (
-                            <span className={`text-xs px-2 py-0.5 rounded-full ${CEFR_COLORS[item.cefrTag] || 'bg-gray-100 text-gray-600'}`}>
-                              {item.cefrTag}
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-sm text-gray-700 dark:text-gray-300">{item.meaning}</p>
-                        <p className="text-xs italic text-gray-500 dark:text-gray-400 mt-1">&ldquo;{item.contextQuote}&rdquo;</p>
-                        <p className="text-sm text-emerald-700 dark:text-emerald-400 mt-1">
-                          <span className="font-medium">Example:</span> {item.exampleSentence}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {/* Fill-in-the-blanks exercise */}
-                {result.fillBlanks.length > 0 && (
-                  <div className="mt-6 p-5 rounded-lg bg-teal-50 dark:bg-teal-900/10 border border-teal-200 dark:border-teal-800/30">
-                    <h4 className="text-sm font-semibold text-teal-800 dark:text-teal-300 mb-3">
-                      ✏️ Fill in the Blanks — Use the phrases from the box
-                    </h4>
-                    {/* Word box */}
-                    <div className="flex flex-wrap gap-2 mb-4 p-3 rounded-md bg-white dark:bg-gray-800 border border-teal-200 dark:border-teal-700">
-                      {result.fillBlanks.map((fb) => (
-                        <span key={`wb-${fb.id}`} className="text-sm px-3 py-1 rounded-full bg-teal-100 dark:bg-teal-800/40 text-teal-800 dark:text-teal-300 font-medium">
-                          {showAnswers ? fb.answer : '•••'}
+                <div className="space-y-3 mb-6">
+                  {result.phrases.map((item, i) => (
+                    <div key={`ph-${i}`} className="p-4 rounded-lg bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-100 dark:border-emerald-800/30">
+                      <div className="flex items-baseline gap-2 mb-1">
+                        <span className="font-bold text-gray-900 dark:text-white">{item.term}</span>
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-800/40 text-emerald-700 dark:text-emerald-300">
+                          {item.type}
                         </span>
-                      ))}
+                        {item.cefrTag && (
+                          <span className={`text-xs px-2 py-0.5 rounded-full ${CEFR_COLORS[item.cefrTag] || 'bg-gray-100 text-gray-600'}`}>
+                            {item.cefrTag}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-sm text-gray-700 dark:text-gray-300">{item.meaning}</p>
+                      <p className="text-xs italic text-gray-500 dark:text-gray-400 mt-1">&ldquo;{item.contextQuote}&rdquo;</p>
                     </div>
-                    {/* Sentences */}
-                    <div className="space-y-3">
-                      {result.fillBlanks.map((fb) => (
-                        <div key={fb.id} className="text-sm text-gray-800 dark:text-gray-200">
-                          <span className="font-medium text-teal-700 dark:text-teal-400 mr-2">{fb.id}.</span>
-                          {fb.sentence}
-                          {showAnswers && (
-                            <span className="ml-2 text-teal-600 dark:text-teal-400 font-medium">→ {fb.answer}</span>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
+                  ))}
+                </div>
+
+                {/* Matching exercise */}
+                <PhraseMatchingGame phrases={result.phrases} />
               </Card>
             )}
 
@@ -683,13 +840,6 @@ export default function YouTubeToLessonPage() {
               </Card>
             )}
 
-            {/* ---- Transcript Preview ---- */}
-            <Card>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Transcript Preview</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
-                {result.transcriptPreview}...
-              </p>
-            </Card>
           </div>
         )}
       </div>
