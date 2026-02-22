@@ -118,23 +118,34 @@ Output format - respond with ONLY a valid JSON array, no other text:
     if (Array.isArray(parsed)) {
       questions = parsed
     } else if (parsed && typeof parsed === 'object') {
-      // Look for any key whose value is an array of objects with a "question" property
-      // Gemini may wrap in "questions", "data", "discussionQuestions", etc.
       const obj = parsed as Record<string, unknown>
-      const arrayKey = Object.keys(obj).find((key) => {
-        const val = obj[key]
-        return Array.isArray(val) && val.length > 0 && typeof val[0] === 'object' && val[0] !== null && 'question' in val[0]
-      })
 
-      if (arrayKey) {
-        questions = obj[arrayKey] as DiscussionQuestion[]
+      // Check if it's a single question object (has "question" key directly)
+      if ('question' in obj && typeof obj.question === 'string') {
+        // Gemini returned one object instead of an array — wrap it
+        questions = [obj as unknown as DiscussionQuestion]
       } else {
-        console.error('Response structure:', JSON.stringify(Object.keys(obj)), 'Full response:', JSON.stringify(parsed).substring(0, 500))
-        throw new Error('Could not find questions array in response')
+        // Look for any key whose value is an array of objects with a "question" property
+        const arrayKey = Object.keys(obj).find((key) => {
+          const val = obj[key]
+          return Array.isArray(val) && val.length > 0 && typeof val[0] === 'object' && val[0] !== null && 'question' in val[0]
+        })
+
+        if (arrayKey) {
+          questions = obj[arrayKey] as DiscussionQuestion[]
+        } else {
+          console.error('Response structure:', JSON.stringify(Object.keys(obj)), 'Full response:', JSON.stringify(parsed).substring(0, 500))
+          throw new Error('Could not find questions array in response')
+        }
       }
     } else {
       console.error('Unexpected parsed type:', typeof parsed)
       throw new Error('Could not find questions array in response')
+    }
+
+    // If we got very few questions (Gemini truncation), that's still usable
+    if (questions.length === 0) {
+      throw new Error('AI returned no questions')
     }
 
     // Validate and sanitize questions
