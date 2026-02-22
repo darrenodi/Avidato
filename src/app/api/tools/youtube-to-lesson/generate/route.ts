@@ -50,6 +50,12 @@ interface PhraseItem {
   cefrTag: string
 }
 
+interface FillBlankItem {
+  id: number
+  sentence: string
+  answer: string
+}
+
 interface DiscussionQuestion {
   id: number
   question: string
@@ -83,6 +89,7 @@ interface YouTubeLessonResponse {
   gistQuestions: GistQuestion[]
   detailQuestions: DetailQuestion[]
   phrases: PhraseItem[]
+  fillBlanks: FillBlankItem[]
   discussion: DiscussionQuestion[]
   wrapUp: ReflectionPrompt[]
   homework: HomeworkTask
@@ -148,8 +155,16 @@ a learner would typically first encounter this expression).
 Focus the selection around the target CEFR ${level} — most items should be AT or near
 ${level}, with 1-2 items slightly below (review/consolidation) and 1-2 slightly above (stretch).
 
-The student will do a MATCHING exercise: match each phrase to its meaning.
+The student will do TWO exercises with these phrases:
+
+Exercise 4a — MATCHING: match each phrase to its meaning.
 Make sure meanings are clear, concise, and distinguishable from each other.
+
+Exercise 4b — FILL-IN-THE-BLANKS: create sentences using 6 of the 8 phrases.
+Each sentence should have ONE blank where the phrase goes.
+The sentence must be NEW (not from the transcript) and provide enough context
+to work out the correct phrase. Put the answer phrase in the "answer" field.
+The student sees a word box with all 6 phrases above the exercise.
 
 STAGE 5 — DISCUSSION (10-12 min)
 Write 5 discussion questions that invite opinions, personal experience, and application.
@@ -194,6 +209,13 @@ OUTPUT JSON ONLY — no markdown, no explanation:
       "cefrTag": "B1"
     }
   ],
+  "fillBlanks": [
+    {
+      "id": 1,
+      "sentence": "I ________ watching a documentary and forgot about dinner.",
+      "answer": "got caught up in"
+    }
+  ],
   "discussion": [
     { "id": 1, "question": "discussion question", "followUp": "follow-up prompt for teacher" }
   ],
@@ -212,6 +234,7 @@ COUNTS (strict):
 - gistQuestions: exactly 3 items
 - detailQuestions: exactly 5 items
 - phrases: exactly 8 items (use type: "phrase", "collocation", "idiom", or "expression")
+- fillBlanks: exactly 6 items (use 6 of the 8 phrases above)
 - discussion: exactly 5 items
 - wrapUp: exactly 2 items
 - homework: exactly 1 item
@@ -320,6 +343,7 @@ export async function POST(request: NextRequest) {
       gistQuestions: Array.isArray(parsed.gistQuestions) ? parsed.gistQuestions : [],
       detailQuestions: Array.isArray(parsed.detailQuestions) ? parsed.detailQuestions : [],
       phrases: Array.isArray(parsed.phrases) ? parsed.phrases : [],
+      fillBlanks: Array.isArray(parsed.fillBlanks) ? parsed.fillBlanks : [],
       discussion: Array.isArray(parsed.discussion) ? parsed.discussion : [],
       wrapUp: Array.isArray(parsed.wrapUp) ? parsed.wrapUp : [],
       homework: parsed.homework || { task: '', type: 'writing' },

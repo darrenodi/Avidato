@@ -33,6 +33,12 @@ interface PhraseItem {
   cefrTag: string
 }
 
+interface FillBlankItem {
+  id: number
+  sentence: string
+  answer: string
+}
+
 interface DiscussionQuestion { id: number; question: string; followUp: string }
 interface ReflectionPrompt { id: number; prompt: string }
 interface HomeworkTask { task: string; type: 'writing' | 'speaking' | 'research' }
@@ -50,6 +56,7 @@ interface YouTubeLessonResult {
   gistQuestions: GistQuestion[]
   detailQuestions: DetailQuestion[]
   phrases: PhraseItem[]
+  fillBlanks: FillBlankItem[]
   discussion: DiscussionQuestion[]
   wrapUp: ReflectionPrompt[]
   homework: HomeworkTask
@@ -362,6 +369,8 @@ export default function YouTubeToLessonPage() {
         phrases: (result.phrases || []).map(({ term, type, meaning, cefrTag }) => ({
           term, type, meaning, cefrTag,
         })),
+        fillBlanks: (result.fillBlanks || []).map(({ id, sentence }) => ({ id, sentence })),
+        fillBlanksWordBox: (result.fillBlanks || []).map(fb => fb.answer).sort(() => Math.random() - 0.5),
         discussion: (result.discussion || []).map(({ id, question }) => ({ id, question })),
         wrapUp: result.wrapUp,
       }
@@ -786,8 +795,42 @@ export default function YouTubeToLessonPage() {
                   ))}
                 </div>
 
-                {/* Matching exercise */}
+                {/* 4a — Matching exercise */}
+                <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">4a — Match Phrase to Meaning</h4>
                 <PhraseMatchingGame phrases={result.phrases} />
+
+                {/* 4b — Fill-in-the-blanks */}
+                {result.fillBlanks && result.fillBlanks.length > 0 && (
+                  <div className="mt-8">
+                    <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">4b — Fill in the Blanks</h4>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
+                      Use the phrases from the word box to complete each sentence.
+                    </p>
+
+                    {/* Word box */}
+                    <div className="flex flex-wrap gap-2 mb-5 p-3 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+                      {result.fillBlanks.map((fb, i) => (
+                        <span key={`wb-${i}`} className="text-sm px-3 py-1.5 rounded-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-800 dark:text-gray-200 font-medium">
+                          {showAnswers ? fb.answer : '•••'}
+                        </span>
+                      ))}
+                    </div>
+
+                    {/* Sentences */}
+                    <div className="space-y-3">
+                      {result.fillBlanks.map((fb) => (
+                        <div key={`fb-${fb.id}`} className="p-3 rounded-lg bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-800/30">
+                          <p className="text-gray-900 dark:text-white">{fb.id}. {fb.sentence}</p>
+                          {showAnswers && (
+                            <p className="text-sm text-amber-700 dark:text-amber-400 mt-2 pt-2 border-t border-amber-200 dark:border-amber-700/40">
+                              <span className="font-medium">Answer:</span> {fb.answer}
+                            </p>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </Card>
             )}
 
