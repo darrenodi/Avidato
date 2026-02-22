@@ -1,17 +1,16 @@
 /**
  * YouTube Transcript Fetcher
  *
- * Multi-method approach:
+ * Multi-method approach (best-effort from server, may fail on cloud hosts):
  *   1. InnerTube API (primary) — use YouTube's internal API with multiple
- *      client identities (WEB → TV_EMBEDDED → ANDROID) and proper API key +
- *      consent cookies to bypass bot detection.
+ *      client identities (WEB → TV_EMBEDDED → ANDROID → MWEB) and proper
+ *      API key + consent cookies.
  *   2. Watch page scrape — extract ytInitialPlayerResponse as fallback.
- *   3. Python fallback — spawn youtube-transcript-api via child_process.
- *      Only used if Node.js methods fail AND python3 is available.
+ *
+ * NOTE: YouTube blocks most datacenter IPs (Vercel, AWS, etc.).
+ * The primary flow for production is the manual paste workflow
+ * where users copy transcripts from youtube-transcript.io.
  */
-
-import { spawn } from 'child_process'
-import path from 'path'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -50,7 +49,6 @@ export class YouTubeTranscriptError extends Error {
 
 const YOUTUBE_ID_REGEX = /^[a-zA-Z0-9_-]{11}$/
 const MAX_TRANSCRIPT_CHARS = 18_000
-const PYTHON_TIMEOUT_MS = 30_000
 
 // Public InnerTube API key (used by youtube.com itself, not secret)
 const INNERTUBE_API_KEY = 'AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8'
@@ -404,60 +402,6 @@ async function getTranscriptViaNodeJS(videoId: string): Promise<{ segments: Tran
   return { segments, language: track.languageCode }
 }
 
-// ===================================================================
-// METHOD 2: Python fallback — youtube-transcript-api via child_process
-// ===================================================================
-
-interface PythonResult {
-  videoId: string
-  language: string
-  segments: TranscriptSegment[]
-  text: string
-}
-
-function getTranscriptViaPython(videoId: string): Promise<PythonResult> {
-  return new Promise((resolve, reject) => {
-    const scriptPath = path.join(process.cwd(), 'scripts', 'get_transcript.py')
-    const proc = spawn('python3', [scriptPath, videoId])
-
-    let stdout = ''
-    let stderr = ''
-
-    const timer = setTimeout(() => {
-      proc.kill('SIGTERM')
-      reject(new YouTubeTranscriptError('Python transcript script timed out.'))
-    }, PYTHON_TIMEOUT_MS)
-
-    proc.stdout.on('data', (d: Buffer) => { stdout += d.toString() })
-    proc.stderr.on('data', (d: Buffer) => { stderr += d.toString() })
-
-    proc.on('close', (code) => {
-      clearTimeout(timer)
-      if (code !== 0) {
-        let msg = `Python exited with code ${code}`
-        try {
-          const err = JSON.parse(stderr.trim())
-          if (err.error) msg = err.error
-        } catch {
-          if (stderr.trim()) msg = stderr.trim()
-        }
-        reject(new YouTubeTranscriptError(msg))
-        return
-      }
-      try {
-        resolve(JSON.parse(stdout.trim()) as PythonResult)
-      } catch {
-        reject(new YouTubeTranscriptError('Failed to parse Python script output.'))
-      }
-    })
-
-    proc.on('error', (err) => {
-      clearTimeout(timer)
-      reject(new YouTubeTranscriptError(`Python not available: ${err.message}`))
-    })
-  })
-}
-
 // ---------------------------------------------------------------------------
 // Shared helpers
 // ---------------------------------------------------------------------------
@@ -480,7 +424,7 @@ function truncateTranscript(text: string, maxChars = MAX_TRANSCRIPT_CHARS): { te
 }
 
 // ---------------------------------------------------------------------------
-// Main export — Node.js first, Python fallback
+// Main export — Node.js only (best-effort, may fail on datacenter IPs)
 // ---------------------------------------------------------------------------
 
 export async function getYouTubeTranscript(input: string): Promise<YouTubeTranscriptResult> {
@@ -489,28 +433,17 @@ export async function getYouTubeTranscript(input: string): Promise<YouTubeTransc
 
   let segments: TranscriptSegment[]
   let language = 'en'
-  let nodeError: string | undefined
 
-  // Method 1: Node.js scraping
   try {
     const result = await getTranscriptViaNodeJS(videoId)
     segments = result.segments
     language = result.language
   } catch (e) {
-    nodeError = e instanceof Error ? e.message : String(e)
-    console.warn('Node.js transcript failed, trying Python fallback:', nodeError)
-
-    // Method 2: Python fallback
-    try {
-      const pyResult = await getTranscriptViaPython(videoId)
-      segments = pyResult.segments
-      language = pyResult.language
-    } catch (pyErr) {
-      const pyMsg = pyErr instanceof Error ? pyErr.message : String(pyErr)
-      throw new YouTubeTranscriptError(
-        `All transcript methods failed. Node.js: ${nodeError}. Python: ${pyMsg}`
-      )
-    }
+    const msg = e instanceof Error ? e.message : String(e)
+    console.warn('Server-side transcript fetch failed:', msg)
+    throw new YouTubeTranscriptError(
+      'YouTube blocks automatic transcript fetching from cloud servers. Please paste the transcript manually.'
+    )
   }
 
   const rawText = buildText(segments)

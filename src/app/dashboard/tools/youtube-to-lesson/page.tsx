@@ -87,11 +87,8 @@ export default function YouTubeToLessonPage() {
             throw new Error('Video is too long. Maximum supported duration is 5 minutes.')
           }
         } catch (err) {
-          const msg = err instanceof Error ? err.message : 'Failed to fetch transcript'
-          // Show transcript error but let user paste manually
-          setTranscriptError(
-            `Could not fetch transcript automatically: ${msg}. Please paste the transcript manually below, or try a different video.`
-          )
+          // Show clean message — don't expose internal details
+          setTranscriptError('auto-fetch-failed')
           setLoading(false)
           setLoadingStage(null)
           return
@@ -173,21 +170,56 @@ export default function YouTubeToLessonPage() {
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">YouTube to Lesson Generator</h1>
           <p className="text-gray-600 dark:text-gray-400">
-            Paste a YouTube link to generate discussion questions, vocabulary, and phrases from the video transcript.
+            Generate discussion questions, vocabulary, and phrases from a YouTube video transcript.
           </p>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-            Maximum supported video length: 5 minutes.
-          </p>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-            If captions are unavailable, paste the transcript manually below.
+            Maximum supported video length: 5 minutes. Paste the transcript below to get started.
           </p>
         </div>
 
         <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 shadow-sm mb-8">
           <form onSubmit={handleGenerate} className="space-y-6">
+            {/* Transcript paste — primary input */}
+            <div>
+              <label htmlFor="manualTranscript" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Video Transcript
+              </label>
+              <textarea
+                id="manualTranscript"
+                value={manualTranscript}
+                onChange={(e) => setManualTranscript(e.target.value)}
+                placeholder="Paste the YouTube video transcript here..."
+                rows={10}
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-primary focus:border-transparent"
+              />
+              <div className="flex items-center gap-2 mt-2">
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  Need the transcript? Copy it from{' '}
+                  <a
+                    href="https://www.youtube-transcript.io/"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-brand-primary hover:underline font-medium"
+                  >
+                    youtube-transcript.io
+                  </a>
+                </p>
+                {youtubeUrl.trim() && (
+                  <button
+                    type="button"
+                    onClick={() => window.open('https://www.youtube-transcript.io/', '_blank')}
+                    className="ml-auto text-xs px-3 py-1 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-md border border-gray-300 dark:border-gray-600 transition-colors"
+                  >
+                    Open Transcript Tool &rarr;
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* YouTube URL — secondary input for metadata */}
             <div>
               <label htmlFor="youtubeUrl" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                YouTube URL (optional if transcript is pasted)
+                YouTube URL <span className="text-gray-400 font-normal">(optional — for video link &amp; metadata)</span>
               </label>
               <input
                 id="youtubeUrl"
@@ -197,23 +229,6 @@ export default function YouTubeToLessonPage() {
                 placeholder="https://www.youtube.com/watch?v=..."
                 className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-primary focus:border-transparent"
               />
-            </div>
-
-            <div>
-              <label htmlFor="manualTranscript" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Manual Transcript (paste here if auto-fetch fails)
-              </label>
-              <textarea
-                id="manualTranscript"
-                value={manualTranscript}
-                onChange={(e) => setManualTranscript(e.target.value)}
-                placeholder="Paste transcript text here if YouTube captions are unavailable..."
-                rows={8}
-                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-primary focus:border-transparent"
-              />
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                You can use either URL or transcript text, or both.
-              </p>
             </div>
 
             <div>
@@ -236,14 +251,22 @@ export default function YouTubeToLessonPage() {
 
             {transcriptError && (
               <div className="p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
-                <p className="text-sm text-amber-800 dark:text-amber-300 mb-2">{transcriptError}</p>
-                <p className="text-xs text-amber-600 dark:text-amber-400">
-                  Tip: You can get the transcript from{' '}
-                  <a href="https://www.youtube-transcript.io/" target="_blank" rel="noreferrer" className="underline font-medium">
-                    youtube-transcript.io
-                  </a>{' '}
-                  and paste it below.
+                <p className="text-sm font-medium text-amber-800 dark:text-amber-300 mb-2">
+                  Automatic transcript fetch is unavailable.
                 </p>
+                <p className="text-sm text-amber-700 dark:text-amber-400 mb-3">
+                  YouTube blocks server-side requests. Copy the transcript from the tool below and paste it in the field above.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => window.open('https://www.youtube-transcript.io/', '_blank')}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium bg-amber-100 dark:bg-amber-800/40 hover:bg-amber-200 dark:hover:bg-amber-800/60 text-amber-900 dark:text-amber-200 rounded-md border border-amber-300 dark:border-amber-700 transition-colors"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                  Open youtube-transcript.io
+                </button>
               </div>
             )}
 

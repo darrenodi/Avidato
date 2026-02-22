@@ -217,12 +217,8 @@ export async function POST(request: NextRequest) {
     console.error('Error generating YouTube lesson:', error)
 
     if (isTranscriptUnavailableError(error)) {
-      const msg = error instanceof Error
-        ? error.message
-        : 'Transcript is unavailable for this video.'
-
       return NextResponse.json(
-        { error: `${msg} Try a video with captions enabled, or paste transcript text manually.` },
+        { error: 'YouTube blocks automatic transcript fetching from cloud servers. Please paste the transcript manually.' },
         { status: 400 }
       )
     }
