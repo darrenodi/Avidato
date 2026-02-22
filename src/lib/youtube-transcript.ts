@@ -1,11 +1,13 @@
 /**
  * YouTube Transcript Fetcher
  *
- * Two-method approach:
- *   1. Node.js (primary) — scrape ytInitialPlayerResponse from watch page,
- *      fetch caption XML/JSON3 directly. Works on any server.
- *   2. Python fallback — spawn youtube-transcript-api via child_process.
- *      Only used if Node.js method fails AND python3 is available.
+ * Multi-method approach:
+ *   1. InnerTube API (primary) — use YouTube's internal API with multiple
+ *      client identities (WEB → TV_EMBEDDED → ANDROID) and proper API key +
+ *      consent cookies to bypass bot detection.
+ *   2. Watch page scrape — extract ytInitialPlayerResponse as fallback.
+ *   3. Python fallback — spawn youtube-transcript-api via child_process.
+ *      Only used if Node.js methods fail AND python3 is available.
  */
 
 import { spawn } from 'child_process'
@@ -50,6 +52,13 @@ const YOUTUBE_ID_REGEX = /^[a-zA-Z0-9_-]{11}$/
 const MAX_TRANSCRIPT_CHARS = 18_000
 const PYTHON_TIMEOUT_MS = 30_000
 
+// Public InnerTube API key (used by youtube.com itself, not secret)
+const INNERTUBE_API_KEY = 'AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8'
+
+// Consent cookies — bypass EU consent gate and reduce bot detection
+const CONSENT_COOKIES =
+  'SOCS=CAISNQgDEitib3FfaWRlbnRpdHlmcm9udGVuZHVpc2VydmVyXzIwMjMxMTE0LjA3X3AxGgJlbiACGgYIgJneBxAB; CONSENT=PENDING+987'
+
 const USER_AGENT =
   'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'
 
@@ -57,7 +66,60 @@ const DEFAULT_HEADERS: Record<string, string> = {
   'User-Agent': USER_AGENT,
   'Accept-Language': 'en-US,en;q=0.9',
   Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+  Cookie: CONSENT_COOKIES,
 }
+
+// InnerTube client configurations — tried in order
+const INNERTUBE_CLIENTS: Array<{
+  name: string
+  context: Record<string, unknown>
+}> = [
+  {
+    name: 'WEB',
+    context: {
+      client: {
+        clientName: 'WEB',
+        clientVersion: '2.20260220.00.00',
+        hl: 'en',
+        gl: 'US',
+      },
+    },
+  },
+  {
+    name: 'TV_EMBEDDED',
+    context: {
+      client: {
+        clientName: 'TVHTML5_SIMPLY_EMBEDDED_PLAYER',
+        clientVersion: '2.0',
+        hl: 'en',
+        gl: 'US',
+      },
+    },
+  },
+  {
+    name: 'ANDROID',
+    context: {
+      client: {
+        clientName: 'ANDROID',
+        clientVersion: '19.09.37',
+        androidSdkVersion: 30,
+        hl: 'en',
+        gl: 'US',
+      },
+    },
+  },
+  {
+    name: 'MWEB',
+    context: {
+      client: {
+        clientName: 'MWEB',
+        clientVersion: '2.20260220.01.00',
+        hl: 'en',
+        gl: 'US',
+      },
+    },
+  },
+]
 
 // ---------------------------------------------------------------------------
 // Video ID extraction
@@ -136,6 +198,15 @@ async function fetchCaptionTracksFromWatchPage(videoId: string): Promise<Caption
     throw new YouTubeTranscriptError('YouTube consent page — cannot extract transcript server-side.')
   }
 
+  // Detect bot/sign-in challenges
+  if (
+    html.includes('Sign in to confirm you') ||
+    html.includes('confirm you\'re not a bot') ||
+    html.includes('confirm you\u2019re not a bot')
+  ) {
+    throw new YouTubeTranscriptError('Sign in to confirm you\'re not a bot.')
+  }
+
   const match =
     html.match(/var\s+ytInitialPlayerResponse\s*=\s*(\{.+?\})\s*;\s*var\s/) ||
     html.match(/ytInitialPlayerResponse\s*=\s*(\{[\s\S]*?\})\s*;/)
@@ -169,37 +240,82 @@ async function fetchCaptionTracksFromWatchPage(videoId: string): Promise<Caption
 }
 
 async function fetchCaptionTracksFromInnerTube(videoId: string): Promise<CaptionTrack[]> {
-  const res = await fetch('https://www.youtube.com/youtubei/v1/player?prettyPrint=false', {
-    method: 'POST',
-    headers: { ...DEFAULT_HEADERS, 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      context: { client: { clientName: 'WEB', clientVersion: '2.20260101.00.00', hl: 'en' } },
-      videoId,
-    }),
-    cache: 'no-store',
-  })
+  const errors: string[] = []
 
-  if (!res.ok) throw new YouTubeTranscriptError(`InnerTube /player returned ${res.status}`)
+  for (const client of INNERTUBE_CLIENTS) {
+    try {
+      const res = await fetch(
+        `https://www.youtube.com/youtubei/v1/player?key=${INNERTUBE_API_KEY}&prettyPrint=false`,
+        {
+          method: 'POST',
+          headers: {
+            'User-Agent': USER_AGENT,
+            'Accept-Language': 'en-US,en;q=0.9',
+            'Content-Type': 'application/json',
+            Cookie: CONSENT_COOKIES,
+            Origin: 'https://www.youtube.com',
+            Referer: `https://www.youtube.com/watch?v=${videoId}`,
+          },
+          body: JSON.stringify({
+            context: client.context,
+            videoId,
+          }),
+          cache: 'no-store',
+        },
+      )
 
-  const data = (await res.json()) as Record<string, unknown>
+      if (!res.ok) {
+        errors.push(`${client.name}: HTTP ${res.status}`)
+        continue
+      }
 
-  const playability = data.playabilityStatus as Record<string, unknown> | undefined
-  if (playability && playability.status !== 'OK') {
-    throw new YouTubeTranscriptError((playability.reason as string) || 'Video is not playable')
+      const data = (await res.json()) as Record<string, unknown>
+
+      // Check for bot detection / sign-in requirement
+      const playability = data.playabilityStatus as Record<string, unknown> | undefined
+      if (playability) {
+        const reason = (playability.reason as string) || ''
+        const subreasons = (
+          (playability.errorScreen as Record<string, unknown>)?.playerErrorMessageRenderer as Record<string, unknown>
+        )?.subreason as Record<string, unknown> | undefined
+
+        if (
+          reason.toLowerCase().includes('sign in') ||
+          reason.toLowerCase().includes('bot') ||
+          JSON.stringify(subreasons || '').toLowerCase().includes('sign in')
+        ) {
+          errors.push(`${client.name}: ${reason || 'Sign in required'}`)
+          continue // Try next client
+        }
+
+        if (playability.status !== 'OK') {
+          errors.push(`${client.name}: ${reason || `status=${playability.status}`}`)
+          continue
+        }
+      }
+
+      const captions = data.captions as Record<string, unknown> | undefined
+      const renderer = captions?.playerCaptionsTracklistRenderer as Record<string, unknown> | undefined
+      const tracks = renderer?.captionTracks as CaptionTrack[] | undefined
+
+      if (!tracks?.length) {
+        errors.push(`${client.name}: No caption tracks`)
+        continue
+      }
+
+      console.log(`✅ InnerTube success with ${client.name} client`)
+      return tracks.map((t) => ({
+        baseUrl: t.baseUrl.replace(/\\u0026/g, '&').replace(/\\\//g, '/'),
+        languageCode: t.languageCode || 'unknown',
+        name: typeof t.name === 'object' ? ((t.name as { simpleText?: string }).simpleText ?? undefined) : undefined,
+        kind: t.kind,
+      }))
+    } catch (err) {
+      errors.push(`${client.name}: ${err instanceof Error ? err.message : String(err)}`)
+    }
   }
 
-  const captions = data.captions as Record<string, unknown> | undefined
-  const renderer = captions?.playerCaptionsTracklistRenderer as Record<string, unknown> | undefined
-  const tracks = renderer?.captionTracks as CaptionTrack[] | undefined
-
-  if (!tracks?.length) throw new YouTubeTranscriptError('No caption tracks found via InnerTube.')
-
-  return tracks.map((t) => ({
-    baseUrl: t.baseUrl.replace(/\\u0026/g, '&').replace(/\\\//g, '/'),
-    languageCode: t.languageCode || 'unknown',
-    name: typeof t.name === 'object' ? ((t.name as { simpleText?: string }).simpleText ?? undefined) : undefined,
-    kind: t.kind,
-  }))
+  throw new YouTubeTranscriptError(`InnerTube failed all clients: ${errors.join('; ')}`)
 }
 
 function pickBestTrack(tracks: CaptionTrack[]): CaptionTrack {
@@ -265,15 +381,18 @@ async function getTranscriptViaNodeJS(videoId: string): Promise<{ segments: Tran
   let tracks: CaptionTrack[]
   let lastErr: Error | undefined
 
+  // Try InnerTube FIRST — it supports multiple client identities and bypasses
+  // bot detection better than the watch page scrape from server IPs.
   try {
-    tracks = await fetchCaptionTracksFromWatchPage(videoId)
+    tracks = await fetchCaptionTracksFromInnerTube(videoId)
   } catch (e) {
     lastErr = e instanceof Error ? e : new Error(String(e))
+    // Fallback: try the watch page scrape
     try {
-      tracks = await fetchCaptionTracksFromInnerTube(videoId)
+      tracks = await fetchCaptionTracksFromWatchPage(videoId)
     } catch (e2) {
       throw new YouTubeTranscriptError(
-        `Node.js: Watch page: ${lastErr.message}. InnerTube: ${e2 instanceof Error ? e2.message : String(e2)}`
+        `Node.js: InnerTube: ${lastErr.message}. Watch page: ${e2 instanceof Error ? e2.message : String(e2)}`
       )
     }
   }
