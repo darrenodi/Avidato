@@ -2,7 +2,7 @@
 
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import DashboardLayout from '@/components/layout/DashboardLayout'
 import { fetchTranscriptViaProxy, extractVideoId } from '@/lib/youtube-transcript-client'
 
@@ -330,6 +330,12 @@ export default function YouTubeToLessonPage() {
   const [showAnswers, setShowAnswers] = useState(true)
   const [shareCopied, setShareCopied] = useState(false)
   const [shareLoading, setShareLoading] = useState(false)
+
+  // Shuffle fill-in-the-blanks word box once per generated result
+  const shuffledWordBox = useMemo(() => {
+    if (!result?.fillBlanks) return []
+    return [...result.fillBlanks.map(fb => fb.answer)].sort(() => Math.random() - 0.5)
+  }, [result])
 
   useEffect(() => {
     if (status === 'unauthenticated') router.push('/login')
@@ -775,11 +781,11 @@ export default function YouTubeToLessonPage() {
                       Use the phrases from the word box to complete each sentence.
                     </p>
 
-                    {/* Word box */}
+                    {/* Word box — shuffled so answers aren't in sentence order */}
                     <div className="flex flex-wrap gap-2 mb-5 p-3 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
-                      {result.fillBlanks.map((fb, i) => (
+                      {shuffledWordBox.map((word, i) => (
                         <span key={`wb-${i}`} className="text-sm px-3 py-1.5 rounded-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-800 dark:text-gray-200 font-medium">
-                          {showAnswers ? fb.answer : '•••'}
+                          {showAnswers ? word : '•••'}
                         </span>
                       ))}
                     </div>
