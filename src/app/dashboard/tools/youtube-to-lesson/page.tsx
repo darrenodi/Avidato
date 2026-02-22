@@ -9,14 +9,14 @@ import { fetchTranscriptViaProxy, extractVideoId } from '@/lib/youtube-transcrip
 type CEFRLevel = 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2'
 
 // ---------------------------------------------------------------------------
-// Lesson stage types — matches backend 7-stage structure
+// Types — matches backend 6-stage structure
 // ---------------------------------------------------------------------------
 
 interface WarmUpQuestion { id: number; question: string }
 
 interface PreTeachItem {
   term: string
-  type: 'word' | 'phrase'
+  type: 'word' | 'phrase' | 'collocation' | 'idiom'
   definition: string
   exampleSentence: string
   conceptCheckQuestion: string
@@ -25,14 +25,16 @@ interface PreTeachItem {
 interface GistQuestion { id: number; question: string }
 interface DetailQuestion { id: number; question: string; answer: string }
 
-interface VocabularyItem {
+interface PhraseItem {
   term: string
-  type: 'word' | 'phrase'
+  type: 'phrase' | 'collocation' | 'idiom' | 'expression'
   contextQuote: string
   meaning: string
   exampleSentence: string
+  cefrTag: string
 }
 
+interface FillBlankItem { id: number; sentence: string; answer: string }
 interface DiscussionQuestion { id: number; question: string; followUp: string }
 interface ReflectionPrompt { id: number; prompt: string }
 interface HomeworkTask { task: string; type: 'writing' | 'speaking' | 'research' }
@@ -49,8 +51,8 @@ interface YouTubeLessonResult {
   preTeach: PreTeachItem[]
   gistQuestions: GistQuestion[]
   detailQuestions: DetailQuestion[]
-  vocabulary: VocabularyItem[]
-  phrases: VocabularyItem[]
+  phrases: PhraseItem[]
+  fillBlanks: FillBlankItem[]
   discussion: DiscussionQuestion[]
   wrapUp: ReflectionPrompt[]
   homework: HomeworkTask
@@ -59,7 +61,6 @@ interface YouTubeLessonResult {
 }
 
 const CEFR_LEVELS: CEFRLevel[] = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']
-
 const LEVEL_DESCRIPTIONS: Record<CEFRLevel, string> = {
   A1: 'Elementary - Complete beginner',
   A2: 'Elementary - Can communicate in simple tasks',
@@ -69,8 +70,17 @@ const LEVEL_DESCRIPTIONS: Record<CEFRLevel, string> = {
   C2: 'Mastery - Native-like proficiency',
 }
 
+const CEFR_COLORS: Record<string, string> = {
+  A1: 'bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-300',
+  A2: 'bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-300',
+  B1: 'bg-yellow-100 dark:bg-yellow-900/40 text-yellow-800 dark:text-yellow-300',
+  B2: 'bg-orange-100 dark:bg-orange-900/40 text-orange-800 dark:text-orange-300',
+  C1: 'bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-300',
+  C2: 'bg-purple-100 dark:bg-purple-900/40 text-purple-800 dark:text-purple-300',
+}
+
 // ---------------------------------------------------------------------------
-// Stage header component
+// Helper components
 // ---------------------------------------------------------------------------
 
 function StageHeader({ num, label, time, icon }: { num: number; label: string; time: string; icon: string }) {
@@ -80,9 +90,7 @@ function StageHeader({ num, label, time, icon }: { num: number; label: string; t
         {num}
       </span>
       <div className="flex-1 min-w-0">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-          {icon} {label}
-        </h3>
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{icon} {label}</h3>
       </div>
       <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 whitespace-nowrap">
         {time}
@@ -90,10 +98,6 @@ function StageHeader({ num, label, time, icon }: { num: number; label: string; t
     </div>
   )
 }
-
-// ---------------------------------------------------------------------------
-// YouTube embed component
-// ---------------------------------------------------------------------------
 
 function YouTubeEmbed({ videoId, instruction }: { videoId: string; instruction: string }) {
   if (!videoId || videoId === 'manual') return null
@@ -112,10 +116,6 @@ function YouTubeEmbed({ videoId, instruction }: { videoId: string; instruction: 
     </div>
   )
 }
-
-// ---------------------------------------------------------------------------
-// Card wrapper
-// ---------------------------------------------------------------------------
 
 function Card({ children }: { children: React.ReactNode }) {
   return (
@@ -143,16 +143,18 @@ export default function YouTubeToLessonPage() {
   const [result, setResult] = useState<YouTubeLessonResult | null>(null)
   const [showAnswers, setShowAnswers] = useState(true)
   const [shareCopied, setShareCopied] = useState(false)
+  const [shareLoading, setShareLoading] = useState(false)
 
   useEffect(() => {
     if (status === 'unauthenticated') router.push('/login')
   }, [status, router])
 
   // -----------------------------------------------------------------------
-  // Share: store lesson in sessionStorage, copy share URL
+  // Share: POST student-safe data to API, get short link
   // -----------------------------------------------------------------------
   const handleShare = async () => {
-    if (!result) return
+    if (!result || shareLoading) return
+    setShareLoading(true)
     try {
       // Build student-safe version: strip answers, teacher notes, CCQs, follow-ups, homework
       const studentData = {
@@ -167,27 +169,32 @@ export default function YouTubeToLessonPage() {
         })),
         gistQuestions: result.gistQuestions,
         detailQuestions: (result.detailQuestions || []).map(({ id, question }) => ({ id, question })),
-        vocabulary: result.vocabulary,
-        phrases: result.phrases,
+        phrases: (result.phrases || []).map(({ term, type, meaning, exampleSentence, cefrTag }) => ({
+          term, type, meaning, exampleSentence, cefrTag,
+        })),
+        fillBlanks: (result.fillBlanks || []).map(({ id, sentence }) => ({ id, sentence })),
+        fillBlanksWordBox: (result.fillBlanks || []).map(fb => fb.answer),
         discussion: (result.discussion || []).map(({ id, question }) => ({ id, question })),
         wrapUp: result.wrapUp,
       }
-      const encoded = btoa(encodeURIComponent(JSON.stringify(studentData)))
-      const shareUrl = `${window.location.origin}/share/youtube-lesson#d=${encoded}`
 
+      const res = await fetch('/api/tools/youtube-to-lesson/share', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(studentData),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Failed to create share link')
+
+      const shareUrl = `${window.location.origin}/share/youtube-lesson/${data.id}`
       await navigator.clipboard.writeText(shareUrl)
       setShareCopied(true)
       setTimeout(() => setShareCopied(false), 3000)
-    } catch {
-      // Fallback
-      const textArea = document.createElement('textarea')
-      textArea.value = window.location.origin + '/share/youtube-lesson'
-      document.body.appendChild(textArea)
-      textArea.select()
-      document.execCommand('copy')
-      document.body.removeChild(textArea)
-      setShareCopied(true)
-      setTimeout(() => setShareCopied(false), 3000)
+    } catch (err) {
+      console.error('Share error:', err)
+      setError('Failed to create share link. Please try again.')
+    } finally {
+      setShareLoading(false)
     }
   }
 
@@ -207,7 +214,6 @@ export default function YouTubeToLessonPage() {
       let transcriptText = manualTranscript.trim()
       const url = youtubeUrl.trim()
 
-      // Step 1: If URL provided and no manual transcript, try auto-fetch
       if (url && !transcriptText) {
         setLoadingStage('transcript')
         try {
@@ -231,7 +237,6 @@ export default function YouTubeToLessonPage() {
         return
       }
 
-      // Step 2: Generate lesson
       setLoadingStage('lesson')
       const videoId = url ? extractVideoId(url) : null
 
@@ -278,7 +283,7 @@ export default function YouTubeToLessonPage() {
             Generate a complete 45-minute ESL lesson plan from a YouTube video transcript.
           </p>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-            Max video length: 5 minutes. The lesson includes 7 stages from warm-up to wrap-up.
+            Max video length: 5 minutes. The lesson includes 6 stages from warm-up to wrap-up.
           </p>
         </div>
 
@@ -317,10 +322,10 @@ export default function YouTubeToLessonPage() {
               </div>
             </div>
 
-            {/* YouTube URL — secondary */}
+            {/* YouTube URL */}
             <div>
               <label htmlFor="youtubeUrl" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                YouTube URL <span className="text-gray-400 font-normal">(optional — for embedded player &amp; metadata)</span>
+                YouTube URL <span className="text-gray-400 font-normal">(optional — for embedded player)</span>
               </label>
               <input
                 id="youtubeUrl"
@@ -387,7 +392,7 @@ export default function YouTubeToLessonPage() {
               {loading ? (
                 <>
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                  {loadingStage === 'transcript' ? 'Fetching Transcript...' : 'Generating 7-Stage Lesson...'}
+                  {loadingStage === 'transcript' ? 'Fetching Transcript...' : 'Generating Lesson Plan...'}
                 </>
               ) : (
                 <>
@@ -402,7 +407,7 @@ export default function YouTubeToLessonPage() {
         </Card>
 
         {/* ============================================================== */}
-        {/* LESSON PLAN RESULT — 7 Stages                                   */}
+        {/* LESSON PLAN RESULT — 6 Stages                                   */}
         {/* ============================================================== */}
         {result && (
           <div className="space-y-6 mt-8">
@@ -425,7 +430,6 @@ export default function YouTubeToLessonPage() {
                 </div>
               </div>
 
-              {/* Teacher notes */}
               {result.teacherNotes && (
                 <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-100 dark:border-blue-800">
                   <p className="text-xs font-medium text-blue-700 dark:text-blue-400 mb-1">Teacher Notes</p>
@@ -433,22 +437,18 @@ export default function YouTubeToLessonPage() {
                 </div>
               )}
 
-              {/* Toolbar: show/hide answers + share */}
+              {/* Toolbar */}
               <div className="flex items-center gap-3 mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-                <button
-                  type="button"
-                  onClick={() => setShowAnswers(!showAnswers)}
-                  className="text-sm px-4 py-2 rounded-md border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                >
+                <button type="button" onClick={() => setShowAnswers(!showAnswers)}
+                  className="text-sm px-4 py-2 rounded-md border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                   {showAnswers ? 'Hide Answers' : 'Show Answers'}
                 </button>
 
-                <button
-                  type="button"
-                  onClick={handleShare}
-                  className="inline-flex items-center gap-2 text-sm px-4 py-2 rounded-md border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                >
-                  {shareCopied ? (
+                <button type="button" onClick={handleShare} disabled={shareLoading}
+                  className="inline-flex items-center gap-2 text-sm px-4 py-2 rounded-md border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50">
+                  {shareLoading ? (
+                    <><div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-500"></div>Sharing...</>
+                  ) : shareCopied ? (
                     <>
                       <svg className="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -466,12 +466,8 @@ export default function YouTubeToLessonPage() {
                 </button>
 
                 {result.sourceUrl && (
-                  <a
-                    href={result.sourceUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="ml-auto text-sm text-brand-primary hover:underline font-medium"
-                  >
+                  <a href={result.sourceUrl} target="_blank" rel="noreferrer"
+                    className="ml-auto text-sm text-brand-primary hover:underline font-medium">
                     Open Video &rarr;
                   </a>
                 )}
@@ -500,7 +496,7 @@ export default function YouTubeToLessonPage() {
               <Card>
                 <StageHeader num={2} label="Pre-Teach Vocabulary" time="5-7 min" icon="📖" />
                 <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
-                  Teach these words BEFORE watching. They&apos;re essential for understanding the video.
+                  Teach these BEFORE watching. They&apos;re essential for understanding the video.
                 </p>
                 <div className="space-y-4">
                   {result.preTeach.map((item, i) => (
@@ -528,99 +524,122 @@ export default function YouTubeToLessonPage() {
               </Card>
             )}
 
-            {/* ---- STAGE 3: First Watch — Gist ---- */}
-            {result.gistQuestions.length > 0 && (
-              <Card>
-                <StageHeader num={3} label="First Watch — Gist" time="5 min" icon="▶️" />
-                <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
-                  Play the video. Student answers these for general understanding.
-                </p>
-                <YouTubeEmbed videoId={result.videoId} instruction="Watch the video and answer the gist questions below:" />
-                <div className="space-y-3">
-                  {result.gistQuestions.map((q) => (
-                    <div key={q.id} className="p-3 rounded-lg bg-sky-50 dark:bg-sky-900/10 border border-sky-100 dark:border-sky-800/30">
-                      <p className="text-gray-900 dark:text-white">{q.id}. {q.question}</p>
-                    </div>
-                  ))}
-                </div>
-              </Card>
-            )}
+            {/* ---- STAGE 3: Watch & Comprehend ---- */}
+            <Card>
+              <StageHeader num={3} label="Watch & Comprehend" time="10-12 min" icon="▶️" />
+              <YouTubeEmbed videoId={result.videoId} instruction="Play the video. The student watches once and answers all comprehension questions." />
 
-            {/* ---- STAGE 4: Second Watch — Detail ---- */}
-            {result.detailQuestions.length > 0 && (
+              {/* Gist questions */}
+              {result.gistQuestions.length > 0 && (
+                <div className="mb-6">
+                  <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">Before Watching — Gist Questions</h4>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
+                    Give these to the student BEFORE pressing play. They focus on general understanding.
+                  </p>
+                  <div className="space-y-3">
+                    {result.gistQuestions.map((q) => (
+                      <div key={q.id} className="p-3 rounded-lg bg-sky-50 dark:bg-sky-900/10 border border-sky-100 dark:border-sky-800/30">
+                        <p className="text-gray-900 dark:text-white">{q.id}. {q.question}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Detail questions */}
+              {result.detailQuestions.length > 0 && (
+                <div>
+                  <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">After Watching — Detail Questions</h4>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
+                    Ask these AFTER the video. Check specific comprehension.
+                  </p>
+                  <div className="space-y-3">
+                    {result.detailQuestions.map((q) => (
+                      <div key={q.id} className="p-3 rounded-lg bg-indigo-50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-800/30">
+                        <p className="text-gray-900 dark:text-white mb-1">{q.id}. {q.question}</p>
+                        {showAnswers && (
+                          <p className="text-sm text-indigo-700 dark:text-indigo-400 mt-2 pt-2 border-t border-indigo-200 dark:border-indigo-700/40">
+                            <span className="font-medium">Answer:</span> {q.answer}
+                          </p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </Card>
+
+            {/* ---- STAGE 4: Language Focus — Phrases & Expressions ---- */}
+            {(result.phrases.length > 0 || result.fillBlanks.length > 0) && (
               <Card>
-                <StageHeader num={4} label="Second Watch — Detail" time="5-7 min" icon="🔍" />
+                <StageHeader num={4} label="Language Focus: Phrases & Expressions" time="10-12 min" icon="🗣️" />
                 <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
-                  Play the video again. Student answers these for specific details.
+                  Reusable phrases, collocations and expressions from the video. These make the student sound more natural.
                 </p>
-                <YouTubeEmbed videoId={result.videoId} instruction="Watch the video a second time and answer the detail questions:" />
-                <div className="space-y-3">
-                  {result.detailQuestions.map((q) => (
-                    <div key={q.id} className="p-3 rounded-lg bg-indigo-50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-800/30">
-                      <p className="text-gray-900 dark:text-white mb-1">{q.id}. {q.question}</p>
-                      {showAnswers && (
-                        <p className="text-sm text-indigo-700 dark:text-indigo-400 mt-2 pt-2 border-t border-indigo-200 dark:border-indigo-700/40">
-                          <span className="font-medium">Answer:</span> {q.answer}
+
+                {/* Phrases list */}
+                {result.phrases.length > 0 && (
+                  <div className="space-y-3 mb-6">
+                    {result.phrases.map((item, i) => (
+                      <div key={`ph-${i}`} className="p-4 rounded-lg bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-100 dark:border-emerald-800/30">
+                        <div className="flex items-baseline gap-2 mb-1">
+                          <span className="font-bold text-gray-900 dark:text-white">{item.term}</span>
+                          <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-800/40 text-emerald-700 dark:text-emerald-300">
+                            {item.type}
+                          </span>
+                          {item.cefrTag && (
+                            <span className={`text-xs px-2 py-0.5 rounded-full ${CEFR_COLORS[item.cefrTag] || 'bg-gray-100 text-gray-600'}`}>
+                              {item.cefrTag}
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-sm text-gray-700 dark:text-gray-300">{item.meaning}</p>
+                        <p className="text-xs italic text-gray-500 dark:text-gray-400 mt-1">&ldquo;{item.contextQuote}&rdquo;</p>
+                        <p className="text-sm text-emerald-700 dark:text-emerald-400 mt-1">
+                          <span className="font-medium">Example:</span> {item.exampleSentence}
                         </p>
-                      )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Fill-in-the-blanks exercise */}
+                {result.fillBlanks.length > 0 && (
+                  <div className="mt-6 p-5 rounded-lg bg-teal-50 dark:bg-teal-900/10 border border-teal-200 dark:border-teal-800/30">
+                    <h4 className="text-sm font-semibold text-teal-800 dark:text-teal-300 mb-3">
+                      ✏️ Fill in the Blanks — Use the phrases from the box
+                    </h4>
+                    {/* Word box */}
+                    <div className="flex flex-wrap gap-2 mb-4 p-3 rounded-md bg-white dark:bg-gray-800 border border-teal-200 dark:border-teal-700">
+                      {result.fillBlanks.map((fb) => (
+                        <span key={`wb-${fb.id}`} className="text-sm px-3 py-1 rounded-full bg-teal-100 dark:bg-teal-800/40 text-teal-800 dark:text-teal-300 font-medium">
+                          {showAnswers ? fb.answer : '•••'}
+                        </span>
+                      ))}
                     </div>
-                  ))}
-                </div>
+                    {/* Sentences */}
+                    <div className="space-y-3">
+                      {result.fillBlanks.map((fb) => (
+                        <div key={fb.id} className="text-sm text-gray-800 dark:text-gray-200">
+                          <span className="font-medium text-teal-700 dark:text-teal-400 mr-2">{fb.id}.</span>
+                          {fb.sentence}
+                          {showAnswers && (
+                            <span className="ml-2 text-teal-600 dark:text-teal-400 font-medium">→ {fb.answer}</span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </Card>
             )}
 
-            {/* ---- STAGE 5: Language Focus ---- */}
-            {(result.vocabulary.length > 0 || result.phrases.length > 0) && (
-              <Card>
-                <StageHeader num={5} label="Language Focus" time="8-10 min" icon="🗣️" />
-                <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
-                  Study vocabulary and phrases from the video in context.
-                </p>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {result.vocabulary.length > 0 && (
-                    <div>
-                      <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">Vocabulary</h4>
-                      <div className="space-y-3">
-                        {result.vocabulary.map((item, i) => (
-                          <div key={`v-${i}`} className="p-3 rounded-lg bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-100 dark:border-emerald-800/30">
-                            <p className="font-semibold text-gray-900 dark:text-white">{item.term}</p>
-                            <p className="text-sm text-gray-700 dark:text-gray-300">{item.meaning}</p>
-                            <p className="text-xs italic text-gray-500 dark:text-gray-400 mt-1">&ldquo;{item.contextQuote}&rdquo;</p>
-                            <p className="text-sm text-emerald-700 dark:text-emerald-400 mt-1">
-                              <span className="font-medium">Example:</span> {item.exampleSentence}
-                            </p>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  {result.phrases.length > 0 && (
-                    <div>
-                      <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">Useful Phrases</h4>
-                      <div className="space-y-3">
-                        {result.phrases.map((item, i) => (
-                          <div key={`p-${i}`} className="p-3 rounded-lg bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-100 dark:border-emerald-800/30">
-                            <p className="font-semibold text-gray-900 dark:text-white">{item.term}</p>
-                            <p className="text-sm text-gray-700 dark:text-gray-300">{item.meaning}</p>
-                            <p className="text-xs italic text-gray-500 dark:text-gray-400 mt-1">&ldquo;{item.contextQuote}&rdquo;</p>
-                            <p className="text-sm text-emerald-700 dark:text-emerald-400 mt-1">
-                              <span className="font-medium">Example:</span> {item.exampleSentence}
-                            </p>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </Card>
-            )}
-
-            {/* ---- STAGE 6: Discussion ---- */}
+            {/* ---- STAGE 5: Discussion ---- */}
             {result.discussion.length > 0 && (
               <Card>
-                <StageHeader num={6} label="Discussion" time="10-12 min" icon="💡" />
+                <StageHeader num={5} label="Discussion" time="10-12 min" icon="💡" />
                 <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
-                  Open discussion — encourage the student to use vocabulary from stages 2 and 5.
+                  Encourage the student to use phrases from stages 2 and 4.
                 </p>
                 <div className="space-y-4">
                   {result.discussion.map((q) => (
@@ -637,10 +656,10 @@ export default function YouTubeToLessonPage() {
               </Card>
             )}
 
-            {/* ---- STAGE 7: Wrap-Up ---- */}
+            {/* ---- STAGE 6: Wrap-Up ---- */}
             {(result.wrapUp.length > 0 || result.homework?.task) && (
               <Card>
-                <StageHeader num={7} label="Wrap-Up" time="3-5 min" icon="✅" />
+                <StageHeader num={6} label="Wrap-Up" time="3-5 min" icon="✅" />
                 {result.wrapUp.length > 0 && (
                   <div className="space-y-3 mb-4">
                     {result.wrapUp.map((r) => (

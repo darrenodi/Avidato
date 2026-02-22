@@ -174,3 +174,12 @@ model BlogPost {
   @@index([published])
   @@index([slug])
 }
+
+model SharedYouTubeLesson {
+  id        String   @id
+  data      Json
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+
+  @@index([expiresAt])
+}

@@ -15,7 +15,7 @@ interface GenerateYouTubeLessonRequest {
 }
 
 // ---------------------------------------------------------------------------
-// Lesson stage types — 7-stage 45-minute ESL lesson plan
+// Lesson stage types — 6-stage 45-minute ESL lesson plan
 // ---------------------------------------------------------------------------
 
 interface WarmUpQuestion {
@@ -25,7 +25,7 @@ interface WarmUpQuestion {
 
 interface PreTeachItem {
   term: string
-  type: 'word' | 'phrase'
+  type: 'word' | 'phrase' | 'collocation' | 'idiom'
   definition: string
   exampleSentence: string
   conceptCheckQuestion: string
@@ -42,12 +42,19 @@ interface DetailQuestion {
   answer: string
 }
 
-interface VocabularyItem {
+interface PhraseItem {
   term: string
-  type: 'word' | 'phrase'
+  type: 'phrase' | 'collocation' | 'idiom' | 'expression'
   contextQuote: string
   meaning: string
   exampleSentence: string
+  cefrTag: string
+}
+
+interface FillBlankItem {
+  id: number
+  sentence: string
+  answer: string
 }
 
 interface DiscussionQuestion {
@@ -82,8 +89,8 @@ interface YouTubeLessonResponse {
   preTeach: PreTeachItem[]
   gistQuestions: GistQuestion[]
   detailQuestions: DetailQuestion[]
-  vocabulary: VocabularyItem[]
-  phrases: VocabularyItem[]
+  phrases: PhraseItem[]
+  fillBlanks: FillBlankItem[]
   discussion: DiscussionQuestion[]
   wrapUp: ReflectionPrompt[]
   homework: HomeworkTask
@@ -110,8 +117,9 @@ ${transcriptText}
 """
 
 TASK:
-Create a complete 7-stage lesson plan that a teacher can pick up and follow top-to-bottom.
+Create a complete 6-stage lesson plan that a teacher can pick up and follow top-to-bottom.
 Every item must be level-appropriate for CEFR ${level}.
+The student watches the video ONCE only (for 4-5 minute videos, watching twice wastes time).
 
 LESSON STAGES:
 
@@ -122,31 +130,46 @@ and related to the theme. Purpose: get the student talking and lower the affecti
 
 STAGE 2 — PRE-TEACH KEY VOCABULARY (5-7 min)
 Pick 5 words/phrases from the transcript that the student NEEDS to understand the video.
-Choose items that would block comprehension if unknown. For each: give a simple definition,
+Choose items that would block comprehension if unknown — include collocations, phrasal verbs,
+or idiomatic expressions, not just isolated single words.
+For each: give a simple definition at CEFR ${level} level,
 an example sentence (NOT from the transcript), and a concept-check question (CCQ).
 
-STAGE 3 — FIRST WATCH: GIST QUESTIONS (5 min)
-Write 3 simple gist questions the student answers after watching/reading the first time.
-These check global understanding only: "What is the main topic?", "Who is speaking and why?"
-NOT detail questions. Short answer expected.
+STAGE 3 — WATCH & COMPREHEND (10-12 min)
+The student watches the video ONCE. Before watching, give them gist questions to focus on
+general understanding. After watching, ask detail questions for specific information.
+- Write 3 gist questions (global understanding: main idea, speaker's purpose, topic).
+- Write 5 detail questions (specific info: facts, figures, quotes, cause-effect).
+  Include a short teacher reference answer for each detail question.
+  Mix question types: true/false, short answer, "What does the speaker mean when they say...?"
 
-STAGE 4 — SECOND WATCH: DETAIL QUESTIONS (5-7 min)
-Write 5 specific detail questions that require careful listening/reading.
-Include a short teacher reference answer for each. Mix question types:
-true/false, short answer, "What does the speaker mean when they say...?"
+STAGE 4 — LANGUAGE FOCUS: PHRASES & EXPRESSIONS (10-12 min)
+This is the core vocabulary stage. Extract REUSABLE phrases, collocations, semi-idiomatic
+expressions and natural chunks from the transcript — NOT isolated single words.
+Focus on the types of language that make a student sound more fluent:
+- Common collocations (e.g., "trigger a response", "a sense of accomplishment")
+- Phrasal verbs and multi-word verbs (e.g., "get caught up in", "switch over to")
+- Idiomatic / figurative expressions (e.g., "has a bad rap", "natural high")
+- Useful everyday phrases (e.g., "for starters", "make it through")
 
-STAGE 5 — LANGUAGE FOCUS (8-10 min)
-Extract 6 vocabulary words and 4 useful phrases/expressions from the transcript.
-For each: include a short context quote from the transcript, a clear meaning,
-and a natural example sentence showing how to use it.
+Extract 8 items total. For each, tag its approximate CEFR level (the level at which
+a learner would typically first encounter this expression).
+Focus the selection around the target CEFR ${level} — most items should be AT or near
+${level}, with 1-2 items slightly below (review/consolidation) and 1-2 slightly above (stretch).
 
-STAGE 6 — DISCUSSION (10-12 min)
+Then create a FILL-IN-THE-BLANKS exercise using 6 of those 8 phrases.
+Each sentence should have ONE blank where the phrase goes.
+The sentence must be NEW (not from the transcript) and provide enough context
+to work out the correct phrase. Put the answer phrase in the "answer" field.
+The student sees a word box with all 6 phrases above the exercise.
+
+STAGE 5 — DISCUSSION (10-12 min)
 Write 5 discussion questions that invite opinions, personal experience, and application.
 NO factual recall. Include a teacher follow-up prompt for each (a secondary question
 the teacher can ask to push the conversation deeper). Encourage the student to
-use vocabulary from stages 2 and 5.
+use phrases from stages 2 and 4.
 
-STAGE 7 — WRAP-UP (3-5 min)
+STAGE 6 — WRAP-UP (3-5 min)
 Write 2 reflection prompts: e.g., "What was the most interesting thing you learned?"
 Also include 1 optional homework task (writing, speaking, or research).
 
@@ -162,8 +185,8 @@ OUTPUT JSON ONLY — no markdown, no explanation:
   "preTeach": [
     {
       "term": "word or phrase",
-      "type": "word",
-      "definition": "simple learner-friendly definition",
+      "type": "collocation",
+      "definition": "simple learner-friendly definition at target CEFR level",
       "exampleSentence": "Example using the word (not from transcript)",
       "conceptCheckQuestion": "Is X the same as Y? (yes/no style CCQ)"
     }
@@ -174,22 +197,21 @@ OUTPUT JSON ONLY — no markdown, no explanation:
   "detailQuestions": [
     { "id": 1, "question": "detail question", "answer": "short reference answer" }
   ],
-  "vocabulary": [
-    {
-      "term": "word",
-      "type": "word",
-      "contextQuote": "short quote from transcript",
-      "meaning": "simple meaning",
-      "exampleSentence": "natural example sentence"
-    }
-  ],
   "phrases": [
     {
-      "term": "multi-word expression",
+      "term": "multi-word expression or collocation",
       "type": "phrase",
-      "contextQuote": "short quote from transcript",
-      "meaning": "simple meaning",
-      "exampleSentence": "natural example sentence"
+      "contextQuote": "short quote from transcript where it appears",
+      "meaning": "clear meaning at target level",
+      "exampleSentence": "natural example sentence (not from transcript)",
+      "cefrTag": "B1"
+    }
+  ],
+  "fillBlanks": [
+    {
+      "id": 1,
+      "sentence": "I ________ watching a documentary and forgot about dinner.",
+      "answer": "got caught up in"
     }
   ],
   "discussion": [
@@ -205,15 +227,15 @@ OUTPUT JSON ONLY — no markdown, no explanation:
 }
 
 COUNTS (strict):
-- warmUp: 3 items
-- preTeach: 5 items
-- gistQuestions: 3 items
-- detailQuestions: 5 items
-- vocabulary: 6 items (single words)
-- phrases: 4 items (multi-word expressions)
-- discussion: 5 items
-- wrapUp: 2 items
-- homework: 1 item
+- warmUp: exactly 3 items
+- preTeach: exactly 5 items (use type: "word", "phrase", "collocation", or "idiom")
+- gistQuestions: exactly 3 items
+- detailQuestions: exactly 5 items
+- phrases: exactly 8 items (use type: "phrase", "collocation", "idiom", or "expression")
+- fillBlanks: exactly 6 items (use 6 of the 8 phrases above)
+- discussion: exactly 5 items
+- wrapUp: exactly 2 items
+- homework: exactly 1 item
 
 Return ONLY valid JSON.`
 }
@@ -320,8 +342,8 @@ export async function POST(request: NextRequest) {
       preTeach: Array.isArray(parsed.preTeach) ? parsed.preTeach : [],
       gistQuestions: Array.isArray(parsed.gistQuestions) ? parsed.gistQuestions : [],
       detailQuestions: Array.isArray(parsed.detailQuestions) ? parsed.detailQuestions : [],
-      vocabulary: Array.isArray(parsed.vocabulary) ? parsed.vocabulary : [],
       phrases: Array.isArray(parsed.phrases) ? parsed.phrases : [],
+      fillBlanks: Array.isArray(parsed.fillBlanks) ? parsed.fillBlanks : [],
       discussion: Array.isArray(parsed.discussion) ? parsed.discussion : [],
       wrapUp: Array.isArray(parsed.wrapUp) ? parsed.wrapUp : [],
       homework: parsed.homework || { task: '', type: 'writing' },
