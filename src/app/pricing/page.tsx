@@ -1,7 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import { useSession } from 'next-auth/react';
+import { initializePaddle, type Paddle } from '@paddle/paddle-js';
 import PublicNavbar from '@/components/layout/PublicNavbar';
 import PublicFooter from '@/components/layout/PublicFooter';
 import CheckCircleIcon from '@/components/icons/CheckCircleIcon';
@@ -16,7 +18,10 @@ interface PricingPlan {
   features: string[];
   buttonText: string;
   isPopular?: boolean;
-  buttonHref: string;
+  priceIds?: {
+    monthly: string;
+    annual: string;
+  };
 }
 
 const pricingPlans: PricingPlan[] = [
@@ -25,7 +30,6 @@ const pricingPlans: PricingPlan[] = [
     description: 'Perfect for trying things out.',
     price: { monthly: 0, annual: 0 },
     buttonText: 'Get Started',
-    buttonHref: '/signup',
     features: [
       '20 generations / day',
       'Unlimited students',
@@ -39,8 +43,11 @@ const pricingPlans: PricingPlan[] = [
     description: 'For the dedicated professional tutor.',
     price: { monthly: 6, annual: 5 },
     buttonText: 'Upgrade to Pro',
-    buttonHref: '/signup',
     isPopular: true,
+    priceIds: {
+      monthly: process.env.NEXT_PUBLIC_PRO_MONTHLY_PLAN_ID!,
+      annual: process.env.NEXT_PUBLIC_PRO_YEARLY_PLAN_ID!,
+    },
     features: [
       'Everything in Starter, plus:',
       'Unlimited lesson plans',
@@ -56,7 +63,10 @@ const pricingPlans: PricingPlan[] = [
     description: 'For small teams and power users.',
     price: { monthly: 10, annual: 8 },
     buttonText: 'Choose Premium',
-    buttonHref: '/signup',
+    priceIds: {
+      monthly: process.env.NEXT_PUBLIC_PREMIUM_MONTHLY_PLAN_ID!,
+      annual: process.env.NEXT_PUBLIC_PREMIUM_YEARLY_PLAN_ID!,
+    },
     features: [
       'Everything in Pro, plus:',
       'Team access (up to 3 tutors)',
@@ -100,6 +110,69 @@ export default function PricingPage() {
   const [pricingTier, setPricingTier] = useState<'monthly' | 'annual'>('monthly');
   const [expandedFaq, setExpandedFaq] = useState<number | null>(0);
   const [hoveredCardIndex, setHoveredCardIndex] = useState<number>(1);
+  const { data: session, status } = useSession();
+  const user = session?.user as { id?: string; email?: string | null } | undefined;
+  const [paddleInstance, setPaddleInstance] = useState<Paddle | null>(null);
+
+  // Initialize Paddle.js
+  useEffect(() => {
+    const clientToken =
+      process.env.NEXT_PUBLIC_PADDLE_ENVIRONMENT === 'sandbox'
+        ? process.env.NEXT_PUBLIC_PADDLE_SANDBOX_CLIENT!
+        : process.env.NEXT_PUBLIC_PADDLE_CLIENT_TOKEN!;
+
+    if (!clientToken) return;
+
+    initializePaddle({
+      token: clientToken,
+      environment: (process.env.NEXT_PUBLIC_PADDLE_ENVIRONMENT as 'sandbox' | 'production') ?? 'sandbox',
+      eventCallback: (event) => {
+        if (event.name === 'checkout.completed') {
+          // Redirect to dashboard after successful checkout
+          window.location.href = '/dashboard?upgraded=true';
+        }
+      },
+    }).then((paddle) => {
+      if (paddle) setPaddleInstance(paddle);
+    });
+  }, []);
+
+  const openCheckout = useCallback(
+    (plan: PricingPlan) => {
+      if (!plan.priceIds) {
+        // Free plan → signup
+        window.location.href = '/signup';
+        return;
+      }
+
+      if (status !== 'authenticated' || !user?.id) {
+        // Not logged in → signup first, then they can upgrade
+        window.location.href = '/signup';
+        return;
+      }
+
+      if (!paddleInstance) {
+        console.error('Paddle not initialized');
+        return;
+      }
+
+      const priceId = pricingTier === 'monthly' ? plan.priceIds.monthly : plan.priceIds.annual;
+
+      paddleInstance.Checkout.open({
+        items: [{ priceId, quantity: 1 }],
+        customer: user.email ? { email: user.email } : undefined,
+        customData: {
+          userId: user.id,
+        },
+        settings: {
+          theme: 'light',
+          displayMode: 'overlay',
+          successUrl: `${window.location.origin}/dashboard?upgraded=true`,
+        },
+      });
+    },
+    [paddleInstance, pricingTier, user, status]
+  );
 
   return (
     <div className="flex flex-col min-h-screen bg-white">
@@ -194,16 +267,29 @@ export default function PricingPage() {
                     </div>
 
                     {/* CTA Button */}
-                    <Link
-                      href={plan.buttonHref}
-                      className={`w-full py-3 px-4 rounded-lg font-semibold transition-colors mb-8 text-center ${
-                        plan.isPopular
-                          ? 'bg-brand-primary text-white hover:bg-brand-accent'
-                          : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
-                      }`}
-                    >
-                      {plan.buttonText}
-                    </Link>
+                    {plan.priceIds ? (
+                      <button
+                        onClick={() => openCheckout(plan)}
+                        className={`w-full py-3 px-4 rounded-lg font-semibold transition-colors mb-8 text-center ${
+                          plan.isPopular
+                            ? 'bg-brand-primary text-white hover:bg-brand-accent'
+                            : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
+                        }`}
+                      >
+                        {plan.buttonText}
+                      </button>
+                    ) : (
+                      <Link
+                        href="/signup"
+                        className={`w-full py-3 px-4 rounded-lg font-semibold transition-colors mb-8 text-center block ${
+                          plan.isPopular
+                            ? 'bg-brand-primary text-white hover:bg-brand-accent'
+                            : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
+                        }`}
+                      >
+                        {plan.buttonText}
+                      </Link>
+                    )}
 
                     {/* Features List */}
                     <div className="space-y-4 flex-grow">

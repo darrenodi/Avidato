@@ -443,7 +443,7 @@ export default function StudentProfilePage() {
                 <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
                   <div className="text-center sm:text-right order-3 sm:order-1">
                     <p className="text-xs text-gray-500 dark:text-gray-400">
-                      Generations: {generationStats.used}/{generationStats.limit}
+                      Generations: {generationStats.limit === -1 ? `${generationStats.used} (Unlimited)` : `${generationStats.used}/${generationStats.limit}`}
                     </p>
                   </div>
                   <button 

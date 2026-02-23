@@ -946,9 +946,86 @@ function AccountLinkingSection() {
 
 /**
  * Billing Tab Component
- * Displays subscription information and billing details
+ * Displays real subscription information from Paddle
  */
 function BillingTab() {
+  const [subscription, setSubscription] = useState<{
+    plan: string
+    status: string
+    billingInterval: string | null
+    currentPeriodEnd: string | null
+    cancelAt: string | null
+    dailyLimit: number
+    subscriptionId?: string
+    paddleCustomerId?: string
+  } | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [canceling, setCanceling] = useState(false)
+
+  useEffect(() => {
+    fetch('/api/paddle/subscription')
+      .then((r) => r.json())
+      .then((data) => setSubscription(data))
+      .catch(console.error)
+      .finally(() => setLoading(false))
+  }, [])
+
+  const handleCancel = async () => {
+    if (!confirm('Are you sure you want to cancel your subscription? You will retain access until the end of your billing period.')) return
+    setCanceling(true)
+    try {
+      const res = await fetch('/api/paddle/cancel', { method: 'POST' })
+      if (res.ok) {
+        setSubscription((prev) => prev ? { ...prev, status: 'canceled' } : prev)
+      } else {
+        const err = await res.json()
+        alert(err.error || 'Failed to cancel subscription')
+      }
+    } catch {
+      alert('Network error — please try again')
+    } finally {
+      setCanceling(false)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="space-y-8">
+        <div>
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Billing</h2>
+          <p className="text-gray-600 dark:text-gray-400">Loading subscription details…</p>
+        </div>
+      </div>
+    )
+  }
+
+  const isPaid = subscription && subscription.status !== 'free' && subscription.subscriptionId
+  const isActive = isPaid && (subscription.status === 'active' || subscription.status === 'trialing')
+  const isCanceled = subscription?.status === 'canceled'
+
+  const planLabel = subscription?.plan ?? 'Starter'
+  const intervalLabel = subscription?.billingInterval === 'annual' ? 'Annual' : 'Monthly'
+  const priceDisplay =
+    planLabel === 'Pro'
+      ? subscription?.billingInterval === 'annual' ? '$5/mo' : '$6/mo'
+      : planLabel === 'Premium'
+        ? subscription?.billingInterval === 'annual' ? '$8/mo' : '$10/mo'
+        : 'Free'
+
+  const periodEnd = subscription?.currentPeriodEnd
+    ? new Date(subscription.currentPeriodEnd).toLocaleDateString('en-US', {
+        year: 'numeric', month: 'long', day: 'numeric',
+      })
+    : null
+
+  const statusColor = isActive
+    ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
+    : isCanceled
+      ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
+      : subscription?.status === 'past_due'
+        ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400'
+        : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
+
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -966,16 +1043,33 @@ function BillingTab() {
           <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-4">Current Plan</h3>
           <div className="flex items-center justify-between">
             <div>
-              <div className="inline-flex items-center px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300 rounded-full text-xs font-semibold mb-2">
-                Starter Plan
+              <div className="flex items-center gap-2 mb-2">
+                <span className="inline-flex items-center px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300 rounded-full text-xs font-semibold">
+                  {planLabel} Plan
+                </span>
+                <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${statusColor}`}>
+                  {isPaid ? (subscription.status ?? 'free').replace('_', ' ') : 'Free'}
+                </span>
               </div>
               <p className="text-3xl font-bold text-gray-900 dark:text-white">
-                Free<span className="text-base font-normal text-gray-600 dark:text-gray-400"></span>
+                {priceDisplay}
               </p>
+              {isPaid && (
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                  {intervalLabel} billing{periodEnd ? ` · Renews ${periodEnd}` : ''}
+                </p>
+              )}
+              {isCanceled && periodEnd && (
+                <p className="text-sm text-red-500 mt-1">
+                  Access until {periodEnd}
+                </p>
+              )}
             </div>
-            <button className="px-4 py-2 bg-gray-900 dark:bg-gray-700 text-white rounded-lg hover:bg-gray-800 dark:hover:bg-gray-600 transition-colors flex items-center gap-2">
-              Upgrade <span className="text-lg">↗</span>
-            </button>
+            {!isPaid && (
+              <a href="/pricing" className="px-4 py-2 bg-gray-900 dark:bg-gray-700 text-white rounded-lg hover:bg-gray-800 dark:hover:bg-gray-600 transition-colors flex items-center gap-2">
+                Upgrade <span className="text-lg">↗</span>
+              </a>
+            )}
           </div>
         </div>
 
@@ -999,35 +1093,67 @@ function BillingTab() {
               <svg className="w-4 h-4 mr-2 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
               </svg>
-              20 generations / day
+              {isPaid ? 'Unlimited' : `${subscription?.dailyLimit ?? 20}`} generations / day
             </li>
+            {(planLabel === 'Pro' || planLabel === 'Premium') && (
+              <>
+                <li className="flex items-center text-sm text-gray-900 dark:text-white">
+                  <svg className="w-4 h-4 mr-2 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  Priority email support
+                </li>
+                <li className="flex items-center text-sm text-gray-900 dark:text-white">
+                  <svg className="w-4 h-4 mr-2 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  Ad-free experience
+                </li>
+              </>
+            )}
           </ul>
         </div>
       </div>
 
-      {/* Billing History */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">Billing History</h3>
-        <div className="text-center py-12">
-          <svg className="w-12 h-12 text-gray-400 dark:text-gray-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-          </svg>
-          <p className="text-gray-600 dark:text-gray-400 mb-2">No invoices available yet</p>
-          <p className="text-sm text-gray-500 dark:text-gray-500">Your invoices will appear here once you upgrade to a paid plan</p>
+      {/* Manage Subscription */}
+      {isPaid && (
+        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Manage Subscription</h3>
+          <div className="flex flex-wrap gap-3">
+            <a
+              href="/pricing"
+              className="px-4 py-2 bg-gray-900 dark:bg-gray-700 text-white rounded-lg hover:bg-gray-800 dark:hover:bg-gray-600 transition-colors"
+            >
+              Change Plan
+            </a>
+            {isActive && (
+              <button
+                onClick={handleCancel}
+                disabled={canceling}
+                className="px-4 py-2 border border-red-300 dark:border-red-700 text-red-600 dark:text-red-400 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors disabled:opacity-50"
+              >
+                {canceling ? 'Canceling…' : 'Cancel Subscription'}
+              </button>
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
-      {/* Payment Method */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">Payment Method</h3>
-        <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-8 flex flex-col items-center justify-center hover:border-gray-400 dark:hover:border-gray-500 transition-colors cursor-pointer">
-          <svg className="w-12 h-12 text-gray-400 dark:text-gray-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-          </svg>
-          <p className="text-gray-700 dark:text-gray-300 font-medium mb-1">No payment method added</p>
-          <p className="text-sm text-gray-500 dark:text-gray-500">Add a payment method to upgrade to a paid plan</p>
+      {/* No Subscription CTA */}
+      {!isPaid && (
+        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Upgrade Your Plan</h3>
+          <p className="text-gray-600 dark:text-gray-400 mb-4">
+            Unlock unlimited lesson generations and premium features by upgrading to Pro or Premium.
+          </p>
+          <a
+            href="/pricing"
+            className="inline-flex items-center px-6 py-3 bg-brand-primary text-white rounded-lg hover:bg-brand-accent transition-colors font-semibold"
+          >
+            View Plans
+          </a>
         </div>
-      </div>
+      )}
     </div>
   )
 }

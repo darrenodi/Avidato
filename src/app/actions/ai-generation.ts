@@ -42,6 +42,7 @@ export async function checkAndUpdateGenerationLimit(userId: string): Promise<boo
       dailyGenerationCount: true,
       lastGenerationDate: true,
       dailyLimit: true,
+      subscriptionStatus: true,
     },
   });
 
@@ -49,7 +50,10 @@ export async function checkAndUpdateGenerationLimit(userId: string): Promise<boo
     throw new Error('User not found');
   }
 
-  // Reset count if it's a new day
+  // Paid users with active subscription skip the daily limit
+  const hasActiveSubscription = user.subscriptionStatus === 'active' || user.subscriptionStatus === 'trialing';
+
+  // Reset count if it's a new day (still track usage for analytics)
   const lastGenDate = user.lastGenerationDate;
   const needsReset = !lastGenDate || lastGenDate < today;
 
@@ -64,8 +68,8 @@ export async function checkAndUpdateGenerationLimit(userId: string): Promise<boo
     return true;
   }
 
-  // Check if under daily limit
-  if (user.dailyGenerationCount >= user.dailyLimit) {
+  // Check if under daily limit (skip for paid subscribers)
+  if (!hasActiveSubscription && user.dailyGenerationCount >= user.dailyLimit) {
     return false;
   }
 
@@ -97,6 +101,7 @@ export async function getGenerationStats() {
         dailyGenerationCount: true,
         lastGenerationDate: true,
         dailyLimit: true,
+        subscriptionStatus: true,
       },
     }),
     new Promise((_, reject) => 
@@ -106,15 +111,27 @@ export async function getGenerationStats() {
     dailyGenerationCount: number
     lastGenerationDate: Date | null
     dailyLimit: number
+    subscriptionStatus: string | null
   } | null;
 
   if (!user) {
     throw new Error('User not found');
   }
 
+  const hasActiveSubscription = user.subscriptionStatus === 'active' || user.subscriptionStatus === 'trialing';
+
   // Reset if new day
   const needsReset = !user.lastGenerationDate || user.lastGenerationDate < today;
   const currentCount = needsReset ? 0 : user.dailyGenerationCount;
+
+  // For paid users, show unlimited
+  if (hasActiveSubscription) {
+    return {
+      used: currentCount,
+      limit: -1, // -1 means unlimited
+      remaining: -1,
+    };
+  }
 
   return {
     used: currentCount,

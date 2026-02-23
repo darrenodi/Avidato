@@ -47,6 +47,15 @@ model User {
   dailyLimit           Int       @default(20)
   bio                  String?
   isAdmin              Boolean   @default(false)
+
+  // Paddle Billing
+  paddleCustomerId              String?   @unique
+  subscriptionId                String?   @unique
+  subscriptionStatus            String?   // active, canceled, past_due, paused, trialing
+  subscriptionPlanId            String?   // Paddle price ID
+  subscriptionCurrentPeriodEnd  DateTime?
+  subscriptionCancelAt          DateTime?
+
   accounts             Account[]
   sessions             Session[]
   students             Student[]

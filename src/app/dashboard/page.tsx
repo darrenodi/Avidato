@@ -252,6 +252,8 @@ export default function DashboardPage() {
                 <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white truncate">
                   {statsLoading ? (
                     <span className="animate-pulse bg-gray-200 dark:bg-gray-700 rounded w-6 sm:w-8 h-6 sm:h-8 block"></span>
+                  ) : generationStats.limit === -1 ? (
+                    '∞'
                   ) : (
                     `${generationStats.remaining}/${generationStats.limit}`
                   )}
