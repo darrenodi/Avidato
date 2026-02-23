@@ -963,7 +963,8 @@ function BillingTab() {
   const [canceling, setCanceling] = useState(false)
 
   useEffect(() => {
-    fetch('/api/paddle/subscription')
+    // Always try sync on first load — catches cases where webhook failed
+    fetch('/api/paddle/subscription?sync=true')
       .then((r) => r.json())
       .then((data) => setSubscription(data))
       .catch(console.error)

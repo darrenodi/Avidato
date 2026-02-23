@@ -119,6 +119,25 @@ export default function DashboardPage() {
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange)
   }, [])
 
+  // Sync subscription after checkout redirect (?upgraded=true)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    if (params.get('upgraded') === 'true' && session) {
+      fetch('/api/paddle/sync', { method: 'POST' })
+        .then((r) => r.json())
+        .then((data) => {
+          if (data.synced) {
+            console.log(`[Subscription] Synced: ${data.plan} (${data.status})`)
+          }
+        })
+        .catch(console.error)
+        .finally(() => {
+          // Clean up URL
+          window.history.replaceState({}, '', '/dashboard')
+        })
+    }
+  }, [session])
+
   useEffect(() => {
     
     if (status === 'loading') return // Still loading

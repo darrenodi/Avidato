@@ -5,6 +5,50 @@ import { EventName } from '@paddle/paddle-node-sdk'
 
 const prisma = new PrismaClient()
 
+/**
+ * Resolve the userId for a subscription event.
+ * Tries (in order): customData.userId → DB lookup by paddleCustomerId → DB lookup by email.
+ */
+async function resolveUserId(
+  sub: { customerId: string; customData?: unknown },
+  eventType: string
+): Promise<string | null> {
+  // 1. Explicit userId in customData (set by our checkout)
+  const customData = sub.customData as Record<string, string> | null
+  if (customData?.userId) return customData.userId
+
+  // 2. Lookup by Paddle customer ID (stored from earlier events or checkout)
+  const byCustomer = await prisma.user.findFirst({
+    where: { paddleCustomerId: sub.customerId },
+    select: { id: true },
+  })
+  if (byCustomer) return byCustomer.id
+
+  // 3. Lookup by email from Paddle customer API
+  try {
+    const customer = await paddle.customers.get(sub.customerId)
+    if (customer?.email) {
+      const byEmail = await prisma.user.findUnique({
+        where: { email: customer.email },
+        select: { id: true },
+      })
+      if (byEmail) {
+        // Store paddleCustomerId for faster future lookups
+        await prisma.user.update({
+          where: { id: byEmail.id },
+          data: { paddleCustomerId: sub.customerId },
+        })
+        return byEmail.id
+      }
+    }
+  } catch (err) {
+    console.error(`[Paddle Webhook] Failed to fetch customer ${sub.customerId}:`, err)
+  }
+
+  console.error(`[Paddle Webhook] Could not resolve userId for ${eventType}, customerId=${sub.customerId}`)
+  return null
+}
+
 export async function POST(req: NextRequest) {
   const signature = req.headers.get('paddle-signature')
   if (!signature) {
@@ -26,16 +70,36 @@ export async function POST(req: NextRequest) {
 
   try {
     switch (event.eventType) {
+      // ---------- Transaction completed — capture customer ID early ----------
+      case EventName.TransactionCompleted: {
+        const txn = event.data
+        const customData = txn.customData as Record<string, string> | null
+        const userId = customData?.userId
+
+        if (userId && txn.customerId) {
+          await prisma.user.update({
+            where: { id: userId },
+            data: { paddleCustomerId: txn.customerId },
+          }).catch(() => {
+            // User might not exist yet, that's ok
+          })
+          console.log(`[Paddle Webhook] Stored paddleCustomerId for user ${userId}`)
+        }
+        break
+      }
+
+      // ---------- Subscription lifecycle ----------
       case EventName.SubscriptionCreated:
       case EventName.SubscriptionUpdated:
       case EventName.SubscriptionActivated:
       case EventName.SubscriptionTrialing: {
         const sub = event.data
-        const userId = (sub.customData as Record<string, string> | null)?.userId
+        const userId = await resolveUserId(sub, event.eventType)
 
         if (!userId) {
-          console.error('[Paddle Webhook] No userId in customData for subscription', sub.id)
-          return NextResponse.json({ error: 'Missing userId' }, { status: 400 })
+          // Return 200 so Paddle doesn't retry — we'll rely on the sync endpoint
+          console.error('[Paddle Webhook] No userId resolved for subscription', sub.id)
+          return NextResponse.json({ received: true, warning: 'userId not resolved' })
         }
 
         const priceId = sub.items?.[0]?.price?.id ?? null
@@ -63,10 +127,10 @@ export async function POST(req: NextRequest) {
 
       case EventName.SubscriptionCanceled: {
         const sub = event.data
-        const userId = (sub.customData as Record<string, string> | null)?.userId
+        const userId = await resolveUserId(sub, event.eventType)
 
         if (!userId) {
-          // Try to find user by subscription ID
+          // Also try by subscription ID
           const user = await prisma.user.findUnique({
             where: { subscriptionId: sub.id },
             select: { id: true },
@@ -77,10 +141,10 @@ export async function POST(req: NextRequest) {
               data: {
                 subscriptionStatus: 'canceled',
                 subscriptionCancelAt: sub.canceledAt ? new Date(sub.canceledAt) : new Date(),
-                dailyLimit: 20, // Revert to free plan limit
+                dailyLimit: 20,
               },
             })
-            console.log(`[Paddle Webhook] Canceled subscription for user ${user.id}`)
+            console.log(`[Paddle Webhook] Canceled subscription for user ${user.id} (by subId)`)
           }
           break
         }
