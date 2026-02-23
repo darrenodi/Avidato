@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, Suspense, useRef } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { initializePaddle, type Paddle } from '@paddle/paddle-js';
 import PublicNavbar from '@/components/layout/PublicNavbar';
@@ -106,13 +107,16 @@ const faqData = [
   },
 ];
 
-export default function PricingPage() {
+function PricingContent() {
   const [pricingTier, setPricingTier] = useState<'monthly' | 'annual'>('monthly');
   const [expandedFaq, setExpandedFaq] = useState<number | null>(0);
   const [hoveredCardIndex, setHoveredCardIndex] = useState<number>(1);
   const { data: session, status } = useSession();
   const user = session?.user as { id?: string; email?: string | null } | undefined;
   const [paddleInstance, setPaddleInstance] = useState<Paddle | null>(null);
+  const [pendingCheckout, setPendingCheckout] = useState<PricingPlan | null>(null);
+  const searchParams = useSearchParams();
+  const autoCheckoutProcessed = useRef(false);
 
   // Initialize Paddle.js
   useEffect(() => {
@@ -137,22 +141,65 @@ export default function PricingPage() {
     });
   }, []);
 
+  // Auto-open checkout when returning from signup or when Paddle loads with pending checkout
+  useEffect(() => {
+    if (!paddleInstance || status !== 'authenticated' || !user?.id) return;
+
+    const checkoutPlan = searchParams.get('checkout');
+    const billing = (searchParams.get('billing') as 'monthly' | 'annual') || 'monthly';
+
+    let planToOpen: PricingPlan | null = null;
+    let billingToUse = pricingTier;
+
+    if (checkoutPlan && !autoCheckoutProcessed.current) {
+      autoCheckoutProcessed.current = true;
+      planToOpen = pricingPlans.find(p => p.title.toLowerCase() === checkoutPlan) || null;
+      billingToUse = billing;
+      if (billingToUse !== pricingTier) setPricingTier(billingToUse);
+    } else if (pendingCheckout) {
+      planToOpen = pendingCheckout;
+      setPendingCheckout(null);
+    }
+
+    if (!planToOpen?.priceIds) return;
+
+    const priceId = billingToUse === 'annual' ? planToOpen.priceIds.annual : planToOpen.priceIds.monthly;
+
+    paddleInstance.Checkout.open({
+      items: [{ priceId, quantity: 1 }],
+      customer: user.email ? { email: user.email } : undefined,
+      customData: { userId: user.id },
+      settings: {
+        theme: 'light',
+        displayMode: 'overlay',
+        successUrl: `${window.location.origin}/dashboard?upgraded=true`,
+      },
+    });
+
+    // Clean up URL params
+    if (checkoutPlan) {
+      window.history.replaceState({}, '', '/pricing');
+    }
+  }, [paddleInstance, status, user, searchParams, pendingCheckout, pricingTier]);
+
   const openCheckout = useCallback(
     (plan: PricingPlan) => {
       if (!plan.priceIds) {
-        // Free plan → signup
-        window.location.href = '/signup';
+        // Free plan → signup or dashboard
+        window.location.href = status === 'authenticated' ? '/dashboard' : '/signup';
         return;
       }
 
       if (status !== 'authenticated' || !user?.id) {
-        // Not logged in → signup first, then they can upgrade
-        window.location.href = '/signup';
+        // Not logged in → signup with plan info preserved in URL
+        const planName = plan.title.toLowerCase();
+        window.location.href = `/signup?plan=${planName}&billing=${pricingTier}`;
         return;
       }
 
       if (!paddleInstance) {
-        console.error('Paddle not initialized');
+        // Paddle still loading → queue checkout for when it's ready
+        setPendingCheckout(plan);
         return;
       }
 
@@ -276,7 +323,15 @@ export default function PricingPage() {
                             : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
                         }`}
                       >
-                        {plan.buttonText}
+                        {pendingCheckout?.title === plan.title ? (
+                          <span className="flex items-center justify-center gap-2">
+                            <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                            </svg>
+                            Opening checkout...
+                          </span>
+                        ) : plan.buttonText}
                       </button>
                     ) : (
                       <Link
@@ -450,5 +505,17 @@ export default function PricingPage() {
 
       <PublicFooter />
     </div>
+  );
+}
+
+export default function PricingPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-primary"></div>
+      </div>
+    }>
+      <PricingContent />
+    </Suspense>
   );
 }

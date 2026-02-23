@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, Suspense } from 'react'
 import { signIn, useSession } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 
 // Extend window to include Turnstile
@@ -18,7 +18,7 @@ declare global {
   }
 }
 
-export default function SignupPage() {
+function SignupContent() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -31,6 +31,9 @@ export default function SignupPage() {
   const turnstileRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
   const { data: session, status } = useSession()
+  const searchParams = useSearchParams()
+  const selectedPlan = searchParams.get('plan')
+  const selectedBilling = searchParams.get('billing')
 
   // Load and render Turnstile widget - only once
   useEffect(() => {
@@ -107,9 +110,14 @@ export default function SignupPage() {
   useEffect(() => {
     if (status === 'loading') return // Still loading
     if (session) {
-      router.push('/dashboard')
+      // If there's a pending plan selection, redirect to pricing with auto-checkout
+      if (selectedPlan) {
+        router.push(`/pricing?checkout=${selectedPlan}&billing=${selectedBilling || 'monthly'}`)
+      } else {
+        router.push('/dashboard')
+      }
     }
-  }, [session, status, router])
+  }, [session, status, router, selectedPlan, selectedBilling])
 
   // Show loading while checking session
   if (status === 'loading') {
@@ -214,7 +222,12 @@ export default function SignupPage() {
       if (result?.error) {
         setError('Account created but failed to sign in. Please try logging in.')
       } else {
-        router.push('/dashboard')
+        // Redirect to pricing checkout if plan was selected, otherwise dashboard
+        if (selectedPlan) {
+          router.push(`/pricing?checkout=${selectedPlan}&billing=${selectedBilling || 'monthly'}`)
+        } else {
+          router.push('/dashboard')
+        }
       }
     } catch (error: any) {
       setError(error.message || 'An error occurred. Please try again.')
@@ -265,7 +278,10 @@ export default function SignupPage() {
 
       // CAPTCHA verified, proceed with Google sign-up
       setIsLoading(false)
-      await signIn('google', { callbackUrl: '/dashboard' })
+      const callbackUrl = selectedPlan
+        ? `/pricing?checkout=${selectedPlan}&billing=${selectedBilling || 'monthly'}`
+        : '/dashboard'
+      await signIn('google', { callbackUrl })
     } catch (error) {
       setError('Failed to sign up with Google. Please try again.')
       console.error('Google sign-up error:', error)
@@ -404,7 +420,10 @@ export default function SignupPage() {
             <div className="text-center">
               <p className="text-sm text-gray-600 dark:text-gray-400">
                 Already have an account?{' '}
-                <Link href="/login" className="font-medium text-brand-primary hover:text-brand-accent dark:text-brand-secondary dark:hover:text-brand-primary">
+                <Link
+                  href={selectedPlan ? `/login?callbackUrl=${encodeURIComponent(`/pricing?checkout=${selectedPlan}&billing=${selectedBilling || 'monthly'}`)}` : '/login'}
+                  className="font-medium text-brand-primary hover:text-brand-accent dark:text-brand-secondary dark:hover:text-brand-primary"
+                >
                   Sign in here
                 </Link>
               </p>
@@ -413,5 +432,20 @@ export default function SignupPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function SignupPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-primary mx-auto"></div>
+          <p className="mt-2 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    }>
+      <SignupContent />
+    </Suspense>
   )
 }
