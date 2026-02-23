@@ -12,8 +12,8 @@ export function addSecurityHeaders(response: NextResponse) {
     'Content-Security-Policy',
     [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com https://cdn.jsdelivr.net https://cdn.paddle.com",
-      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com https://cdn.jsdelivr.net https://cdn.paddle.com https://sandbox-cdn.paddle.com",
+      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://*.paddle.com",
       "font-src 'self' https://fonts.gstatic.com",
       "img-src 'self' data: https: http://localhost:3000",
       "media-src 'self' data: https: blob: https://*.supabase.co",
