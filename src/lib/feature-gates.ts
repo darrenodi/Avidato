@@ -56,10 +56,77 @@ export function meetsMinimumTier(
 
 // ---- Feature-specific helpers ----
 
-/** YouTube-to-Lesson generator — Premium only */
-export async function canAccessYouTubeTool(userId: string): Promise<boolean> {
+/**
+ * YouTube-to-Lesson access check with per-plan limits:
+ * - Starter: 1 lifetime generation
+ * - Pro: 1 per day
+ * - Premium: Unlimited
+ *
+ * Returns { allowed, reason?, upgrade? } so the route can give a useful error.
+ */
+export async function checkYouTubeAccess(
+  userId: string
+): Promise<{ allowed: boolean; reason?: string; upgrade?: boolean }> {
   const plan = await getUserPlan(userId)
-  return meetsMinimumTier(plan, 'Premium')
+
+  // Premium — always allowed
+  if (plan === 'Premium') return { allowed: true }
+
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      youtubeGenerationCount: true,
+      lastYoutubeGenerationDate: true,
+    },
+  })
+
+  if (!user) return { allowed: false, reason: 'User not found' }
+
+  if (plan === 'Pro') {
+    // Pro — 1 per day (resets at midnight UTC)
+    const today = new Date()
+    today.setUTCHours(0, 0, 0, 0)
+    const lastGen = user.lastYoutubeGenerationDate
+    const usedToday = lastGen && lastGen >= today
+
+    if (usedToday) {
+      return {
+        allowed: false,
+        reason: 'Pro plan allows 1 YouTube lesson per day. Upgrade to Premium for unlimited.',
+        upgrade: true,
+      }
+    }
+    return { allowed: true }
+  }
+
+  // Starter — 1 lifetime trial
+  if (user.youtubeGenerationCount >= 1) {
+    return {
+      allowed: false,
+      reason: 'Free accounts get 1 YouTube lesson trial. Upgrade to Pro for daily access or Premium for unlimited.',
+      upgrade: true,
+    }
+  }
+  return { allowed: true }
+}
+
+/**
+ * Increment the YouTube generation counter after a successful generation.
+ */
+export async function recordYouTubeGeneration(userId: string): Promise<void> {
+  await prisma.user.update({
+    where: { id: userId },
+    data: {
+      youtubeGenerationCount: { increment: 1 },
+      lastYoutubeGenerationDate: new Date(),
+    },
+  })
+}
+
+/** YouTube-to-Lesson generator — legacy boolean helper (Premium only) */
+export async function canAccessYouTubeTool(userId: string): Promise<boolean> {
+  const result = await checkYouTubeAccess(userId)
+  return result.allowed
 }
 
 /** Vocabulary audio pronunciation — Pro and above */

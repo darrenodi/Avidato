@@ -441,7 +441,7 @@ export default function YouTubeToLessonPage() {
       const data = await response.json()
       if (!response.ok) {
         if (response.status === 403 && data.upgrade) {
-          setError('YouTube to Lesson is a Premium feature. Upgrade your plan to unlock it.')
+          setError(data.error || 'You have reached your YouTube lesson limit. Upgrade your plan for more.')
           setLoading(false)
           setLoadingStage(null)
           return

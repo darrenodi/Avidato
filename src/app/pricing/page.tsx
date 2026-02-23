@@ -36,6 +36,7 @@ const pricingPlans: PricingPlan[] = [
       'Up to 10 students',
       'Shareable lesson links',
       'Instant & grammar lessons',
+      '1 YouTube lesson trial',
       'Basic email support',
     ],
   },
@@ -55,6 +56,7 @@ const pricingPlans: PricingPlan[] = [
       'Unlimited students',
       'All 4 teaching methodologies',
       'Vocabulary audio pronunciation',
+      '1 YouTube lesson / day',
       'Priority email support',
       'Ad-free experience',
     ],
@@ -70,7 +72,7 @@ const pricingPlans: PricingPlan[] = [
     },
     features: [
       'Everything in Pro, plus:',
-      'YouTube to Lesson tool',
+      'Unlimited YouTube lessons',
       'Smart vocabulary tracking',
       'Extended lesson history',
       'Priority generation speed',
@@ -421,11 +423,9 @@ function PricingContent() {
                   </tr>
                   <tr className="border-b border-gray-200 hover:bg-gray-50">
                     <td className="px-6 py-4 text-gray-900 font-medium">YouTube to Lesson</td>
-                    <td className="px-6 py-4 text-center">—</td>
-                    <td className="px-6 py-4 text-center">—</td>
-                    <td className="px-6 py-4 text-center">
-                      <CheckCircleIcon className="w-5 h-5 text-green-500 mx-auto" />
-                    </td>
+                    <td className="px-6 py-4 text-center text-gray-600">1 trial</td>
+                    <td className="px-6 py-4 text-center text-gray-600">1 / day</td>
+                    <td className="px-6 py-4 text-center text-gray-600">Unlimited</td>
                   </tr>
                   <tr className="border-b border-gray-200 hover:bg-gray-50">
                     <td className="px-6 py-4 text-gray-900 font-medium">Vocabulary Tracking</td>
