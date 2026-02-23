@@ -657,11 +657,9 @@ export default function LessonPage() {
                       </div>
                     </div>
                     
-                    {exercise.type !== 'warmup' && (
+                    {exercise.type !== 'warmup' && exercise.description && (
                       <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300 mb-3 sm:mb-4">
-                        {exercise.type === 'vocabulary' 
-                          ? 'Read the vocabulary and example sentence along with your tutor' 
-                          : exercise.description}
+                        {exercise.description}
                       </p>
                     )}
                     

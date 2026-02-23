@@ -40,7 +40,7 @@ OBJECTIVE: ${topic.objective}
 **IMPORTANT: OBJECTIVE SPECIFICATION (MAX 120 CHARACTERS)**
 The objective MUST be outcome-focused and specific, showing exactly what the student will be ABLE TO DO after the lesson.
 
-FORMAT (concise version): "By the end of this lesson, ${student.name} will confidently [main skill], including [3-4 specific sub-skills]."
+FORMAT (concise version): "By the end of this lesson, ${student.name} will confidently [main skill], including [3-4 specific sub-skills]." — WRITE THIS IN ${student.targetLanguage}.
 
 
 CRITICAL RULES:
@@ -61,15 +61,18 @@ The lesson "${topic.title}" must show ${student.name} PERFORMING the actual task
 ✅ CORRECT: "Code Review Meeting" → ${student.name} reviews actual code with team, discusses technical details
 ❌ WRONG: "Code Review Meeting" → Team coaches ${student.name} on how to give feedback
 
-🚨 CRITICAL LANGUAGE REQUIREMENT:
-All lesson content MUST be generated in ${student.targetLanguage}. This includes:
-- All exercise instructions and descriptions
-- All dialogue lines
-- All vocabulary words, definitions, examples, expressions
-- All comprehension questions
-- All role-play scenarios
-- All discussion questions
-Do NOT use English or translate to English. Generate ONLY in ${student.targetLanguage}.
+🚨 CRITICAL LANGUAGE REQUIREMENT — THIS OVERRIDES EVERYTHING ELSE:
+ALL lesson content MUST be in ${student.targetLanguage}. This means:
+- ALL exercise titles (NOT "Exercise 1: Vocabulary" — translate to ${student.targetLanguage})
+- ALL exercise descriptions and instructions
+- ALL dialogue lines, vocabulary definitions, examples, expressions
+- ALL comprehension questions and answers
+- ALL role-play scenarios and key points
+- ALL discussion questions
+- The objective, context, homework, teachingNotes fields
+- Even the sentence correction sentences must be in ${student.targetLanguage}
+The ONLY English allowed is in the JSON keys ("type", "content", etc.) and the "type" values ("vocabulary", "warmup", etc.).
+Every piece of text the student or teacher reads MUST be in ${student.targetLanguage}. ZERO English in any text field.
 
 VOCABULARY RULES:
 - EXACTLY 6 items, all SINGLE WORDS (verbs, adjectives, nouns, idioms, or phrasal verbs only)
@@ -85,7 +88,7 @@ For vocabulary that's already been taught, naturally incorporate 2-3 of them in 
 ENGOO STRUCTURE (6 exercises in this exact order):
 
 **Exercise 1: Vocabulary** (8 min)
-Format: { "type": "vocabulary", "title": "Exercise 1: Vocabulary", "content": { "vocabulary": [{ "word": "word1", "partOfSpeech": "verb", "phonetics": "/fəˈnetɪks/", "definition": "clear definition", "example": "example sentence", "synonym": "simple synonym or empty", "expressions": ["collocation 1", "collocation 2", "collocation 3"] }, ...6 items total] }, "timeMinutes": 8 }
+Format: { "type": "vocabulary", "title": "[title in ${student.targetLanguage}]", "content": { "vocabulary": [{ "word": "word1", "partOfSpeech": "[in ${student.targetLanguage}]", "phonetics": "/fəˈnetɪks/", "definition": "[in ${student.targetLanguage}]", "example": "[in ${student.targetLanguage}]", "synonym": "[in ${student.targetLanguage} or empty]", "expressions": ["[in ${student.targetLanguage}]"] }, ...6 items total] }, "timeMinutes": 8 }
 
 **Exercise 2: Warm-up** (8 min)
 WARMUP STRUCTURE: EXACTLY 3 simple, natural questions - NO MORE, NO LESS:
@@ -106,7 +109,7 @@ WARMUP GENERATION RULES (STRICT):
 - Do NOT include duplicate text
 - Do NOT add metadata fields
 
-Format: { "type": "warmup", "title": "Exercise 2: Warm-up", "description": "Discussion questions", "content": { "questions": ["Question 1 text", "Question 2 text", "Question 3 text"], "instructions": "Discuss the questions." }, "timeMinutes": 8 }
+Format: { "type": "warmup", "title": "[title in ${student.targetLanguage}]", "description": "[in ${student.targetLanguage}]", "content": { "questions": ["Q1 in ${student.targetLanguage}", "Q2 in ${student.targetLanguage}", "Q3 in ${student.targetLanguage}"], "instructions": "[in ${student.targetLanguage}]" }, "timeMinutes": 8 }
 
 CRITICAL: "Discuss the questions." is the INSTRUCTION field value, NOT a 4th question in the array.
 
@@ -124,7 +127,7 @@ DIALOGUE RULES (Exercise 3):
 - NO EM DASHES (—)
 - CRITICAL: Use EXACT character names in the dialogue exchanges - use "${student.name}" and the selected role name EXACTLY as listed in the characters array
 
-Format: { "type": "dialogue", "title": "Exercise 3: Dialogue", "description": "Practice with realistic scenario. Read as ${student.name}", "content": { "setting": "Max 150 chars: WHO, WHERE, WHAT", "characters": ["${student.name}", "Selected Role Name"], "dialogue": [{"character": "${student.name}", "text": "..."}, {"character": "Selected Role Name", "text": "..."}, ...8-12 total exchanges with alternating speakers] }, "timeMinutes": 12 }
+Format: { "type": "dialogue", "title": "[title in ${student.targetLanguage}]", "description": "[in ${student.targetLanguage}]", "content": { "setting": "[Max 150 chars in ${student.targetLanguage}]", "characters": ["${student.name}", "[Role Name]"], "dialogue": [{"character": "${student.name}", "text": "[in ${student.targetLanguage}]"}, {"character": "[Role Name]", "text": "[in ${student.targetLanguage}]"}, ...8-12 total exchanges with alternating speakers] }, "timeMinutes": 12 }
 
 **Exercise 4: Dialogue Comprehension** (8 min)
 COMPREHENSION FORMAT (SIMPLIFIED - OPEN-ENDED ONLY):
@@ -135,10 +138,10 @@ COMPREHENSION FORMAT (SIMPLIFIED - OPEN-ENDED ONLY):
 
 - Total: Always 3 questions in this exact structure (open-ended only, no MCQ or True/False)
 
-Format: { "type": "comprehension", "title": "Exercise 4: Comprehension", "description": "Answer questions about the dialogue", "content": { "questions": [
-  {"question": "Q1 text (Open - structural)", "type": "short-answer", "answer": "Full sentence answer"},
-  {"question": "Q2 text (Open - structural)", "type": "short-answer", "answer": "Full sentence answer"},
-  {"question": "Q3 text (Open - structural)", "type": "short-answer", "answer": "Full sentence answer"}
+Format: { "type": "comprehension", "title": "[title in ${student.targetLanguage}]", "description": "[in ${student.targetLanguage}]", "content": { "questions": [
+  {"question": "[Q1 in ${student.targetLanguage}]", "type": "short-answer", "answer": "[in ${student.targetLanguage}]"},
+  {"question": "[Q2 in ${student.targetLanguage}]", "type": "short-answer", "answer": "[in ${student.targetLanguage}]"},
+  {"question": "[Q3 in ${student.targetLanguage}]", "type": "short-answer", "answer": "[in ${student.targetLanguage}]"}
 ] }, "timeMinutes": 8 }
 
 /*
@@ -197,8 +200,8 @@ RULES:
 
 SELF-CHECK BEFORE OUTPUT: Read each sentence pair. If "incorrect" === "correct", DELETE IT and write a new one with a real error.
 
-Format: { "type": "sentence-correction", "title": "Exercise 5: Sentence Correction", "content": { "sentences": [
-  { "incorrect": "Sentence WITH a visible grammar mistake", "correct": "Same sentence with the mistake FIXED", "errorType": "Specific rule name", "explanation": "Brief rule statement max 12 words" },
+Format: { "type": "sentence-correction", "title": "[title in ${student.targetLanguage}]", "content": { "sentences": [
+  { "incorrect": "[Sentence in ${student.targetLanguage} WITH a visible grammar mistake]", "correct": "[Same sentence FIXED in ${student.targetLanguage}]", "errorType": "[rule name in ${student.targetLanguage}]", "explanation": "[in ${student.targetLanguage}, max 12 words]" },
   ...10 total, ALL incorrect, ALL different error types
 ] }, "timeMinutes": 10 }
 
@@ -222,7 +225,7 @@ QUESTION STYLE EXAMPLES (Engoo format):
 - Instead of: "Tell me about your experience with..."
 - Use: "When was the last time you...?"
 
-Format: { "type": "discussion", "title": "Exercise 6: Discussion", "description": "Free practice", "content": { "questions": ["Question 1 - short and direct", "Question 2 - practical and relatable", "Question 3 - personal experience", "Question 4 - related perspective", "Question 5 - broader context or reflection"], "instructions": "Discuss freely" }, "timeMinutes": 12 }
+Format: { "type": "discussion", "title": "[title in ${student.targetLanguage}]", "description": "[in ${student.targetLanguage}]", "content": { "questions": ["Q1 in ${student.targetLanguage}", "Q2 in ${student.targetLanguage}", "Q3 in ${student.targetLanguage}", "Q4 in ${student.targetLanguage}", "Q5 in ${student.targetLanguage}"], "instructions": "[single instruction in ${student.targetLanguage}]" }, "timeMinutes": 12 }
 
 ${levelGuide}
 
@@ -232,16 +235,16 @@ JSON OUTPUT:
 {
   "title": "${topic.title}",
   "lessonType": "${(student.ageGroup === 'child' || student.ageGroup === 'teenager') ? 'Under-18' : 'interactive'}",
-  "objective": "By the end of the lesson, ${student.name} will be able to confidently [INSERT SPECIFIC MAIN SKILL] in English, including [INSERT 3-4 SPECIFIC SUB-SKILLS]. FOLLOW THE FORMAT ABOVE EXACTLY.",
+  "objective": "[Write the objective in ${student.targetLanguage} using the format above]",
   "difficulty": ${student.level === 'beginner' ? '3' : student.level === 'elementary' ? '4' : student.level === 'intermediate' ? '6' : '8'},
   "duration": ${duration},
   "skills": ["Speaking", "Listening", "Reading", "Vocabulary"],
   "vocabulary": [],
   "context": "${topic.context}",
   "exercises": [/* 6 exercises as formatted above - Exercises 1-6 (Exercise 6 merges old Exercises 6 and 7) */],
-  "homework": "Review vocabulary and practice dialogue",
+  "homework": "[in ${student.targetLanguage}]",
   "materials": [],
-  "teachingNotes": ""
+  "teachingNotes": "[in ${student.targetLanguage}]"
 }
 
 RETURN ONLY VALID JSON, NO EXPLANATION.`;

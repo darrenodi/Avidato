@@ -842,11 +842,11 @@ export default function SharedLessonPage() {
                             <p className="text-xs text-gray-500 dark:text-gray-400">{exercise.timeMinutes} min</p>
                           </div>
                         </div>
+                        {exercise.description && (
                         <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
-                          {exercise.type === 'vocabulary'
-                            ? 'Read the vocabulary and example sentence along with your tutor'
-                            : exercise.description}
+                          {exercise.description}
                         </p>
+                        )}
                         <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 overflow-x-auto">{renderExerciseContent({ type: exercise.type, content: exercise.content, timeMinutes: exercise.timeMinutes || 0 })}</div>
                       </div>
                     ))}

@@ -167,6 +167,23 @@ RULES:
 - The sentence must be NEW (not from the transcript) and give enough context to identify the phrase.
 - Keep sentences simple and natural — not literary or abstract.
 
+CRITICAL GRAMMAR CHECK FOR FILL-IN-THE-BLANKS:
+Before finalizing each sentence, mentally insert the answer into the blank and READ THE COMPLETE SENTENCE.
+It MUST be 100% grammatically correct and natural-sounding. If it is not, REWRITE the sentence.
+
+Common mistakes to AVOID:
+- Do NOT place the blank after an auxiliary verb that clashes with the phrase's verb form.
+  BAD: "Her resignation did _____ everyone." (answer: "come as a surprise" → "did come as a surprise" is wrong)
+  GOOD: "Her sudden resignation _____ to the entire team." (answer: "came as a surprise" — but this changes the phrase, so restructure)
+  BETTER: "The announcement _____ to the whole department." (answer: "came as a surprise")
+- Do NOT create redundancy where the phrase overlaps with surrounding words.
+  BAD: "They _____ shared ownership of the building." (answer: "hold ownership" → "hold ownership shared ownership")
+  GOOD: "Several investors _____ of the company." (answer: "hold ownership")
+- Do NOT put the phrase where it sounds unnatural or forced.
+  BAD: "The project was successful, _____." (answer: "to some degree" — reads awkwardly at end)
+  GOOD: "_____, the new policy has improved efficiency." (answer: "To some degree")
+- The blank should be exactly where the phrase naturally appears in a fluent English sentence. Read it aloud.
+
 STAGE 5 — DISCUSSION (10-12 min)
 Write 5 discussion questions that invite opinions, personal experience, and application.
 NO factual recall. Include a teacher follow-up prompt for each (a secondary question
