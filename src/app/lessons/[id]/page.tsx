@@ -476,7 +476,7 @@ export default function LessonPage() {
             {/* Check if it's an instant lesson and use dedicated renderer */}
             {lesson.content?.lessonType === 'instant' ? (
               <div className="space-y-4 sm:space-y-6">
-                {/* Header with Back Button */}
+                {/* Header with Back Button and Share */}
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 sm:mb-8">
                   <Link
                     href={`/dashboard/students/${lesson.student.id}`}
@@ -487,6 +487,33 @@ export default function LessonPage() {
                     </svg>
                     Back to {lesson.student.name}
                   </Link>
+
+                  <button
+                    onClick={copyShareLink}
+                    disabled={isMarking}
+                    className="inline-flex items-center justify-center px-3 sm:px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-sm sm:text-base w-full sm:w-auto disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isTaught ? (
+                      <>
+                        <svg className="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                        <span className="text-green-500">Taught</span>
+                      </>
+                    ) : isMarking ? (
+                      <>
+                        <div className="w-4 h-4 mr-2 border-2 border-gray-300 border-t-brand-primary rounded-full animate-spin"></div>
+                        <span>Marking...</span>
+                      </>
+                    ) : (
+                      <>
+                        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
+                        </svg>
+                        Copy Student Link
+                      </>
+                    )}
+                  </button>
                 </div>
 
                 <InstantLessonDisplay lesson={{

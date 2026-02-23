@@ -37,6 +37,7 @@ interface StudentData {
   createdAt: Date
   updatedAt: Date
   lessonCount?: number
+  lastLessonAt?: Date | null
   archived: boolean
 }
 
@@ -45,7 +46,7 @@ interface StudentFilters {
   targetLanguage?: string
   level?: string
   ageGroup?: string
-  sortBy?: 'name' | 'level' | 'occupation' | 'lessonCount' | 'createdAt'
+  sortBy?: 'name' | 'level' | 'occupation' | 'lessonCount' | 'createdAt' | 'lastLessonAt'
   sortOrder?: 'asc' | 'desc'
   archived?: boolean
 }
@@ -64,7 +65,7 @@ export default function StudentsPage() {
   const [activeTab, setActiveTab] = useState<TabType>('active')
   const [openMenuId, setOpenMenuId] = useState<string | null>(null)
   const [filters, setFilters] = useState<StudentFilters>({
-    sortBy: 'createdAt',
+    sortBy: 'lastLessonAt',
     sortOrder: 'desc',
     archived: false
   })
@@ -167,7 +168,7 @@ export default function StudentsPage() {
   }
 
   // Handle sort changes
-  const handleSort = (column: 'name' | 'level' | 'occupation' | 'lessonCount' | 'createdAt') => {
+  const handleSort = (column: 'name' | 'level' | 'occupation' | 'lessonCount' | 'createdAt' | 'lastLessonAt') => {
     setFilters(prev => ({
       ...prev,
       sortBy: column,
@@ -178,7 +179,7 @@ export default function StudentsPage() {
   // Clear all filters except archived status
   const clearFilters = () => {
     setFilters({
-      sortBy: 'createdAt',
+      sortBy: 'lastLessonAt',
       sortOrder: 'desc',
       archived: activeTab === 'archived'
     })
@@ -505,6 +506,9 @@ export default function StudentsPage() {
                             )}
                             <div className="flex items-center text-xs text-gray-500 dark:text-gray-400 space-x-4">
                               <span>{student.lessonCount || 0} lessons</span>
+                              {student.lastLessonAt && (
+                                <span>Last lesson {new Date(student.lastLessonAt).toLocaleDateString()}</span>
+                              )}
                               <span>Added {new Date(student.createdAt).toLocaleDateString()}</span>
                             </div>
                           </div>
@@ -598,6 +602,15 @@ export default function StudentsPage() {
                     </th>
                     <th 
                       className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                      onClick={() => handleSort('lastLessonAt')}
+                    >
+                      <div className="flex items-center space-x-1">
+                        <span>Last Lesson</span>
+                        {getSortIcon('lastLessonAt')}
+                      </div>
+                    </th>
+                    <th 
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                       onClick={() => handleSort('createdAt')}
                     >
                       <div className="flex items-center space-x-1">
@@ -645,6 +658,9 @@ export default function StudentsPage() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                         <span className="font-medium">{student.lessonCount || 0}</span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                        {student.lastLessonAt ? new Date(student.lastLessonAt).toLocaleDateString() : '—'}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                         {new Date(student.createdAt).toLocaleDateString()}

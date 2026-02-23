@@ -316,6 +316,7 @@ interface StudentData {
   createdAt: Date
   updatedAt: Date
   lessonCount?: number
+  lastLessonAt?: Date | null
 }
 
 /**
@@ -338,7 +339,7 @@ interface StudentFilters {
   targetLanguage?: string
   level?: string
   ageGroup?: string
-  sortBy?: 'name' | 'level' | 'occupation' | 'lessonCount' | 'createdAt' | 'updatedAt'
+  sortBy?: 'name' | 'level' | 'occupation' | 'lessonCount' | 'createdAt' | 'updatedAt' | 'lastLessonAt'
   sortOrder?: 'asc' | 'desc'
   archived?: boolean
   page?: number // For pagination: current page
@@ -382,11 +383,17 @@ export async function getStudents(filters: StudentFilters = {}): Promise<Student
     }
 
     // Build order by clause
-    const sortBy = filters.sortBy || 'createdAt'
+    const sortBy = filters.sortBy || 'lastLessonAt'
     const sortOrder = filters.sortOrder || 'desc'
     
+    // For lastLessonAt, we fetch all then sort in JS (O(n log n), fine for teacher-scale lists)
+    const isLastLessonSort = sortBy === 'lastLessonAt'
+    
     let orderBy: object
-    if (sortBy === 'lessonCount') {
+    if (isLastLessonSort) {
+      // Fallback DB order; real sort happens in JS below
+      orderBy = { createdAt: 'desc' }
+    } else if (sortBy === 'lessonCount') {
       // Special handling for lesson count sorting
       orderBy = {
         lessons: {
@@ -401,12 +408,11 @@ export async function getStudents(filters: StudentFilters = {}): Promise<Student
     const page = typeof filters.page === 'number' && filters.page > 0 ? filters.page : 1
     const pageSize = typeof filters.pageSize === 'number' && filters.pageSize > 0 ? filters.pageSize : 10
 
-    // Fetch students with pagination
+    // Fetch students — for lastLessonAt sort, grab all matching then sort+paginate in JS
     const students = await prisma.student.findMany({
       where: whereClause,
       orderBy,
-      skip: (page - 1) * pageSize,
-      take: pageSize,
+      ...(isLastLessonSort ? {} : { skip: (page - 1) * pageSize, take: pageSize }),
       select: {
         id: true,
         name: true,
@@ -425,14 +431,19 @@ export async function getStudents(filters: StudentFilters = {}): Promise<Student
           select: {
             lessons: true
           }
+        },
+        lessons: {
+          select: { createdAt: true },
+          orderBy: { createdAt: 'desc' },
+          take: 1
         }
       }
     })
 
     // Get total count for pagination controls
     const total = await prisma.student.count({ where: whereClause })
-    // Transform data to include lesson count
-    const studentsWithCounts: StudentData[] = students.map(student => ({
+    // Transform data to include lesson count and last lesson date
+    let studentsWithCounts: StudentData[] = students.map(student => ({
       id: student.id,
       name: student.name,
       targetLanguage: student.targetLanguage,
@@ -446,8 +457,19 @@ export async function getStudents(filters: StudentFilters = {}): Promise<Student
       archived: student.archived,
       createdAt: student.createdAt,
       updatedAt: student.updatedAt,
-      lessonCount: student._count.lessons
+      lessonCount: student._count.lessons,
+      lastLessonAt: student.lessons[0]?.createdAt || null
     }))
+
+    // For lastLessonAt sort: O(n log n) in-memory sort then paginate
+    if (isLastLessonSort) {
+      studentsWithCounts.sort((a, b) => {
+        const aTime = a.lastLessonAt ? new Date(a.lastLessonAt).getTime() : 0
+        const bTime = b.lastLessonAt ? new Date(b.lastLessonAt).getTime() : 0
+        return sortOrder === 'desc' ? bTime - aTime : aTime - bTime
+      })
+      studentsWithCounts = studentsWithCounts.slice((page - 1) * pageSize, page * pageSize)
+    }
 
     return {
       success: true,

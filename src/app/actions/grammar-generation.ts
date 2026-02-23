@@ -38,173 +38,44 @@ export async function generateGrammarLesson(
 
     const student = studentResponse.data
 
-    const prompt = `Generate a comprehensive grammar lesson for a ${student.level} student learning ${student.targetLanguage}.
+    const prompt = `Grammar lesson on "${topic}" for a ${student.level} ${student.targetLanguage} student.
 
-STUDENT PROFILE:
-- Name: ${student.name}
-- Target Language: ${student.targetLanguage}
-- Native Language: ${student.nativeLanguage}
-- Age Group: ${student.ageGroup}
-- Current Level: ${student.level}
-- Learning Goals: ${student.endGoals}
-- Occupation: ${student.occupation || 'Not specified'}
-- Weaknesses: ${student.weaknesses || 'Not specified'}
-- Interests: ${student.interests || 'Not specified'}
+STUDENT: ${student.name} (${student.ageGroup}), ${student.level}, native ${student.nativeLanguage}, learning ${student.targetLanguage}.
+Goals: ${student.endGoals} | Occupation: ${student.occupation || 'N/A'} | Weaknesses: ${student.weaknesses || 'N/A'} | Interests: ${student.interests || 'N/A'}
 
-GRAMMAR TOPIC REQUESTED: ${topic}
+LANGUAGE RULE: ALL content in EVERY JSON field MUST be in ${student.targetLanguage}. Zero English. Personalize examples to student's profile/interests. Use ${student.level}-appropriate vocabulary.
 
-LANGUAGE RULE — THIS IS THE MOST IMPORTANT RULE:
-ALL content in the entire JSON response MUST be written in ${student.targetLanguage}. This includes:
-- The lesson title
-- All exercise titles
-- All explanations, definitions, usage descriptions
-- All example sentences
-- All dialogue lines
-- All questions, options, hints, instructions
-- All sentence practice contexts
-- Fill-in-the-blank sentences and hints
-- Multiple-choice questions, options, and explanations
-- Sentence-building instructions
-- The "context" field
+EXPLANATION GUIDELINES:
+- Definition: one paragraph, level-scaled. Usage: bullet-style with example sentences. Examples: 3-5 personalized.
+- Include Form, Contrasts, CommonMistakes [{incorrect,correct,why}], MiniChart [{label,example}] when relevant.
+- Vivid, concise, concrete examples. Prefer simple sentences and everyday scenarios.
+- Word count: A1 60-100w | A2 80-120w | B1 120-180w | B2 180-240w | C1/C2 240-400w
 
-NO English anywhere in the response. Everything must be in ${student.targetLanguage}.
+EXERCISES (6 required):
+1. grammar-focus: Keys as relevant — explanation(string), form(string), structures[], uses[], contrasts[], commonMistakes[{incorrect,correct,why}], miniChart[{label,example}], tips[], registerNotes(string,C1+), examples[], keyPoints[]. B2+: ≥2 contrasts, ≥3 commonMistakes.
+2. sentence-practice: [{sentence,context}]. Count: A1 4-6 | A2 6-8 | B1 8-10 | B2 10-12 | C1/C2 12-15.
+3. dialogue-practice: {character1,character2,context,dialogue[{speaker,text}]}. Turns: A1/A2 6-8 | B1 8-10 | B2/C1 10-14.
+4. fill-blanks: [{sentence(with _____),answer,hint}]. Count: A1 4-6 | A2/B1 6-8 | B2/C1 8-10.
+5. multiple-choice: [{question,options[4],correctAnswer(index),explanation}]. Count: A1 3-4 | A2/B1 4-6 | B2/C1 6-8.
+6. sentence-building: Mix ordering {instruction,words[],correct} and transformation {instruction,from,target}. Count: A1/A2 2-3 | B1 3-4 | B2/C1 4-5.
 
-ADDITIONAL REQUIREMENTS:
-1. The lesson must be about the grammar topic requested: "${topic}"
-2. ALL explanations and examples must be contextualized to the student's profile, interests, and goals
-3. If student's occupation/interests are relevant, weave them into examples naturally
-4. Use vocabulary and complexity appropriate for ${student.level} level
-5. Make examples relatable to the student's daily life and interests when possible
-6. Provide practical, real-world usage of the grammar point
-7. Include a clear progression from explanation to practice to application
-8. Vivid explanation: clear, concise, engaging, with concrete examples. Prefer simple sentences and everyday scenarios. Do not copy external text verbatim.
-
-LEVEL SCALING (tone, detail, counts):
-- A1: one-clause, high-frequency words; very short sentences; minimal metalanguage; 2 simple examples per subsection; explanation ~60–100 words.
-- A2: simple sentences; limited metalanguage (e.g., "form: subject + verb"); 3–4 everyday examples; explanation ~80–120 words.
-- B1: mix simple/compound; highlight basic contrasts (e.g., during vs for vs while); add 1–2 common mistakes; explanation ~120–180 words.
-- B2: richer contexts (work/study/news); include contrasts & edge cases; transformation hints; explanation ~180–240 words.
-- C1/C2: nuanced usage; register/genre notes; exceptions; 3–5 common mistakes with rationales; explanation ~240–400 words.
-
-MODELED SECTIONS (draw inspiration from: narrative tenses, time connectors, contrast conjunctions, possessives, relative clauses, passive voice, reported speech):
-- Definition: one paragraph, level-scaled.
-- Usage: bullet-style (each with a short example sentence).
-- Examples: 3–5 mini examples personalized.
-- Optional: Form, Contrasts, Time/Aspect notes, CommonMistakes (incorrect vs correct + why), MiniChart (pattern & example).
-
-EXERCISE REQUIREMENTS:
-1. Grammar Focus Exercise: Structured, vivid explanation.
-  - Use keys when relevant and omit if not: explanation(string), form(string), structures(array of patterns), uses(array), contrasts(array), commonMistakes(array of {incorrect, correct, why}), miniChart(array of {label, example}), tips(array), registerNotes(string for C1/C2), examples(array).
-  - For B2+: include at least 2 contrasts and 3 commonMistakes; for C1/C2: 3–5 commonMistakes with brief rationales + registerNotes.
-2. Sentence Practice Exercise (reading-only):
-  - Each item: {sentence, context}.
-  - Item counts by level: A1 4–6; A2 6–8; B1 8–10; B2 10–12; C1/C2 12–15.
-3. Dialogue Practice Exercise: Natural, short turns; recycle target structure.
-  - Turns by level (number of lines): A1/A2 6–8; B1 8–10; B2/C1 10–14.
-4. Fill In The Blanks: Vary surface forms; add hints.
-  - Items by level: A1 4–6; A2/B1 6–8; B2/C1 8–10.
-5. Multiple Choice: 4 options; 1 correct; explanation required.
-  - Questions by level: A1 3–4; A2/B1 4–6; B2/C1 6–8.
-6. Sentence Building: Mix ordering and transformation.
-  - Shapes:
-    • Ordering: {instruction, words(array), correct}
-    • Transformation: {instruction, from, target}
-  - Items by level: A1/A2 2–3; B1 3–4; B2/C1 4–5.
-
-FORMAT YOUR RESPONSE AS VALID JSON ONLY:
+JSON OUTPUT:
 {
-  "title": "Lesson title in ${student.targetLanguage}",
-  "grammarTopic": "${topic}",
-  "context": "Real-world context in ${student.targetLanguage}",
-  "explanation": {
-    "definition": "Clear definition in ${student.targetLanguage}",
-    "usage": "When and how to use it — in ${student.targetLanguage}",
-    "examples": [
-      "Example sentence in ${student.targetLanguage}",
-      "Example sentence in ${student.targetLanguage}",
-      "Example sentence in ${student.targetLanguage}"
-    ]
-  },
-  "exercises": [
-    {
-      "type": "grammar-focus",
-      "title": "title in ${student.targetLanguage}",
-      "content": {
-        "explanation": "Detailed explanation in ${student.targetLanguage} at ${student.level} level",
-        "keyPoints": ["point in ${student.targetLanguage}", "point in ${student.targetLanguage}"],
-        "examples": ["example in ${student.targetLanguage}", "example in ${student.targetLanguage}"]
-      }
-    },
-    {
-      "type": "sentence-practice",
-      "title": "title in ${student.targetLanguage}",
-      "content": {
-        "sentences": [
-          {"sentence": "sentence in ${student.targetLanguage}", "context": "context in ${student.targetLanguage}"},
-          {"sentence": "sentence in ${student.targetLanguage}", "context": "context in ${student.targetLanguage}"}
-        ]
-      }
-    },
-    {
-      "type": "dialogue-practice",
-      "title": "title in ${student.targetLanguage}",
-      "content": {
-        "character1": "Student Name",
-        "character2": "Other character name",
-        "context": "scenario description in ${student.targetLanguage}",
-        "dialogue": [
-          {"speaker": "character1", "text": "dialogue in ${student.targetLanguage}"},
-          {"speaker": "character2", "text": "dialogue in ${student.targetLanguage}"}
-        ]
-      }
-    },
-    {
-      "type": "fill-blanks",
-      "title": "title in ${student.targetLanguage}",
-      "content": {
-        "sentences": [
-          {"sentence": "sentence with _____ blank in ${student.targetLanguage}", "answer": "correct word in ${student.targetLanguage}", "hint": "hint in ${student.targetLanguage}"},
-          {"sentence": "sentence with _____ blank in ${student.targetLanguage}", "answer": "correct word in ${student.targetLanguage}", "hint": "hint in ${student.targetLanguage}"}
-        ]
-      }
-    },
-    {
-      "type": "multiple-choice",
-      "title": "title in ${student.targetLanguage}",
-      "content": {
-        "questions": [
-          {
-            "question": "question in ${student.targetLanguage}",
-            "options": ["option in ${student.targetLanguage}", "option in ${student.targetLanguage}", "option in ${student.targetLanguage}", "option in ${student.targetLanguage}"],
-            "correctAnswer": 0,
-            "explanation": "explanation in ${student.targetLanguage}"
-          }
-        ]
-      }
-    },
-    {
-      "type": "sentence-building",
-      "title": "title in ${student.targetLanguage}",
-      "content": {
-        "exercises": [
-          {
-            "instruction": "instruction in ${student.targetLanguage}",
-            "words": ["word1", "word2", "word3"],
-            "correct": "correct sentence in ${student.targetLanguage}"
-          }
-        ]
-      }
-    }
+  "title":"string",
+  "grammarTopic":"${topic}",
+  "context":"string",
+  "explanation":{"definition":"string","usage":"string","examples":["string"]},
+  "exercises":[
+    {"type":"grammar-focus","title":"string","content":{/* per spec above */}},
+    {"type":"sentence-practice","title":"string","content":{"sentences":[]}},
+    {"type":"dialogue-practice","title":"string","content":{"character1":"string","character2":"string","context":"string","dialogue":[]}},
+    {"type":"fill-blanks","title":"string","content":{"sentences":[]}},
+    {"type":"multiple-choice","title":"string","content":{"questions":[]}},
+    {"type":"sentence-building","title":"string","content":{"exercises":[]}}
   ]
 }
 
-CRITICAL:
-- Return ONLY valid JSON, no markdown or explanations
-- ALL text in every field MUST be in ${student.targetLanguage} — no English anywhere
-- All examples must be contextual to the student profile
-- Make the grammar practical and applicable to their interests/goals
-- Ensure vocabulary is appropriate for their level
-- All dialogue should feel natural and relatable`;
+Return ONLY valid JSON. No trailing commas. Everything in ${student.targetLanguage}.`;
 
     const { rawText: text } = await generateWithProviderFailover({
       prompt,
