@@ -6,6 +6,7 @@
  */
 
 import React from 'react'
+import { formatText } from '@/lib/format-text'
 
 interface ChallengeRendererProps {
   title: string
@@ -46,7 +47,7 @@ export const ChallengeRenderer: React.FC<ChallengeRendererProps> = ({
             🏆 {level.toUpperCase()} CHALLENGE
           </span>
         </div>
-        <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">{description}</p>
+        <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">{formatText(description)}</p>
       </div>
 
       {/* Acceptance Toggle */}
@@ -82,14 +83,14 @@ export const ChallengeRenderer: React.FC<ChallengeRendererProps> = ({
           {/* Instructions */}
           <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
             <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">📋 Instructions:</p>
-            <p className="text-sm text-gray-900 dark:text-white">{instructions}</p>
+            <p className="text-sm text-gray-900 dark:text-white">{formatText(instructions)}</p>
           </div>
 
           {/* Challenge Details */}
           <div className="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800 p-4 rounded-lg">
             <p className="text-sm font-medium text-indigo-800 dark:text-indigo-300 mb-2">🎯 Your Task:</p>
             <p className="text-sm text-indigo-900 dark:text-indigo-200 whitespace-pre-wrap">
-              {content}
+              {formatText(content)}
             </p>
           </div>
 

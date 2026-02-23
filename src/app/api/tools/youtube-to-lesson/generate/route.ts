@@ -132,17 +132,21 @@ The student watches the video ONCE.
   Mix question types: true/false, short answer, "What does the speaker mean when they say...?"
 
 STAGE 4 — LANGUAGE FOCUS: MATCHING & FILL-IN-THE-BLANKS (10-12 min)
-Extract 8 SHORT, REUSABLE phrases and collocations from the transcript.
-Each phrase must be 2-4 words maximum. NOT isolated single words. NOT long clauses or sentences.
-Focus on language that makes a student sound more fluent:
-- Common collocations (e.g., "make a decision", "take into account")
-- Phrasal verbs (e.g., "get caught up in", "switch over to")
-- Fixed expressions (e.g., "for starters", "make it through", "on the spot")
+Extract 8 SHORT, REUSABLE items from the transcript. PRIORITISE IDIOMS FIRST.
+Each item must be 2-5 words maximum. NOT isolated single words. NOT long clauses or sentences.
 
-CRITICAL RULES FOR PHRASES:
-- Maximum 4 words per phrase. NEVER exceed this.
-- Use phrases EXACTLY as they appear in the transcript — do not invent new ones.
-- Each phrase must be a recognizable, reusable chunk of language.
+PRIORITY ORDER — fill the 8 slots in this order:
+1. Idioms from the transcript (e.g., "break the ice", "hit the nail on the head", "a piece of cake")
+2. If the transcript has fewer than 8 idioms, fill remaining slots with:
+   - Common collocations (e.g., "make a decision", "take into account")
+   - Phrasal verbs (e.g., "get caught up in", "switch over to")
+   - Fixed expressions (e.g., "for starters", "make it through", "on the spot")
+Tag each item accurately: use type "idiom" when it IS an idiom, otherwise "phrase", "collocation", or "expression".
+
+CRITICAL RULES FOR PHRASES/IDIOMS:
+- Maximum 5 words per item. NEVER exceed this.
+- Use items EXACTLY as they appear in the transcript — do not invent new ones.
+- Each item must be a recognizable, reusable chunk of language.
 - Do NOT use full clauses like "tackle the subject of climate change" — just "tackle the subject".
 - Do NOT use abstract or poetic language like "dive into the bottomless ocean".
 
@@ -238,8 +242,8 @@ COUNTS (strict):
 - warmUp: exactly 3 items
 - preTeach: exactly 5 items (use type: "noun", "verb", or "adjective")
 - detailQuestions: exactly 5 items
-- phrases: exactly 8 items, each term 2-4 words max (use type: "phrase", "collocation", "idiom", or "expression")
-- fillBlanks: exactly 6 items (answer must be an exact phrase from the list above, 2-4 words)
+- phrases: exactly 8 items, each term 2-5 words max, IDIOMS FIRST then phrases/collocations (use type: "idiom", "phrase", "collocation", or "expression")
+- fillBlanks: exactly 6 items (answer must be an exact phrase/idiom from the list above, 2-5 words)
 - discussion: exactly 5 items
 - wrapUp: exactly 2 items
 - homework: exactly 1 item

@@ -6,6 +6,7 @@
  */
 
 import React from 'react'
+import { formatText } from '@/lib/format-text'
 
 interface GrammarSentence {
   incorrect: string
@@ -41,7 +42,7 @@ export const GrammarRenderer: React.FC<GrammarRendererProps> = ({
       {/* Header Info */}
       {instructions && (
         <div className="border-l-4 border-red-500 pl-4 mb-4">
-          <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">{instructions}</p>
+          <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">{formatText(instructions)}</p>
           <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
             ⏱️ {timeMinutes} minutes
           </p>
@@ -68,7 +69,7 @@ export const GrammarRenderer: React.FC<GrammarRendererProps> = ({
                 {/* Sentence to Check */}
                 <div className="mb-3">
                   <p className="text-gray-900 dark:text-white bg-gray-100 dark:bg-gray-700 p-3 rounded italic">
-                    {sentence.incorrect}
+                    {formatText(sentence.incorrect)}
                   </p>
                 </div>
 
@@ -85,7 +86,7 @@ export const GrammarRenderer: React.FC<GrammarRendererProps> = ({
                   <div>
                     <p className="text-xs font-medium text-green-600 dark:text-green-400 mb-1">✅ Correct:</p>
                     <p className="text-gray-900 dark:text-white bg-green-50 dark:bg-green-900/20 p-3 rounded font-medium">
-                      {sentence.correct}
+                      {formatText(sentence.correct)}
                     </p>
                   </div>
                 )}

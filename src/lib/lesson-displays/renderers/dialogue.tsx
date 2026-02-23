@@ -6,10 +6,7 @@
  */
 
 import React from 'react'
-
-const safeReplace = (text: string | undefined | null): string => {
-  return (text || '').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-}
+import { formatText } from '@/lib/format-text'
 
 // Function to generate a comprehensive setting from dialogue content
 const generateDetailedSetting = (
@@ -142,7 +139,7 @@ export const DialogueRenderer: React.FC<DialogueRendererProps> = ({
       <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg border-l-4 border-indigo-500">
         <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Setting:</p>
         <p className="text-gray-900 dark:text-white font-semibold">
-          <span dangerouslySetInnerHTML={{ __html: safeReplace(displaySetting) }} />
+          {formatText(displaySetting)}
         </p>
       </div>
 
@@ -217,7 +214,7 @@ export const DialogueRenderer: React.FC<DialogueRendererProps> = ({
                     {displayName}
                   </p>
                   <p className="text-gray-900 dark:text-white text-base leading-relaxed">
-                    {exchange.text}
+                    {formatText(exchange.text)}
                   </p>
                 </div>
               </div>
@@ -243,7 +240,7 @@ export const DialogueRenderer: React.FC<DialogueRendererProps> = ({
             {comprehensionQuestions.map((q, index) => (
               <div key={index} className="space-y-2">
                 <p className="text-sm text-indigo-900 dark:text-indigo-200 font-medium">
-                  {index + 1}. {q.question}
+                  {index + 1}. {formatText(q.question)}
                 </p>
                 {q.options && (
                   <div className="space-y-1 ml-4">

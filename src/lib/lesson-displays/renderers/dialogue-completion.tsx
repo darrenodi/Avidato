@@ -6,6 +6,7 @@
  */
 
 import React from 'react'
+import { formatText } from '@/lib/format-text'
 
 interface DialogueLine {
   character: string
@@ -58,7 +59,7 @@ export const DialogueCompletionRenderer: React.FC<DialogueCompletionRendererProp
     <div className="space-y-4">
       {/* Header Info */}
       <div className="border-l-4 border-amber-500 pl-4 mb-4">
-        <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">{instructions}</p>
+        <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">{formatText(instructions)}</p>
         <div className="flex gap-4 text-sm font-medium text-gray-600 dark:text-gray-400">
           <span>⏱️ {timeMinutes} minutes</span>
           {difficulty && <span>📊 Difficulty: {difficulty}</span>}
@@ -93,7 +94,7 @@ export const DialogueCompletionRenderer: React.FC<DialogueCompletionRendererProp
                   {isBlank ? (
                     <div className="space-y-2">
                       <p className="text-gray-900 dark:text-white">
-                        {line.text}
+                        {formatText(line.text)}
                         <span className="inline-block ml-2 px-3 py-1 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 rounded font-medium text-sm">
                           ______
                         </span>
@@ -111,7 +112,7 @@ export const DialogueCompletionRenderer: React.FC<DialogueCompletionRendererProp
                       )}
                     </div>
                   ) : (
-                    <p className="text-gray-900 dark:text-white">{line.text}</p>
+                    <p className="text-gray-900 dark:text-white">{formatText(line.text)}</p>
                   )}
                 </div>
               </div>

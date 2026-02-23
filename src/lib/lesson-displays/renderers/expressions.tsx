@@ -6,6 +6,7 @@
  */
 
 import React from 'react'
+import { formatText } from '@/lib/format-text'
 
 interface Expression {
   expression: string
@@ -31,7 +32,7 @@ export const ExpressionsRenderer: React.FC<ExpressionsRendererProps> = ({
     <div className="space-y-4">
       {/* Header Info */}
       <div className="border-l-4 border-purple-500 pl-4 mb-4">
-        <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">{instructions}</p>
+        <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">{formatText(instructions)}</p>
         <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
           ⏱️ {timeMinutes} minutes
         </p>
@@ -53,7 +54,7 @@ export const ExpressionsRenderer: React.FC<ExpressionsRendererProps> = ({
               {expr.expression}
             </h4>
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-              {expr.meaning}
+              {formatText(expr.meaning)}
             </p>
 
             {selectedIndex === index && (
@@ -61,14 +62,14 @@ export const ExpressionsRenderer: React.FC<ExpressionsRendererProps> = ({
                 <div>
                   <p className="text-xs font-medium text-purple-600 dark:text-purple-400 mb-1">Example:</p>
                   <p className="text-sm text-gray-900 dark:text-gray-100 italic bg-purple-50 dark:bg-purple-900/20 p-2 rounded">
-                    &quot;{expr.example}&quot;
+                    &quot;{formatText(expr.example)}&quot;
                   </p>
                 </div>
                 {expr.whenToUse && (
                   <div>
                     <p className="text-xs font-medium text-purple-600 dark:text-purple-400 mb-1">When to use:</p>
                     <p className="text-sm text-gray-900 dark:text-gray-100">
-                      {expr.whenToUse}
+                      {formatText(expr.whenToUse)}
                     </p>
                   </div>
                 )}

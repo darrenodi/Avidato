@@ -2,6 +2,7 @@
 
 // src/components/lesson/EngooLessonComponents.tsx
 import React, { useState, useRef } from 'react'
+import { formatText } from '@/lib/format-text'
 
 /**
  * Engoo-style Lesson Components
@@ -9,11 +10,7 @@ import React, { useState, useRef } from 'react'
  * character dialogues, and exercise layouts
  */
 
-// Utility function to safely handle string replacements
-const safeReplace = (text: string | undefined | null | Record<string, unknown>): string => {
-  const str = String(text || '')
-  return str.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-}
+// Utility: bold formatting handled by formatText from @/lib/format-text
 
 interface VocabularyItem {
   word: string
@@ -142,17 +139,13 @@ export function VocabularyExercise({ vocabulary }: { vocabulary: VocabularyItem[
                   {item.phonetics || ''}
                 </span>
                 <span className="text-gray-700 dark:text-gray-300 text-sm lg:text-sm break-words">
-                  <span dangerouslySetInnerHTML={{ 
-                    __html: safeReplace(item.definition) 
-                  }} />
+                  {formatText(item.definition)}
                 </span>
               </div>
               
               {/* Example sentence */}
               <div className="text-gray-600 dark:text-gray-400 text-sm break-words leading-relaxed mb-3 italic">
-                <span dangerouslySetInnerHTML={{ 
-                  __html: safeReplace(item.example) 
-                }} />
+                {formatText(item.example)}
               </div>
 
               {/* Expressions/collocations - show useful phrases if available (A2+) */}
@@ -190,9 +183,7 @@ export function WarmupExercise({ questions, instructions }: { questions: (string
     <div className="space-y-4 max-w-4xl">
       {instructions && (
         <p className="text-gray-600 dark:text-gray-400 italic">
-          <span dangerouslySetInnerHTML={{ 
-            __html: safeReplace(instructions) 
-          }} />
+          {formatText(instructions)}
         </p>
       )}
       <div className="space-y-3">
@@ -208,9 +199,7 @@ export function WarmupExercise({ questions, instructions }: { questions: (string
                 {index + 1}
               </span>
               <p className="text-gray-900 dark:text-white">
-                <span dangerouslySetInnerHTML={{ 
-                  __html: safeReplace(questionText) 
-                }} />
+                {formatText(questionText)}
               </p>
             </div>
           )
@@ -295,18 +284,14 @@ export function DialogueExercise({
         <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
           <p className="text-blue-800 dark:text-blue-400 text-sm">
             <strong>Context:</strong>{' '}
-            <span dangerouslySetInnerHTML={{ 
-              __html: safeReplace(context) 
-            }} />
+            {formatText(context)}
           </p>
         </div>
       )}
       
       {instructions && (
         <p className="text-gray-600 dark:text-gray-400 italic text-sm">
-          <span dangerouslySetInnerHTML={{ 
-            __html: instructions.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') 
-          }} />
+          {formatText(instructions)}
         </p>
       )}
 
@@ -334,9 +319,7 @@ export function DialogueExercise({
                     <div className="absolute left-0 top-3 w-0 h-0 border-t-[6px] border-b-[6px] border-r-[8px] border-transparent border-r-gray-100 dark:border-r-gray-700 -ml-2"></div>
                   )}
                   <p className="text-gray-900 dark:text-white leading-relaxed">
-                    <span dangerouslySetInnerHTML={{ 
-                      __html: line.text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') 
-                    }} />
+                    {formatText(line.text)}
                   </p>
                 </div>
               </div>
@@ -413,9 +396,7 @@ export function ComprehensionExercise({
             </span>
             <div className="flex-1">
               <p className="text-gray-900 dark:text-white mb-4">
-                <span dangerouslySetInnerHTML={{ 
-                  __html: safeReplace(q.question) 
-                }} />
+                {formatText(q.question)}
               </p>
 
               {q.type === 'multiple-choice' && q.options && (
@@ -464,9 +445,7 @@ export function ComprehensionExercise({
                           {!isSelected && optionLetter}
                         </div>
                         <span className={`${isSelected ? 'font-medium' : ''}`}>
-                          <span dangerouslySetInnerHTML={{ 
-                            __html: safeReplace(displayText) 
-                          }} />
+                          {formatText(displayText)}
                         </span>
                       </label>
                     )
@@ -547,9 +526,7 @@ export function ComprehensionExercise({
                     <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3 flex-1">
                       <p className="text-blue-800 dark:text-blue-300 text-sm">
                         <span className="font-medium">Answer:</span>{' '}
-                        <span dangerouslySetInnerHTML={{ 
-                          __html: q.answer.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') 
-                        }} />
+                        {formatText(q.answer)}
                       </p>
                     </div>
                   )}
@@ -584,9 +561,7 @@ export function RolePlayExercise({
       <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
         <h4 className="font-semibold text-yellow-800 dark:text-yellow-400 mb-2">Scenario</h4>
         <p className="text-yellow-700 dark:text-yellow-300 text-sm">
-          <span dangerouslySetInnerHTML={{ 
-            __html: scenario.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') 
-          }} />
+          {formatText(scenario)}
         </p>
       </div>
       
@@ -594,14 +569,10 @@ export function RolePlayExercise({
         {roles.map((role, index) => (
           <div key={index} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
             <h5 className="font-semibold text-gray-900 dark:text-white mb-2">
-              <span dangerouslySetInnerHTML={{ 
-                __html: (role.name || '').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') 
-              }} />
+              {formatText(role.name)}
             </h5>
             <p className="text-gray-700 dark:text-gray-300 text-sm mb-3">
-              <span dangerouslySetInnerHTML={{ 
-                __html: (role.description || '').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') 
-              }} />
+              {formatText(role.description)}
             </p>
             {role.keyPoints && (
               <div>
@@ -612,9 +583,7 @@ export function RolePlayExercise({
                   {role.keyPoints.map((point, pointIndex) => (
                     <li key={pointIndex} className="flex items-start space-x-1">
                       <span className="text-gray-400">•</span>
-                      <span dangerouslySetInnerHTML={{ 
-                        __html: point.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') 
-                      }} />
+                      <span>{formatText(point)}</span>
                     </li>
                   ))}
                 </ul>
@@ -632,9 +601,7 @@ export function RolePlayExercise({
           </span>
         </div>
         <p className="text-gray-700 dark:text-gray-300 text-sm">
-          <span dangerouslySetInnerHTML={{ 
-            __html: instructions.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') 
-          }} />
+          {formatText(instructions)}
         </p>
       </div>
     </div>
@@ -650,9 +617,7 @@ export function DiscussionExercise({ questions, instructions }: { questions: str
     <div className="space-y-4 max-w-4xl">
       {instructions && (
         <p className="text-gray-600 dark:text-gray-400 italic text-sm">
-          <span dangerouslySetInnerHTML={{ 
-            __html: instructions.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') 
-          }} />
+          {formatText(instructions)}
         </p>
       )}
       
@@ -663,9 +628,7 @@ export function DiscussionExercise({ questions, instructions }: { questions: str
               {index + 1}
             </span>
             <p className="text-gray-900 dark:text-white">
-              <span dangerouslySetInnerHTML={{ 
-                __html: question.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') 
-              }} />
+              {formatText(question)}
             </p>
           </div>
         ))}
@@ -700,9 +663,7 @@ export function PreparationExercise({
                   ✓
                 </span>
                 <span className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed">
-                  <span dangerouslySetInnerHTML={{ 
-                    __html: tip.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') 
-                  }} />
+                  {formatText(tip)}
                 </span>
               </li>
             ))}
@@ -726,9 +687,7 @@ export function PreparationExercise({
                   {index + 1}
                 </span>
                 <p className="text-gray-900 dark:text-white text-sm leading-relaxed">
-                  <span dangerouslySetInnerHTML={{ 
-                    __html: question.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') 
-                  }} />
+                  {formatText(question)}
                 </p>
               </div>
             ))}
@@ -764,9 +723,7 @@ export function FinalPrepExercise({
             {phrases.map((phrase, index) => (
               <div key={index} className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
                 <span className="text-blue-800 dark:text-blue-300 font-medium text-sm">
-                  <span dangerouslySetInnerHTML={{ 
-                    __html: `&ldquo;${phrase.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')}&rdquo;` 
-                  }} />
+                  &ldquo;{formatText(phrase)}&rdquo;
                 </span>
               </div>
             ))}
@@ -788,9 +745,7 @@ export function FinalPrepExercise({
               <label key={index} className="flex items-start space-x-3 cursor-pointer group">
                 <input type="checkbox" className="mt-1 rounded border-gray-300 text-green-600 focus:ring-green-500" />
                 <span className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed group-hover:text-gray-900 dark:group-hover:text-white">
-                  <span dangerouslySetInnerHTML={{ 
-                    __html: item.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') 
-                  }} />
+                  {formatText(item)}
                 </span>
               </label>
             ))}
@@ -813,9 +768,7 @@ export function FinalPrepExercise({
                 <li key={index} className="flex items-start space-x-2">
                   <span className="text-yellow-600 dark:text-yellow-400 text-lg">💪</span>
                   <span className="text-yellow-800 dark:text-yellow-300 text-sm leading-relaxed">
-                    <span dangerouslySetInnerHTML={{ 
-                      __html: item.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') 
-                    }} />
+                    {formatText(item)}
                   </span>
                 </li>
               ))}

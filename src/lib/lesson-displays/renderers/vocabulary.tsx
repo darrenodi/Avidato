@@ -6,6 +6,7 @@
  */
 
 import React from 'react'
+import { formatText } from '@/lib/format-text'
 
 interface VocabularyTerm {
   word?: string
@@ -29,10 +30,6 @@ interface VocabularyRendererProps {
   timeMinutes: number
 }
 
-const safeReplace = (text: string | undefined | null): string => {
-  return (text || '').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-}
-
 export const VocabularyRenderer: React.FC<VocabularyRendererProps> = ({
   instructions,
   vocabulary,
@@ -44,7 +41,7 @@ export const VocabularyRenderer: React.FC<VocabularyRendererProps> = ({
       {/* Header */}
       {instructions && (
         <div className="border-l-4 border-green-500 pl-4">
-          <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">{instructions}</p>
+          <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">{formatText(instructions)}</p>
           <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
             ⏱️ {timeMinutes} minutes
           </p>
@@ -111,17 +108,13 @@ export const VocabularyRenderer: React.FC<VocabularyRendererProps> = ({
                       </span>
                     )}
                     <span className="text-gray-700 dark:text-gray-300 text-sm break-words">
-                      <span dangerouslySetInnerHTML={{ 
-                        __html: safeReplace(item.definition) 
-                      }} />
+                      {formatText(item.definition)}
                     </span>
                   </div>
                   
                   {/* Example sentence */}
                   <div className="text-gray-600 dark:text-gray-400 text-sm break-words leading-relaxed mb-3 italic">
-                    <span dangerouslySetInnerHTML={{ 
-                      __html: safeReplace(item.example) 
-                    }} />
+                    {formatText(item.example)}
                   </div>
 
                   {/* Expressions/collocations */}
@@ -156,10 +149,10 @@ export const VocabularyRenderer: React.FC<VocabularyRendererProps> = ({
             ✏️ Practice Activity:
           </p>
           <p className="text-sm text-green-700 dark:text-green-200 mb-2">
-            {practiceActivity.instructions}
+            {formatText(practiceActivity.instructions)}
           </p>
           <p className="text-sm text-green-800 dark:text-green-300 italic">
-            {practiceActivity.content}
+            {formatText(practiceActivity.content)}
           </p>
         </div>
       )}

@@ -7,6 +7,7 @@
  */
 
 import React from 'react'
+import { formatText } from '@/lib/format-text'
 
 interface ComprehensionQuestion {
   question: string
@@ -43,7 +44,7 @@ export const ComprehensionRenderer: React.FC<ComprehensionRendererProps> = ({
       {/* Header */}
       {instructions && (
         <div className="border-l-4 border-indigo-500 pl-4 mb-6">
-          <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">{instructions}</p>
+          <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">{formatText(instructions)}</p>
           <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
             ⏱️ {timeMinutes} minutes • {questions.length} questions
           </p>
@@ -69,7 +70,7 @@ export const ComprehensionRenderer: React.FC<ComprehensionRendererProps> = ({
                   {index + 1}
                 </span>
                 <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white flex-1">
-                  {q.question}
+                  {formatText(q.question)}
                 </h3>
               </div>
             </div>

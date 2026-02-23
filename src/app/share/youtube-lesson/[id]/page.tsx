@@ -6,6 +6,7 @@ import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import ClientThemeProvider from '@/components/ClientThemeProvider'
+import { formatText } from '@/lib/format-text'
 
 // ---------------------------------------------------------------------------
 // Types — student-safe subset (no answers, no teacher notes, no CCQs, no follow-ups)
@@ -407,7 +408,7 @@ function SharedYouTubeLessonContent() {
                 <div className="space-y-3">
                   {lesson.warmUp.map((q) => (
                     <div key={q.id} className="p-3 rounded-lg bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-800/30">
-                      <p className="text-gray-900 dark:text-white">{q.id}. {q.question}</p>
+                      <p className="text-gray-900 dark:text-white">{q.id}. {formatText(q.question)}</p>
                     </div>
                   ))}
                 </div>
@@ -431,10 +432,10 @@ function SharedYouTubeLessonContent() {
                         </span>
                       </div>
                       <p className="text-sm text-gray-700 dark:text-gray-300 mb-1">
-                        <span className="font-medium">Meaning:</span> {item.definition}
+                        <span className="font-medium">Meaning:</span> {formatText(item.definition)}
                       </p>
                       <p className="text-sm text-gray-600 dark:text-gray-400">
-                        <span className="font-medium">Example:</span> <em>{item.exampleSentence}</em>
+                        <span className="font-medium">Example:</span> <em>{formatText(item.exampleSentence)}</em>
                       </p>
                     </div>
                   ))}
@@ -455,7 +456,7 @@ function SharedYouTubeLessonContent() {
                   <div className="space-y-3">
                     {lesson.detailQuestions.map((q) => (
                       <div key={q.id} className="p-3 rounded-lg bg-indigo-50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-800/30">
-                        <p className="text-gray-900 dark:text-white">{q.id}. {q.question}</p>
+                        <p className="text-gray-900 dark:text-white">{q.id}. {formatText(q.question)}</p>
                       </div>
                     ))}
                   </div>
@@ -466,9 +467,9 @@ function SharedYouTubeLessonContent() {
             {/* ---- STAGE 4: Language Focus — Matching & Fill-in-the-Blanks ---- */}
             {lesson.phrases?.length > 0 && (
               <Card>
-                <StageHeader num={4} label="Language Focus: Phrases & Expressions" time="10-12 min" icon="🗣️" />
+                <StageHeader num={4} label="Language Focus: Idioms & Expressions" time="10-12 min" icon="🗣️" />
                 <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
-                  Useful phrases and expressions from the video. Match each phrase to its meaning.
+                  Idioms, phrases and expressions from the video. Match each item to its meaning.
                 </p>
                 <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">4a — Match Phrase to Meaning</h4>
                 <PhraseMatchingGame phrases={lesson.phrases} />
@@ -494,7 +495,7 @@ function SharedYouTubeLessonContent() {
                     <div className="space-y-3">
                       {lesson.fillBlanks.map((fb) => (
                         <div key={`fb-${fb.id}`} className="p-3 rounded-lg bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-800/30">
-                          <p className="text-gray-900 dark:text-white">{fb.id}. {fb.sentence}</p>
+                          <p className="text-gray-900 dark:text-white">{fb.id}. {formatText(fb.sentence)}</p>
                         </div>
                       ))}
                     </div>
@@ -513,7 +514,7 @@ function SharedYouTubeLessonContent() {
                 <div className="space-y-3">
                   {lesson.discussion.map((q) => (
                     <div key={q.id} className="p-4 rounded-lg bg-rose-50 dark:bg-rose-900/10 border border-rose-100 dark:border-rose-800/30">
-                      <p className="text-gray-900 dark:text-white font-medium">{q.id}. {q.question}</p>
+                      <p className="text-gray-900 dark:text-white font-medium">{q.id}. {formatText(q.question)}</p>
                     </div>
                   ))}
                 </div>
@@ -527,7 +528,7 @@ function SharedYouTubeLessonContent() {
                 <div className="space-y-3">
                   {lesson.wrapUp.map((r) => (
                     <div key={r.id} className="p-3 rounded-lg bg-gray-50 dark:bg-gray-900/20 border border-gray-200 dark:border-gray-700">
-                      <p className="text-gray-900 dark:text-white">{r.id}. {r.prompt}</p>
+                      <p className="text-gray-900 dark:text-white">{r.id}. {formatText(r.prompt)}</p>
                     </div>
                   ))}
                 </div>

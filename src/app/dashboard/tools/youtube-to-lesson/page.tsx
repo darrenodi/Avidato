@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useMemo, useState } from 'react'
 import DashboardLayout from '@/components/layout/DashboardLayout'
 import { fetchTranscriptViaProxy, extractVideoId } from '@/lib/youtube-transcript-client'
+import { formatText } from '@/lib/format-text'
 
 type CEFRLevel = 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2'
 
@@ -698,7 +699,7 @@ export default function YouTubeToLessonPage() {
                 <div className="space-y-3">
                   {result.warmUp.map((q) => (
                     <div key={q.id} className="p-3 rounded-lg bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-800/30">
-                      <p className="text-gray-900 dark:text-white">{q.id}. {q.question}</p>
+                      <p className="text-gray-900 dark:text-white">{q.id}. {formatText(q.question)}</p>
                     </div>
                   ))}
                 </div>
@@ -722,14 +723,14 @@ export default function YouTubeToLessonPage() {
                         </span>
                       </div>
                       <p className="text-sm text-gray-700 dark:text-gray-300 mb-1">
-                        <span className="font-medium">Meaning:</span> {item.definition}
+                        <span className="font-medium">Meaning:</span> {formatText(item.definition)}
                       </p>
                       <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
-                        <span className="font-medium">Example:</span> <em>{item.exampleSentence}</em>
+                        <span className="font-medium">Example:</span> <em>{formatText(item.exampleSentence)}</em>
                       </p>
                       {showAnswers && (
                         <p className="text-sm text-violet-700 dark:text-violet-400">
-                          <span className="font-medium">CCQ:</span> {item.conceptCheckQuestion}
+                          <span className="font-medium">CCQ:</span> {formatText(item.conceptCheckQuestion)}
                         </p>
                       )}
                     </div>
@@ -753,10 +754,10 @@ export default function YouTubeToLessonPage() {
                   <div className="space-y-3">
                     {result.detailQuestions.map((q) => (
                       <div key={q.id} className="p-3 rounded-lg bg-indigo-50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-800/30">
-                        <p className="text-gray-900 dark:text-white mb-1">{q.id}. {q.question}</p>
+                        <p className="text-gray-900 dark:text-white mb-1">{q.id}. {formatText(q.question)}</p>
                         {showAnswers && (
                           <p className="text-sm text-indigo-700 dark:text-indigo-400 mt-2 pt-2 border-t border-indigo-200 dark:border-indigo-700/40">
-                            <span className="font-medium">Answer:</span> {q.answer}
+                            <span className="font-medium">Answer:</span> {formatText(q.answer)}
                           </p>
                         )}
                       </div>
@@ -769,9 +770,9 @@ export default function YouTubeToLessonPage() {
             {/* ---- STAGE 4: Language Focus — Matching & Fill-in-the-Blanks ---- */}
             {result.phrases && result.phrases.length > 0 && (
               <Card>
-                <StageHeader num={4} label="Language Focus: Phrases & Expressions" time="10-12 min" icon="🗣️" />
+                <StageHeader num={4} label="Language Focus: Idioms & Expressions" time="10-12 min" icon="🗣️" />
                 <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
-                  Reusable phrases, collocations and expressions from the video. These make the student sound more natural.
+                  Idioms, phrases, collocations and expressions from the video. These make the student sound more natural.
                 </p>
 
                 {/* 4a — Matching exercise */}
@@ -799,10 +800,10 @@ export default function YouTubeToLessonPage() {
                     <div className="space-y-3">
                       {result.fillBlanks.map((fb) => (
                         <div key={`fb-${fb.id}`} className="p-3 rounded-lg bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-800/30">
-                          <p className="text-gray-900 dark:text-white">{fb.id}. {fb.sentence}</p>
+                          <p className="text-gray-900 dark:text-white">{fb.id}. {formatText(fb.sentence)}</p>
                           {showAnswers && (
                             <p className="text-sm text-amber-700 dark:text-amber-400 mt-2 pt-2 border-t border-amber-200 dark:border-amber-700/40">
-                              <span className="font-medium">Answer:</span> {fb.answer}
+                              <span className="font-medium">Answer:</span> {formatText(fb.answer)}
                             </p>
                           )}
                         </div>
@@ -823,10 +824,10 @@ export default function YouTubeToLessonPage() {
                 <div className="space-y-4">
                   {result.discussion.map((q) => (
                     <div key={q.id} className="p-4 rounded-lg bg-rose-50 dark:bg-rose-900/10 border border-rose-100 dark:border-rose-800/30">
-                      <p className="text-gray-900 dark:text-white font-medium">{q.id}. {q.question}</p>
+                      <p className="text-gray-900 dark:text-white font-medium">{q.id}. {formatText(q.question)}</p>
                       {showAnswers && (
                         <p className="text-sm text-rose-700 dark:text-rose-400 mt-2">
-                          <span className="font-medium">Follow-up:</span> {q.followUp}
+                          <span className="font-medium">Follow-up:</span> {formatText(q.followUp)}
                         </p>
                       )}
                     </div>
@@ -843,7 +844,7 @@ export default function YouTubeToLessonPage() {
                   <div className="space-y-3 mb-4">
                     {result.wrapUp.map((r) => (
                       <div key={r.id} className="p-3 rounded-lg bg-gray-50 dark:bg-gray-900/20 border border-gray-200 dark:border-gray-700">
-                        <p className="text-gray-900 dark:text-white">{r.id}. {r.prompt}</p>
+                        <p className="text-gray-900 dark:text-white">{r.id}. {formatText(r.prompt)}</p>
                       </div>
                     ))}
                   </div>
@@ -856,7 +857,7 @@ export default function YouTubeToLessonPage() {
                         {result.homework.type}
                       </span>
                     </div>
-                    <p className="text-sm text-blue-800 dark:text-blue-300">{result.homework.task}</p>
+                    <p className="text-sm text-blue-800 dark:text-blue-300">{formatText(result.homework.task)}</p>
                   </div>
                 )}
               </Card>

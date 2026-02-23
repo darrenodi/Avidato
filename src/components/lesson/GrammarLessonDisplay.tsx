@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
+import { formatText } from '@/lib/format-text'
 
 /**
  * GrammarLessonDisplay Component
@@ -57,7 +58,7 @@ function GrammarFocusExercise({ exercise }: { exercise: { type: string; title: s
       {content.explanation && (
         <div className="mb-6">
           <p className="text-gray-700 dark:text-gray-300 text-base leading-relaxed">
-            {content.explanation}
+            {formatText(content.explanation)}
           </p>
         </div>
       )}
@@ -65,7 +66,7 @@ function GrammarFocusExercise({ exercise }: { exercise: { type: string; title: s
       {content.form && (
         <div className="mb-6">
           <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Form</h4>
-          <p className="text-gray-700 dark:text-gray-300">{content.form}</p>
+          <p className="text-gray-700 dark:text-gray-300">{formatText(content.form)}</p>
         </div>
       )}
 
@@ -74,10 +75,10 @@ function GrammarFocusExercise({ exercise }: { exercise: { type: string; title: s
           <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Main Uses</h4>
           <ul className="list-disc pl-6 space-y-1 text-gray-700 dark:text-gray-300">
             {content.uses.map((u, i) => {
-              if (typeof u === 'string') return <li key={i}>{u}</li>
+              if (typeof u === 'string') return <li key={i}>{formatText(u)}</li>
               const text = u.use || u.text || ''
               const example = u.example ? ` – ${u.example}` : ''
-              return <li key={i}><span className="font-medium">{text}</span>{example}</li>
+              return <li key={i}><span className="font-medium">{formatText(text)}</span>{formatText(example)}</li>
             })}
           </ul>
         </div>
@@ -88,10 +89,10 @@ function GrammarFocusExercise({ exercise }: { exercise: { type: string; title: s
           <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Structures</h4>
           <ul className="list-disc pl-6 space-y-1 text-gray-700 dark:text-gray-300">
             {content.structures.map((s, i) => {
-              if (typeof s === 'string') return <li key={i}>{s}</li>
+              if (typeof s === 'string') return <li key={i}>{formatText(s)}</li>
               const pattern = s.pattern || ''
               const note = s.note ? ` – ${s.note}` : ''
-              return <li key={i}><span className="font-medium">{pattern}</span>{note}</li>
+              return <li key={i}><span className="font-medium">{formatText(pattern)}</span>{formatText(note)}</li>
             })}
           </ul>
         </div>
@@ -102,10 +103,10 @@ function GrammarFocusExercise({ exercise }: { exercise: { type: string; title: s
           <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Contrasts</h4>
           <ul className="list-disc pl-6 space-y-1 text-gray-700 dark:text-gray-300">
             {content.contrasts.map((c, i) => {
-              if (typeof c === 'string') return <li key={i}>{c}</li>
+              if (typeof c === 'string') return <li key={i}>{formatText(c)}</li>
               const head = c.contrast
               const expl = c.explanation ? `: ${c.explanation}` : ''
-              return <li key={i}><span className="font-medium">{head}</span>{expl}</li>
+              return <li key={i}><span className="font-medium">{formatText(head)}</span>{formatText(expl)}</li>
             })}
           </ul>
         </div>
@@ -120,7 +121,7 @@ function GrammarFocusExercise({ exercise }: { exercise: { type: string; title: s
                 <span className="inline-flex items-center justify-center h-6 px-2 rounded bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 text-xs font-semibold flex-shrink-0">
                   {row.label}
                 </span>
-                <span className="text-gray-700 dark:text-gray-300">{row.example}</span>
+                <span className="text-gray-700 dark:text-gray-300">{formatText(row.example)}</span>
               </div>
             ))}
           </div>
@@ -136,7 +137,7 @@ function GrammarFocusExercise({ exercise }: { exercise: { type: string; title: s
                 <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400 text-sm font-semibold flex-shrink-0">
                   {i + 1}
                 </span>
-                <span className="text-gray-700 dark:text-gray-300">{point}</span>
+                <span className="text-gray-700 dark:text-gray-300">{formatText(point)}</span>
               </li>
             ))}
           </ul>
@@ -149,10 +150,10 @@ function GrammarFocusExercise({ exercise }: { exercise: { type: string; title: s
           <ul className="space-y-3">
             {content.commonMistakes.map((m, i) => (
               <li key={i} className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded p-3 text-sm">
-                <div className="text-red-700 dark:text-red-300"><span className="font-semibold">Incorrect:</span> {m.incorrect}</div>
-                <div className="text-green-700 dark:text-green-300"><span className="font-semibold">Correct:</span> {m.correct}</div>
+                <div className="text-red-700 dark:text-red-300"><span className="font-semibold">Incorrect:</span> {formatText(m.incorrect)}</div>
+                <div className="text-green-700 dark:text-green-300"><span className="font-semibold">Correct:</span> {formatText(m.correct)}</div>
                 {m.why && (
-                  <div className="text-gray-700 dark:text-gray-300"><span className="font-semibold">Why:</span> {m.why}</div>
+                  <div className="text-gray-700 dark:text-gray-300"><span className="font-semibold">Why:</span> {formatText(m.why)}</div>
                 )}
               </li>
             ))}
@@ -165,7 +166,7 @@ function GrammarFocusExercise({ exercise }: { exercise: { type: string; title: s
           <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Tips</h4>
           <ul className="list-disc pl-6 space-y-1 text-gray-700 dark:text-gray-300">
             {content.tips.map((t, i) => (
-              <li key={i}>{t}</li>
+              <li key={i}>{formatText(t)}</li>
             ))}
           </ul>
         </div>
@@ -174,7 +175,7 @@ function GrammarFocusExercise({ exercise }: { exercise: { type: string; title: s
       {content.registerNotes && (
         <div className="mb-6">
           <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Register / Genre Notes</h4>
-          <p className="text-gray-700 dark:text-gray-300">{content.registerNotes}</p>
+          <p className="text-gray-700 dark:text-gray-300">{formatText(content.registerNotes)}</p>
         </div>
       )}
 
@@ -184,7 +185,7 @@ function GrammarFocusExercise({ exercise }: { exercise: { type: string; title: s
           <ul className="space-y-2">
             {content.examples.map((example, i) => (
               <li key={i} className="text-gray-700 dark:text-gray-300 italic pl-4 border-l-2 border-blue-500">
-                {example}
+                {formatText(example)}
               </li>
             ))}
           </ul>
@@ -210,11 +211,11 @@ function SentencePracticeExercise({ exercise }: { exercise: { type: string; titl
         {content.sentences.map((item, i) => (
           <div key={i} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-700">
             <p className="text-gray-900 dark:text-white">
-              {item.sentence}
+              {formatText(item.sentence)}
             </p>
             {item.context && (
               <p className="text-sm text-gray-600 dark:text-gray-300 mt-1 italic">
-                {item.context}
+                {formatText(item.context)}
               </p>
             )}
           </div>
@@ -239,7 +240,7 @@ function DialoguePracticeExercise({ exercise }: { exercise: { type: string; titl
     <div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
       <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">{exercise.title}</h3>
       {content.context && (
-        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 italic">{content.context}</p>
+        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 italic">{formatText(content.context)}</p>
       )}
       
       <div className="space-y-4">
@@ -249,7 +250,7 @@ function DialoguePracticeExercise({ exercise }: { exercise: { type: string; titl
               {line.speaker}
             </div>
             <div className="flex-1 text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-700 rounded p-3">
-              {line.text}
+              {formatText(line.text)}
             </div>
           </div>
         ))}
@@ -283,7 +284,7 @@ function FillInTheBlanksExercise({ exercise }: { exercise: { type: string; title
           return (
             <div key={i} className={`rounded-lg p-4 ${correct ? 'bg-green-50 border border-green-300' : wrong ? 'bg-red-50 border border-red-300' : 'bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-700'}`}>
               <p className="text-gray-700 dark:text-gray-300 mb-3">
-                {item.sentence.replace('_____', `_____ (${i + 1})`)}
+                {formatText(item.sentence.replace('_____', `_____ (${i + 1})`))}
               </p>
               <div className="flex flex-col gap-2">
                 <input
@@ -303,7 +304,7 @@ function FillInTheBlanksExercise({ exercise }: { exercise: { type: string; title
                 </div>
                 {showHints[i] && item.hint && (
                   <div className="text-sm text-yellow-700 dark:text-yellow-400 bg-yellow-50 dark:bg-yellow-900/20 rounded p-2">
-                    💡 {item.hint}
+                    💡 {formatText(item.hint)}
                   </div>
                 )}
               </div>
@@ -341,7 +342,7 @@ function MultipleChoiceExercise({ exercise }: { exercise: { type: string; title:
           const isCorrect = selected === q.correctAnswer
           return (
             <div key={qIndex} className={`rounded-lg p-4 ${isCorrect ? 'bg-green-50 border border-green-300' : touched[qIndex] && selected !== undefined ? 'bg-red-50 border border-red-300' : 'bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-700'}`}>
-              <p className="font-medium text-gray-900 dark:text-white mb-4">{q.question}</p>
+              <p className="font-medium text-gray-900 dark:text-white mb-4">{formatText(q.question)}</p>
               <div className="space-y-2">
                 {q.options.map((option, oIndex) => {
                   const optionIsCorrect = oIndex === q.correctAnswer
@@ -358,14 +359,14 @@ function MultipleChoiceExercise({ exercise }: { exercise: { type: string; title:
                         onChange={() => { setSelectedAnswers({ ...selectedAnswers, [qIndex]: oIndex }); setTouched({ ...touched, [qIndex]: true }) }}
                         className="w-4 h-4"
                       />
-                      <span className="text-gray-700 dark:text-gray-300">{option}</span>
+                      <span className="text-gray-700 dark:text-gray-300">{formatText(option)}</span>
                     </label>
                   )
                 })}
               </div>
               {touched[qIndex] && q.explanation && (
                 <div className="mt-3 text-sm text-gray-600 dark:text-gray-400 bg-blue-50 dark:bg-blue-900/20 rounded p-2">
-                  {q.explanation}
+                  {formatText(q.explanation)}
                 </div>
               )}
             </div>
@@ -436,7 +437,7 @@ function SentenceBuildingExercise({ exercise }: { exercise: { type: string; titl
           const showRed = touched[i] && !showGreen && (textAnswer.trim().length > 0 || hasOrdering)
           return (
             <div key={i} className={`rounded-lg p-4 ${showGreen ? 'bg-green-50 border border-green-300' : showRed ? 'bg-red-50 border border-red-300' : 'bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-700'}`}>
-              <p className="font-medium text-gray-900 dark:text-white mb-3">{ex.instruction}</p>
+              <p className="font-medium text-gray-900 dark:text-white mb-3">{formatText(ex.instruction)}</p>
               {hasOrdering && (
                 <div className="mb-4 flex flex-wrap gap-2">
                   {order.map((word, wIndex) => (
@@ -455,7 +456,7 @@ function SentenceBuildingExercise({ exercise }: { exercise: { type: string; titl
               )}
               {ex.from && (
                 <div className="mb-3 text-sm text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded p-2">
-                  <span className="font-medium">Source:</span> {ex.from}
+                  <span className="font-medium">Source:</span> {formatText(ex.from)}
                 </div>
               )}
               {!hasOrdering && (
@@ -516,12 +517,12 @@ export default function GrammarLessonDisplay({ lesson }: GrammarLessonDisplayPro
           <h2 className="text-xl font-semibold text-blue-900 dark:text-blue-100 mb-3">
             Definition
           </h2>
-          <p className="text-blue-800 dark:text-blue-200 mb-4">{lesson.explanation.definition}</p>
+          <p className="text-blue-800 dark:text-blue-200 mb-4">{formatText(lesson.explanation.definition)}</p>
 
           <h2 className="text-xl font-semibold text-blue-900 dark:text-blue-100 mb-3">
             When to Use It
           </h2>
-          <p className="text-blue-800 dark:text-blue-200 mb-4">{lesson.explanation.usage}</p>
+          <p className="text-blue-800 dark:text-blue-200 mb-4">{formatText(lesson.explanation.usage)}</p>
 
           <h2 className="text-xl font-semibold text-blue-900 dark:text-blue-100 mb-3">
             Quick Examples
@@ -530,7 +531,7 @@ export default function GrammarLessonDisplay({ lesson }: GrammarLessonDisplayPro
             {lesson.explanation.examples.map((example, i) => (
               <li key={i} className="text-blue-800 dark:text-blue-200 flex items-start gap-2">
                 <span className="text-blue-600 dark:text-blue-300 mt-1">•</span>
-                <span>{example}</span>
+                <span>{formatText(example)}</span>
               </li>
             ))}
           </ul>

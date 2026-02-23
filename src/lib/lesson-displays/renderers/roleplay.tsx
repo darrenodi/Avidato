@@ -3,6 +3,7 @@
  */
 
 import React from 'react'
+import { formatText } from '@/lib/format-text'
 
 interface Role {
   name: string
@@ -28,7 +29,7 @@ export const RoleplayRenderer: React.FC<RoleplayRendererProps> = ({
     <div className="space-y-6">
       {instructions && (
         <div className="border-l-4 border-purple-500 pl-4 mb-6">
-          <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">{instructions}</p>
+          <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">{formatText(instructions)}</p>
           <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
             ⏱️ {timeMinutes} minutes • {roles.length} roles
           </p>
@@ -44,7 +45,7 @@ export const RoleplayRenderer: React.FC<RoleplayRendererProps> = ({
         <h3 className="text-sm font-semibold text-purple-900 dark:text-purple-300 mb-2">
           📍 Scenario:
         </h3>
-        <p className="text-gray-900 dark:text-gray-100">{scenario}</p>
+        <p className="text-gray-900 dark:text-gray-100">{formatText(scenario)}</p>
       </div>
 
       <div>
@@ -69,7 +70,7 @@ export const RoleplayRenderer: React.FC<RoleplayRendererProps> = ({
 
               <div className="mb-4">
                 <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
-                  {role.description}
+                  {formatText(role.description)}
                 </p>
               </div>
 
@@ -85,7 +86,7 @@ export const RoleplayRenderer: React.FC<RoleplayRendererProps> = ({
                         className="text-sm text-gray-700 dark:text-gray-300 flex items-start gap-2"
                       >
                         <span className="flex-shrink-0 text-purple-500 font-bold mt-0.5">•</span>
-                        <span>{point}</span>
+                        <span>{formatText(point)}</span>
                       </li>
                     ))}
                   </ul>

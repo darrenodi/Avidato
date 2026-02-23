@@ -6,6 +6,7 @@
  */
 
 import React from 'react'
+import { formatText } from '@/lib/format-text'
 
 interface SpeakingPrompt {
   question: string
@@ -54,7 +55,7 @@ export const SpeakingRenderer: React.FC<SpeakingRendererProps> = ({
     <div className="space-y-4">
       {/* Header Info */}
       <div className="border-l-4 border-cyan-500 pl-4 mb-4">
-        <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">{instructions}</p>
+        <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">{formatText(instructions)}</p>
         <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
           ⏱️ {timeMinutes} minutes
         </p>
@@ -99,7 +100,7 @@ export const SpeakingRenderer: React.FC<SpeakingRendererProps> = ({
                     {index + 1}
                   </span>
                   <h4 className="text-gray-900 dark:text-white font-semibold flex-1">
-                    {question.question}
+                    {formatText(question.question)}
                   </h4>
                   {question.difficulty && (
                     <span className={`text-xs font-medium px-2 py-1 rounded ${getDifficultyColor(question.difficulty)}`}>
@@ -117,7 +118,7 @@ export const SpeakingRenderer: React.FC<SpeakingRendererProps> = ({
                       <div key={pIndex} className="flex items-start gap-2">
                         <span className="text-cyan-600 dark:text-cyan-400 mt-0.5">•</span>
                         <span className="text-sm text-gray-700 dark:text-gray-300">
-                          {point}
+                          {formatText(point)}
                         </span>
                       </div>
                     ))}

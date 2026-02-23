@@ -7,6 +7,7 @@
  */
 
 import React, { useState } from 'react'
+import { formatText } from '@/lib/format-text'
 
 interface SentenceItem {
   incorrect: string
@@ -37,7 +38,7 @@ export const SentenceCorrectionRenderer: React.FC<SentenceCorrectionRendererProp
       <div className="border-l-4 border-orange-500 pl-4">
         <p className="text-sm font-semibold text-gray-900 dark:text-white mb-2">Each sentence has one mistake — find and correct it</p>
         {instructions && (
-          <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">{instructions}</p>
+          <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">{formatText(instructions)}</p>
         )}
         {isTutorVersion && (
           <p className="text-xs text-orange-600 dark:text-orange-400 mt-2 font-semibold">
@@ -63,7 +64,7 @@ export const SentenceCorrectionRenderer: React.FC<SentenceCorrectionRendererProp
                   {/* Display incorrect sentence */}
                   <div className="mb-3">
                     <p className="text-gray-900 dark:text-white font-medium p-3 rounded border bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800">
-                      {item.incorrect}
+                      {formatText(item.incorrect)}
                     </p>
                   </div>
 
@@ -88,7 +89,7 @@ export const SentenceCorrectionRenderer: React.FC<SentenceCorrectionRendererProp
                               ✅ Correct:
                             </p>
                             <p className="text-gray-900 dark:text-white font-medium bg-green-50 dark:bg-green-900/20 p-3 rounded border border-green-200 dark:border-green-800">
-                              {item.correct}
+                              {formatText(item.correct)}
                             </p>
                           </div>
 
@@ -101,7 +102,7 @@ export const SentenceCorrectionRenderer: React.FC<SentenceCorrectionRendererProp
                               {item.explanation && (
                                 <>
                                   <br />
-                                  <span className="text-xs mt-1 block">{item.explanation}</span>
+                                  <span className="text-xs mt-1 block">{formatText(item.explanation)}</span>
                                 </>
                               )}
                             </p>

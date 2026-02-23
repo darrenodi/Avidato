@@ -6,6 +6,7 @@
  */
 
 import React from 'react'
+import { formatText } from '@/lib/format-text'
 
 interface ConversationPrompt {
   question: string
@@ -30,7 +31,7 @@ export const ConversationRenderer: React.FC<ConversationRendererProps> = ({
     <div className="space-y-4">
       {/* Header Info */}
       <div className="border-l-4 border-emerald-500 pl-4 mb-4">
-        <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">{instructions}</p>
+        <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">{formatText(instructions)}</p>
         <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
           ⏱️ {timeMinutes} minutes
         </p>
@@ -51,7 +52,7 @@ export const ConversationRenderer: React.FC<ConversationRendererProps> = ({
                     {index + 1}
                   </span>
                   <h4 className="text-gray-900 dark:text-white font-semibold flex-1">
-                    {prompt.question}
+                    {formatText(prompt.question)}
                   </h4>
                 </div>
 
@@ -67,7 +68,7 @@ export const ConversationRenderer: React.FC<ConversationRendererProps> = ({
                           {prompt.followUpQuestions.map((q, qIndex) => (
                             <li key={qIndex} className="text-sm text-gray-700 dark:text-gray-300 flex items-start">
                               <span className="text-emerald-500 mr-2">•</span>
-                              <span>{q}</span>
+                              <span>{formatText(q)}</span>
                             </li>
                           ))}
                         </ul>

@@ -7,6 +7,7 @@
  */
 
 import React from 'react'
+import { formatText } from '@/lib/format-text'
 
 interface DiscussionRendererProps {
   title: string
@@ -25,7 +26,7 @@ export const DiscussionRenderer: React.FC<DiscussionRendererProps> = ({
       {/* Header - only show if instructions exist */}
       {instructions && (
         <div className="border-l-4 border-cyan-500 pl-4 mb-6">
-          <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">{instructions}</p>
+          <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">{formatText(instructions)}</p>
           <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
             ⏱️ {timeMinutes} minutes • {questions.length} questions
           </p>
@@ -51,7 +52,7 @@ export const DiscussionRenderer: React.FC<DiscussionRendererProps> = ({
                 {index + 1}
               </span>
               <p className="text-gray-900 dark:text-white font-medium leading-relaxed">
-                {question}
+                {formatText(question)}
               </p>
             </div>
           </div>

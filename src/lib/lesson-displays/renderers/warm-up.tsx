@@ -6,10 +6,7 @@
  */
 
 import React from 'react'
-
-const safeReplace = (text: string | undefined | null): string => {
-  return (text || '').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-}
+import { formatText } from '@/lib/format-text'
 
 interface WarmUpQuestion {
   question?: string
@@ -43,7 +40,7 @@ export const WarmUpRenderer: React.FC<WarmUpRendererProps> = ({
       {/* Header Info */}
       {instructions && (
         <div className="border-l-4 border-blue-500 pl-4 mb-4">
-          <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">{instructions}</p>
+          <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">{formatText(instructions)}</p>
           <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
             ⏱️ {timeMinutes} minutes
           </p>
@@ -66,11 +63,11 @@ export const WarmUpRenderer: React.FC<WarmUpRendererProps> = ({
                 </span>
                 <div className="flex-1">
                   <p className="text-gray-900 dark:text-white font-medium mb-2 leading-relaxed">
-                    <span dangerouslySetInnerHTML={{ __html: safeReplace(q?.question || '') }} />
+                    {formatText(q?.question || '')}
                   </p>
                   {q?.hint && (
                     <p className="text-sm text-gray-600 dark:text-gray-400 italic">
-                      💡 Hint: {q.hint}
+                      💡 Hint: {formatText(q.hint)}
                     </p>
                   )}
                 </div>
