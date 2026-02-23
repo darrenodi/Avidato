@@ -75,12 +75,20 @@ STUDENT PROFILE:
 - Student Name: ${studentName}${additionalContext}
 
 LESSON REQUIREMENTS:
-1. ALL content must be in ${targetLanguage} (except instructions for the teacher, which can be in English)
-2. Adapt difficulty to ${level} proficiency level
-3. Duration: ${duration} minutes
-4. Include vocabulary, dialogues, comprehension questions, and practice activities
-5. Make it practical and engaging
-6. Use ${nativeLanguage} translations for vocabulary items
+1. EVERY piece of student-facing content MUST be in ${targetLanguage}. This includes:
+   - The lesson title
+   - All exercise titles and descriptions
+   - All instructions, questions, dialogues, scenarios, role descriptions
+   - All comprehension questions and answer options
+   - Discussion questions
+   Everything the student reads or hears must be in ${targetLanguage}. NO English anywhere.
+2. ALL fields must be in ${targetLanguage} including: "objective", "context", "homework", "teachingNotes", "materials".
+   The teacher can understand ${targetLanguage} — do NOT use English for any field.
+3. Adapt difficulty to ${level} proficiency level
+4. Duration: ${duration} minutes
+5. Include vocabulary, dialogues, comprehension questions, and practice activities
+6. Make it practical and engaging
+7. Vocabulary items use ${nativeLanguage} ONLY in the "translation" field — everything else in ${targetLanguage}
 
 LESSON STRUCTURE:
 
@@ -88,7 +96,7 @@ LESSON STRUCTURE:
 Provide 6-8 vocabulary items related to "${topic}". Each item should include:
 {
   "word": "word in ${targetLanguage}",
-  "partOfSpeech": "part of speech",
+  "partOfSpeech": "part of speech in ${targetLanguage}",
   "phonetics": "IPA pronunciation",
   "definition": "definition in ${targetLanguage}",
   "translation": "translation in ${nativeLanguage}",
@@ -115,6 +123,7 @@ Create a realistic dialogue in ${targetLanguage} where ${studentName} practices 
 
 **Exercise 5: Practice Activity (${duration === 50 ? '10' : '5'} minutes)**
 A role-play or practice scenario where the student can apply what they learned.
+All scenario descriptions, role descriptions, and key points must be in ${targetLanguage}.
 
 **Exercise 6: Discussion (${duration === 50 ? '12' : '7'} minutes)**
 4-5 open discussion questions in ${targetLanguage} that encourage the student to use the new vocabulary and expressions.
@@ -125,15 +134,15 @@ OUTPUT FORMAT (JSON):
   "lessonType": "instant",
   "difficulty": "${level}",
   "duration": ${duration},
-  "objective": "What students will learn (in English for teacher reference)",
+  "objective": "What students will learn (in ${targetLanguage})",
   "skills": ["Speaking", "Listening", "Reading", "Vocabulary"],
   "vocabulary": [array of vocabulary items as specified above],
-  "context": "Brief objectives about the lesson topic (in English for teacher reference)",
+  "context": "Brief objectives about the lesson topic (in ${targetLanguage})",
   "exercises": [
     {
       "type": "vocabulary",
-      "title": "Exercise 1: Vocabulary",
-      "description": "Learn and practice new vocabulary",
+      "title": "title in ${targetLanguage}",
+      "description": "description in ${targetLanguage}",
       "content": {
         "vocabulary": [vocabulary items array]
       },
@@ -141,43 +150,42 @@ OUTPUT FORMAT (JSON):
     },
     {
       "type": "warmup",
-      "title": "Exercise 2: Warm-up",
-      "description": "Discussion questions to introduce the topic",
+      "title": "title in ${targetLanguage}",
+      "description": "description in ${targetLanguage}",
       "content": {
-        "questions": ["question 1 in ${targetLanguage}", "question 2 in ${targetLanguage}", ...],
-        "instructions": "Instructions in English for the teacher"
+        "questions": ["question 1 in ${targetLanguage}", "question 2 in ${targetLanguage}"],
+        "instructions": "instructions in ${targetLanguage}"
       },
       "timeMinutes": 8
     },
     {
       "type": "dialogue",
-      "title": "Exercise 3: Dialogue",
-      "description": "Practice with a real scenario",
+      "title": "title in ${targetLanguage}",
+      "description": "description in ${targetLanguage}",
       "content": {
-        "setting": "Description of the scenario (in English for teacher)",
+        "setting": "description of the scenario in ${targetLanguage}",
         "characters": [
-          {"name": "${studentName}", "role": "Student", "avatar": "You are ${studentName}"},
-          {"name": "Character name", "role": "Role description", "avatar": "avatar"}
+          {"name": "${studentName}", "role": "role in ${targetLanguage}", "avatar": "avatar description in ${targetLanguage}"},
+          {"name": "Character name", "role": "role in ${targetLanguage}", "avatar": "avatar"}
         ],
         "dialogue": [
           {"character": "${studentName}", "text": "text in ${targetLanguage}"},
-          {"character": "Other character", "text": "text in ${targetLanguage}"},
-          ...
+          {"character": "Other character", "text": "text in ${targetLanguage}"}
         ],
-        "instructions": "Read the dialogue in ${targetLanguage}"
+        "instructions": "instructions in ${targetLanguage}"
       },
       "timeMinutes": 12
     },
     {
       "type": "comprehension",
-      "title": "Exercise 4: Comprehension",
-      "description": "Answer questions about the dialogue",
+      "title": "title in ${targetLanguage}",
+      "description": "description in ${targetLanguage}",
       "content": {
         "questions": [
           {
             "question": "Question in ${targetLanguage}",
             "type": "multiple-choice",
-            "options": ["A) option", "B) option", "C) option", "D) option"],
+            "options": ["A) option in ${targetLanguage}", "B) option in ${targetLanguage}", "C) option in ${targetLanguage}", "D) option in ${targetLanguage}"],
             "answer": "A"
           },
           {
@@ -191,39 +199,37 @@ OUTPUT FORMAT (JSON):
     },
     {
       "type": "roleplay",
-      "title": "Exercise 5: Practice Activity",
-      "description": "Practice the topic in a new situation",
+      "title": "title in ${targetLanguage}",
+      "description": "description in ${targetLanguage}",
       "content": {
-        "scenario": "Scenario description (in English for teacher)",
+        "scenario": "scenario description in ${targetLanguage}",
         "roles": [
-          {"name": "${studentName}", "description": "Role description", "keyPoints": ["point 1", "point 2"]},
-          {"name": "Partner role", "description": "Role description", "keyPoints": ["point 1", "point 2"]}
+          {"name": "${studentName}", "description": "role description in ${targetLanguage}", "keyPoints": ["point in ${targetLanguage}", "point in ${targetLanguage}"]},
+          {"name": "Partner name", "description": "role description in ${targetLanguage}", "keyPoints": ["point in ${targetLanguage}", "point in ${targetLanguage}"]}
         ]
       },
       "timeMinutes": ${duration === 50 ? 10 : 5}
     },
     {
       "type": "discussion",
-      "title": "Exercise 6: Discussion",
-      "description": "Discuss these questions using the vocabulary",
+      "title": "title in ${targetLanguage}",
+      "description": "description in ${targetLanguage}",
       "content": {
-        "questions": ["Question 1 in ${targetLanguage}", "Question 2 in ${targetLanguage}", ...],
-        "instructions": "Discuss these questions in ${targetLanguage}"
+        "questions": ["Question 1 in ${targetLanguage}", "Question 2 in ${targetLanguage}"],
+        "instructions": "instructions in ${targetLanguage}"
       },
       "timeMinutes": ${duration === 50 ? 12 : 7}
     }
   ],
-  "homework": "Homework suggestion in English for teacher",
-  "materials": ["Materials needed"],
-  "teachingNotes": "Tips for teaching this lesson (in English for teacher)"
+  "homework": "Homework suggestion in ${targetLanguage}",
+  "materials": ["Materials needed in ${targetLanguage}"],
+  "teachingNotes": "Tips for teaching this lesson (in ${targetLanguage})"
 }
 
-IMPORTANT:
-- Return ONLY valid JSON
-- All lesson content (vocabulary, dialogues, questions) must be in ${targetLanguage}
-- Teacher instructions and metadata can be in English
-- Ensure proper JSON formatting with no trailing commas
-- Use appropriate ${targetLanguage} grammar and vocabulary for ${level} level
+CRITICAL LANGUAGE RULE:
+- Every single field in the JSON must be in ${targetLanguage}. No English anywhere.
+- Return ONLY valid JSON with no trailing commas.
+- Use appropriate ${targetLanguage} grammar and vocabulary for ${level} level.
 
 Generate the complete lesson now. Return ONLY the JSON.`;
 }

@@ -53,7 +53,23 @@ STUDENT PROFILE:
 
 GRAMMAR TOPIC REQUESTED: ${topic}
 
-REQUIREMENTS:
+LANGUAGE RULE — THIS IS THE MOST IMPORTANT RULE:
+ALL content in the entire JSON response MUST be written in ${student.targetLanguage}. This includes:
+- The lesson title
+- All exercise titles
+- All explanations, definitions, usage descriptions
+- All example sentences
+- All dialogue lines
+- All questions, options, hints, instructions
+- All sentence practice contexts
+- Fill-in-the-blank sentences and hints
+- Multiple-choice questions, options, and explanations
+- Sentence-building instructions
+- The "context" field
+
+NO English anywhere in the response. Everything must be in ${student.targetLanguage}.
+
+ADDITIONAL REQUIREMENTS:
 1. The lesson must be about the grammar topic requested: "${topic}"
 2. ALL explanations and examples must be contextualized to the student's profile, interests, and goals
 3. If student's occupation/interests are relevant, weave them into examples naturally
@@ -97,85 +113,84 @@ EXERCISE REQUIREMENTS:
 
 FORMAT YOUR RESPONSE AS VALID JSON ONLY:
 {
-  "title": "Lesson title about the grammar topic",
+  "title": "Lesson title in ${student.targetLanguage}",
   "grammarTopic": "${topic}",
-  "context": "Real-world context where this grammar is used",
+  "context": "Real-world context in ${student.targetLanguage}",
   "explanation": {
-    "definition": "Clear definition of the grammar rule",
-    "usage": "When and how to use it in real contexts",
+    "definition": "Clear definition in ${student.targetLanguage}",
+    "usage": "When and how to use it — in ${student.targetLanguage}",
     "examples": [
-      "Example sentence 1",
-      "Example sentence 2",
-      "Example sentence 3"
+      "Example sentence in ${student.targetLanguage}",
+      "Example sentence in ${student.targetLanguage}",
+      "Example sentence in ${student.targetLanguage}"
     ]
   },
   "exercises": [
     {
       "type": "grammar-focus",
-      "title": "Understanding the Rule",
+      "title": "title in ${student.targetLanguage}",
       "content": {
-        "explanation": "Detailed explanation at ${student.level} level",
-        "keyPoints": ["point1", "point2", "point3"],
-        "examples": ["example1", "example2"]
+        "explanation": "Detailed explanation in ${student.targetLanguage} at ${student.level} level",
+        "keyPoints": ["point in ${student.targetLanguage}", "point in ${student.targetLanguage}"],
+        "examples": ["example in ${student.targetLanguage}", "example in ${student.targetLanguage}"]
       }
     },
     {
       "type": "sentence-practice",
-      "title": "Model Sentences",
+      "title": "title in ${student.targetLanguage}",
       "content": {
         "sentences": [
-          {"sentence": "sentence 1", "context": "why this example"},
-          {"sentence": "sentence 2", "context": "why this example"},
-          {"sentence": "sentence 3", "context": "why this example"}
+          {"sentence": "sentence in ${student.targetLanguage}", "context": "context in ${student.targetLanguage}"},
+          {"sentence": "sentence in ${student.targetLanguage}", "context": "context in ${student.targetLanguage}"}
         ]
       }
     },
     {
       "type": "dialogue-practice",
-      "title": "Conversation Practice",
+      "title": "title in ${student.targetLanguage}",
       "content": {
         "character1": "Student Name",
-        "character2": "Teacher/Friend/Other",
-        "context": "Realistic scenario using grammar",
+        "character2": "Other character name",
+        "context": "scenario description in ${student.targetLanguage}",
         "dialogue": [
-          {"speaker": "character1", "text": "dialogue line"},
-          {"speaker": "character2", "text": "dialogue line"}
+          {"speaker": "character1", "text": "dialogue in ${student.targetLanguage}"},
+          {"speaker": "character2", "text": "dialogue in ${student.targetLanguage}"}
         ]
       }
     },
     {
       "type": "fill-blanks",
-      "title": "Fill in the Blanks",
+      "title": "title in ${student.targetLanguage}",
       "content": {
         "sentences": [
-          {"sentence": "sentence with _____ blank", "answer": "correct_word", "hint": "helpful hint"},
-          {"sentence": "another sentence with _____ blank", "answer": "correct_word", "hint": "helpful hint"}
+          {"sentence": "sentence with _____ blank in ${student.targetLanguage}", "answer": "correct word in ${student.targetLanguage}", "hint": "hint in ${student.targetLanguage}"},
+          {"sentence": "sentence with _____ blank in ${student.targetLanguage}", "answer": "correct word in ${student.targetLanguage}", "hint": "hint in ${student.targetLanguage}"}
         ]
       }
     },
     {
       "type": "multiple-choice",
-      "title": "Grammar Check",
+      "title": "title in ${student.targetLanguage}",
       "content": {
         "questions": [
           {
-            "question": "Which is correct?",
-            "options": ["option1", "option2", "option3", "option4"],
+            "question": "question in ${student.targetLanguage}",
+            "options": ["option in ${student.targetLanguage}", "option in ${student.targetLanguage}", "option in ${student.targetLanguage}", "option in ${student.targetLanguage}"],
             "correctAnswer": 0,
-            "explanation": "why this is correct"
+            "explanation": "explanation in ${student.targetLanguage}"
           }
         ]
       }
     },
     {
       "type": "sentence-building",
-      "title": "Create Sentences",
+      "title": "title in ${student.targetLanguage}",
       "content": {
         "exercises": [
           {
-            "instruction": "Build a sentence using...",
+            "instruction": "instruction in ${student.targetLanguage}",
             "words": ["word1", "word2", "word3"],
-            "correct": "correct sentence order"
+            "correct": "correct sentence in ${student.targetLanguage}"
           }
         ]
       }
@@ -185,10 +200,11 @@ FORMAT YOUR RESPONSE AS VALID JSON ONLY:
 
 CRITICAL:
 - Return ONLY valid JSON, no markdown or explanations
+- ALL text in every field MUST be in ${student.targetLanguage} — no English anywhere
 - All examples must be contextual to the student profile
 - Make the grammar practical and applicable to their interests/goals
--- Ensure vocabulary is appropriate for their level
--- All dialogue should feel natural and relatable`;
+- Ensure vocabulary is appropriate for their level
+- All dialogue should feel natural and relatable`;
 
     const { rawText: text } = await generateWithProviderFailover({
       prompt,
