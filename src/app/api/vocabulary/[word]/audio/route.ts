@@ -2,12 +2,27 @@ import { NextRequest, NextResponse } from 'next/server';
 import { generateVocabularyAudio, getVocabularyAudioUrl } from '@/lib/vocabulary-audio';
 import { checkRateLimit, getClientIdentifier, RATE_LIMITS } from '@/lib/rate-limit';
 import { stripHtml } from '@/lib/sanitize';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '@/lib/auth';
+import { canAccessVocabAudio } from '@/lib/feature-gates';
 
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ word: string }> }
 ) {
   try {
+    // Pro+ plan check
+    const session = await getServerSession(authOptions) as { user?: { id?: string } } | null;
+    if (session?.user?.id) {
+      const hasAccess = await canAccessVocabAudio(session.user.id);
+      if (!hasAccess) {
+        return NextResponse.json(
+          { error: 'Vocabulary audio is a Pro feature. Upgrade your plan to unlock it.', upgrade: true },
+          { status: 403 }
+        );
+      }
+    }
+
     // Apply rate limiting
     const identifier = getClientIdentifier(request);
     const rateLimit = checkRateLimit(identifier, RATE_LIMITS.API_VOCABULARY_AUDIO);
@@ -90,19 +105,20 @@ export async function GET(
   } catch (error) {
     console.error('Vocabulary audio generation error:', error);
     
-    // Check if it's an ElevenLabs API issue
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     const isElevenLabsError = errorMessage.includes('ElevenLabs API error');
+    const isTimeout = errorMessage.includes('timeout') || errorMessage.includes('connect');
     
     return NextResponse.json(
       { 
         error: 'Failed to generate audio',
-        message: isElevenLabsError 
+        message: isElevenLabsError || isTimeout
           ? 'Audio generation service temporarily unavailable. Please try again later.' 
           : errorMessage,
+        retryable: isElevenLabsError || isTimeout,
         details: process.env.NODE_ENV === 'development' ? errorMessage : undefined
       },
-      { status: 503 } // Service Unavailable
+      { status: isTimeout ? 504 : 503 }
     );
   }
 }

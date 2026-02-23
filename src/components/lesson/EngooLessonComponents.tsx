@@ -45,8 +45,19 @@ export function VocabularyExercise({ vocabulary }: { vocabulary: VocabularyItem[
     try {
       setLoadingWord(word);
       
-      // Fetch audio URL from API
-      const response = await fetch(`/api/vocabulary/${encodeURIComponent(word)}/audio`);
+      // Fetch audio URL from API (retry once on transient failure)
+      let response = await fetch(`/api/vocabulary/${encodeURIComponent(word)}/audio`);
+      if (response.status >= 500) {
+        // Retry once after 1s for cold-start / transient errors
+        await new Promise(r => setTimeout(r, 1000));
+        response = await fetch(`/api/vocabulary/${encodeURIComponent(word)}/audio`);
+      }
+
+      if (response.status === 403) {
+        // Feature gated — silently skip (Pro+ only)
+        return;
+      }
+
       if (!response.ok) {
         throw new Error('Failed to load audio');
       }

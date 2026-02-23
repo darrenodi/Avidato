@@ -439,7 +439,15 @@ export default function YouTubeToLessonPage() {
       })
 
       const data = await response.json()
-      if (!response.ok) throw new Error(data.error || 'Failed to generate lesson')
+      if (!response.ok) {
+        if (response.status === 403 && data.upgrade) {
+          setError('YouTube to Lesson is a Premium feature. Upgrade your plan to unlock it.')
+          setLoading(false)
+          setLoadingStage(null)
+          return
+        }
+        throw new Error(data.error || 'Failed to generate lesson')
+      }
 
       if (videoId && !data.videoId) {
         data.videoId = videoId
@@ -570,8 +578,24 @@ export default function YouTubeToLessonPage() {
 
             {/* General error */}
             {error && (
-              <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-                <p className="text-sm text-red-800 dark:text-red-300">{error}</p>
+              <div className={`p-4 border rounded-lg ${
+                error.includes('Premium')
+                  ? 'bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800'
+                  : 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'
+              }`}>
+                <p className={`text-sm ${
+                  error.includes('Premium')
+                    ? 'text-purple-800 dark:text-purple-300'
+                    : 'text-red-800 dark:text-red-300'
+                }`}>{error}</p>
+                {error.includes('Premium') && (
+                  <a
+                    href="/pricing"
+                    className="inline-flex items-center gap-1.5 mt-3 px-4 py-2 text-sm font-medium bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
+                  >
+                    View Plans &rarr;
+                  </a>
+                )}
               </div>
             )}
 

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/lib/auth'
 import { checkAndUpdateGenerationLimit } from '@/app/actions/ai-generation'
+import { canAccessYouTubeTool } from '@/lib/feature-gates'
 import { generateWithProviderFailover } from '@/lib/ai/generate-with-provider-failover'
 import { extractJSONFromText, cleanAndParseJSON } from '@/lib/utils/json-parser'
 import { getYouTubeTranscript, extractYouTubeVideoId, isTranscriptUnavailableError } from '@/lib/youtube-transcript'
@@ -263,6 +264,15 @@ export async function POST(request: NextRequest) {
     const session = await getServerSession(authOptions)
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Premium-only feature
+    const hasAccess = await canAccessYouTubeTool(session.user.id)
+    if (!hasAccess) {
+      return NextResponse.json(
+        { error: 'YouTube to Lesson is a Premium feature. Upgrade your plan to unlock it.', upgrade: true },
+        { status: 403 }
+      )
     }
 
     const allowed = await checkAndUpdateGenerationLimit(session.user.id)

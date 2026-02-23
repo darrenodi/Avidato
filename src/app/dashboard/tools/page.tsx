@@ -12,6 +12,7 @@ interface Tool {
   href: string
   icon: React.ReactNode
   status?: 'available' | 'coming-soon'
+  planBadge?: 'Pro' | 'Premium'
 }
 
 const tools: Tool[] = [
@@ -50,9 +51,10 @@ const tools: Tool[] = [
   },
   {
     name: 'YouTube to Lesson',
-    description: 'Generate discussion questions, vocabulary, and phrases from a YouTube transcript.',
+    description: 'Generate a complete 45-minute ESL lesson plan from a YouTube video transcript.',
     href: '/dashboard/tools/youtube-to-lesson',
     status: 'available',
+    planBadge: 'Premium',
     icon: (
       <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14m-6 4h5a2 2 0 002-2V8a2 2 0 00-2-2H9a2 2 0 00-2 2v8a2 2 0 002 2z" />
@@ -120,6 +122,17 @@ export default function ToolsPage() {
                     <div className="absolute top-4 right-4">
                       <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400">
                         Coming Soon
+                      </span>
+                    </div>
+                  )}
+                  {tool.planBadge && tool.status !== 'coming-soon' && (
+                    <div className="absolute top-4 right-4">
+                      <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
+                        tool.planBadge === 'Premium'
+                          ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-400'
+                          : 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400'
+                      }`}>
+                        {tool.planBadge}
                       </span>
                     </div>
                   )}

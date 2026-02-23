@@ -10,6 +10,7 @@ import { revalidatePath } from 'next/cache';
 import type { Session } from 'next-auth';
 import { getVocabularyContext } from '@/lib/vocabulary-tracker';
 import { checkRateLimit, recordFailedAttempt } from '@/lib/turnstile';
+import { canAccessVocabTracking } from '@/lib/feature-gates';
 
 /**
  * Security wrapper for AI generation operations
@@ -467,8 +468,11 @@ export async function generateLesson(
       interests: student.interests || undefined,
     };
 
-    // Issue #37: Get vocabulary context from previous shared lessons
-    const vocabContext = await getVocabularyContext(studentId);
+    // Issue #37: Get vocabulary context from previous shared lessons (Premium only)
+    const hasPremium = await canAccessVocabTracking(session.user.id);
+    const vocabContext = hasPremium
+      ? await getVocabularyContext(studentId)
+      : { previousVocabulary: [], previousLessonTitle: undefined, shouldReuseInDialogue: false };
 
     // Prepare lesson data with vocabulary context
     const lessonDataWithContext = {

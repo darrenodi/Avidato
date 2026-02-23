@@ -53,9 +53,23 @@ export default function DashboardPage() {
 
         try {
           setStatsLoading(true)
+
+          // Retry helper for cold-start resilience
+          const withRetry = async <T,>(fn: () => Promise<T>, retries = 2): Promise<T> => {
+            for (let i = 0; i <= retries; i++) {
+              try {
+                return await fn()
+              } catch (err) {
+                if (i === retries) throw err
+                await new Promise(r => setTimeout(r, 1000 * (i + 1)))
+              }
+            }
+            throw new Error('Exhausted retries')
+          }
+
           const [dashboardResponse, generationResponse] = await Promise.all([
-            getDashboardStats(),
-            getGenerationStats()
+            withRetry(() => getDashboardStats()),
+            withRetry(() => getGenerationStats())
           ])
           
           if (dashboardResponse.success && dashboardResponse.data) {
