@@ -2,26 +2,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import { generateVocabularyAudio, getVocabularyAudioUrl } from '@/lib/vocabulary-audio';
 import { checkRateLimit, getClientIdentifier, RATE_LIMITS } from '@/lib/rate-limit';
 import { stripHtml } from '@/lib/sanitize';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/lib/auth';
-import { canAccessVocabAudio } from '@/lib/feature-gates';
 
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ word: string }> }
 ) {
   try {
-    // Pro+ plan check
-    const session = await getServerSession(authOptions) as { user?: { id?: string } } | null;
-    if (session?.user?.id) {
-      const hasAccess = await canAccessVocabAudio(session.user.id);
-      if (!hasAccess) {
-        return NextResponse.json(
-          { error: 'Vocabulary audio is a Pro feature. Upgrade your plan to unlock it.', upgrade: true },
-          { status: 403 }
-        );
-      }
-    }
+    // NOTE: Vocab audio gating (Pro+) deferred until UI hides the play button for free users.
+    // Adding API-level gating without UI changes breaks inline audio in all lessons.
 
     // Apply rate limiting
     const identifier = getClientIdentifier(request);
