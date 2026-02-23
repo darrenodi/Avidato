@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { generateWithProviderFailover } from '@/lib/ai/generate-with-provider-failover'
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/lib/auth'
-import { checkAndUpdateGenerationLimit } from '@/app/actions/ai-generation'
+import { checkGenerationLimit, recordSuccessfulGeneration } from '@/app/actions/ai-generation'
 import { cleanAndParseJSON, stripMarkdownFences } from '@/lib/utils/json-parser'
 
 interface GenerateExerciseRequest {
@@ -106,8 +106,8 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Check rate limit
-    const allowed = await checkAndUpdateGenerationLimit(session.user.id)
+    // Check rate limit (does NOT increment — only checks)
+    const allowed = await checkGenerationLimit(session.user.id)
     if (!allowed) {
       return NextResponse.json(
         { error: 'Daily generation limit exceeded' },
@@ -283,6 +283,9 @@ IMPORTANT: Respond ONLY with valid JSON object, starting with { and ending with 
       definitionsShuffled,
       generatedAt: new Date().toISOString(),
     }
+
+    // Record successful generation AFTER success
+    await recordSuccessfulGeneration(session.user.id)
 
     return NextResponse.json(response)
   } catch (error) {

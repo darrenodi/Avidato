@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/lib/auth'
-import { checkAndUpdateGenerationLimit } from '@/app/actions/ai-generation'
+import { checkGenerationLimit, recordSuccessfulGeneration } from '@/app/actions/ai-generation'
 import { checkYouTubeAccess, recordYouTubeGeneration } from '@/lib/feature-gates'
 import { generateWithProviderFailover } from '@/lib/ai/generate-with-provider-failover'
 import { extractJSONFromText, cleanAndParseJSON } from '@/lib/utils/json-parser'
@@ -267,7 +267,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const allowed = await checkAndUpdateGenerationLimit(session.user.id)
+    const allowed = await checkGenerationLimit(session.user.id)
     if (!allowed) {
       return NextResponse.json({ error: 'Daily generation limit exceeded' }, { status: 429 })
     }
@@ -367,7 +367,8 @@ export async function POST(request: NextRequest) {
       generatedAt: new Date().toISOString(),
     }
 
-    // Record successful YouTube generation for rate limiting
+    // Record successful generation for rate limiting
+    await recordSuccessfulGeneration(session.user.id)
     await recordYouTubeGeneration(session.user.id)
 
     return NextResponse.json(response)

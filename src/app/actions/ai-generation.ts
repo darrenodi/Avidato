@@ -33,7 +33,15 @@ async function validateServerActionAccess(userId: string, operation: string): Pr
 
 
 // Check and update daily generation count
-export async function checkAndUpdateGenerationLimit(userId: string): Promise<boolean> {
+/**
+ * Check whether a user is allowed to generate.
+ * Paid users (active/trialing) ALWAYS pass — no limit.
+ * Free users are capped at their dailyLimit per day.
+ *
+ * This does NOT increment the counter. Call recordSuccessfulGeneration()
+ * after the AI call succeeds.
+ */
+export async function checkGenerationLimit(userId: string): Promise<boolean> {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
@@ -51,37 +59,61 @@ export async function checkAndUpdateGenerationLimit(userId: string): Promise<boo
     throw new Error('User not found');
   }
 
-  // Paid users with active subscription skip the daily limit
+  // Paid users with active subscription — always allowed, no limit
   const hasActiveSubscription = user.subscriptionStatus === 'active' || user.subscriptionStatus === 'trialing';
+  if (hasActiveSubscription) return true;
 
-  // Reset count if it's a new day (still track usage for analytics)
+  // Reset count if it's a new day
   const lastGenDate = user.lastGenerationDate;
   const needsReset = !lastGenDate || lastGenDate < today;
 
   if (needsReset) {
-    await prisma.user.update({
-      where: { id: userId },
-      data: {
-        dailyGenerationCount: 1,
-        lastGenerationDate: new Date(),
-      },
-    });
+    // New day — reset counter. They haven't generated yet, so allow.
     return true;
   }
 
-  // Check if under daily limit (skip for paid subscribers)
-  if (!hasActiveSubscription && user.dailyGenerationCount >= user.dailyLimit) {
-    return false;
-  }
+  // Free user: check if under daily limit
+  return user.dailyGenerationCount < user.dailyLimit;
+}
 
-  // Increment count
-  await prisma.user.update({
+/**
+ * Record a successful generation by incrementing the daily counter.
+ * Call this ONLY after the AI generation has actually succeeded.
+ */
+export async function recordSuccessfulGeneration(userId: string): Promise<void> {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const user = await prisma.user.findUnique({
     where: { id: userId },
-    data: {
-      dailyGenerationCount: user.dailyGenerationCount + 1,
+    select: {
+      lastGenerationDate: true,
+      dailyGenerationCount: true,
     },
   });
 
+  if (!user) return;
+
+  const lastGenDate = user.lastGenerationDate;
+  const needsReset = !lastGenDate || lastGenDate < today;
+
+  await prisma.user.update({
+    where: { id: userId },
+    data: {
+      dailyGenerationCount: needsReset ? 1 : user.dailyGenerationCount + 1,
+      lastGenerationDate: new Date(),
+    },
+  });
+}
+
+/**
+ * @deprecated Use checkGenerationLimit() + recordSuccessfulGeneration() instead.
+ * Kept for backwards compat — calls checkGenerationLimit then records immediately.
+ */
+export async function checkAndUpdateGenerationLimit(userId: string): Promise<boolean> {
+  const allowed = await checkGenerationLimit(userId);
+  if (!allowed) return false;
+  await recordSuccessfulGeneration(userId);
   return true;
 }
 
@@ -160,8 +192,8 @@ export async function generateLearningPlan(studentId: string): Promise<{
       return { success: false, error: accessCheck.error };
     }
 
-    // Check generation limit
-    const canGenerate = await checkAndUpdateGenerationLimit(session.user.id);
+    // Check generation limit (does NOT increment — only checks)
+    const canGenerate = await checkGenerationLimit(session.user.id);
     if (!canGenerate) {
       return { success: false, error: 'Daily generation limit reached. Try again tomorrow.' };
     }
@@ -204,6 +236,9 @@ export async function generateLearningPlan(studentId: string): Promise<{
         studentId: studentId,
       },
     });
+
+    // Record successful generation AFTER success
+    await recordSuccessfulGeneration(session.user.id);
 
     revalidatePath(`/dashboard/students/${studentId}`);
     return { 
@@ -305,8 +340,8 @@ export async function generateMoreLessons(studentId: string): Promise<{
       return { success: false, error: accessCheck.error };
     }
 
-    // Check generation limit
-    const canGenerate = await checkAndUpdateGenerationLimit(session.user.id);
+    // Check generation limit (does NOT increment — only checks)
+    const canGenerate = await checkGenerationLimit(session.user.id);
     if (!canGenerate) {
       return { success: false, error: 'Daily generation limit reached. Try again tomorrow.' };
     }
@@ -379,6 +414,9 @@ export async function generateMoreLessons(studentId: string): Promise<{
       topics: allTopics,
     };
 
+    // Record successful generation AFTER success
+    await recordSuccessfulGeneration(session.user.id);
+
     revalidatePath(`/dashboard/students/${studentId}`);
     return { 
       success: true, 
@@ -419,8 +457,8 @@ export async function generateLesson(
       return { success: false, error: 'Unauthorized' };
     }
 
-    // Check generation limit
-    const canGenerate = await checkAndUpdateGenerationLimit(session.user.id);
+    // Check generation limit (does NOT increment — only checks)
+    const canGenerate = await checkGenerationLimit(session.user.id);
     if (!canGenerate) {
       return { success: false, error: 'Daily generation limit reached. Try again tomorrow.' };
     }
@@ -500,6 +538,9 @@ export async function generateLesson(
         isRefined: true, // AI-generated lessons are considered refined
       },
     });
+
+    // Record successful generation AFTER success
+    await recordSuccessfulGeneration(session.user.id);
 
     revalidatePath(`/dashboard/students/${studentId}`);
     return { 
