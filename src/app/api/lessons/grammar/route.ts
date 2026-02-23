@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { generateGrammarLesson } from '@/app/actions/grammar-generation'
 import { protectApiRoute } from '@/lib/api-protection'
+import { checkAndUpdateGenerationLimit } from '@/app/actions/ai-generation'
 
 export async function POST(request: NextRequest) {
   try {
@@ -15,6 +16,15 @@ export async function POST(request: NextRequest) {
     }
 
     const userId = protection.userId!
+
+    // Check daily generation limit (subscription-aware)
+    const allowed = await checkAndUpdateGenerationLimit(userId)
+    if (!allowed) {
+      return NextResponse.json(
+        { error: 'Daily generation limit reached. Upgrade to Pro for unlimited generations.' },
+        { status: 429 }
+      )
+    }
 
     // Parse request body
     const body = await request.json()
