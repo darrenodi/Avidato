@@ -711,7 +711,7 @@ export default function StudentProfilePage() {
                       </div>
                       <button 
                         onClick={handleGenerateLearningPlan}
-                        disabled={isGeneratingPlan || generationStats.remaining <= 0}
+                        disabled={isGeneratingPlan || (generationStats.remaining !== -1 && generationStats.remaining <= 0)}
                         className="bg-brand-primary text-white px-4 py-2 rounded-lg hover:bg-brand-accent transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
                       >
                         {isGeneratingPlan && (
@@ -735,7 +735,7 @@ export default function StudentProfilePage() {
                         <div className="mt-6">
                           <button 
                             onClick={handleGenerateLearningPlan}
-                            disabled={generationStats.remaining <= 0}
+                            disabled={generationStats.remaining !== -1 && generationStats.remaining <= 0}
                             className="bg-brand-primary text-white px-4 py-2 rounded-lg hover:bg-brand-accent transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                           >
                             Generate AI Learning Plan
@@ -790,7 +790,7 @@ export default function StudentProfilePage() {
                                   setSelectedTopic(topic.id);
                                   await handleGenerateLesson();
                                 }}
-                                disabled={isGeneratingLesson || generationStats.remaining <= 0}
+                                disabled={isGeneratingLesson || (generationStats.remaining !== -1 && generationStats.remaining <= 0)}
                                 className="w-full mt-2 bg-brand-primary text-white px-4 py-2 rounded-lg hover:bg-brand-accent transition-colors text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                               >
                                 {isGeneratingLesson ? 'Generating...' : 'Generate Lesson'}
@@ -813,7 +813,7 @@ export default function StudentProfilePage() {
                     <div className="mt-6 flex justify-center">
                       <button
                         onClick={handleGenerateMoreLessons}
-                        disabled={isGeneratingMoreLessons || generationStats.remaining <= 0}
+                        disabled={isGeneratingMoreLessons || (generationStats.remaining !== -1 && generationStats.remaining <= 0)}
                         className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
                       >
                         {isGeneratingMoreLessons && (
