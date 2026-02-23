@@ -67,6 +67,21 @@ export async function addStudent(formData: FormData): Promise<ActionResponse> {
 
     const userId = session.user.id
 
+    // Check student limit for free tier (10 max)
+    const { getUserPlan } = await import('../../lib/feature-gates')
+    const plan = await getUserPlan(userId)
+    if (plan === 'Starter') {
+      const studentCount = await prisma.student.count({
+        where: { tutorId: userId, archived: false },
+      })
+      if (studentCount >= 10) {
+        return {
+          success: false,
+          error: 'Free accounts are limited to 10 students. Upgrade to Pro or Premium for unlimited students.',
+        }
+      }
+    }
+
     // Extract and validate form data
     const studentData: CreateStudentData = {
       name: formData.get('name') as string,

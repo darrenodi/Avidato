@@ -33,7 +33,7 @@ const pricingPlans: PricingPlan[] = [
     buttonText: 'Get Started',
     features: [
       '20 generations / day',
-      'Unlimited students',
+      'Up to 10 students',
       'Shareable lesson links',
       'Instant & grammar lessons',
       'Basic email support',
@@ -52,6 +52,7 @@ const pricingPlans: PricingPlan[] = [
     features: [
       'Everything in Starter, plus:',
       'Unlimited lesson generations',
+      'Unlimited students',
       'All 4 teaching methodologies',
       'Vocabulary audio pronunciation',
       'Priority email support',
@@ -101,8 +102,8 @@ const faqData = [
     answer: "Absolutely! You can change your plan at any time. If you upgrade, you&apos;ll be charged the prorated difference. If you downgrade, you&apos;ll receive a credit toward your next billing cycle.",
   },
   {
-    question: 'What if I need more than 3 tutors on the Premium plan?',
-    answer: 'We offer custom enterprise plans for larger teams. Contact our sales team at sales@avidato.com to discuss your specific needs.',
+    question: 'What if I need more students on the Starter plan?',
+    answer: 'The free Starter plan supports up to 10 students. If you need more, upgrade to Pro or Premium for unlimited students.',
   },
 ];
 
@@ -396,18 +397,30 @@ function PricingContent() {
                   </tr>
                   <tr className="border-b border-gray-200 hover:bg-gray-50">
                     <td className="px-6 py-4 text-gray-900 font-medium">Students</td>
-                    <td className="px-6 py-4 text-center text-gray-600">Unlimited</td>
+                    <td className="px-6 py-4 text-center text-gray-600">Up to 10</td>
                     <td className="px-6 py-4 text-center text-gray-600">Unlimited</td>
                     <td className="px-6 py-4 text-center text-gray-600">Unlimited</td>
                   </tr>
                   <tr className="border-b border-gray-200 hover:bg-gray-50">
-                    <td className="px-6 py-4 text-gray-900 font-medium">Team Access</td>
-                    <td className="px-6 py-4 text-center text-gray-600">Solo</td>
-                    <td className="px-6 py-4 text-center text-gray-600">Solo</td>
-                    <td className="px-6 py-4 text-center text-gray-600">Up to 3</td>
+                    <td className="px-6 py-4 text-gray-900 font-medium">Teaching Methodologies</td>
+                    <td className="px-6 py-4 text-center text-gray-600">3</td>
+                    <td className="px-6 py-4 text-center text-gray-600">All 4</td>
+                    <td className="px-6 py-4 text-center text-gray-600">All 4</td>
                   </tr>
                   <tr className="border-b border-gray-200 hover:bg-gray-50">
-                    <td className="px-6 py-4 text-gray-900 font-medium">Custom Branding</td>
+                    <td className="px-6 py-4 text-gray-900 font-medium">Vocabulary Audio</td>
+                    <td className="px-6 py-4 text-center">
+                      <CheckCircleIcon className="w-5 h-5 text-green-500 mx-auto" />
+                    </td>
+                    <td className="px-6 py-4 text-center">
+                      <CheckCircleIcon className="w-5 h-5 text-green-500 mx-auto" />
+                    </td>
+                    <td className="px-6 py-4 text-center">
+                      <CheckCircleIcon className="w-5 h-5 text-green-500 mx-auto" />
+                    </td>
+                  </tr>
+                  <tr className="border-b border-gray-200 hover:bg-gray-50">
+                    <td className="px-6 py-4 text-gray-900 font-medium">YouTube to Lesson</td>
                     <td className="px-6 py-4 text-center">—</td>
                     <td className="px-6 py-4 text-center">—</td>
                     <td className="px-6 py-4 text-center">
@@ -415,7 +428,7 @@ function PricingContent() {
                     </td>
                   </tr>
                   <tr className="border-b border-gray-200 hover:bg-gray-50">
-                    <td className="px-6 py-4 text-gray-900 font-medium">API Access</td>
+                    <td className="px-6 py-4 text-gray-900 font-medium">Vocabulary Tracking</td>
                     <td className="px-6 py-4 text-center">—</td>
                     <td className="px-6 py-4 text-center">—</td>
                     <td className="px-6 py-4 text-center">
@@ -429,11 +442,9 @@ function PricingContent() {
                     <td className="px-6 py-4 text-center text-gray-600">Dedicated</td>
                   </tr>
                   <tr className="hover:bg-gray-50">
-                    <td className="px-6 py-4 text-gray-900 font-medium">Analytics</td>
+                    <td className="px-6 py-4 text-gray-900 font-medium">Early Access</td>
                     <td className="px-6 py-4 text-center">—</td>
-                    <td className="px-6 py-4 text-center">
-                      <CheckCircleIcon className="w-5 h-5 text-green-500 mx-auto" />
-                    </td>
+                    <td className="px-6 py-4 text-center">—</td>
                     <td className="px-6 py-4 text-center">
                       <CheckCircleIcon className="w-5 h-5 text-green-500 mx-auto" />
                     </td>
