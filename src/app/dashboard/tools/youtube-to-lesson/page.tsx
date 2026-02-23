@@ -22,7 +22,6 @@ interface PreTeachItem {
   conceptCheckQuestion: string
 }
 
-interface GistQuestion { id: number; question: string }
 interface DetailQuestion { id: number; question: string; answer: string }
 
 interface PhraseItem {
@@ -51,7 +50,6 @@ interface YouTubeLessonResult {
   estimatedMinutes: number
   warmUp: WarmUpQuestion[]
   preTeach: PreTeachItem[]
-  gistQuestions: GistQuestion[]
   detailQuestions: DetailQuestion[]
   phrases: PhraseItem[]
   fillBlanks: FillBlankItem[]
@@ -359,7 +357,7 @@ export default function YouTubeToLessonPage() {
         preTeach: (result.preTeach || []).map(({ term, type, definition, exampleSentence }) => ({
           term, type, definition, exampleSentence,
         })),
-        gistQuestions: result.gistQuestions,
+        gistQuestions: [], // removed from lesson flow
         detailQuestions: (result.detailQuestions || []).map(({ id, question }) => ({ id, question })),
         phrases: (result.phrases || []).map(({ term, type, meaning }) => ({
           term, type, meaning,
@@ -743,24 +741,7 @@ export default function YouTubeToLessonPage() {
             {/* ---- STAGE 3: Watch & Comprehend ---- */}
             <Card>
               <StageHeader num={3} label="Watch & Comprehend" time="10-12 min" icon="▶️" />
-              <YouTubeEmbed videoId={result.videoId} instruction="Play the video. The student watches once and answers all comprehension questions." />
-
-              {/* Gist questions */}
-              {result.gistQuestions.length > 0 && (
-                <div className="mb-6">
-                  <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">Before Watching — Gist Questions</h4>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
-                    Give these to the student BEFORE pressing play. They focus on general understanding.
-                  </p>
-                  <div className="space-y-3">
-                    {result.gistQuestions.map((q) => (
-                      <div key={q.id} className="p-3 rounded-lg bg-sky-50 dark:bg-sky-900/10 border border-sky-100 dark:border-sky-800/30">
-                        <p className="text-gray-900 dark:text-white">{q.id}. {q.question}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+              <YouTubeEmbed videoId={result.videoId} instruction="Play the video. The student watches once and answers the comprehension questions below." />
 
               {/* Detail questions */}
               {result.detailQuestions.length > 0 && (

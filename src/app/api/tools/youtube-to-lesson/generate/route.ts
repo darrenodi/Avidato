@@ -32,11 +32,6 @@ interface PreTeachItem {
   conceptCheckQuestion: string
 }
 
-interface GistQuestion {
-  id: number
-  question: string
-}
-
 interface DetailQuestion {
   id: number
   question: string
@@ -85,7 +80,6 @@ interface YouTubeLessonResponse {
   estimatedMinutes: number
   warmUp: WarmUpQuestion[]
   preTeach: PreTeachItem[]
-  gistQuestions: GistQuestion[]
   detailQuestions: DetailQuestion[]
   phrases: PhraseItem[]
   fillBlanks: FillBlankItem[]
@@ -132,10 +126,8 @@ For each: give a simple definition at CEFR ${level} level,
 an example sentence (NOT from the transcript), and a concept-check question (CCQ).
 
 STAGE 3 — WATCH & COMPREHEND (10-12 min)
-The student watches the video ONCE. Before watching, give them gist questions to focus on
-general understanding. After watching, ask detail questions for specific information.
-- Write 3 gist questions (global understanding: main idea, speaker's purpose, topic).
-- Write 5 detail questions (specific info: facts, figures, quotes, cause-effect).
+The student watches the video ONCE.
+- Write 5 detail questions about specific information: facts, figures, quotes, cause-effect.
   Include a short teacher reference answer for each detail question.
   Mix question types: true/false, short answer, "What does the speaker mean when they say...?"
 
@@ -213,9 +205,6 @@ OUTPUT JSON ONLY — no markdown, no explanation:
       "conceptCheckQuestion": "Is X the same as Y? (yes/no style CCQ)"
     }
   ],
-  "gistQuestions": [
-    { "id": 1, "question": "gist question" }
-  ],
   "detailQuestions": [
     { "id": 1, "question": "detail question", "answer": "short reference answer" }
   ],
@@ -248,7 +237,6 @@ OUTPUT JSON ONLY — no markdown, no explanation:
 COUNTS (strict):
 - warmUp: exactly 3 items
 - preTeach: exactly 5 items (use type: "noun", "verb", or "adjective")
-- gistQuestions: exactly 3 items
 - detailQuestions: exactly 5 items
 - phrases: exactly 8 items, each term 2-4 words max (use type: "phrase", "collocation", "idiom", or "expression")
 - fillBlanks: exactly 6 items (answer must be an exact phrase from the list above, 2-4 words)
@@ -366,7 +354,6 @@ export async function POST(request: NextRequest) {
       estimatedMinutes: parsed.estimatedMinutes || 45,
       warmUp: Array.isArray(parsed.warmUp) ? parsed.warmUp : [],
       preTeach: Array.isArray(parsed.preTeach) ? parsed.preTeach : [],
-      gistQuestions: Array.isArray(parsed.gistQuestions) ? parsed.gistQuestions : [],
       detailQuestions: Array.isArray(parsed.detailQuestions) ? parsed.detailQuestions : [],
       phrases: Array.isArray(parsed.phrases) ? parsed.phrases : [],
       fillBlanks: Array.isArray(parsed.fillBlanks) ? parsed.fillBlanks : [],

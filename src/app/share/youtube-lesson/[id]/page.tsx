@@ -20,7 +20,6 @@ interface PreTeachItem {
   exampleSentence: string
 }
 
-interface GistQuestion { id: number; question: string }
 interface DetailQuestion { id: number; question: string }
 
 interface PhraseItem {
@@ -45,7 +44,6 @@ interface StudentLesson {
   estimatedMinutes: number
   warmUp: WarmUpQuestion[]
   preTeach: PreTeachItem[]
-  gistQuestions: GistQuestion[]
   detailQuestions: DetailQuestion[]
   phrases: PhraseItem[]
   fillBlanks?: FillBlankItem[]
@@ -448,21 +446,6 @@ function SharedYouTubeLessonContent() {
             <Card>
               <StageHeader num={3} label="Watch & Comprehend" time="10-12 min" icon="▶️" />
               <YouTubeEmbed videoId={lesson.videoId} instruction="Watch the video and answer the questions below." />
-
-              {lesson.gistQuestions?.length > 0 && (
-                <div className="mb-6">
-                  <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">
-                    Before Watching — General Understanding
-                  </h4>
-                  <div className="space-y-3">
-                    {lesson.gistQuestions.map((q) => (
-                      <div key={q.id} className="p-3 rounded-lg bg-sky-50 dark:bg-sky-900/10 border border-sky-100 dark:border-sky-800/30">
-                        <p className="text-gray-900 dark:text-white">{q.id}. {q.question}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
 
               {lesson.detailQuestions?.length > 0 && (
                 <div>
