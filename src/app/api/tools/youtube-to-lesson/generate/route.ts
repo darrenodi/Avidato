@@ -145,8 +145,27 @@ Tag each item accurately: use type "idiom" when it IS an idiom, otherwise "phras
 
 CRITICAL RULES FOR PHRASES/IDIOMS:
 - Maximum 5 words per item. NEVER exceed this.
-- Use items EXACTLY as they appear in the transcript — do not invent new ones.
-- Each item must be a recognizable, reusable chunk of language.
+- Base each phrase on language from the transcript, but NORMALIZE it into a reusable form.
+
+• Remove specific objects when possible (e.g. “come to terms with defeat” → “come to terms with something”)
+• Use general patterns students can reuse in many contexts
+• Keep the core structure and meaning from the transcript
+
+Do NOT keep phrases verbatim if a more flexible form is possible.
+- Each item must be a recognizable, reusable chunk of natural English.
+
+Prefer flexible patterns over transcript-specific wording.
+If a phrase includes a concrete noun, generalize it where natural.
+NORMALIZATION RULE:
+
+When a phrase contains a specific object, person, or situation, convert it into a general-use structure unless removing it would change the meaning.
+
+Examples:
+• “come to terms with defeat” → “come to terms with something”
+• “clear out bad cholesterol” → “clear out something harmful”
+• “play to your strengths” → “play to one’s strengths”
+Reject any phrase that would sound strange without the original transcript context.
+Only keep language that works naturally in everyday English.
 - Do NOT use full clauses like "tackle the subject of climate change" — just "tackle the subject".
 - Do NOT use abstract or poetic language like "dive into the bottomless ocean".
 
@@ -180,6 +199,17 @@ Common mistakes to AVOID:
   BAD: "The project was successful, _____." (answer: "to some degree" — reads awkwardly at end)
   GOOD: "_____, the new policy has improved efficiency." (answer: "To some degree")
 - The blank should be exactly where the phrase naturally appears in a fluent English sentence. Read it aloud.
+
+STAGE 4c — SPEAKING USING THE PHRASES (5–7 min)
+
+Create 5 short discussion questions that encourage the student to USE the most important idioms or phrases from Stage 4.
+
+RULES:
+- Each question should naturally lead the student to use one phrase in their answer
+- Focus on personal experience, opinions, or real-life situations
+- Do NOT include the phrase inside the question unless as a gentle hint
+- Keep all language appropriate for CEFR ${level}
+- Prefer questions that clearly connect to one strong phrase rather than vague general discussion.
 
 STAGE 5 — DISCUSSION (10-12 min)
 Write 5 discussion questions that invite opinions, personal experience, and application.
@@ -226,6 +256,9 @@ OUTPUT JSON ONLY — no markdown, no explanation:
       "answer": "got caught up in"
     }
   ],
+  "speakingPractice": [
+  { "id": 1, "question": "speaking question encouraging phrase use" }
+],
   "discussion": [
     { "id": 1, "question": "discussion question", "followUp": "follow-up prompt for teacher" }
   ],
@@ -244,6 +277,7 @@ COUNTS (strict):
 - detailQuestions: exactly 5 items
 - phrases: exactly 8 items, each term 2-5 words max, IDIOMS FIRST then phrases/collocations (use type: "idiom", "phrase", "collocation", or "expression")
 - fillBlanks: exactly 6 items (answer must be an exact phrase/idiom from the list above, 2-5 words)
+- speakingPractice: exactly 5 items
 - discussion: exactly 5 items
 - wrapUp: exactly 2 items
 - homework: exactly 1 item
