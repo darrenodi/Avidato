@@ -27,7 +27,7 @@ interface DetailQuestion { id: number; question: string; answer: string }
 
 interface PhraseItem {
   term: string
-  type: 'phrase' | 'collocation' | 'idiom' | 'expression'
+  type: 'idiom' | 'phrasal verb' | 'collocation' | 'fixed expression'
   meaning: string
 }
 
@@ -35,6 +35,11 @@ interface FillBlankItem {
   id: number
   sentence: string
   answer: string
+}
+
+interface SpeakingPracticeItem {
+  id: number
+  question: string
 }
 
 interface DiscussionQuestion { id: number; question: string; followUp: string }
@@ -54,6 +59,7 @@ interface YouTubeLessonResult {
   detailQuestions: DetailQuestion[]
   phrases: PhraseItem[]
   fillBlanks: FillBlankItem[]
+  speakingPractice: SpeakingPracticeItem[]
   discussion: DiscussionQuestion[]
   wrapUp: ReflectionPrompt[]
   homework: HomeworkTask
@@ -268,7 +274,7 @@ function PhraseMatchingGame({ phrases }: { phrases: PhraseItem[] }) {
 // Helper components
 // ---------------------------------------------------------------------------
 
-function StageHeader({ num, label, time, icon }: { num: number; label: string; time: string; icon: string }) {
+function StageHeader({ num, label, time, icon }: { num: number | string; label: string; time: string; icon: string }) {
   return (
     <div className="flex items-center gap-3 mb-4">
       <span className="flex items-center justify-center w-8 h-8 rounded-full bg-brand-primary text-white text-sm font-bold shrink-0">
@@ -358,13 +364,13 @@ export default function YouTubeToLessonPage() {
         preTeach: (result.preTeach || []).map(({ term, type, definition, exampleSentence }) => ({
           term, type, definition, exampleSentence,
         })),
-        gistQuestions: [], // removed from lesson flow
         detailQuestions: (result.detailQuestions || []).map(({ id, question }) => ({ id, question })),
         phrases: (result.phrases || []).map(({ term, type, meaning }) => ({
           term, type, meaning,
         })),
         fillBlanks: (result.fillBlanks || []).map(({ id, sentence }) => ({ id, sentence })),
         fillBlanksWordBox: (result.fillBlanks || []).map(fb => fb.answer).sort(() => Math.random() - 0.5),
+        speakingPractice: (result.speakingPractice || []).map(({ id, question }) => ({ id, question })),
         discussion: (result.discussion || []).map(({ id, question }) => ({ id, question })),
         wrapUp: result.wrapUp,
       }
@@ -479,7 +485,7 @@ export default function YouTubeToLessonPage() {
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">YouTube to Lesson Generator</h1>
           <p className="text-gray-600 dark:text-gray-400">
-            Generate a complete 45-minute ESL lesson plan from a YouTube video transcript.
+            Generate a complete 50-minute ESL lesson plan from a YouTube video transcript.
           </p>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
             Max video length: 5 minutes. The lesson includes 6 stages from warm-up to wrap-up.
@@ -614,7 +620,7 @@ export default function YouTubeToLessonPage() {
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14m-6 4h5a2 2 0 002-2V8a2 2 0 00-2-2H9a2 2 0 00-2 2v8a2 2 0 002 2z" />
                   </svg>
-                  Generate 45-Minute Lesson Plan
+                  Generate 50-Minute Lesson Plan
                 </>
               )}
             </button>
@@ -741,7 +747,7 @@ export default function YouTubeToLessonPage() {
 
             {/* ---- STAGE 3: Watch & Comprehend ---- */}
             <Card>
-              <StageHeader num={3} label="Watch & Comprehend" time="10-12 min" icon="▶️" />
+              <StageHeader num={3} label="Watch & Comprehend" time="8-10 min" icon="▶️" />
               <YouTubeEmbed videoId={result.videoId} instruction="Play the video. The student watches once and answers the comprehension questions below." />
 
               {/* Detail questions */}
@@ -767,12 +773,12 @@ export default function YouTubeToLessonPage() {
               )}
             </Card>
 
-            {/* ---- STAGE 4: Language Focus — Matching & Fill-in-the-Blanks ---- */}
+            {/* ---- STAGE 4: Language Focus — Matching, Fill-in-the-Blanks & Speaking ---- */}
             {result.phrases && result.phrases.length > 0 && (
               <Card>
-                <StageHeader num={4} label="Language Focus: Idioms & Expressions" time="10-12 min" icon="🗣️" />
+                <StageHeader num={4} label="Language Focus: Idioms & Expressions" time="12-15 min" icon="🗣️" />
                 <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
-                  Idioms, phrases, collocations and expressions from the video. These make the student sound more natural.
+                  Idioms, phrasal verbs, collocations and fixed expressions from the video. These make the student sound more natural.
                 </p>
 
                 {/* 4a — Matching exercise */}
@@ -784,7 +790,7 @@ export default function YouTubeToLessonPage() {
                   <div className="mt-8">
                     <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">4b — Fill in the Blanks</h4>
                     <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
-                      Use the phrases from the word box to complete each sentence.
+                      Use the phrases from the word box to complete each sentence. You may have to change the form of the word.
                     </p>
 
                     {/* Word box — shuffled so answers aren't in sentence order */}
@@ -811,13 +817,30 @@ export default function YouTubeToLessonPage() {
                     </div>
                   </div>
                 )}
+
+                {/* 4c — Speaking Practice using phrases */}
+                {result.speakingPractice && result.speakingPractice.length > 0 && (
+                  <div className="mt-8">
+                    <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">4c — Speaking Practice</h4>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
+                      Discuss these questions. Try to use the phrases and idioms from Stage 4 in your answers.
+                    </p>
+                    <div className="space-y-3">
+                      {result.speakingPractice.map((sp) => (
+                        <div key={`sp-${sp.id}`} className="p-3 rounded-lg bg-teal-50 dark:bg-teal-900/10 border border-teal-100 dark:border-teal-800/30">
+                          <p className="text-gray-900 dark:text-white">{sp.id}. {formatText(sp.question)}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </Card>
             )}
 
             {/* ---- STAGE 5: Discussion ---- */}
             {result.discussion.length > 0 && (
               <Card>
-                <StageHeader num={5} label="Discussion" time="10-12 min" icon="💡" />
+                <StageHeader num={5} label="Discussion" time="8-10 min" icon="💡" />
                 <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
                   Encourage the student to use the vocabulary from stages 2 and 4.
                 </p>
