@@ -16,7 +16,7 @@ interface GenerateYouTubeLessonRequest {
 }
 
 // ---------------------------------------------------------------------------
-// Lesson stage types — 6-stage 45-minute ESL lesson plan
+// Lesson stage types — 6-stage 50-minute ESL lesson plan
 // ---------------------------------------------------------------------------
 
 interface WarmUpQuestion {
@@ -40,7 +40,7 @@ interface DetailQuestion {
 
 interface PhraseItem {
   term: string
-  type: 'phrase' | 'collocation' | 'idiom' | 'expression'
+  type: 'idiom' | 'phrasal verb' | 'collocation' | 'fixed expression'
   meaning: string
 }
 
@@ -48,6 +48,11 @@ interface FillBlankItem {
   id: number
   sentence: string
   answer: string
+}
+
+interface SpeakingPracticeItem {
+  id: number
+  question: string
 }
 
 interface DiscussionQuestion {
@@ -83,6 +88,7 @@ interface YouTubeLessonResponse {
   detailQuestions: DetailQuestion[]
   phrases: PhraseItem[]
   fillBlanks: FillBlankItem[]
+  speakingPractice: SpeakingPracticeItem[]
   discussion: DiscussionQuestion[]
   wrapUp: ReflectionPrompt[]
   homework: HomeworkTask
@@ -98,7 +104,7 @@ function normalizeManualTranscript(input: string): string {
 }
 
 function buildTranscriptPrompt(transcriptText: string, level: CEFRLevel) {
-  return `You are an expert ESL lesson planner creating a structured 45-minute lesson from a YouTube video transcript.
+  return `You are an expert ESL lesson planner creating a structured 50-minute lesson from a YouTube video transcript.
 
 TARGET CEFR LEVEL: ${level}
 
@@ -125,93 +131,112 @@ Choose individual nouns, verbs, or adjectives — NOT phrases, collocations, or 
 For each: give a simple definition at CEFR ${level} level,
 an example sentence (NOT from the transcript), and a concept-check question (CCQ).
 
-STAGE 3 — WATCH & COMPREHEND (10-12 min)
+STAGE 3 — WATCH & COMPREHEND (8-10 min)
 The student watches the video ONCE.
 - Write 5 detail questions about specific information: facts, figures, quotes, cause-effect.
   Include a short teacher reference answer for each detail question.
   Mix question types: true/false, short answer, "What does the speaker mean when they say...?"
 
-STAGE 4 — LANGUAGE FOCUS: MATCHING & FILL-IN-THE-BLANKS (10-12 min)
-Extract 8 SHORT, REUSABLE items from the transcript. PRIORITISE IDIOMS FIRST.
-Each item must be 2-5 words maximum. NOT isolated single words. NOT long clauses or sentences.
+STAGE 4 — LANGUAGE FOCUS (12-15 min)
 
-PRIORITY ORDER — fill the 8 slots in this order:
-1. Idioms from the transcript (e.g., "break the ice", "hit the nail on the head", "a piece of cake")
-2. If the transcript has fewer than 8 idioms, fill remaining slots with:
-   - Common collocations (e.g., "make a decision", "take into account")
-   - Phrasal verbs (e.g., "get caught up in", "switch over to")
-   - Fixed expressions (e.g., "for starters", "make it through", "on the spot")
-Tag each item accurately: use type "idiom" when it IS an idiom, otherwise "phrase", "collocation", or "expression".
+This stage has three parts: 4a (Matching), 4b (Fill-in-the-Blanks), and 4c (Speaking Practice).
 
-CRITICAL RULES FOR PHRASES/IDIOMS:
-- Maximum 5 words per item. NEVER exceed this.
-- Base each phrase on language from the transcript, but NORMALIZE it into a reusable form.
+──────────────────────────────────────────────
+PHRASE SELECTION — READ THIS CAREFULLY
+──────────────────────────────────────────────
 
-• Remove specific objects when possible (e.g. “come to terms with defeat” → “come to terms with something”)
-• Use general patterns students can reuse in many contexts
-• Keep the core structure and meaning from the transcript
+Extract 8 multi-word items from the transcript. Each item must be 2-5 words.
 
-Do NOT keep phrases verbatim if a more flexible form is possible.
-- Each item must be a recognizable, reusable chunk of natural English.
+WHAT MAKES A GOOD PHRASE:
+A good phrase is a FIXED, REUSABLE chunk of English that students will encounter and use
+again in many different contexts — not just this transcript. It should feel like a "building block"
+that native speakers use naturally across topics.
 
-Prefer flexible patterns over transcript-specific wording.
-If a phrase includes a concrete noun, generalize it where natural.
-NORMALIZATION RULE:
+SELECTION PRIORITY (fill 8 slots in this order):
+1. IDIOMS — figurative expressions whose meaning isn't obvious from the individual words.
+   Examples: "butterflies in your stomach", "in the long run", "break the ice"
+2. PHRASAL VERBS — verb + particle combinations with non-literal meaning.
+   Examples: "build up", "break down", "get over", "put on"
+3. FIXED EXPRESSIONS / DISCOURSE MARKERS — set phrases used to structure speech or add nuance.
+   Examples: "as if that weren't enough", "speaking of", "what matters is", "when it comes to"
+4. STRONG COLLOCATIONS — word pairs that naturally go together and sound "right" to native ears.
+   Examples: "chronic stress", "immune system", "comfort food", "visceral fat"
 
-When a phrase contains a specific object, person, or situation, convert it into a general-use structure unless removing it would change the meaning.
+WHAT TO AVOID — DO NOT SELECT THESE:
+❌ Random verb + object pairs that any learner could construct:
+   BAD: "raise one's blood pressure" (just "raise" + any noun — not a fixed chunk)
+   BAD: "increase one's chances" (generic verb + generic noun)
+   BAD: "affect one's waistline" (just "affect" + noun)
+   BAD: "curb one's stress" (just "curb" + noun)
+❌ Phrases that only make sense within this specific transcript topic.
+   BAD: "cholesterol plaque build up" (too technical/niche)
+❌ Overly literal combinations where each word means exactly what it says and
+   there is nothing "chunky" or idiomatic about the combination.
+   TEST: Ask yourself — "Would an ESL textbook teach this as a set phrase?"
+   If NO, don't include it.
+❌ Long clauses or fragments of sentences.
+❌ Single words disguised as phrases.
 
-Examples:
-• “come to terms with defeat” → “come to terms with something”
-• “clear out bad cholesterol” → “clear out something harmful”
-• “play to your strengths” → “play to one’s strengths”
-Reject any phrase that would sound strange without the original transcript context.
-Only keep language that works naturally in everyday English.
-- Do NOT use full clauses like "tackle the subject of climate change" — just "tackle the subject".
-- Do NOT use abstract or poetic language like "dive into the bottomless ocean".
+NORMALIZATION RULES:
+- Convert transcript-specific objects into general-use patterns where natural:
+  "replenish your energy stores" → "replenish one's energy" (if worth including)
+  "dampen function of immune cells" → NOT worth including — too niche
+- Use base/infinitive verb forms: "build up" not "builds up" or "building up"
+- Remove articles when presenting the base form: "comfort food" not "the comfort foods"
+- Keep the phrase in whatever form is most natural as a dictionary entry.
+
+LABELLING — use these types accurately:
+- "idiom" — figurative meaning, can't be guessed from individual words
+- "phrasal verb" — verb + particle (up, down, out, off, over, etc.)
+- "collocation" — strong natural word pair/triple that native speakers use as a unit
+- "fixed expression" — a set phrase, discourse marker, or formulaic chunk
 
 For each phrase provide a clear, concise meaning (one short sentence).
 
-The student will do TWO exercises with these phrases:
-
-Exercise 4a — MATCHING: match each phrase to its meaning.
+──────────────────────────────────────────────
+EXERCISE 4a — MATCHING (included in the "phrases" array)
+──────────────────────────────────────────────
+The student matches each phrase to its meaning.
 Make sure meanings are clear, concise, and distinguishable from each other.
+Do NOT use synonyms between different meanings — each must be clearly different.
 
-Exercise 4b — FILL-IN-THE-BLANKS: create 6 gap-fill sentences using 6 of the 8 phrases.
+──────────────────────────────────────────────
+EXERCISE 4b — FILL-IN-THE-BLANKS
+──────────────────────────────────────────────
+Create 6 gap-fill sentences using 6 of the 8 phrases.
+
 RULES:
 - Each sentence has ONE blank where the phrase fits naturally.
-- The answer in the "answer" field must be the EXACT phrase from the phrases list (2-4 words).
+- The answer must be the EXACT phrase from the phrases list (conjugated/inflected to fit the sentence grammatically).
 - The sentence must be NEW (not from the transcript) and give enough context to identify the phrase.
-- Keep sentences simple and natural — not literary or abstract.
+- Keep sentences simple and natural.
 
-CRITICAL GRAMMAR CHECK FOR FILL-IN-THE-BLANKS:
-Before finalizing each sentence, mentally insert the answer into the blank and READ THE COMPLETE SENTENCE.
-It MUST be 100% grammatically correct and natural-sounding. If it is not, REWRITE the sentence.
+CRITICAL GRAMMAR CHECK:
+Before finalizing each sentence, mentally insert the answer into the blank and READ THE COMPLETE SENTENCE aloud.
+It MUST be 100% grammatically correct and natural-sounding. If not, REWRITE the sentence.
 
 Common mistakes to AVOID:
 - Do NOT place the blank after an auxiliary verb that clashes with the phrase's verb form.
-  BAD: "Her resignation did _____ everyone." (answer: "come as a surprise" → "did come as a surprise" is wrong)
-  GOOD: "Her sudden resignation _____ to the entire team." (answer: "came as a surprise" — but this changes the phrase, so restructure)
-  BETTER: "The announcement _____ to the whole department." (answer: "came as a surprise")
+  BAD: "Her resignation did _____ everyone." (answer: "come as a surprise")
+  GOOD: "The announcement _____ to the whole department." (answer: "came as a surprise")
 - Do NOT create redundancy where the phrase overlaps with surrounding words.
-  BAD: "They _____ shared ownership of the building." (answer: "hold ownership" → "hold ownership shared ownership")
+  BAD: "They _____ shared ownership." (answer: "hold ownership" → double "ownership")
   GOOD: "Several investors _____ of the company." (answer: "hold ownership")
-- Do NOT put the phrase where it sounds unnatural or forced.
-  BAD: "The project was successful, _____." (answer: "to some degree" — reads awkwardly at end)
-  GOOD: "_____, the new policy has improved efficiency." (answer: "To some degree")
-- The blank should be exactly where the phrase naturally appears in a fluent English sentence. Read it aloud.
+- The blank should be exactly where the phrase naturally sits in a fluent English sentence.
 
-STAGE 4c — SPEAKING USING THE PHRASES (5–7 min)
-
-Create 5 short discussion questions that encourage the student to USE the most important idioms or phrases from Stage 4.
+──────────────────────────────────────────────
+EXERCISE 4c — SPEAKING USING THE PHRASES (5-7 min)
+──────────────────────────────────────────────
+Create 5 short discussion questions that encourage the student to USE the phrases from Stage 4.
 
 RULES:
-- Each question should naturally lead the student to use one phrase in their answer
-- Focus on personal experience, opinions, or real-life situations
-- Do NOT include the phrase inside the question unless as a gentle hint
-- Keep all language appropriate for CEFR ${level}
-- Prefer questions that clearly connect to one strong phrase rather than vague general discussion.
+- Each question should naturally lead the student to use one phrase in their answer.
+- Focus on personal experience, opinions, or real-life situations.
+- Do NOT include the target phrase inside the question itself.
+- Keep all language appropriate for CEFR ${level}.
+- Prefer questions that clearly connect to one specific phrase.
 
-STAGE 5 — DISCUSSION (10-12 min)
+STAGE 5 — DISCUSSION (8-10 min)
 Write 5 discussion questions that invite opinions, personal experience, and application.
 NO factual recall. Include a teacher follow-up prompt for each (a secondary question
 the teacher can ask to push the conversation deeper). Encourage the student to
@@ -226,7 +251,7 @@ OUTPUT JSON ONLY — no markdown, no explanation:
   "title": "Short engaging lesson title",
   "topic": "1-3 word topic label",
   "teacherNotes": "2-3 sentence teacher-facing summary of the lesson and its goals",
-  "estimatedMinutes": 45,
+  "estimatedMinutes": 50,
   "warmUp": [
     { "id": 1, "question": "warm-up question" }
   ],
@@ -244,21 +269,21 @@ OUTPUT JSON ONLY — no markdown, no explanation:
   ],
   "phrases": [
     {
-      "term": "get caught up in",
-      "type": "phrase",
-      "meaning": "to become so involved in something that you forget other things"
+      "term": "butterflies in one's stomach",
+      "type": "idiom",
+      "meaning": "a nervous feeling you get before something important"
     }
   ],
   "fillBlanks": [
     {
       "id": 1,
-      "sentence": "I ________ watching a documentary and forgot about dinner.",
-      "answer": "got caught up in"
+      "sentence": "I always get ________ before a job interview.",
+      "answer": "butterflies in my stomach"
     }
   ],
   "speakingPractice": [
-  { "id": 1, "question": "speaking question encouraging phrase use" }
-],
+    { "id": 1, "question": "speaking question encouraging phrase use" }
+  ],
   "discussion": [
     { "id": 1, "question": "discussion question", "followUp": "follow-up prompt for teacher" }
   ],
@@ -273,10 +298,10 @@ OUTPUT JSON ONLY — no markdown, no explanation:
 
 COUNTS (strict):
 - warmUp: exactly 3 items
-- preTeach: exactly 5 items (use type: "noun", "verb", or "adjective")
+- preTeach: exactly 5 items (type: "noun", "verb", or "adjective")
 - detailQuestions: exactly 5 items
-- phrases: exactly 8 items, each term 2-5 words max, IDIOMS FIRST then phrases/collocations (use type: "idiom", "phrase", "collocation", or "expression")
-- fillBlanks: exactly 6 items (answer must be an exact phrase/idiom from the list above, 2-5 words)
+- phrases: exactly 8 items, each term 2-5 words max (type: "idiom", "phrasal verb", "collocation", or "fixed expression")
+- fillBlanks: exactly 6 items (answer must match a phrase from the list, inflected to fit the sentence)
 - speakingPractice: exactly 5 items
 - discussion: exactly 5 items
 - wrapUp: exactly 2 items
@@ -346,7 +371,6 @@ export async function POST(request: NextRequest) {
         }
       }
     } else if (youtubeUrl) {
-      // Fallback: fetch transcript server-side (may fail on Vercel due to bot detection)
       const transcriptData = await getYouTubeTranscript(youtubeUrl)
 
       if (transcriptData.durationSeconds > MAX_VIDEO_DURATION_SECONDS) {
@@ -389,19 +413,19 @@ export async function POST(request: NextRequest) {
       title: parsed.title || 'Untitled Lesson',
       topic: parsed.topic || '',
       teacherNotes: parsed.teacherNotes || '',
-      estimatedMinutes: parsed.estimatedMinutes || 45,
+      estimatedMinutes: parsed.estimatedMinutes || 50,
       warmUp: Array.isArray(parsed.warmUp) ? parsed.warmUp : [],
       preTeach: Array.isArray(parsed.preTeach) ? parsed.preTeach : [],
       detailQuestions: Array.isArray(parsed.detailQuestions) ? parsed.detailQuestions : [],
       phrases: Array.isArray(parsed.phrases) ? parsed.phrases : [],
       fillBlanks: Array.isArray(parsed.fillBlanks) ? parsed.fillBlanks : [],
+      speakingPractice: Array.isArray(parsed.speakingPractice) ? parsed.speakingPractice : [],
       discussion: Array.isArray(parsed.discussion) ? parsed.discussion : [],
       wrapUp: Array.isArray(parsed.wrapUp) ? parsed.wrapUp : [],
       homework: parsed.homework || { task: '', type: 'writing' },
       generatedAt: new Date().toISOString(),
     }
 
-    // Record successful generation for rate limiting
     await recordSuccessfulGeneration(session.user.id)
     await recordYouTubeGeneration(session.user.id)
 
