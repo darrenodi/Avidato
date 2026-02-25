@@ -25,13 +25,18 @@ interface DetailQuestion { id: number; question: string }
 
 interface PhraseItem {
   term: string
-  type: 'phrase' | 'collocation' | 'idiom' | 'expression'
+  type: 'idiom' | 'phrasal verb' | 'collocation' | 'fixed expression'
   meaning: string
 }
 
 interface FillBlankItem {
   id: number
   sentence: string
+}
+
+interface SpeakingPracticeItem {
+  id: number
+  question: string
 }
 
 interface DiscussionQuestion { id: number; question: string }
@@ -49,6 +54,7 @@ interface StudentLesson {
   phrases: PhraseItem[]
   fillBlanks?: FillBlankItem[]
   fillBlanksWordBox?: string[]
+  speakingPractice?: SpeakingPracticeItem[]
   discussion: DiscussionQuestion[]
   wrapUp: ReflectionPrompt[]
 }
@@ -57,7 +63,7 @@ interface StudentLesson {
 // Helpers
 // ---------------------------------------------------------------------------
 
-function StageHeader({ num, label, time, icon }: { num: number; label: string; time: string; icon: string }) {
+function StageHeader({ num, label, time, icon }: { num: number | string; label: string; time: string; icon: string }) {
   return (
     <div className="flex items-center gap-3 mb-4">
       <span className="flex items-center justify-center w-8 h-8 rounded-full bg-brand-primary text-white text-sm font-bold shrink-0">
@@ -443,9 +449,9 @@ function SharedYouTubeLessonContent() {
               </Card>
             )}
 
-            {/* ---- STAGE 3: Watch & Comprehend (single watch) ---- */}
+            {/* ---- STAGE 3: Watch & Comprehend ---- */}
             <Card>
-              <StageHeader num={3} label="Watch & Comprehend" time="10-12 min" icon="▶️" />
+              <StageHeader num={3} label="Watch & Comprehend" time="8-10 min" icon="▶️" />
               <YouTubeEmbed videoId={lesson.videoId} instruction="Watch the video and answer the questions below." />
 
               {lesson.detailQuestions?.length > 0 && (
@@ -464,12 +470,12 @@ function SharedYouTubeLessonContent() {
               )}
             </Card>
 
-            {/* ---- STAGE 4: Language Focus — Matching & Fill-in-the-Blanks ---- */}
+            {/* ---- STAGE 4: Language Focus — Matching, Fill-in-the-Blanks & Speaking ---- */}
             {lesson.phrases?.length > 0 && (
               <Card>
-                <StageHeader num={4} label="Language Focus: Idioms & Expressions" time="10-12 min" icon="🗣️" />
+                <StageHeader num={4} label="Language Focus: Idioms & Expressions" time="12-15 min" icon="🗣️" />
                 <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
-                  Idioms, phrases and expressions from the video. Match each item to its meaning.
+                  Idioms, phrasal verbs, collocations and fixed expressions from the video. Match each item to its meaning.
                 </p>
                 <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">4a — Match Phrase to Meaning</h4>
                 <PhraseMatchingGame phrases={lesson.phrases} />
@@ -479,7 +485,7 @@ function SharedYouTubeLessonContent() {
                   <div className="mt-8">
                     <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">4b — Fill in the Blanks</h4>
                     <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
-                      Use the phrases from the word box to complete each sentence.
+                      Use the phrases from the word box to complete each sentence.You may have to change the form of the word.
                     </p>
 
                     {/* Word box */}
@@ -501,13 +507,30 @@ function SharedYouTubeLessonContent() {
                     </div>
                   </div>
                 )}
+
+                {/* 4c — Speaking Practice using phrases */}
+                {lesson.speakingPractice && lesson.speakingPractice.length > 0 && (
+                  <div className="mt-8">
+                    <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">4c — Speaking Practice</h4>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
+                      Discuss these questions with your teacher. Try to use the phrases and idioms you just learned in your answers.
+                    </p>
+                    <div className="space-y-3">
+                      {lesson.speakingPractice.map((sp) => (
+                        <div key={`sp-${sp.id}`} className="p-3 rounded-lg bg-teal-50 dark:bg-teal-900/10 border border-teal-100 dark:border-teal-800/30">
+                          <p className="text-gray-900 dark:text-white">{sp.id}. {formatText(sp.question)}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </Card>
             )}
 
             {/* ---- STAGE 5: Discussion ---- */}
             {lesson.discussion?.length > 0 && (
               <Card>
-                <StageHeader num={5} label="Discussion" time="10-12 min" icon="💡" />
+                <StageHeader num={5} label="Discussion" time="8-10 min" icon="💡" />
                 <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
                   Discuss these questions with your teacher. Try to use the phrases you learned.
                 </p>
