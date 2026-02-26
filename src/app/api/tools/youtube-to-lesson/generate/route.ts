@@ -240,6 +240,11 @@ RULES:
 - NO blanks, NO underscores, NO gaps. The question is a complete, natural sentence.
 - Keep all language appropriate for CEFR ${level}.
 - Each of the 5 questions should target a DIFFERENT phrase from the 8 phrases.
+- PRONOUN CONSISTENCY: The question is addressed to "you" (the student). When embedding a phrase,
+  adapt its pronouns to match the 2nd-person perspective of the question. Do NOT mix perspectives.
+  BAD: "Can you think of a time when someone told you something that was completely **news to me**?"
+       ← "me" clashes with "you" — broken perspective!
+  GOOD: "Can you think of a time when something was completely **news to you**?"
 
 GOOD EXAMPLES:
 { "id": 1, "question": "Can you tell me about a time when you had **butterflies in your stomach**?" }
