@@ -207,10 +207,14 @@ EXERCISE 4b — FILL-IN-THE-BLANKS
 Create 6 gap-fill sentences using 6 of the 8 phrases.
 
 RULES:
-- Each sentence has ONE blank where the phrase fits naturally.
+- Each sentence has ONE blank (represented by "________") where the phrase fits naturally.
+- The "sentence" field MUST contain "________" (8 underscores) — NEVER write the answer inside the sentence.
+  BAD: "The downturn could account for the decrease."  ← answer leaked into sentence!
+  GOOD: "The downturn could ________ the decrease in spending."
 - The answer must be the EXACT phrase from the phrases list (conjugated/inflected to fit the sentence grammatically).
 - The sentence must be NEW (not from the transcript) and give enough context to identify the phrase.
 - Keep sentences simple and natural.
+- The sentence text (outside the blank) must NOT contain the answer phrase or its key words.
 
 CRITICAL GRAMMAR CHECK:
 Before finalizing each sentence, mentally insert the answer into the blank and READ THE COMPLETE SENTENCE aloud.
@@ -454,7 +458,19 @@ export async function POST(request: NextRequest) {
       preTeach: Array.isArray(parsed.preTeach) ? parsed.preTeach : [],
       detailQuestions: Array.isArray(parsed.detailQuestions) ? parsed.detailQuestions : [],
       phrases: Array.isArray(parsed.phrases) ? parsed.phrases : [],
-      fillBlanks: Array.isArray(parsed.fillBlanks) ? parsed.fillBlanks : [],
+      fillBlanks: Array.isArray(parsed.fillBlanks)
+        ? parsed.fillBlanks.map((item: FillBlankItem) => {
+            // Sanitize: if AI leaked the answer into the sentence, replace it with blanks
+            if (item.sentence && item.answer && !item.sentence.includes('________')) {
+              const escaped = item.answer.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+              const regex = new RegExp(escaped, 'i')
+              if (regex.test(item.sentence)) {
+                return { ...item, sentence: item.sentence.replace(regex, '________') }
+              }
+            }
+            return item
+          })
+        : [],
       speakingPractice: Array.isArray(parsed.speakingPractice) ? parsed.speakingPractice : [],
       discussion: Array.isArray(parsed.discussion) ? parsed.discussion : [],
       wrapUp: Array.isArray(parsed.wrapUp) ? parsed.wrapUp : [],

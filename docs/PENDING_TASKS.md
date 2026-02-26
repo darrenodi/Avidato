@@ -13,3 +13,11 @@
 ## 3. Vocabulary structure consistency
 - The vocabulary section in **YouTube lessons** and **Instant Lesson Generator** should match the structure/display used in the **normal Lesson Planner** (the standard lesson at `/lessons/[id]`).
 - Align the pre-teach / vocabulary rendering so all three lesson types look the same.
+
+## 4. Add categories to YouTube Lessons library
+- 6 broad categories: **Science & Technology, Society & Culture, Business & Finance, Health & Lifestyle, Entertainment & Media, Other**.
+- Add nullable `category` column to `YouTubeLesson` table (existing lessons show as "Uncategorized").
+- AI auto-picks the category during generation (add to prompt).
+- Add category filter dropdown to the library page (alongside level filter).
+- Show category badge on lesson cards and detail page.
+- Update SQL migration file with `ALTER TABLE` for the new column + index.
