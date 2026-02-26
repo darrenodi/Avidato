@@ -240,20 +240,37 @@ RULES:
 - NO blanks, NO underscores, NO gaps. The question is a complete, natural sentence.
 - Keep all language appropriate for CEFR ${level}.
 - Each of the 5 questions should target a DIFFERENT phrase from the 8 phrases.
-- PRONOUN CONSISTENCY: The question is addressed to "you" (the student). When embedding a phrase,
-  adapt its pronouns to match the 2nd-person perspective of the question. Do NOT mix perspectives.
-  BAD: "Can you think of a time when someone told you something that was completely **news to me**?"
-       ← "me" clashes with "you" — broken perspective!
-  GOOD: "Can you think of a time when something was completely **news to you**?"
 
-GOOD EXAMPLES:
+CRITICAL — NATURAL INTEGRATION:
+The phrase must fit ORGANICALLY into the question. Do NOT just paste the phrase into a generic template.
+Write the question AS IF you were a real teacher speaking to a student — conversational, specific, and interesting.
+
+Step-by-step process for EACH question:
+1. Pick the target phrase.
+2. Think of a real-life scenario, personal experience, or opinion where that phrase naturally comes up.
+3. Write a question about that scenario that INCLUDES the phrase as a natural part of the sentence.
+4. Read the question aloud. Does it sound like something a real person would ask in a conversation?
+   If it sounds forced, awkward, or like a textbook exercise, REWRITE it.
+5. Check pronoun consistency: the question addresses "you" (the student), so adapt the phrase's pronouns accordingly.
+
+BAD questions (DO NOT write questions like these):
+{ "question": "Can you think of a time when someone told you something that was completely **news to me**?" }
+  ← pronoun clash ("you" vs "me") AND awkward phrasing
+{ "question": "What strategies do you find most effective to ________ after a challenging day?" }
+  ← blanks instead of phrase
+{ "question": "Tell me about a situation where you felt really nervous." }
+  ← phrase not in the question at all
+{ "question": "How do you feel about the concept of **putting your money where your mouth is**?" }
+  ← lazy — just wraps the phrase in a generic "how do you feel about X" template
+{ "question": "Describe a situation where you had to **stand up for** something." }
+  ← too vague and generic — doesn't give the student a real scenario to talk about
+
+GOOD questions (aim for this quality):
 { "id": 1, "question": "Can you tell me about a time when you had **butterflies in your stomach**?" }
 { "id": 2, "question": "Have you ever had to **take into account** someone else's feelings before making a decision?" }
 { "id": 3, "question": "Describe a moment when something **came as a surprise** to you." }
-
-BAD EXAMPLES (DO NOT DO THIS):
-{ "id": 1, "question": "What strategies do you find most effective to ________ after a challenging day?" }
-{ "id": 1, "question": "Tell me about a situation where you felt really nervous." }  ← phrase not in the question
+{ "id": 4, "question": "Have you ever had to **put your money where your mouth is** and actually invest in something you believed in?" }
+{ "id": 5, "question": "Is there a cause or issue you would always **stand up for**, even if your friends disagreed?" }
 
 
 STAGE 5 — DISCUSSION (8-10 min)

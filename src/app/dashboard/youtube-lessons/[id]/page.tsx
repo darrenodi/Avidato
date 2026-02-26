@@ -524,7 +524,10 @@ export default function YouTubeLessonDetailPage() {
 
               {result.speakingPractice && result.speakingPractice.length > 0 && (
                 <div className="mt-8">
-                  <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">4c — Speaking Practice</h4>
+                  <div className="flex items-center gap-2 mb-3">
+                    <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">4c — Speaking Practice</h4>
+                    <EditButton onClick={() => setEditingStage('speakingPractice')} label="Edit" />
+                  </div>
                   <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">Discuss these questions. Try to use the phrases and idioms from Stage 4.</p>
                   <div className="space-y-3">
                     {result.speakingPractice.map((sp) => (
@@ -588,6 +591,7 @@ export default function YouTubeLessonDetailPage() {
             detailQuestions: 'Comprehension Questions',
             phrases: 'Idioms & Expressions',
             fillBlanks: 'Fill in the Blanks',
+            speakingPractice: 'Speaking Practice Questions',
             discussion: 'Discussion Questions',
             wrapUp: 'Wrap-Up & Homework',
           }
