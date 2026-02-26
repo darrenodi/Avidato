@@ -66,6 +66,7 @@ model User {
   verificationTokens   VerificationToken[]
   passwordResetTokens  PasswordResetToken[]
   notifications        Notification[]
+  youtubeLessons       YouTubeLesson[]
 }
 
 model Student {
@@ -195,4 +196,22 @@ model SharedYouTubeLesson {
   expiresAt DateTime
 
   @@index([expiresAt])
+}
+
+model YouTubeLesson {
+  id        String   @id @default(cuid())
+  videoId   String
+  sourceUrl String
+  level     String
+  title     String
+  topic     String?
+  data      Json
+  createdBy String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  creator   User     @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+
+  @@unique([sourceUrl, level])
+  @@index([level])
+  @@index([createdAt])
 }

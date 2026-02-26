@@ -6,6 +6,7 @@ import { checkYouTubeAccess, recordYouTubeGeneration } from '@/lib/feature-gates
 import { generateWithProviderFailover } from '@/lib/ai/generate-with-provider-failover'
 import { extractJSONFromText, cleanAndParseJSON } from '@/lib/utils/json-parser'
 import { getYouTubeTranscript, extractYouTubeVideoId, isTranscriptUnavailableError } from '@/lib/youtube-transcript'
+import { prisma } from '@/lib/prisma'
 
 type CEFRLevel = 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2'
 
@@ -402,6 +403,31 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // -----------------------------------------------------------------------
+    // Dedup check: if this URL+level combo already exists, return it
+    // -----------------------------------------------------------------------
+    if (resolvedSourceUrl) {
+      const existing = await prisma.youTubeLesson.findUnique({
+        where: {
+          sourceUrl_level: { sourceUrl: resolvedSourceUrl, level },
+        },
+      })
+
+      if (existing) {
+        const existingData = existing.data as Record<string, unknown>
+        return NextResponse.json({
+          ...existingData,
+          videoId: existing.videoId,
+          sourceUrl: existing.sourceUrl,
+          level: existing.level,
+          title: existing.title,
+          topic: existing.topic || '',
+          generatedAt: existing.createdAt.toISOString(),
+          _fromLibrary: true,
+        })
+      }
+    }
+
     const prompt = buildTranscriptPrompt(resolvedTranscriptText, level)
 
     const aiResult = await generateWithProviderFailover({
@@ -438,6 +464,37 @@ export async function POST(request: NextRequest) {
 
     await recordSuccessfulGeneration(session.user.id)
     await recordYouTubeGeneration(session.user.id)
+
+    // -----------------------------------------------------------------------
+    // Auto-save to YouTube Lessons library
+    // -----------------------------------------------------------------------
+    if (resolvedSourceUrl) {
+      try {
+        await prisma.youTubeLesson.upsert({
+          where: {
+            sourceUrl_level: { sourceUrl: resolvedSourceUrl, level },
+          },
+          create: {
+            videoId: resolvedVideoId,
+            sourceUrl: resolvedSourceUrl,
+            level,
+            title: response.title,
+            topic: response.topic || null,
+            data: JSON.parse(JSON.stringify(response)),
+            createdBy: session.user.id,
+          },
+          update: {
+            // If it already exists (race condition), update data
+            data: JSON.parse(JSON.stringify(response)),
+            title: response.title,
+            topic: response.topic || null,
+          },
+        })
+      } catch (saveError) {
+        // Don't fail the request if library save fails
+        console.error('Failed to save YouTube lesson to library:', saveError)
+      }
+    }
 
     return NextResponse.json(response)
   } catch (error) {

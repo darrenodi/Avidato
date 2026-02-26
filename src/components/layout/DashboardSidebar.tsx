@@ -94,6 +94,16 @@ export default function DashboardSidebar({
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.452a6 6 0 00-5.011 1.576.5.5 0 11-.707-.707 7 7 0 015.842-1.84l2.387.452a3 3 0 011.533.821l2.83 2.829a2 2 0 11-2.83 2.83l-2.83-2.829a3 3 0 00-1.533-.821zM5.572 8.572a2 2 0 001.022.547l2.387.452a6 6 0 015.011-1.576.5.5 0 11.707.707 7 7 0 01-5.842 1.84l-2.387-.452a3 3 0 00-1.533-.821l-2.83-2.829a2 2 0 112.83-2.83l2.83 2.829a3 3 0 001.533.821z" />
         </svg>
       ),
+    },
+    {
+      href: '/dashboard/youtube-lessons',
+      label: 'YouTube Lessons',
+      icon: (
+        <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      ),
     }
   ]
 
