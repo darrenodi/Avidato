@@ -561,6 +561,57 @@ export async function generateLesson(
 }
 
 /**
+ * Update a lesson's content JSON.
+ *
+ * Tutors can edit individual exercises / sections after AI generation.
+ * Both the tutor view and shared student view read from the same DB record,
+ * so a single update propagates to both copies immediately.
+ */
+export async function updateLessonContent(
+  lessonId: string,
+  updatedContent: Record<string, unknown>
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const session = await getServerSession(authOptions) as Session | null;
+    if (!session?.user?.id) {
+      return { success: false, error: 'Unauthorized' };
+    }
+
+    // Rate limit
+    const accessCheck = await validateServerActionAccess(session.user.id, 'updateLessonContent');
+    if (!accessCheck.allowed) {
+      return { success: false, error: accessCheck.error };
+    }
+
+    // Verify lesson exists & belongs to one of the tutor's students
+    const lesson = await prisma.lesson.findUnique({
+      where: { id: lessonId },
+      include: { student: { select: { tutorId: true, id: true } } },
+    });
+
+    if (!lesson || lesson.student.tutorId !== session.user.id) {
+      return { success: false, error: 'Lesson not found or unauthorized' };
+    }
+
+    await prisma.lesson.update({
+      where: { id: lessonId },
+      data: { content: JSON.parse(JSON.stringify(updatedContent)) },
+    });
+
+    revalidatePath(`/lessons/${lessonId}`);
+    revalidatePath(`/lessons/${lessonId}/share`);
+    revalidatePath(`/dashboard/students/${lesson.student.id}`);
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating lesson content:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to update lesson',
+    };
+  }
+}
+
+/**
  * Issue #37: Mark a lesson as shared with the student
  * 
  * Sets the sharedAt timestamp to track when a lesson was taught/shared.

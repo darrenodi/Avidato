@@ -6,6 +6,7 @@ import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import DashboardLayout from '@/components/layout/DashboardLayout'
 import { shareLesson } from '@/app/actions/ai-generation'
+import { updateLessonContent } from '@/app/actions/ai-generation'
 import { Under18LessonDisplay } from '@/lib/lesson-displays'
 import GrammarLessonDisplay from '@/components/lesson/GrammarLessonDisplay'
 import InstantLessonDisplay from '@/components/lesson/InstantLessonDisplay'
@@ -20,6 +21,7 @@ import {
   FinalPrepExercise
 } from '@/components/lesson/EngooLessonComponents'
 import { SentenceCorrectionRenderer } from '@/lib/lesson-displays'
+import EditSectionModal, { EditButton } from '@/components/lesson/EditSectionModal'
 
 /**
  * Individual Lesson View Page
@@ -115,6 +117,7 @@ export default function LessonPage() {
   const [error, setError] = useState<string | null>(null)
   const [isTaught, setIsTaught] = useState(false)
   const [isMarking, setIsMarking] = useState(false)
+  const [editingExerciseIndex, setEditingExerciseIndex] = useState<number | null>(null)
   
   // This is tutor view (answers visible) - student view is at /lessons/[id]/share
   const isTutorVersion = true
@@ -655,6 +658,7 @@ export default function LessonPage() {
                           </p>
                         </div>
                       </div>
+                      <EditButton onClick={() => setEditingExerciseIndex(index)} label="Edit" />
                     </div>
                     
                     {exercise.type !== 'warmup' && exercise.description && (
@@ -669,6 +673,28 @@ export default function LessonPage() {
                   </div>
                 ))}
               </div>
+            )}
+
+            {/* Edit Exercise Modal */}
+            {editingExerciseIndex !== null && lesson && lesson.content.exercises[editingExerciseIndex] && (
+              <EditSectionModal
+                title={`Edit: ${lesson.content.exercises[editingExerciseIndex].title}`}
+                data={lesson.content.exercises[editingExerciseIndex]}
+                onSave={async (updated) => {
+                  const updatedExercises = [...lesson.content.exercises]
+                  updatedExercises[editingExerciseIndex] = updated as typeof updatedExercises[number]
+                  const newContent = { ...lesson.content, exercises: updatedExercises }
+                  const result = await updateLessonContent(lesson.id, newContent as unknown as Record<string, unknown>)
+                  if (result.success) {
+                    setLesson({ ...lesson, content: newContent })
+                    setEditingExerciseIndex(null)
+                  } else {
+                    alert(result.error || 'Failed to save changes')
+                  }
+                }}
+                onCancel={() => setEditingExerciseIndex(null)}
+                hiddenFields={['timeMinutes']}
+              />
             )}
           </div>
             )}

@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState } from 'react'
 import DashboardLayout from '@/components/layout/DashboardLayout'
 import { fetchTranscriptViaProxy, extractVideoId } from '@/lib/youtube-transcript-client'
 import { formatText } from '@/lib/format-text'
+import EditSectionModal, { EditButton } from '@/components/lesson/EditSectionModal'
 
 type CEFRLevel = 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2'
 
@@ -274,7 +275,7 @@ function PhraseMatchingGame({ phrases }: { phrases: PhraseItem[] }) {
 // Helper components
 // ---------------------------------------------------------------------------
 
-function StageHeader({ num, label, time, icon }: { num: number | string; label: string; time: string; icon: string }) {
+function StageHeader({ num, label, time, icon, onEdit }: { num: number | string; label: string; time: string; icon: string; onEdit?: () => void }) {
   return (
     <div className="flex items-center gap-3 mb-4">
       <span className="flex items-center justify-center w-8 h-8 rounded-full bg-brand-primary text-white text-sm font-bold shrink-0">
@@ -283,6 +284,7 @@ function StageHeader({ num, label, time, icon }: { num: number | string; label: 
       <div className="flex-1 min-w-0">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{icon} {label}</h3>
       </div>
+      {onEdit && <EditButton onClick={onEdit} label="Edit" />}
       <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 whitespace-nowrap">
         {time}
       </span>
@@ -335,6 +337,7 @@ export default function YouTubeToLessonPage() {
   const [showAnswers, setShowAnswers] = useState(true)
   const [shareCopied, setShareCopied] = useState(false)
   const [shareLoading, setShareLoading] = useState(false)
+  const [editingStage, setEditingStage] = useState<string | null>(null)
 
   // Shuffle fill-in-the-blanks word box once per generated result
   const shuffledWordBox = useMemo(() => {
@@ -698,7 +701,7 @@ export default function YouTubeToLessonPage() {
             {/* ---- STAGE 1: Warm-Up ---- */}
             {result.warmUp.length > 0 && (
               <Card>
-                <StageHeader num={1} label="Warm-Up" time="5 min" icon="💬" />
+                <StageHeader num={1} label="Warm-Up" time="5 min" icon="💬" onEdit={() => setEditingStage('warmUp')} />
                 <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
                   Ask these BEFORE watching. Get the student talking about the topic.
                 </p>
@@ -715,7 +718,7 @@ export default function YouTubeToLessonPage() {
             {/* ---- STAGE 2: Pre-Teach Vocabulary ---- */}
             {result.preTeach.length > 0 && (
               <Card>
-                <StageHeader num={2} label="Pre-Teach Vocabulary" time="5-7 min" icon="📖" />
+                <StageHeader num={2} label="Pre-Teach Vocabulary" time="5-7 min" icon="📖" onEdit={() => setEditingStage('preTeach')} />
                 <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
                   Teach these BEFORE watching. They&apos;re essential for understanding the video.
                 </p>
@@ -747,7 +750,7 @@ export default function YouTubeToLessonPage() {
 
             {/* ---- STAGE 3: Watch & Comprehend ---- */}
             <Card>
-              <StageHeader num={3} label="Watch & Comprehend" time="8-10 min" icon="▶️" />
+              <StageHeader num={3} label="Watch & Comprehend" time="8-10 min" icon="▶️" onEdit={() => setEditingStage('detailQuestions')} />
               <YouTubeEmbed videoId={result.videoId} instruction="Play the video. The student watches once and answers the comprehension questions below." />
 
               {/* Detail questions */}
@@ -776,7 +779,7 @@ export default function YouTubeToLessonPage() {
             {/* ---- STAGE 4: Language Focus — Matching, Fill-in-the-Blanks & Speaking ---- */}
             {result.phrases && result.phrases.length > 0 && (
               <Card>
-                <StageHeader num={4} label="Language Focus: Idioms & Expressions" time="12-15 min" icon="🗣️" />
+                <StageHeader num={4} label="Language Focus: Idioms & Expressions" time="12-15 min" icon="🗣️" onEdit={() => setEditingStage('phrases')} />
                 <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
                   Idioms, phrasal verbs, collocations and fixed expressions from the video. These make the student sound more natural.
                 </p>
@@ -840,7 +843,7 @@ export default function YouTubeToLessonPage() {
             {/* ---- STAGE 5: Discussion ---- */}
             {result.discussion.length > 0 && (
               <Card>
-                <StageHeader num={5} label="Discussion" time="8-10 min" icon="💡" />
+                <StageHeader num={5} label="Discussion" time="8-10 min" icon="💡" onEdit={() => setEditingStage('discussion')} />
                 <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
                   Encourage the student to use the vocabulary from stages 2 and 4.
                 </p>
@@ -862,7 +865,7 @@ export default function YouTubeToLessonPage() {
             {/* ---- STAGE 6: Wrap-Up ---- */}
             {(result.wrapUp.length > 0 || result.homework?.task) && (
               <Card>
-                <StageHeader num={6} label="Wrap-Up" time="3-5 min" icon="✅" />
+                <StageHeader num={6} label="Wrap-Up" time="3-5 min" icon="✅" onEdit={() => setEditingStage('wrapUp')} />
                 {result.wrapUp.length > 0 && (
                   <div className="space-y-3 mb-4">
                     {result.wrapUp.map((r) => (
@@ -888,6 +891,41 @@ export default function YouTubeToLessonPage() {
 
           </div>
         )}
+
+        {/* Edit Stage Modal */}
+        {editingStage && result && (() => {
+          const stageLabels: Record<string, string> = {
+            warmUp: 'Warm-Up Questions',
+            preTeach: 'Pre-Teach Vocabulary',
+            detailQuestions: 'Comprehension Questions',
+            phrases: 'Idioms & Expressions',
+            fillBlanks: 'Fill in the Blanks',
+            discussion: 'Discussion Questions',
+            wrapUp: 'Wrap-Up & Homework',
+          }
+          // For wrapUp, combine wrapUp + homework into one editable object
+          const stageData = editingStage === 'wrapUp'
+            ? { wrapUp: result.wrapUp, homework: result.homework }
+            : (result as unknown as Record<string, unknown>)[editingStage]
+          if (!stageData) return null
+          return (
+            <EditSectionModal
+              title={`Edit: ${stageLabels[editingStage] || editingStage}`}
+              data={stageData as Parameters<typeof EditSectionModal>[0]['data']}
+              onSave={(updated) => {
+                if (editingStage === 'wrapUp') {
+                  const obj = updated as unknown as { wrapUp: typeof result.wrapUp; homework: typeof result.homework }
+                  setResult({ ...result, wrapUp: obj.wrapUp, homework: obj.homework })
+                } else {
+                  setResult({ ...result, [editingStage]: updated } as YouTubeLessonResult)
+                }
+                setEditingStage(null)
+              }}
+              onCancel={() => setEditingStage(null)}
+              hiddenFields={['id']}
+            />
+          )
+        })()}
       </div>
     </DashboardLayout>
   )

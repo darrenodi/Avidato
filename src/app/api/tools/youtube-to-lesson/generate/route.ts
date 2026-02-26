@@ -53,8 +53,8 @@ interface FillBlankItem {
 interface SpeakingPracticeItem {
   id: number
   question: string
+  targetPhrase: string
 }
-
 interface DiscussionQuestion {
   id: number
   question: string
@@ -224,17 +224,24 @@ Common mistakes to AVOID:
   GOOD: "Several investors _____ of the company." (answer: "hold ownership")
 - The blank should be exactly where the phrase naturally sits in a fluent English sentence.
 
-──────────────────────────────────────────────
-EXERCISE 4c — SPEAKING USING THE PHRASES (5-7 min)
-──────────────────────────────────────────────
+STAGE 4c — SPEAKING USING THE PHRASES (5–7 min)
+
 Create 5 short discussion questions that encourage the student to USE the phrases from Stage 4.
 
 RULES:
-- Each question should naturally lead the student to use one phrase in their answer.
+- Each question should naturally lead the student to use one specific phrase in their answer.
+- Write the question as a COMPLETE, NATURAL sentence — do NOT use blanks or underscores.
 - Focus on personal experience, opinions, or real-life situations.
-- Do NOT include the target phrase inside the question itself.
 - Keep all language appropriate for CEFR ${level}.
-- Prefer questions that clearly connect to one specific phrase.
+- Include a "targetPhrase" field with the exact phrase the student should try to use.
+
+GOOD EXAMPLE:
+{ "id": 1, "question": "Tell me about a situation where you felt really nervous before doing something important.", "targetPhrase": "butterflies in one's stomach" }
+
+BAD EXAMPLE (DO NOT DO THIS):
+{ "id": 1, "question": "What strategies do you find most effective to ________ after a challenging day?" }
+Never use blanks, underscores, or gaps in speaking practice questions.
+
 
 STAGE 5 — DISCUSSION (8-10 min)
 Write 5 discussion questions that invite opinions, personal experience, and application.
