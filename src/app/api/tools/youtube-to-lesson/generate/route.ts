@@ -226,21 +226,24 @@ Common mistakes to AVOID:
 
 STAGE 4c — SPEAKING USING THE PHRASES (5–7 min)
 
-Create 5 short discussion questions that encourage the student to USE the phrases from Stage 4.
+Create 5 personal questions that force the student to USE a specific phrase from Stage 4 in their answer.
+Each question targets ONE phrase. Bold the phrase using **double asterisks** inside the question text.
 
 RULES:
-- Each question should naturally lead the student to use one specific phrase in their answer.
-- Write the question as a COMPLETE, NATURAL sentence — do NOT use blanks or underscores.
-- Focus on personal experience, opinions, or real-life situations.
+- The question asks about a personal experience, opinion, or hypothetical situation.
+- The phrase appears BOLDED in the question so the student knows exactly which phrase to use.
+- NO blanks, NO underscores, NO gaps. The question is a complete, natural sentence.
 - Keep all language appropriate for CEFR ${level}.
-- Include a "targetPhrase" field with the exact phrase the student should try to use.
+- Each of the 5 questions should target a DIFFERENT phrase from the 8 phrases.
 
-GOOD EXAMPLE:
-{ "id": 1, "question": "Tell me about a situation where you felt really nervous before doing something important.", "targetPhrase": "butterflies in one's stomach" }
+GOOD EXAMPLES:
+{ "id": 1, "question": "Can you tell me about a time when you had **butterflies in your stomach**?" }
+{ "id": 2, "question": "Have you ever had to **take into account** someone else's feelings before making a decision?" }
+{ "id": 3, "question": "Describe a moment when something **came as a surprise** to you." }
 
-BAD EXAMPLE (DO NOT DO THIS):
+BAD EXAMPLES (DO NOT DO THIS):
 { "id": 1, "question": "What strategies do you find most effective to ________ after a challenging day?" }
-Never use blanks, underscores, or gaps in speaking practice questions.
+{ "id": 1, "question": "Tell me about a situation where you felt really nervous." }  ← phrase not in the question
 
 
 STAGE 5 — DISCUSSION (8-10 min)
@@ -289,7 +292,7 @@ OUTPUT JSON ONLY — no markdown, no explanation:
     }
   ],
   "speakingPractice": [
-    { "id": 1, "question": "speaking question encouraging phrase use" }
+    { "id": 1, "question": "Can you tell me about a time when you had **butterflies in your stomach**?" }
   ],
   "discussion": [
     { "id": 1, "question": "discussion question", "followUp": "follow-up prompt for teacher" }
