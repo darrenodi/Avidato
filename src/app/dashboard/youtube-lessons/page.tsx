@@ -37,20 +37,35 @@ export default function YouTubeLessonsLibraryPage() {
   const [error, setError] = useState<string | null>(null)
   const [filterLevel, setFilterLevel] = useState<string>('all')
   const [searchQuery, setSearchQuery] = useState('')
+  const [page, setPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
+  const [totalCount, setTotalCount] = useState(0)
 
   useEffect(() => {
     if (status === 'unauthenticated') router.push('/login')
   }, [status, router])
 
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setPage(1)
+  }, [filterLevel, searchQuery])
+
   useEffect(() => {
     if (status !== 'authenticated') return
 
     const fetchLessons = async () => {
+      setLoading(true)
       try {
-        const res = await fetch('/api/tools/youtube-to-lesson/library')
+        const params = new URLSearchParams({ page: String(page) })
+        if (filterLevel !== 'all') params.set('level', filterLevel)
+        if (searchQuery.trim()) params.set('q', searchQuery.trim())
+
+        const res = await fetch(`/api/tools/youtube-to-lesson/library?${params}`)
         const data = await res.json()
         if (!res.ok) throw new Error(data.error || 'Failed to fetch lessons')
         setLessons(data.lessons)
+        setTotalPages(data.totalPages)
+        setTotalCount(data.totalCount)
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load lessons')
       } finally {
@@ -58,17 +73,10 @@ export default function YouTubeLessonsLibraryPage() {
       }
     }
 
-    fetchLessons()
-  }, [status])
-
-  const filteredLessons = lessons.filter((lesson) => {
-    const matchesLevel = filterLevel === 'all' || lesson.level === filterLevel
-    const matchesSearch =
-      !searchQuery ||
-      lesson.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (lesson.topic && lesson.topic.toLowerCase().includes(searchQuery.toLowerCase()))
-    return matchesLevel && matchesSearch
-  })
+    // Debounce search queries
+    const timer = setTimeout(fetchLessons, searchQuery ? 300 : 0)
+    return () => clearTimeout(timer)
+  }, [status, page, filterLevel, searchQuery])
 
   if (status === 'loading' || loading) {
     return (
@@ -138,7 +146,7 @@ export default function YouTubeLessonsLibraryPage() {
         )}
 
         {/* Empty state */}
-        {!error && filteredLessons.length === 0 && (
+        {!error && !loading && lessons.length === 0 && (
           <div className="text-center py-16">
             <svg className="mx-auto h-16 w-16 text-gray-300 dark:text-gray-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
@@ -167,9 +175,9 @@ export default function YouTubeLessonsLibraryPage() {
         )}
 
         {/* Lesson cards grid */}
-        {filteredLessons.length > 0 && (
+        {lessons.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredLessons.map((lesson) => (
+            {lessons.map((lesson) => (
               <Link
                 key={lesson.id}
                 href={`/dashboard/youtube-lessons/${lesson.id}`}
@@ -228,8 +236,57 @@ export default function YouTubeLessonsLibraryPage() {
           </div>
         )}
 
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between mt-8">
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              Showing {(page - 1) * 12 + 1}–{Math.min(page * 12, totalCount)} of {totalCount} lessons
+            </p>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setPage(p => Math.max(1, p - 1))}
+                disabled={page <= 1}
+                className="px-3 py-1.5 text-sm rounded-md border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              >
+                Previous
+              </button>
+              {Array.from({ length: totalPages }, (_, i) => i + 1)
+                .filter(p => p === 1 || p === totalPages || Math.abs(p - page) <= 1)
+                .reduce<(number | string)[]>((acc, p, i, arr) => {
+                  if (i > 0 && p - (arr[i - 1] as number) > 1) acc.push('...')
+                  acc.push(p)
+                  return acc
+                }, [])
+                .map((p, i) =>
+                  typeof p === 'string' ? (
+                    <span key={`ellipsis-${i}`} className="px-1 text-gray-400">…</span>
+                  ) : (
+                    <button
+                      key={p}
+                      onClick={() => setPage(p)}
+                      className={`px-3 py-1.5 text-sm rounded-md border transition-colors ${
+                        p === page
+                          ? 'bg-brand-primary text-white border-brand-primary'
+                          : 'border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
+                      }`}
+                    >
+                      {p}
+                    </button>
+                  )
+                )}
+              <button
+                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                disabled={page >= totalPages}
+                className="px-3 py-1.5 text-sm rounded-md border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Generate CTA at bottom */}
-        {filteredLessons.length > 0 && (
+        {lessons.length > 0 && (
           <div className="mt-8 text-center">
             <Link
               href="/dashboard/tools/youtube-to-lesson"
