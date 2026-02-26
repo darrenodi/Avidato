@@ -36,7 +36,6 @@ export const SentenceCorrectionRenderer: React.FC<SentenceCorrectionRendererProp
     <div className="space-y-6">
       {/* Header */}
       <div className="border-l-4 border-orange-500 pl-4">
-        <p className="text-sm font-semibold text-gray-900 dark:text-white mb-2">Each sentence has one mistake — find and correct it</p>
         {instructions && (
           <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">{formatText(instructions)}</p>
         )}
