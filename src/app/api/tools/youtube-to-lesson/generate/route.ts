@@ -216,18 +216,25 @@ RULES:
 - Keep sentences simple and natural.
 - The sentence text (outside the blank) must NOT contain the answer phrase or its key words.
 
-CRITICAL GRAMMAR CHECK:
-Before finalizing each sentence, mentally insert the answer into the blank and READ THE COMPLETE SENTENCE aloud.
-It MUST be 100% grammatically correct and natural-sounding. If not, REWRITE the sentence.
+FINAL NATURALNESS TEST:
+Replace ________ with the answer and read the FULL sentence out loud.
+Does it sound like something a native speaker would actually say? If it sounds awkward, stilted,
+or like a textbook wrote it, REWRITE until it sounds completely natural.
 
 Common mistakes to AVOID:
 - Do NOT place the blank after an auxiliary verb that clashes with the phrase's verb form.
-  BAD: "Her resignation did _____ everyone." (answer: "come as a surprise")
-  GOOD: "The announcement _____ to the whole department." (answer: "came as a surprise")
+  BAD: "Her resignation did ________ everyone." (answer: "come as a surprise")
+  GOOD: "The announcement ________ to the whole department." (answer: "came as a surprise")
 - Do NOT create redundancy where the phrase overlaps with surrounding words.
-  BAD: "They _____ shared ownership." (answer: "hold ownership" → double "ownership")
-  GOOD: "Several investors _____ of the company." (answer: "hold ownership")
+  BAD: "They ________ shared ownership." (answer: "hold ownership" → double "ownership")
+  GOOD: "Several investors ________ of the company." (answer: "hold ownership")
+- Do NOT write sentences that sound unnatural or forced with the answer inserted.
+  BAD: "I sometimes forget how do you ________?" (answer: "say" → broken grammar)
+  GOOD: "I sometimes forget how to ________ what I really mean." (answer: "put into words")
+  BAD: "The thing that was ________ is the result." (answer: "taken into account" → stilted)
+  GOOD: "We ________ the weather forecast before planning the trip." (answer: "took into account")
 - The blank should be exactly where the phrase naturally sits in a fluent English sentence.
+- The completed sentence (with answer inserted) must be grammatically perfect and sound like natural spoken/written English.
 
 STAGE 4c — SPEAKING USING THE PHRASES (5–7 min)
 
