@@ -126,20 +126,19 @@ GLOBAL LANGUAGE QUALITY RULES — APPLY EVERYWHERE
 These rules apply to BOTH vocabulary (Stage 2) AND phrases (Stage 4).
 
 ✅ ONLY select items that meet ALL of these criteria:
-  - The item is genuine English. Never select words from other languages.
-  - The item is TEACHABLE: a real ESL learner at ${level} would benefit from knowing it.
-  - The item is TRANSFERABLE: it works naturally in many different topics, not just this video.
-  - The item is a content word or fixed chunk — not grammar glue.
+  - Genuine English — never select words from other languages.
+  - TEACHABLE — a real ESL learner at ${level} would benefit from knowing it.
+  - TRANSFERABLE — works naturally across many different topics and contexts, not just this video.
+  - A content word or fixed chunk — not grammar glue.
 
 ❌ AUTOMATIC DISQUALIFIERS — never select these:
   - Function/grammar words: pronouns, articles, prepositions, conjunctions, auxiliaries.
-  - Words too simple for CEFR ${level} (e.g. "car", "big", "fail", "need" for B2).
+  - Words too simple for CEFR ${level}.
   - Proper nouns: brand names, company names, country names, people's names.
-  - Topic-locked items: words or phrases that only make sense in this video's specific subject
-    and cannot be reused in everyday conversations on other topics.
+  - Topic-locked items: only make sense in this specific video, cannot be reused elsewhere.
   - Transcript noise: filler words, hesitation markers, interjections
-    (e.g. "uh", "um", "you know", "I mean", "goodness me", "shoot", "whoa").
-  - Non-English words or unlisted loanwords.
+    (e.g. "uh", "um", "you know", "I mean", "goodness me", "whoa").
+  - Non-English words.
 
 ══════════════════════════════════════════════
 STAGE 1 — WARM-UP (5 min)
@@ -148,66 +147,66 @@ STAGE 1 — WARM-UP (5 min)
 Generate 3 lead-in questions asked BEFORE the student watches the video.
 Purpose: get the student talking, lower the affective filter, connect to their own life.
 
-RULES:
-- Question 1 must be a PERSONAL EXPERIENCE question rooted in everyday life.
-  It should be easy and low-stakes — any adult can answer it from their own experience.
-  The topic link should be loose and natural, not forced.
-- Question 2 must be an OPINION or PREFERENCE question — something with no right answer,
-  where the student just shares what they think or believe.
-- Question 3 must be a HYPOTHETICAL or "what would you do" question that invites imagination.
-  Keep it grounded and realistic — not science fiction.
-- ALL THREE questions must be conversational in tone. Write them the way a real teacher
-  would speak to a student across a table, not the way an exam paper is written.
-- NONE of the questions should require knowledge of the video content.
-- AVOID "yes/no" questions unless they include "...why?" or "...tell me more."
-- AVOID overly abstract or academic phrasing like "In your opinion, to what extent..."
+LENGTH RULE: Each question must be ONE sentence. Maximum 20 words. No multi-part questions.
+If you find yourself writing "and" to join two questions — split them or cut one half.
 
-BAD warm-up questions — DO NOT write like these:
-  ❌ "Do you like cars?" — closed, shallow, one-word answer
+QUESTION TYPES — one of each, in this order:
+  Q1: PERSONAL EXPERIENCE — easy, low-stakes, rooted in the student's everyday life.
+      The topic connection should be loose and natural.
+  Q2: OPINION or PREFERENCE — no right answer, student just shares what they think.
+  Q3: HYPOTHETICAL — "what would you do if..." — grounded and realistic, not abstract.
+
+ALL questions must:
+  - Sound like a real teacher talking to a real person, not an exam paper.
+  - Be impossible to answer with just "yes" or "no" (or include "...why?").
+  - Require zero knowledge of the video content.
+
+BAD warm-up questions:
+  ❌ "Do you like cars?" — closed, one-word answer
   ❌ "What do you know about Volkswagen's profits?" — requires video knowledge
-  ❌ "What is your opinion of the automotive industry?" — impersonal, abstract, exam-like
+  ❌ "What is your opinion of the automotive industry?" — abstract, impersonal, exam-like
   ❌ "If you were leading a traditional industry, how would you balance legacy with disruption?"
-     — too complex, too business-school, not personal
+     — too long, too abstract, business-school tone
+  ❌ "Have you ever bought something like a gadget or appliance that turned out to be less
+     impressive than expected, and do you prefer locally made products?" — two questions in one
 
-GOOD warm-up questions — aim for this quality:
-  ✅ "Have you ever bought something — a phone, an appliance, maybe a car — that turned out to be
-     way less impressive than you expected? What was it and what happened?"
-  ✅ "When you're choosing between two products, what matters more to you: brand reputation,
-     price, or features? Has that ever changed for you?"
-  ✅ "If you could own any car in the world regardless of price, what would you choose and why?"
+GOOD warm-up questions:
+  ✅ "Have you ever bought something you regretted because the brand turned out to be overhyped?"
+  ✅ "What matters more to you when choosing a product — brand reputation or price?"
+  ✅ "If a company you loved started making worse products, would you stay loyal or switch?"
 
 ══════════════════════════════════════════════
 STAGE 2 — PRE-TEACH KEY VOCABULARY (5-7 min)
 ══════════════════════════════════════════════
 
-Pick 5 SINGLE WORDS from the transcript that the student needs to understand the video.
+Pick 5 SINGLE WORDS from the transcript the student needs to understand the video.
 
 SELECTION RULES:
-1. Content words only: nouns, verbs, or adjectives that carry real meaning.
-2. The word must appear in the transcript AND be genuinely useful in other topics.
-3. Pitch the difficulty correctly for CEFR ${level}:
-   - A1/A2: basic but genuinely unknown words (e.g. "profit", "rival", "crisis")
-   - B1/B2: mid-frequency words from news/business/general contexts
-     (e.g. "plunge", "dominant", "adapt", "urgency", "overtake")
-   - C1/C2: sophisticated, nuanced, or formal vocabulary
-     (e.g. "complacency", "trajectory", "erode", "rhetoric")
-4. Apply ALL global disqualifiers above. In particular:
-   - Reject words most learners at ${level} already know.
-   - Reject words that are purely technical or industry-specific.
-   - Reject proper nouns.
+1. Content words only: nouns, verbs, or adjectives.
+2. Must appear in the transcript AND be useful in completely different topics.
+3. Pitch difficulty correctly for CEFR ${level}:
+   - A1/A2: genuinely unknown basics (e.g. "profit", "rival", "crisis")
+   - B1/B2: mid-frequency news/general words (e.g. "plunge", "overtake", "urgency", "dominant")
+   - C1/C2: sophisticated or formal vocabulary (e.g. "complacency", "erode", "trajectory")
+4. Apply ALL global disqualifiers. Reject proper nouns, topic-locked technical terms,
+   and any word most learners at ${level} already know.
 
-SELF-CHECK for each word:
-  → "Would a learner at ${level} encounter this exact word in a news article, novel,
-     or conversation on a completely different topic?"
-  If NO → reject it.
+SELF-CHECK before keeping a word:
+  → "Will this word appear in a novel, news article, or conversation about a totally different topic?"
+     If NO → reject.
+  → "Do most ${level} learners already know this?"
+     If YES → reject and find something harder.
 
-  → "Do most ${level} learners already know this word?"
-  If YES → reject it and find something more challenging.
+LENGTH RULE for definitions: Maximum 10 words. Simple and direct.
+  ❌ "a promise or firm decision to do something, or the state of being dedicated to a cause"
+  ✅ "a strong promise to do something"
 
-For each word: write a learner-friendly definition, a natural example sentence
-(NOT from the transcript), and a concept-check question (CCQ).
-CCQs should be short yes/no or either/or questions that confirm understanding without
-just repeating the definition. Example: "If a company's profits plunge, do they go up or down?"
+  ❌ "to change your ideas or behaviour to deal with new situations or conditions"
+  ✅ "to change in order to deal with new conditions"
+
+For each word provide: a short definition (max 10 words), one example sentence NOT from the
+transcript, and one CCQ (yes/no or either/or only).
+CCQ example: "If profits plunge, do they go up or down?"
 
 ══════════════════════════════════════════════
 STAGE 3 — WATCH & COMPREHEND (8-10 min)
@@ -215,32 +214,28 @@ STAGE 3 — WATCH & COMPREHEND (8-10 min)
 
 The student watches the video ONCE, then answers 5 detail questions.
 
-RULES FOR DETAIL QUESTIONS:
-- Each question must target ONE specific, clearly stated piece of information from the video.
-  Do NOT combine two separate facts into one question.
-- Mix question types across the 5 questions:
-    • At least 1 true/false or correct/incorrect question
-    • At least 2 short-answer questions about specific facts, figures, or causes
-    • At least 1 "What does the speaker mean when they say...?" inference question
-    • At least 1 cause-and-effect question ("Why did X happen?" / "What caused Y?")
-- Questions must be answerable from the video alone — no outside knowledge needed.
-- Reference answers must be concise (1-2 sentences max). Teachers use these to check, not read aloud.
-- Do NOT write vague or double-barreled questions.
+RULES:
+- Each question targets ONE specific piece of information. No double-barreled questions.
+- Mix question types — use each of these once:
+    • 1 true/false question
+    • 2 short-answer questions (specific facts, figures, or causes)
+    • 1 inference: "What does the speaker mean when they say...?"
+    • 1 cause-and-effect: "Why did X happen?"
+- Answerable from the video alone. No outside knowledge required.
+- Reference answers: 1-2 sentences max.
 
 BAD detail questions:
-  ❌ "What is mentioned as a key failing in Germany regarding e-mobility strategy and infrastructure?"
-     — double-barreled (two separate issues in one question)
-  ❌ "What challenges does Germany face?" — too vague, multiple correct answers
-  ❌ "Is the German car industry in trouble?" — answered before watching
+  ❌ "What challenges does Germany face?" — vague, too many possible answers
+  ❌ "What is mentioned regarding e-mobility strategy and infrastructure?" — double-barreled
+  ❌ "Is the German car industry in trouble?" — obvious before watching
 
 GOOD detail questions:
   ✅ "True or false: Porsche's profits fell by around 50% this year."
      Answer: False — they fell by 95%.
-  ✅ "Why are German carmakers losing market share in the United States specifically?"
+  ✅ "Why are German carmakers specifically losing market share in the US?"
      Answer: Because of tariffs.
-  ✅ "What does the speaker mean when he says German companies 'didn't feel the need to invest
-     in e-mobility'?" Answer: They were making so much money from diesel/combustion cars
-     that they had no financial pressure to change.
+  ✅ "What does the speaker mean when he says companies 'didn't feel the need to invest in e-mobility'?"
+     Answer: They were making too much money from diesel cars to feel any pressure to change.
 
 ══════════════════════════════════════════════
 STAGE 4 — LANGUAGE FOCUS (12-15 min)
@@ -252,193 +247,198 @@ Three parts: 4a Matching, 4b Fill-in-the-Blanks, 4c Speaking Practice.
 PHRASE SELECTION — THE MOST IMPORTANT PART
 ──────────────────────────────────────────────
 
-Extract 8 multi-word phrases from the transcript. Each must be 2-5 words.
+Extract exactly 8 phrases from the transcript.
 
-GOLDEN RULE: Every phrase you select must be something you would find listed in a
-well-known ESL reference such as the Oxford Phrasal Verbs Dictionary, the Cambridge
-Dictionary of Idioms, or a Business/Academic English collocation list.
-If you cannot imagine it appearing in such a reference — DO NOT select it.
+ONLY TWO TYPES ARE ALLOWED:
+  1. IDIOMS
+  2. PHRASAL VERBS
 
-SELECTION PRIORITY (fill all 8 slots working through this list):
+No collocations. No fixed expressions. No discourse markers. Only idioms and phrasal verbs.
 
-1. IDIOMS — figurative expressions whose meaning cannot be guessed from the individual words.
-   The meaning is non-literal and fixed.
-   Examples: "drop the ball", "bite the bullet", "in the long run", "get cold feet"
-   ✅ FROM THIS TRANSCRIPT: "drop the ball" is a clear idiom — select it.
+──────────────────────────────────────────────
+TYPE 1: IDIOMS
+──────────────────────────────────────────────
+An idiom is a fixed multi-word expression whose meaning CANNOT be guessed from
+the individual words. The meaning is figurative and non-literal.
 
-2. PHRASAL VERBS — verb + particle where the combination has a specific, learnable meaning.
-   The particle must be one of: up, down, out, off, over, away, back, through, into, on, behind.
-   The meaning must be non-literal or idiomatic — NOT just the verb doing its literal action.
-   Examples: "catch up", "switch back", "fall behind", "keep up", "give up", "burn out"
-   ✅ FROM THIS TRANSCRIPT: "catch up", "keep up", "switch back", "fall behind" — all valid.
-   ❌ "push on go on" — garbled transcript speech, not a clean phrasal verb. Reject.
-   ❌ "go on" alone — too literal and too basic for most levels.
+✅ VALID IDIOMS — the kind you find in the Cambridge Dictionary of Idioms:
+   "drop the ball" — nothing to do with balls; means to fail at a responsibility
+   "bite the bullet" — nothing to do with bullets; means to endure something difficult
+   "burn bridges" — nothing to do with fire; means to permanently damage a relationship
+   "on thin ice" — nothing to do with ice; means in a risky or dangerous situation
+   "get cold feet" — nothing to do with temperature; means to lose confidence before doing something
 
-3. FIXED EXPRESSIONS / DISCOURSE MARKERS — set phrases used to frame or soften statements.
-   These are formulaic: native speakers say them as a unit without constructing them word by word.
-   Examples: "it's fair to say", "when it comes to", "as a matter of fact", "in a sense"
-   ✅ FROM THIS TRANSCRIPT: "it's fair to say" — valid fixed expression.
+❌ NOT idioms — do not label these as idioms:
+   "sharp drop" — literal: "sharp" modifies "drop" directly. Not figurative.
+   "in trouble" — literal: the words mean exactly what they say.
+   "clear strategy" — literal adjective + noun. No figurative layer.
+   "feel the need" — generic verb + noun. Not a fixed expression.
 
-4. STRONG COLLOCATIONS — word pairs or triples that native speakers use as a natural unit,
-   listed in collocation dictionaries.
-   Examples: "sense of urgency", "vicious cycle", "raise awareness", "meet a deadline"
-   ✅ FROM THIS TRANSCRIPT: "sense of urgency" — strong, dictionary-listed collocation.
-   ❌ "key sectors" — just adjective + noun, not a fixed collocation.
-   ❌ "clear strategy" — generic, not a fixed pair.
-   ❌ "sharp drop" — "sharp" combines freely with any noun. Not a fixed collocation.
+──────────────────────────────────────────────
+TYPE 2: PHRASAL VERBS
+──────────────────────────────────────────────
+A phrasal verb is a verb + particle (up, down, out, off, over, away, back, through, into, behind, on)
+where the combination has a specific meaning that is different from or more specific than
+the verb alone. It must be listed in the Oxford Phrasal Verbs Dictionary or equivalent.
 
-HARD REJECTION LIST — never select phrases like these:
-  ❌ Spoken fillers/interjections: "goodness me", "you know", "I mean", "of course", "way early"
-  ❌ Generic verb + object: "make a decision", "take a risk", "lose market share", "play a role"
-  ❌ Topic-locked noun phrases: "charging infrastructure", "combustion engine", "export market",
-     "quarterly profits", "premium brand", "e-mobility strategy", "self-driving software"
-  ❌ Literal combinations: any phrase where every word means exactly what it says and
-     there is nothing idiomatic, fixed, or "chunky" about the pairing.
+✅ VALID PHRASAL VERBS:
+   "catch up" — to reach the same level as others after being behind
+   "keep up" — to maintain the same pace or level as others
+   "switch back" — to return to a previous system, method, or choice
+   "fall behind" — to make less progress than expected or than others
+   "give up" — to stop trying
+   "burn out" — to become exhausted from overwork
+   "take off" — to suddenly become successful or popular
+   "back down" — to withdraw from a position or argument
 
-FINAL SELF-CHECK for each phrase:
-  → "Is this listed in an ESL dictionary or collocation reference?"
-  → "Can I use this phrase naturally in a conversation about cooking, relationships, or sport?"
-  → "Would an ESL teacher explicitly teach this as a set chunk?"
-  All three answers must be YES. If any answer is NO → reject and replace.
+❌ NOT valid phrasal verbs — reject these:
+   "be behind in" — "behind" here is a preposition, not a particle. Not a phrasal verb.
+   "go on" — too literal, too basic. The verb means exactly what it says.
+   "push on" / "push on go on" — garbled transcript speech. Not clean enough to teach.
+   "play a role" — "role" is the object; "play" is literal. Not a phrasal verb.
+   "feel the need" — "need" is the object. No particle. Not a phrasal verb.
+
+──────────────────────────────────────────────
+PHRASE SELECTION PROCESS — FOLLOW THIS EXACTLY
+──────────────────────────────────────────────
+
+Step 1: Scan the entire transcript and list every candidate phrasal verb and idiom.
+Step 2: For each candidate, ask:
+  a) Is it a genuine idiom (non-literal, figurative) OR a genuine phrasal verb (verb + particle)?
+  b) Is it listed in a major ESL dictionary (Oxford Phrasal Verbs, Cambridge Idioms)?
+  c) Can it be used naturally in conversations about cooking, sport, relationships, travel?
+  All three must be YES. If any is NO → discard it.
+Step 3: From your validated list, select the 8 best items — prioritising variety
+  (mix of idioms and phrasal verbs) and usefulness at CEFR ${level}.
+Step 4: If the transcript does not contain 8 valid items, supplement with closely related
+  phrasal verbs or idioms that are THEMATICALLY CONNECTED to the video's topic but
+  NOT in the transcript. Label these clearly — they are still valid teaching items.
+  Do NOT lower your quality standards just to reach 8. A related idiom not in the
+  transcript is far better than a bad phrase that is in it.
 
 NORMALIZATION:
-- Present verbs in base/infinitive form: "catch up" not "caught up"
-- Remove articles from base form: "sense of urgency" not "a sense of urgency"
-- Use "one's" for pronouns: "drop the ball" (no pronoun needed here)
-
-LABELS — use accurately:
-  "idiom" | "phrasal verb" | "collocation" | "fixed expression"
+  - Base/infinitive form: "catch up" not "caught up"
+  - No articles: "drop the ball" not "drop the balls"
+  - Use "one's" only when the idiom requires a possessive: "drag one's feet"
 
 ──────────────────────────────────────────────
 EXERCISE 4a — MATCHING
 ──────────────────────────────────────────────
-Each phrase gets a clear, concise meaning (one short sentence).
-Meanings must be clearly distinguishable — do NOT use near-synonyms across different meanings.
+Each phrase gets one clear meaning (max 12 words).
+Meanings must be clearly distinct — no near-synonyms across different items.
 
 ──────────────────────────────────────────────
 EXERCISE 4b — FILL-IN-THE-BLANKS
 ──────────────────────────────────────────────
-Create 6 gap-fill sentences using 6 of the 8 phrases.
+6 sentences using 6 of the 8 phrases.
 
 RULES:
-- Each sentence has exactly ONE blank: "________" (8 underscores). Never write the answer in the sentence field.
-- The answer is the phrase from the list, inflected to fit the sentence grammatically.
-- Each sentence must be set in an EVERYDAY scenario — not the video's topic.
-  Use contexts like: sport, work, relationships, school, travel, cooking, health.
-- The sentence must provide enough context to identify the correct phrase.
-- The key words of the phrase must NOT appear in the surrounding sentence.
+- Each sentence has exactly ONE blank: "________". Never write the answer in the sentence.
+- The answer is the phrase inflected to fit the sentence grammatically.
+- Set each sentence in an EVERYDAY scenario unrelated to the video's topic.
+  Use contexts like: sport, relationships, school, health, travel, cooking, work.
+- Provide enough context that only one phrase fits naturally.
+- The key words of the answer phrase must NOT appear in the surrounding sentence.
 
-CRITICAL GRAMMAR VERIFICATION — do this for every sentence:
-  Step 1: Write the sentence with the blank.
-  Step 2: Insert the answer into the blank.
-  Step 3: Read the complete sentence aloud in your head.
-  Step 4: Is it 100% grammatically natural? If not — REWRITE the sentence, not the answer.
+GRAMMAR VERIFICATION — mandatory for every sentence:
+  1. Write the sentence with the blank.
+  2. Insert the answer.
+  3. Read the complete sentence aloud mentally.
+  4. Is it 100% natural and grammatically correct? If not — rewrite the sentence.
 
-COMMON GRAMMAR MISTAKES — avoid these:
-  ❌ Auxiliary clash: "She did ________ on the project." + answer "drop the ball"
-     → "She did drop the ball" sounds unnatural as a standalone sentence without context.
-     BETTER: "The whole team was counting on her, but she ________ at the worst possible moment."
-  ❌ Tense mismatch: sentence implies past but answer is base form.
-  ❌ Answer leaking into sentence: "He experienced a ________ drop in his grades." + answer "sharp drop"
-     → "drop" appears twice. Rewrite: "His grades ________ after he stopped attending class." + answer "dropped sharply"
-     (or use a different phrase entirely)
-  ❌ Redundant surrounding words that overlap with the phrase meaning.
+COMMON ERRORS TO AVOID:
+  ❌ Answer leaking: "His grades experienced a ________ drop." + answer "sharp drop" → "drop" appears twice.
+  ❌ Auxiliary clash: "She did ________ on the project." + answer "drop the ball" → unnatural.
+  ❌ Tense mismatch: past context but answer is base form without inflection.
+  ❌ Redundancy: surrounding words overlap with the phrase's meaning.
 
 GOOD fill-in-the-blank examples:
-  ✅ "After missing a month of training, she had to work twice as hard to ________ with the rest of the team."
+  ✅ "After missing a month of training, she worked twice as hard to ________ with the rest of the group."
      Answer: catch up
-  ✅ "The project manager ________ by forgetting to send the client the final report."
+  ✅ "The whole team was counting on him, but he ________ at the worst possible moment."
      Answer: dropped the ball
-  ✅ "________ that learning a language takes years of consistent practice."
-     Answer: It's fair to say
+  ✅ "She was so exhausted from working seven days a week that she finally ________."
+     Answer: burned out
 
 ──────────────────────────────────────────────
 EXERCISE 4c — SPEAKING PRACTICE
 ──────────────────────────────────────────────
-Create 5 personal questions. Each targets ONE phrase from the 8, bolded with **double asterisks**.
+5 personal questions, each targeting ONE phrase, bolded with **double asterisks**.
 
 RULES:
-- Each question must be about the student's own life: their experiences, opinions, habits, relationships.
-- The bolded phrase must sit naturally inside the question — not pasted in awkwardly.
-- NO blanks, NO underscores. The question is complete and the phrase is visible.
-- Use a different phrase for each of the 5 questions.
-- Questions must feel like natural teacher-to-student conversation — specific, warm, human.
+- About the student's own life: experiences, opinions, habits, relationships.
+- The bolded phrase sits naturally inside the question — not bolted on.
+- No blanks. The question is complete.
+- One different phrase per question.
+- Sound like a real teacher talking to a real person — specific, warm, conversational.
+- Questions should be ONE sentence where possible. Two short sentences maximum.
 
-PROCESS for writing each question:
+PROCESS:
   1. Pick the phrase.
   2. Think of a real everyday scenario where that phrase naturally comes up.
-  3. Write a question grounded in that scenario that includes the phrase.
-  4. Read it aloud. Does it sound like something a real person would ask? If not — rewrite it.
-  5. Check: does "you" in the question correctly match the phrase's pronoun form?
-     e.g. "drop the ball" → "have you ever **dropped the ball**..." ✅
-          "have a hard time" → "do you ever **have a hard time**..." ✅
+  3. Write a specific, grounded question that includes the phrase.
+  4. Read it aloud. Natural? If not — rewrite.
+  5. Check pronoun agreement with "you": "have you ever **dropped the ball**..." ✅
 
-BAD speaking questions — never write like these:
-  ❌ Pronoun clash: "Can you think of when **drop the ball** happened to someone?"
+BAD speaking questions:
+  ❌ Pronoun clash: "Can you think of when **drop the ball** happened?"
   ❌ Generic template: "How do you feel about the idea of **catching up**?"
-  ❌ Phrase missing from question: "Tell me about a time you failed at something important."
-  ❌ Vague scenario: "Describe a situation where you had to **keep up** somehow."
-  ❌ Built around a bad phrase: "Have you ever arrived **way early** for something?"
+  ❌ Phrase absent: "Tell me about a time you failed at something."
+  ❌ Vague: "Describe a situation where you had to **keep up** somehow."
+  ❌ Built on a bad phrase: "Have you ever felt **be behind in** technology?"
 
-GOOD speaking questions — aim for this quality:
-  ✅ "Has there ever been a moment at work or school when you felt you'd really **dropped the ball** —
-     and what did you do about it?"
-  ✅ "Is there a skill, a subject, or a hobby where you've had to work really hard to **catch up**
-     with people around you?"
-  ✅ "When it comes to deadlines or responsibilities, would you say you generally have a strong
-     **sense of urgency**, or do you tend to take things more slowly?"
-  ✅ "Have you ever had to **switch back** to an old way of doing something after trying a new
-     approach that didn't work? What happened?"
-  ✅ "Is there an area of your life — work, health, relationships — where you feel you've been
-     **falling behind** and want to do something about it?"
+GOOD speaking questions:
+  ✅ "Has there ever been a moment at work or school when you felt you'd **dropped the ball** — what happened?"
+  ✅ "Is there a skill or subject where you've had to really push yourself to **catch up** with others?"
+  ✅ "Have you ever **burned out** from taking on too much — how did you recover?"
+  ✅ "Is there something in your life you've been meaning to do but keep **putting off**?"
+  ✅ "Can you think of a time when a plan you were excited about completely **fell through**?"
 
 ══════════════════════════════════════════════
 STAGE 5 — DISCUSSION (8-10 min)
 ══════════════════════════════════════════════
 
-Write 5 discussion questions. These invite opinions, personal experience, and critical thinking.
-NO factual recall. Each has a teacher follow-up prompt to push the conversation deeper.
+5 discussion questions with teacher follow-up prompts.
+No factual recall from the video. The student answers from their own experience and opinions.
 
 RULES:
-- Mix question types across the 5 — use each of these once:
-    • Personal experience: "Have you ever / Can you think of a time when..."
+- Use each of these question types exactly once across the 5 questions:
+    • Personal experience: "Have you ever... / Can you think of a time when..."
     • Opinion: "Do you think... / How far do you agree that..."
     • Hypothetical: "If you were... / What would you do if..."
-    • Comparison: "Which do you think matters more: X or Y? Why?"
+    • Comparison: "Which matters more to you: X or Y, and why?"
     • Broad/societal: connects the video's theme to the wider world
-- Questions should feel engaging to an adult learner. They should spark a real conversation,
-  not feel like an exam or comprehension check.
-- Every question must be thematically connected to the video but NOT require remembering
-  specific facts from the video. The student should be able to answer from their own experience.
-- Follow-up prompts must genuinely DEEPEN the conversation — push for reasons, examples,
-  or a counter-argument. Do NOT just rephrase the original question.
-- Do NOT write leading follow-ups that suggest the "right" answer.
-  ❌ "How might excessive national pride hinder necessary changes?" — leading
-  ✅ "Do you think that pride in a national identity can ever work against progress? Why?" — open
+- Thematically connected to the video but answerable without remembering specific facts.
+- Engaging for an adult — sparks a real conversation, not a comprehension check.
+- Follow-ups must DEEPEN the conversation: push for reasons, examples, or a counter-argument.
+  Do NOT just rephrase the main question.
+- Do NOT write leading follow-ups that imply a correct answer.
+  ❌ "How might excessive pride hinder change?" — leading
+  ✅ "Do you think pride in something can ever make change harder? Why?" — open
+
+QUESTION LENGTH: Main question max 40 words. Follow-up max 25 words.
 
 BAD discussion questions:
-  ❌ "What do you think about the German car industry?" — too tied to the video, too vague
-  ❌ "Do you like electric cars?" — closed, shallow
-  ❌ Questions where the follow-up just restates the main question in different words.
+  ❌ "What do you think about the German car industry?" — too tied to the video
+  ❌ "Do you like electric cars?" — closed and shallow
 
 GOOD discussion question with follow-up:
-  ✅ "Some companies hold on to what made them successful for too long and miss the moment
-     to change. Can you think of an example — from business, sport, or everyday life — where
-     someone lost their lead simply by not adapting in time?"
-  Follow-up: ✅ "Why do you think it's so hard for successful people or organisations to change
-     course, even when they can see the problem coming?"
+  ✅ "Some companies hold on to what made them successful for too long and miss the moment to change.
+     Can you think of an example — from business, sport, or everyday life — where someone lost
+     their advantage by not adapting in time?"
+  Follow-up: ✅ "Why do you think it's so hard to change course when things are still going well?"
 
 ══════════════════════════════════════════════
 STAGE 6 — WRAP-UP (3-5 min)
 ══════════════════════════════════════════════
 
-Write 2 reflection prompts. These are open, personal, and easy to answer.
-One should ask about content (what they learned or found interesting).
-One should ask about language (a word, phrase, or idea they want to remember or use).
+2 reflection prompts — open, personal, easy to answer:
+  - One about content: what they found interesting or surprising.
+  - One about language: a word or phrase they want to use this week.
 
-Also include 1 homework task. Vary the type (writing, speaking, or research).
-The task should be specific enough that the student knows exactly what to do,
-and should require them to use language from the lesson naturally.
+1 homework task — specific enough that the student knows exactly what to do.
+Rotate type across lessons: writing, speaking, or research.
+Must require using language from the lesson naturally.
 
 ══════════════════════════════════════════════
 OUTPUT JSON ONLY — no markdown, no explanation, no code fences:
@@ -449,59 +449,59 @@ OUTPUT JSON ONLY — no markdown, no explanation, no code fences:
   "teacherNotes": "2-3 sentence teacher-facing summary of the lesson and its goals",
   "estimatedMinutes": 50,
   "warmUp": [
-    { "id": 1, "question": "warm-up question" }
+    { "id": 1, "question": "warm-up question (max 20 words, one sentence)" }
   ],
   "preTeach": [
     {
       "term": "single word",
       "type": "noun",
-      "definition": "simple learner-friendly definition at target CEFR level",
-      "exampleSentence": "Example using the word (not from transcript)",
-      "conceptCheckQuestion": "Short yes/no or either/or CCQ"
+      "definition": "max 10 words",
+      "exampleSentence": "Example sentence not from transcript",
+      "conceptCheckQuestion": "Yes/no or either/or CCQ only"
     }
   ],
   "detailQuestions": [
-    { "id": 1, "question": "detail question", "answer": "short reference answer" }
+    { "id": 1, "question": "detail question", "answer": "1-2 sentence reference answer" }
   ],
   "phrases": [
     {
       "term": "drop the ball",
       "type": "idiom",
-      "meaning": "to fail to do something that was your responsibility, especially at a critical moment"
+      "meaning": "to fail at a responsibility at a critical moment"
     }
   ],
   "fillBlanks": [
     {
       "id": 1,
-      "sentence": "The project manager ________ by forgetting to send the client the final report.",
+      "sentence": "The whole team was counting on him, but he ________ at the worst possible moment.",
       "answer": "dropped the ball"
     }
   ],
   "speakingPractice": [
-    { "id": 1, "question": "Has there ever been a moment at work or school when you felt you'd really **dropped the ball** — and what did you do about it?" }
+    { "id": 1, "question": "Has there ever been a moment at work or school when you felt you'd **dropped the ball** — what happened?" }
   ],
   "discussion": [
-    { "id": 1, "question": "discussion question", "followUp": "follow-up prompt for teacher" }
+    { "id": 1, "question": "discussion question (max 40 words)", "followUp": "follow-up (max 25 words)" }
   ],
   "wrapUp": [
     { "id": 1, "prompt": "reflection prompt" }
   ],
   "homework": {
-    "task": "specific description of the homework task",
+    "task": "specific homework description",
     "type": "writing"
   }
 }
 
 COUNTS (strict — no exceptions):
 - warmUp: exactly 3 items
-- preTeach: exactly 5 items (type must be "noun", "verb", or "adjective")
-- detailQuestions: exactly 5 items (mix of question types as specified above)
-- phrases: exactly 8 items, each 2-5 words (type: "idiom", "phrasal verb", "collocation", or "fixed expression")
-- fillBlanks: exactly 6 items (answer inflected to fit sentence; sentence contains "________")
-- speakingPractice: exactly 5 items (phrase bolded with **double asterisks**)
-- discussion: exactly 5 items (each with "question" and "followUp")
+- preTeach: exactly 5 items (type: "noun", "verb", or "adjective")
+- detailQuestions: exactly 5 items
+- phrases: exactly 8 items, each 2-5 words (type: "idiom" or "phrasal verb" ONLY)
+- fillBlanks: exactly 6 items
+- speakingPractice: exactly 5 items
+- discussion: exactly 5 items
 - wrapUp: exactly 2 items
-- homework: exactly 1 item (with "task" and "type")
+- homework: exactly 1 item
 
 Return ONLY valid JSON. No markdown. No explanation. No code fences.`
 }
