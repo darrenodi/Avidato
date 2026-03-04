@@ -123,7 +123,7 @@ The student watches the video ONCE only.
 GLOBAL LANGUAGE QUALITY RULES — APPLY EVERYWHERE
 ══════════════════════════════════════════════
 
-These rules apply to BOTH vocabulary (Stage 2) AND phrases (Stage 4).
+These rules apply to BOTH vocabulary (Stage 2) AND phrases (Stage 5).
 
 ✅ ONLY select items that meet ALL of these criteria:
   - Genuine English — never select words from other languages.
@@ -160,6 +160,21 @@ ALL questions must:
   - Sound like a real teacher talking to a real person, not an exam paper.
   - Be impossible to answer with just "yes" or "no" (or include "...why?").
   - Require zero knowledge of the video content.
+
+TONE — read every question out loud before keeping it:
+  - Does it sound like something you'd ask a friend over coffee? If not — rewrite.
+  - BANNED words and phrases that scream "AI wrote this":
+    "resonate", "navigate", "landscape", "leverage", "dynamics", "paradigm",
+    "facilitate", "implications", "aspects", "in terms of", "when it comes to",
+    "have you ever found yourself", "what role does X play".
+  - No business-school or essay-exam phrasing. No jargon.
+  - Use SHORT, CASUAL words. Contractions are good. Dashes are fine.
+  - If the question sounds like it belongs on a corporate training slide — kill it.
+
+NO OVERLAP WITH DISCUSSION:
+  Warm-up and discussion questions (Stage 4) must cover DIFFERENT angles.
+  If the warm-up asks about brand loyalty, discussion must not also ask about loyalty.
+  Check both sets before finalizing.
 
 BAD warm-up questions:
   ❌ "Do you like cars?" — closed, one-word answer
@@ -238,10 +253,71 @@ GOOD detail questions:
      Answer: They were making too much money from diesel cars to feel any pressure to change.
 
 ══════════════════════════════════════════════
-STAGE 4 — LANGUAGE FOCUS (12-15 min)
+STAGE 4 — DISCUSSION (8-10 min)
 ══════════════════════════════════════════════
 
-Three parts: 4a Matching, 4b Fill-in-the-Blanks, 4c Speaking Practice.
+The student has just watched the video and answered comprehension questions.
+Now they react to what they saw — connecting the video's ideas to their own life.
+
+5 discussion questions with teacher follow-up prompts.
+
+CORE PRINCIPLE:
+Every question must be SPARKED by something specific in the video — a claim,
+a situation, a decision, a surprise. The student should feel like they're
+discussing THIS video, not answering generic conversation questions.
+But they answer from their own experience and opinions — NOT by recalling video facts.
+
+RULES:
+- Use each of these question types exactly once across the 5 questions:
+    • Personal connection: "The video talks about X — have you experienced something like that?"
+    • Agree/disagree: "The speaker says X — do you agree?"
+    • Hypothetical: "If you were in that situation, what would you do?"
+    • Comparison: "The video mentions X and Y — which matters more to you?"
+    • Bigger picture: "This is about X — do you think it's happening in other areas too?"
+- Do NOT repeat any theme or angle already used in the warm-up questions (Stage 1).
+- Do NOT ask for factual recall. Wrong: "What did the speaker say about X?"
+  Right: "The speaker argues X — does that match what you've seen?"
+- Follow-ups push deeper: ask for reasons, real examples, or the opposite viewpoint.
+  Do NOT just rephrase the main question.
+- Do NOT write leading follow-ups that assume a "correct" answer.
+
+TONE — mandatory for every question:
+  - Sound like a teacher who just watched something interesting with a student
+    and wants to chat about it — curious, relaxed, genuinely interested.
+  - BANNED AI-tell words: "resonate", "navigate", "landscape", "leverage",
+    "dynamics", "paradigm", "facilitate", "implications", "factor", "aspects",
+    "in terms of", "when it comes to", "what role does X play".
+  - NO essay-prompt phrasing: "To what extent...", "Discuss the role of...",
+    "What factors contribute to..."
+  - Use contractions. Use dashes. Keep it human.
+
+QUESTION LENGTH: Main question max 30 words. Follow-up max 20 words.
+
+BAD discussion questions:
+  ❌ "What do you think about the German car industry?" — just asks for a vague opinion
+  ❌ "Do you like electric cars?" — closed, shallow, barely connected to the video's point
+  ❌ "How does technological disruption impact traditional industries?" — MBA exam, not a chat
+  ❌ "To what extent did complacency play a role in the challenges discussed?"
+     — essay prompt, nobody talks like this
+  ❌ "What factors contribute to a company's ability to navigate change?"
+     — pure AI slop, zero personality
+
+GOOD discussion questions with follow-ups:
+  ✅ "The speaker says these companies were too comfortable to bother changing —
+     have you ever put off fixing something because it was still working OK?"
+     Follow-up: "What finally pushed you to act?"
+  ✅ "The video shows companies cutting thousands of jobs — if your employer was
+     struggling, would you rather take a pay cut or risk layoffs?"
+     Follow-up: "What would change your answer?"
+  ✅ "The speaker claims some brands lost customers by ignoring what people wanted —
+     has a company ever lost you as a customer? What happened?"
+     Follow-up: "Could they have done anything to keep you?"
+
+══════════════════════════════════════════════
+STAGE 5 — LANGUAGE FOCUS (12-15 min)
+══════════════════════════════════════════════
+
+Three parts: 5a Matching, 5b Fill-in-the-Blanks, 5c Speaking Practice.
 
 ──────────────────────────────────────────────
 PHRASE SELECTION — THE MOST IMPORTANT PART
@@ -322,13 +398,13 @@ NORMALIZATION:
   - Use "one's" only when the idiom requires a possessive: "drag one's feet"
 
 ──────────────────────────────────────────────
-EXERCISE 4a — MATCHING
+EXERCISE 5a — MATCHING
 ──────────────────────────────────────────────
 Each phrase gets one clear meaning (max 12 words).
 Meanings must be clearly distinct — no near-synonyms across different items.
 
 ──────────────────────────────────────────────
-EXERCISE 4b — FILL-IN-THE-BLANKS
+EXERCISE 5b — FILL-IN-THE-BLANKS
 ──────────────────────────────────────────────
 6 sentences using 6 of the 8 phrases.
 
@@ -361,7 +437,7 @@ GOOD fill-in-the-blank examples:
      Answer: burned out
 
 ──────────────────────────────────────────────
-EXERCISE 4c — SPEAKING PRACTICE
+EXERCISE 5c — SPEAKING PRACTICE
 ──────────────────────────────────────────────
 5 personal questions, each targeting ONE phrase, bolded with **double asterisks**.
 
@@ -372,6 +448,11 @@ RULES:
 - One different phrase per question.
 - Sound like a real teacher talking to a real person — specific, warm, conversational.
 - Questions should be ONE sentence where possible. Two short sentences maximum.
+- BANNED phrasing: "Can you describe a situation where...",
+  "How do you feel about the idea of...", "Have you ever found yourself...".
+  These sound like a survey, not a real person.
+- Use casual, direct language. Contractions and dashes are encouraged.
+- If the question sounds like it was generated by a chatbot — rewrite it.
 
 PROCESS:
   1. Pick the phrase.
@@ -386,6 +467,7 @@ BAD speaking questions:
   ❌ Phrase absent: "Tell me about a time you failed at something."
   ❌ Vague: "Describe a situation where you had to **keep up** somehow."
   ❌ Built on a bad phrase: "Have you ever felt **be behind in** technology?"
+  ❌ AI survey tone: "Can you describe a time when you had to **catch up** with changes in your professional or personal life?"
 
 GOOD speaking questions:
   ✅ "Has there ever been a moment at work or school when you felt you'd **dropped the ball** — what happened?"
@@ -393,40 +475,6 @@ GOOD speaking questions:
   ✅ "Have you ever **burned out** from taking on too much — how did you recover?"
   ✅ "Is there something in your life you've been meaning to do but keep **putting off**?"
   ✅ "Can you think of a time when a plan you were excited about completely **fell through**?"
-
-══════════════════════════════════════════════
-STAGE 5 — DISCUSSION (8-10 min)
-══════════════════════════════════════════════
-
-5 discussion questions with teacher follow-up prompts.
-No factual recall from the video. The student answers from their own experience and opinions.
-
-RULES:
-- Use each of these question types exactly once across the 5 questions:
-    • Personal experience: "Have you ever... / Can you think of a time when..."
-    • Opinion: "Do you think... / How far do you agree that..."
-    • Hypothetical: "If you were... / What would you do if..."
-    • Comparison: "Which matters more to you: X or Y, and why?"
-    • Broad/societal: connects the video's theme to the wider world
-- Thematically connected to the video but answerable without remembering specific facts.
-- Engaging for an adult — sparks a real conversation, not a comprehension check.
-- Follow-ups must DEEPEN the conversation: push for reasons, examples, or a counter-argument.
-  Do NOT just rephrase the main question.
-- Do NOT write leading follow-ups that imply a correct answer.
-  ❌ "How might excessive pride hinder change?" — leading
-  ✅ "Do you think pride in something can ever make change harder? Why?" — open
-
-QUESTION LENGTH: Main question max 40 words. Follow-up max 25 words.
-
-BAD discussion questions:
-  ❌ "What do you think about the German car industry?" — too tied to the video
-  ❌ "Do you like electric cars?" — closed and shallow
-
-GOOD discussion question with follow-up:
-  ✅ "Some companies hold on to what made them successful for too long and miss the moment to change.
-     Can you think of an example — from business, sport, or everyday life — where someone lost
-     their advantage by not adapting in time?"
-  Follow-up: ✅ "Why do you think it's so hard to change course when things are still going well?"
 
 ══════════════════════════════════════════════
 STAGE 6 — WRAP-UP (3-5 min)
@@ -463,6 +511,9 @@ OUTPUT JSON ONLY — no markdown, no explanation, no code fences:
   "detailQuestions": [
     { "id": 1, "question": "detail question", "answer": "1-2 sentence reference answer" }
   ],
+  "discussion": [
+    { "id": 1, "question": "discussion question (max 30 words)", "followUp": "follow-up (max 20 words)" }
+  ],
   "phrases": [
     {
       "term": "drop the ball",
@@ -480,9 +531,6 @@ OUTPUT JSON ONLY — no markdown, no explanation, no code fences:
   "speakingPractice": [
     { "id": 1, "question": "Has there ever been a moment at work or school when you felt you'd **dropped the ball** — what happened?" }
   ],
-  "discussion": [
-    { "id": 1, "question": "discussion question (max 40 words)", "followUp": "follow-up (max 25 words)" }
-  ],
   "wrapUp": [
     { "id": 1, "prompt": "reflection prompt" }
   ],
@@ -496,10 +544,10 @@ COUNTS (strict — no exceptions):
 - warmUp: exactly 3 items
 - preTeach: exactly 5 items (type: "noun", "verb", or "adjective")
 - detailQuestions: exactly 5 items
+- discussion: exactly 5 items
 - phrases: exactly 8 items, each 2-5 words (type: "idiom" or "phrasal verb" ONLY)
 - fillBlanks: exactly 6 items
 - speakingPractice: exactly 5 items
-- discussion: exactly 5 items
 - wrapUp: exactly 2 items
 - homework: exactly 1 item
 
