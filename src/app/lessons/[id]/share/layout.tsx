@@ -1,0 +1,76 @@
+import type { Metadata } from 'next'
+import { prisma } from '@/lib/prisma'
+
+const DEFAULT_OG_IMAGE = 'https://avidato.com/logo.png'
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}): Promise<Metadata> {
+  const { id } = await params
+
+  try {
+    const lesson = await prisma.lesson.findUnique({
+      where: { id },
+      select: {
+        title: true,
+        overview: true,
+        student: { select: { level: true } },
+      },
+    })
+
+    if (lesson) {
+      const title = lesson.title || 'Shared Lesson'
+      const level = lesson.student?.level || ''
+      const pageTitle = `${title} | Avidato`
+      const description = lesson.overview
+        ? lesson.overview.slice(0, 160)
+        : [
+            level ? `${level} English lesson` : 'English lesson',
+            '— shared via Avidato',
+          ].join(' ')
+
+      return {
+        title: pageTitle,
+        description,
+        openGraph: {
+          title,
+          description,
+          siteName: 'Avidato',
+          images: [{ url: DEFAULT_OG_IMAGE, alt: 'Avidato' }],
+          type: 'article',
+        },
+        twitter: {
+          card: 'summary_large_image',
+          title,
+          description,
+          images: [DEFAULT_OG_IMAGE],
+        },
+        robots: { index: false, follow: false },
+      }
+    }
+  } catch (error) {
+    console.error('Error generating shared lesson metadata:', error)
+  }
+
+  return {
+    title: 'Shared Lesson | Avidato',
+    description: 'View a shared English lesson on Avidato.',
+    openGraph: {
+      title: 'Shared Lesson',
+      description: 'View a shared English lesson on Avidato.',
+      siteName: 'Avidato',
+      images: [{ url: DEFAULT_OG_IMAGE, alt: 'Avidato' }],
+    },
+    robots: { index: false, follow: false },
+  }
+}
+
+export default function SharedLessonLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return <>{children}</>
+}

@@ -272,21 +272,21 @@ export default function StudentsPage() {
 
   return (
     <DashboardLayout>
-      <div className="p-4 sm:p-6 lg:p-8">
+      <div className="p-4 sm:p-6 lg:p-8 max-w-6xl">
         {/* Page Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 sm:mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
           <div className="min-w-0 flex-1">
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
               Students
             </h1>
-            <p className="mt-1 sm:mt-2 text-sm sm:text-base text-gray-600 dark:text-gray-400">
-              Manage your student profiles and track their progress
+            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+              {total} {activeTab} student{total !== 1 ? 's' : ''}
             </p>
           </div>
           
           <Link
             href="/dashboard/students/add"
-            className="mt-4 sm:mt-0 inline-flex items-center justify-center gap-2 bg-brand-primary text-white px-4 py-2 sm:py-2 rounded-lg hover:bg-brand-accent transition-colors text-sm sm:text-base w-full sm:w-auto"
+            className="mt-4 sm:mt-0 inline-flex items-center justify-center gap-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-4 py-2 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors text-sm font-medium w-full sm:w-auto"
           >
             <svg className="h-4 w-4 sm:h-5 sm:w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -296,120 +296,100 @@ export default function StudentsPage() {
         </div>
 
         {/* Tabs */}
-        <div className="mb-4 sm:mb-6">
-          <div className="border-b border-gray-200 dark:border-gray-700">
-            <nav className="-mb-px flex space-x-4 sm:space-x-8 overflow-x-auto">
-              <button
-                onClick={() => setActiveTab('active')}
-                className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
-                  activeTab === 'active'
-                    ? 'border-brand-primary text-brand-primary'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
-                }`}
-              >
-                Active Students
-              </button>
-              <button
-                onClick={() => setActiveTab('archived')}
-                className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
-                  activeTab === 'archived'
-                    ? 'border-brand-primary text-brand-primary'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
-                }`}
-              >
-                Archived
-              </button>
-            </nav>
+        <div className="mb-4">
+          <div className="flex gap-1 bg-gray-100 dark:bg-gray-800 rounded-lg p-1 w-fit">
+            <button
+              onClick={() => setActiveTab('active')}
+              className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                activeTab === 'active'
+                  ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm'
+                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+              }`}
+            >
+              Active
+            </button>
+            <button
+              onClick={() => setActiveTab('archived')}
+              className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                activeTab === 'archived'
+                  ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm'
+                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+              }`}
+            >
+              Archived
+            </button>
           </div>
         </div>
 
-        {/* Filters and Search */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6 mb-4 sm:mb-6">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        {/* Filters */}
+        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-3 sm:p-4 mb-4">
+          <div className="flex flex-wrap gap-2 sm:gap-3">
             {/* Search */}
-            <div className="sm:col-span-2 lg:col-span-1">
-              <label htmlFor="search" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Search Students
-              </label>
+            <div className="flex-1 min-w-[180px]">
               <input
                 type="text"
                 id="search"
-                placeholder="Search by name, goals, occupation..."
+                placeholder="Search students..."
                 value={filters.search || ''}
                 onChange={(e) => handleFilterChange('search', e.target.value)}
-                className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary dark:bg-gray-700 dark:text-white"
+                className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary dark:bg-gray-700 dark:text-white"
               />
             </div>
 
             {/* Target Language Filter */}
-            <div>
-              <label htmlFor="targetLanguage" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Target Language
-              </label>
-              <select
-                id="targetLanguage"
-                value={filters.targetLanguage || ''}
-                onChange={(e) => handleFilterChange('targetLanguage', e.target.value)}
-                className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary dark:bg-gray-700 dark:text-white"
-              >
-                <option value="">All Languages</option>
-                {nativeLanguages.map((lang) => (
-                  <option key={lang.value} value={lang.value}>
-                    {lang.country} {lang.label}
-                  </option>
-                ))}
-              </select>
-            </div>
+            <select
+              id="targetLanguage"
+              value={filters.targetLanguage || ''}
+              onChange={(e) => handleFilterChange('targetLanguage', e.target.value)}
+              className="px-3 py-2 text-sm border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-primary dark:bg-gray-700 dark:text-white"
+            >
+              <option value="">All Languages</option>
+              {nativeLanguages.map((lang) => (
+                <option key={lang.value} value={lang.value}>
+                  {lang.country} {lang.label}
+                </option>
+              ))}
+            </select>
 
             {/* Level Filter */}
-            <div>
-              <label htmlFor="level" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Level
-              </label>
-              <select
-                id="level"
-                value={filters.level || ''}
-                onChange={(e) => handleFilterChange('level', e.target.value)}
-                className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary dark:bg-gray-700 dark:text-white"
-              >
-                <option value="">All Levels</option>
-                {levels.map((level) => (
-                  <option key={level.value} value={level.value}>
-                    {level.label}
-                  </option>
-                ))}
-              </select>
-            </div>
+            <select
+              id="level"
+              value={filters.level || ''}
+              onChange={(e) => handleFilterChange('level', e.target.value)}
+              className="px-3 py-2 text-sm border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-primary dark:bg-gray-700 dark:text-white"
+            >
+              <option value="">All Levels</option>
+              {levels.map((level) => (
+                <option key={level.value} value={level.value}>
+                  {level.label}
+                </option>
+              ))}
+            </select>
 
             {/* Age Group Filter */}
-            <div>
-              <label htmlFor="ageGroup" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Age Group
-              </label>
-              <select
-                id="ageGroup"
-                value={filters.ageGroup || ''}
-                onChange={(e) => handleFilterChange('ageGroup', e.target.value)}
-                className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary dark:bg-gray-700 dark:text-white"
-              >
-                <option value="">All Ages</option>
-                {ageGroups.map((group) => (
-                  <option key={group.value} value={group.value}>
-                    {group.label}
-                  </option>
-                ))}
-              </select>
-            </div>
+            <select
+              id="ageGroup"
+              value={filters.ageGroup || ''}
+              onChange={(e) => handleFilterChange('ageGroup', e.target.value)}
+              className="px-3 py-2 text-sm border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-primary dark:bg-gray-700 dark:text-white"
+            >
+              <option value="">All Ages</option>
+              {ageGroups.map((group) => (
+                <option key={group.value} value={group.value}>
+                  {group.label}
+                </option>
+              ))}
+            </select>
           </div>
 
           {/* Clear Filters */}
           {(filters.search || filters.targetLanguage || filters.level || filters.ageGroup) && (
-            <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-gray-200 dark:border-gray-700">
+            <div className="mt-2 pt-2 border-t border-gray-100 dark:border-gray-700">
               <button
                 onClick={clearFilters}
-                className="text-sm text-brand-primary hover:text-brand-accent"
+                className="text-xs text-brand-primary hover:text-brand-accent font-medium"
               >
-                Clear Filters
+                Clear filters
               </button>
             </div>
           )}
@@ -433,7 +413,7 @@ export default function StudentsPage() {
         )}
 
         {/* Students Content */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
           {loading ? (
             <div className="p-4 sm:p-6">
               <div className="animate-pulse space-y-3 sm:space-y-4">
@@ -562,19 +542,19 @@ export default function StudentsPage() {
               {/* Desktop Table View */}
               <div className="hidden lg:block overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                <thead className="bg-gray-50 dark:bg-gray-900">
-                  <tr>
+                <thead>
+                  <tr className="border-b border-gray-100 dark:border-gray-700">
                     <th 
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-400 dark:text-gray-500 cursor-pointer hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
                       onClick={() => handleSort('name')}
                     >
                       <div className="flex items-center space-x-1">
-                        <span>Student Name</span>
+                        <span>Name</span>
                         {getSortIcon('name')}
                       </div>
                     </th>
                     <th 
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-400 dark:text-gray-500 cursor-pointer hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
                       onClick={() => handleSort('level')}
                     >
                       <div className="flex items-center space-x-1">
@@ -583,7 +563,7 @@ export default function StudentsPage() {
                       </div>
                     </th>
                     <th 
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-400 dark:text-gray-500 cursor-pointer hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
                       onClick={() => handleSort('occupation')}
                     >
                       <div className="flex items-center space-x-1">
@@ -592,7 +572,7 @@ export default function StudentsPage() {
                       </div>
                     </th>
                     <th 
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-400 dark:text-gray-500 cursor-pointer hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
                       onClick={() => handleSort('lessonCount')}
                     >
                       <div className="flex items-center space-x-1">
@@ -601,7 +581,7 @@ export default function StudentsPage() {
                       </div>
                     </th>
                     <th 
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-400 dark:text-gray-500 cursor-pointer hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
                       onClick={() => handleSort('lastLessonAt')}
                     >
                       <div className="flex items-center space-x-1">
@@ -610,7 +590,7 @@ export default function StudentsPage() {
                       </div>
                     </th>
                     <th 
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-400 dark:text-gray-500 cursor-pointer hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
                       onClick={() => handleSort('createdAt')}
                     >
                       <div className="flex items-center space-x-1">
@@ -629,8 +609,8 @@ export default function StudentsPage() {
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
                           <div className="flex-shrink-0 h-10 w-10">
-                            <div className="h-10 w-10 bg-gradient-to-br from-brand-primary to-brand-accent rounded-full flex items-center justify-center">
-                              <span className="text-white font-semibold text-sm">
+                            <div className="h-9 w-9 bg-gray-900 dark:bg-gray-600 rounded-full flex items-center justify-center">
+                              <span className="text-white font-medium text-sm">
                                 {student.name.charAt(0).toUpperCase()}
                               </span>
                             </div>
@@ -732,23 +712,25 @@ export default function StudentsPage() {
               </div>
             </>
           )}
-        {/* Pagination Controls */}
+        {/* Pagination */}
         {!loading && !error && total > pageSize && (
-          <div className="flex justify-center mt-6">
-            <nav className="inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+          <div className="flex items-center justify-between mt-4 px-1">
+            <p className="text-xs text-gray-400 dark:text-gray-500">
+              Page {page} of {Math.ceil(total / pageSize)}
+            </p>
+            <div className="flex items-center gap-1">
               <button
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page === 1}
-                className={`relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm font-medium text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700 ${page === 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
-                aria-label="Previous"
+                className={`px-3 py-1.5 text-sm rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors ${page === 1 ? 'opacity-40 cursor-not-allowed' : ''}`}
               >
-                &lt;
+                Prev
               </button>
               {Array.from({ length: Math.ceil(total / pageSize) }, (_, i) => i + 1).map((p) => (
                 <button
                   key={p}
                   onClick={() => setPage(p)}
-                  className={`relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm font-medium ${p === page ? 'text-brand-primary font-bold bg-gray-100 dark:bg-gray-700' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'}`}
+                  className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${p === page ? 'bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-medium' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'}`}
                   aria-current={p === page ? 'page' : undefined}
                 >
                   {p}
@@ -757,12 +739,11 @@ export default function StudentsPage() {
               <button
                 onClick={() => setPage((p) => Math.min(Math.ceil(total / pageSize), p + 1))}
                 disabled={page === Math.ceil(total / pageSize)}
-                className={`relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm font-medium text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700 ${page === Math.ceil(total / pageSize) ? 'opacity-50 cursor-not-allowed' : ''}`}
-                aria-label="Next"
+                className={`px-3 py-1.5 text-sm rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors ${page === Math.ceil(total / pageSize) ? 'opacity-40 cursor-not-allowed' : ''}`}
               >
-                &gt;
+                Next
               </button>
-            </nav>
+            </div>
           </div>
         )}
         </div>

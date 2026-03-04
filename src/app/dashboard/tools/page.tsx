@@ -99,12 +99,12 @@ export default function ToolsPage() {
     <DashboardLayout>
       <div className="max-w-6xl mx-auto px-4 py-8">
         {/* Page Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
-            Tutor Tools
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+            Tools
           </h1>
-          <p className="text-gray-600 dark:text-gray-400">
-            Access a collection of powerful tools to enhance your teaching experience.
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+            Teaching utilities and lesson generators
           </p>
         </div>
 
@@ -116,22 +116,18 @@ export default function ToolsPage() {
               className="relative group"
             >
               <Link href={tool.href}>
-                <div className="h-full flex flex-col bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 shadow-sm hover:shadow-md hover:border-brand-primary/50 transition-all duration-200">
+                <div className="h-full flex flex-col bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5 hover:border-gray-300 dark:hover:border-gray-600 transition-all duration-200">
                   {/* Status Badge */}
                   {tool.status === 'coming-soon' && (
                     <div className="absolute top-4 right-4">
-                      <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400">
-                        Coming Soon
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400">
+                        Soon
                       </span>
                     </div>
                   )}
                   {tool.planBadge && tool.status !== 'coming-soon' && (
                     <div className="absolute top-4 right-4">
-                      <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
-                        tool.planBadge === 'Premium'
-                          ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-400'
-                          : 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400'
-                      }`}>
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-900 dark:bg-white text-white dark:text-gray-900">
                         {tool.planBadge}
                       </span>
                     </div>
@@ -153,11 +149,11 @@ export default function ToolsPage() {
                   </p>
 
                   {/* Footer Link */}
-                  <div className="flex items-center justify-between mt-auto pt-4 border-t border-gray-100 dark:border-gray-700">
-                    <span className="text-sm font-medium text-brand-primary group-hover:underline">
-                      {tool.status === 'coming-soon' ? 'Preview' : 'Open Tool'}
+                  <div className="flex items-center justify-between mt-auto pt-3 border-t border-gray-100 dark:border-gray-700">
+                    <span className="text-sm font-medium text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">
+                      {tool.status === 'coming-soon' ? 'Preview' : 'Open'}
                     </span>
-                    <svg className="w-4 h-4 text-brand-primary transform transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 text-gray-400 transform transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                     </svg>
                   </div>

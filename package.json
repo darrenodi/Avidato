@@ -33,6 +33,7 @@
     "bcryptjs": "^3.0.2",
     "date-fns": "^4.1.0",
     "dompurify": "^3.3.1",
+    "framer-motion": "^12.35.0",
     "gray-matter": "^4.0.3",
     "jose": "^6.1.0",
     "lowlight": "^3.3.0",

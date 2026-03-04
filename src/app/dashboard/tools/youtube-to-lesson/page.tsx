@@ -21,7 +21,6 @@ interface PreTeachItem {
   type: 'noun' | 'verb' | 'adjective'
   definition: string
   exampleSentence: string
-  conceptCheckQuestion: string
 }
 
 interface DetailQuestion { id: number; question: string; answer: string }
@@ -312,7 +311,7 @@ function YouTubeEmbed({ videoId, instruction }: { videoId: string; instruction: 
 
 function Card({ children }: { children: React.ReactNode }) {
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 shadow-sm">
+    <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
       {children}
     </div>
   )
@@ -328,6 +327,7 @@ export default function YouTubeToLessonPage() {
 
   const [youtubeUrl, setYoutubeUrl] = useState('')
   const [manualTranscript, setManualTranscript] = useState('')
+  const [context, setContext] = useState('')
   const [level, setLevel] = useState<CEFRLevel>('B1')
   const [loading, setLoading] = useState(false)
   const [loadingStage, setLoadingStage] = useState<'transcript' | 'lesson' | null>(null)
@@ -443,7 +443,7 @@ export default function YouTubeToLessonPage() {
       const response = await fetch('/api/tools/youtube-to-lesson/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ transcriptText, youtubeUrl: url || undefined, level }),
+        body: JSON.stringify({ transcriptText, youtubeUrl: url || undefined, level, context: context.trim() || undefined }),
       })
 
       const data = await response.json()
@@ -485,13 +485,10 @@ export default function YouTubeToLessonPage() {
     <DashboardLayout>
       <div className="max-w-5xl mx-auto px-4 py-8">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">YouTube to Lesson Generator</h1>
-          <p className="text-gray-600 dark:text-gray-400">
-            Generate a complete 50-minute ESL lesson plan from a YouTube video transcript.
-          </p>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-            Max video length: 5 minutes. The lesson includes 6 stages from warm-up to wrap-up.
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">YouTube to Lesson</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+            Generate a full lesson plan from a YouTube video. Max 5 min.
           </p>
         </div>
 
@@ -560,6 +557,24 @@ export default function YouTubeToLessonPage() {
                   <option key={v} value={v}>{v} - {LEVEL_DESCRIPTIONS[v]}</option>
                 ))}
               </select>
+            </div>
+
+            {/* Context / Notes */}
+            <div>
+              <label htmlFor="context" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Context <span className="text-gray-400 font-normal">(optional)</span>
+              </label>
+              <textarea
+                id="context"
+                value={context}
+                onChange={(e) => setContext(e.target.value)}
+                placeholder="e.g. My student is a 30-year-old nurse from Brazil who struggles with phrasal verbs. Focus on medical vocabulary if possible."
+                rows={3}
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-primary focus:border-transparent"
+              />
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1.5">
+                Give the AI details about your student or lesson goals to shape the output.
+              </p>
             </div>
 
             {/* Transcript error */}
@@ -737,11 +752,7 @@ export default function YouTubeToLessonPage() {
                       <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
                         <span className="font-medium">Example:</span> <em>{formatText(item.exampleSentence)}</em>
                       </p>
-                      {showAnswers && (
-                        <p className="text-sm text-violet-700 dark:text-violet-400">
-                          <span className="font-medium">CCQ:</span> {formatText(item.conceptCheckQuestion)}
-                        </p>
-                      )}
+
                     </div>
                   ))}
                 </div>

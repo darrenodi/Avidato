@@ -14,6 +14,7 @@ interface GenerateYouTubeLessonRequest {
   youtubeUrl?: string
   transcriptText?: string
   level: CEFRLevel
+  context?: string
 }
 
 // ---------------------------------------------------------------------------
@@ -30,7 +31,6 @@ interface PreTeachItem {
   type: 'noun' | 'verb' | 'adjective'
   definition: string
   exampleSentence: string
-  conceptCheckQuestion: string
 }
 
 interface DetailQuestion {
@@ -104,10 +104,14 @@ function normalizeManualTranscript(input: string): string {
   return input.replace(/\s+/g, ' ').trim()
 }
 
-function buildTranscriptPrompt(transcriptText: string, level: CEFRLevel) {
+function buildTranscriptPrompt(transcriptText: string, level: CEFRLevel, context?: string) {
+  const contextBlock = context
+    ? `\n\nTEACHER CONTEXT (use this to inform your choices — vocabulary, question topics, examples, etc.):\n"""\n${context}\n"""\n`
+    : ''
+
   return `You are an expert ESL lesson planner creating a structured 50-minute lesson from a YouTube video transcript.
 
-TARGET CEFR LEVEL: ${level}
+TARGET CEFR LEVEL: ${level}${contextBlock}
 
 TRANSCRIPT:
 """
@@ -242,9 +246,8 @@ LENGTH RULE for definitions: Maximum 10 words. Simple and direct.
   ❌ "to change your ideas or behaviour to deal with new situations or conditions"
   ✅ "to change in order to deal with new conditions"
 
-For each word provide: a short definition (max 10 words), one example sentence NOT from the
-transcript, and one CCQ (yes/no or either/or only).
-CCQ example: "If profits plunge, do they go up or down?"
+For each word provide: a short definition (max 10 words) and one example sentence NOT from the
+transcript.
 
 ══════════════════════════════════════════════
 STAGE 3 — WATCH & COMPREHEND (8-10 min)
@@ -566,8 +569,7 @@ OUTPUT JSON ONLY — no markdown, no explanation, no code fences:
       "term": "single word",
       "type": "noun",
       "definition": "max 10 words",
-      "exampleSentence": "Example sentence not from transcript",
-      "conceptCheckQuestion": "Yes/no or either/or CCQ only"
+      "exampleSentence": "Example sentence not from transcript"
     }
   ],
   "detailQuestions": [
@@ -640,6 +642,7 @@ export async function POST(request: NextRequest) {
     const youtubeUrl = body.youtubeUrl?.trim()
     const transcriptText = body.transcriptText?.trim()
     const level = body.level
+    const context = body.context?.trim()
 
     if (!youtubeUrl && !transcriptText) {
       return NextResponse.json(
@@ -699,8 +702,9 @@ export async function POST(request: NextRequest) {
 
     // -----------------------------------------------------------------------
     // Dedup check: if this URL+level combo already exists, return it
+    // (Skip when teacher provided custom context — they want a fresh generation)
     // -----------------------------------------------------------------------
-    if (resolvedSourceUrl) {
+    if (resolvedSourceUrl && !context) {
       const existing = await prisma.youTubeLesson.findUnique({
         where: {
           sourceUrl_level: { sourceUrl: resolvedSourceUrl, level },
@@ -722,7 +726,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const prompt = buildTranscriptPrompt(resolvedTranscriptText, level)
+    const prompt = buildTranscriptPrompt(resolvedTranscriptText, level, context)
 
     const aiResult = await generateWithProviderFailover({
       prompt,

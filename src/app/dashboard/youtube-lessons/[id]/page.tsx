@@ -21,7 +21,6 @@ interface PreTeachItem {
   type: 'noun' | 'verb' | 'adjective'
   definition: string
   exampleSentence: string
-  conceptCheckQuestion: string
 }
 
 interface DetailQuestion { id: number; question: string; answer: string }
@@ -465,7 +464,6 @@ export default function YouTubeLessonDetailPage() {
                     </div>
                     <p className="text-sm text-gray-700 dark:text-gray-300 mb-1"><span className="font-medium">Meaning:</span> {formatText(item.definition)}</p>
                     <p className="text-sm text-gray-600 dark:text-gray-400 mb-1"><span className="font-medium">Example:</span> <em>{formatText(item.exampleSentence)}</em></p>
-                    {showAnswers && <p className="text-sm text-violet-700 dark:text-violet-400"><span className="font-medium">CCQ:</span> {formatText(item.conceptCheckQuestion)}</p>}
                   </div>
                 ))}
               </div>

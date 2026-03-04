@@ -31,7 +31,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
         openGraph: {
           title: post.title,
           description: description,
-          images: post.image ? [{ url: post.image, alt: post.title }] : [],
+          images: post.image
+            ? [{ url: post.image, alt: post.title }]
+            : [{ url: 'https://avidato.com/logo.png', alt: 'Avidato' }],
           type: 'article',
           publishedTime: new Date(post.createdAt).toISOString(),
           authors: post.author ? [post.author] : [],

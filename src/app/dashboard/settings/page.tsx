@@ -61,26 +61,26 @@ export default function SettingsPage() {
 
   return (
     <DashboardLayout>
-      <div className="p-4 sm:p-6 lg:p-8">
-        <div className="space-y-6">
+      <div className="max-w-6xl mx-auto px-4 py-8">
+        <div className="space-y-5">
           {/* Header */}
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Settings</h1>
-            <p className="text-gray-600 dark:text-gray-400">Manage your account settings and preferences.</p>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Settings</h1>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Account, security, and preferences</p>
           </div>
 
-          {/* Tabs Navigation - Horizontal Layout */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
-            {/* Tab Headers - Scrollable on mobile */}
-            <div className="flex overflow-x-auto border-b border-gray-200 dark:border-gray-700 scrollbar-hide">
+          {/* Tabs Navigation */}
+          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+            {/* Tab Headers */}
+            <div className="flex overflow-x-auto border-b border-gray-100 dark:border-gray-700 scrollbar-hide">
               {tabs.map((tab) => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`px-4 sm:px-6 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
+                  className={`px-4 sm:px-5 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
                     activeTab === tab.id
                       ? 'border-gray-900 dark:border-white text-gray-900 dark:text-white'
-                      : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                      : 'border-transparent text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
                   }`}
                 >
                   {tab.label}
@@ -89,7 +89,7 @@ export default function SettingsPage() {
             </div>
 
             {/* Tab Content */}
-            <div className="p-6 sm:p-8">
+            <div className="p-5 sm:p-6">
               {renderTabContent()}
             </div>
           </div>
@@ -390,10 +390,10 @@ function ProfileTab() {
         <button
           type="submit"
           disabled={isLoading}
-          className={`px-4 sm:px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors text-sm sm:text-base w-full sm:w-auto ${
+          className={`px-4 sm:px-5 py-2 bg-gray-900 dark:bg-white hover:bg-gray-800 dark:hover:bg-gray-100 text-white dark:text-gray-900 rounded-lg font-medium transition-colors text-sm w-full sm:w-auto ${
             isLoading 
               ? 'opacity-50 cursor-not-allowed' 
-              : 'focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900'
+              : ''
           }`}
         >
           {isLoading ? (

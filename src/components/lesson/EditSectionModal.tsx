@@ -33,7 +33,6 @@ const DEFAULT_LABELS: Record<string, string> = {
   definition: 'Definition',
   meaning: 'Meaning',
   exampleSentence: 'Example Sentence',
-  conceptCheckQuestion: 'Concept Check Question (CCQ)',
   question: 'Question',
   answer: 'Answer',
   followUp: 'Follow-Up',

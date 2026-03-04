@@ -3,6 +3,7 @@ import { Metadata } from 'next'
 export const metadata: Metadata = {
   title: 'Blog Post | Avidato',
   description: 'Read blog post about language learning and education',
+  robots: { index: false, follow: false },
 }
 
 export default function BlogPostLayout({

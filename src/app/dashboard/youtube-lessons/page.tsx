@@ -92,25 +92,26 @@ export default function YouTubeLessonsLibraryPage() {
     <DashboardLayout>
       <div className="max-w-6xl mx-auto px-4 py-8">
         {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-red-100 dark:bg-red-900/30">
-              <svg className="h-6 w-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">YouTube Lessons</h1>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                Shared library of lessons generated from YouTube videos
-              </p>
-            </div>
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">YouTube Lessons</h1>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+              {totalCount > 0 ? `${totalCount} lesson${totalCount !== 1 ? 's' : ''} in library` : 'Shared lesson library'}
+            </p>
           </div>
+          <Link
+            href="/dashboard/tools/youtube-to-lesson"
+            className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm font-medium rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors"
+          >
+            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            New Lesson
+          </Link>
         </div>
 
         {/* Filters */}
-        <div className="flex flex-col sm:flex-row gap-3 mb-6">
+        <div className="flex flex-col sm:flex-row gap-2 mb-5">
           <div className="relative flex-1">
             <svg className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -120,13 +121,13 @@ export default function YouTubeLessonsLibraryPage() {
               placeholder="Search by title or topic..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-brand-primary focus:border-transparent text-sm"
+              className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-brand-primary focus:border-transparent text-sm"
             />
           </div>
           <select
             value={filterLevel}
             onChange={(e) => setFilterLevel(e.target.value)}
-            className="px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-brand-primary focus:border-transparent"
+            className="px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-brand-primary focus:border-transparent"
           >
             <option value="all">All Levels</option>
             <option value="A1">A1</option>
@@ -181,11 +182,11 @@ export default function YouTubeLessonsLibraryPage() {
               <Link
                 key={lesson.id}
                 href={`/dashboard/youtube-lessons/${lesson.id}`}
-                className="group bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-5 hover:shadow-md hover:border-brand-primary/40 dark:hover:border-brand-primary/40 transition-all"
+                className="group bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden hover:border-gray-300 dark:hover:border-gray-600 transition-all"
               >
                 {/* Thumbnail */}
                 {lesson.videoId && lesson.videoId !== 'manual' && (
-                  <div className="relative w-full mb-4 rounded-lg overflow-hidden" style={{ paddingBottom: '56.25%' }}>
+                  <div className="relative w-full overflow-hidden" style={{ paddingBottom: '56.25%' }}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={`https://img.youtube.com/vi/${lesson.videoId}/mqdefault.jpg`}
@@ -202,7 +203,7 @@ export default function YouTubeLessonsLibraryPage() {
 
                 {/* No thumbnail for manual transcripts */}
                 {(!lesson.videoId || lesson.videoId === 'manual') && (
-                  <div className="relative w-full mb-4 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700 flex items-center justify-center" style={{ paddingBottom: '56.25%' }}>
+                  <div className="relative w-full overflow-hidden bg-gray-100 dark:bg-gray-700 flex items-center justify-center" style={{ paddingBottom: '56.25%' }}>
                     <div className="absolute inset-0 flex items-center justify-center">
                       <svg className="h-12 w-12 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -217,6 +218,7 @@ export default function YouTubeLessonsLibraryPage() {
                 )}
 
                 {/* Title & topic */}
+                <div className="p-4">
                 <h3 className="font-semibold text-gray-900 dark:text-white text-sm mb-1 line-clamp-2 group-hover:text-brand-primary transition-colors">
                   {lesson.title}
                 </h3>
@@ -231,6 +233,7 @@ export default function YouTubeLessonsLibraryPage() {
                   <span>{lesson.creator?.name || 'Unknown'}</span>
                   <span>{new Date(lesson.createdAt).toLocaleDateString()}</span>
                 </div>
+                </div>
               </Link>
             ))}
           </div>
@@ -238,17 +241,17 @@ export default function YouTubeLessonsLibraryPage() {
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-between mt-8">
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              Showing {(page - 1) * 12 + 1}–{Math.min(page * 12, totalCount)} of {totalCount} lessons
+          <div className="flex items-center justify-between mt-6">
+            <p className="text-xs text-gray-400 dark:text-gray-500">
+              Page {page} of {totalPages}
             </p>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1">
               <button
                 onClick={() => setPage(p => Math.max(1, p - 1))}
                 disabled={page <= 1}
-                className="px-3 py-1.5 text-sm rounded-md border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                className="px-3 py-1.5 text-sm rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               >
-                Previous
+                Prev
               </button>
               {Array.from({ length: totalPages }, (_, i) => i + 1)
                 .filter(p => p === 1 || p === totalPages || Math.abs(p - page) <= 1)
@@ -259,15 +262,15 @@ export default function YouTubeLessonsLibraryPage() {
                 }, [])
                 .map((p, i) =>
                   typeof p === 'string' ? (
-                    <span key={`ellipsis-${i}`} className="px-1 text-gray-400">…</span>
+                    <span key={`ellipsis-${i}`} className="px-1 text-gray-400">...</span>
                   ) : (
                     <button
                       key={p}
                       onClick={() => setPage(p)}
-                      className={`px-3 py-1.5 text-sm rounded-md border transition-colors ${
+                      className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
                         p === page
-                          ? 'bg-brand-primary text-white border-brand-primary'
-                          : 'border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
+                          ? 'bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-medium'
+                          : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                       }`}
                     >
                       {p}
@@ -277,7 +280,7 @@ export default function YouTubeLessonsLibraryPage() {
               <button
                 onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                 disabled={page >= totalPages}
-                className="px-3 py-1.5 text-sm rounded-md border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                className="px-3 py-1.5 text-sm rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               >
                 Next
               </button>
@@ -287,15 +290,15 @@ export default function YouTubeLessonsLibraryPage() {
 
         {/* Generate CTA at bottom */}
         {lessons.length > 0 && (
-          <div className="mt-8 text-center">
+          <div className="mt-6 text-center sm:hidden">
             <Link
               href="/dashboard/tools/youtube-to-lesson"
-              className="inline-flex items-center px-4 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-primary/90 transition-colors text-sm font-medium"
+              className="inline-flex items-center gap-1.5 px-4 py-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors text-sm font-medium"
             >
-              <svg className="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
               </svg>
-              Generate New Lesson
+              New Lesson
             </Link>
           </div>
         )}
