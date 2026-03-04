@@ -155,6 +155,9 @@ QUESTION TYPES — one of each, in this order:
       The topic connection should be loose and natural.
   Q2: OPINION or PREFERENCE — no right answer, student just shares what they think.
   Q3: HYPOTHETICAL — "what would you do if..." — grounded and realistic, not abstract.
+      Must be PERSONAL and LOW-STAKES — about everyday life, fun scenarios, or silly dilemmas.
+      NEVER about professional strategy, leadership, business decisions, or workplace management.
+      Think: "If you could only eat one food forever..." not "If you were leading a company..."
 
 ALL questions must:
   - Sound like a real teacher talking to a real person, not an exam paper.
@@ -182,23 +185,38 @@ BAD warm-up questions:
   ❌ "What is your opinion of the automotive industry?" — abstract, impersonal, exam-like
   ❌ "If you were leading a traditional industry, how would you balance legacy with disruption?"
      — too long, too abstract, business-school tone
+  ❌ "If you could change one thing about how your workplace handles creativity, what would it be?"
+     — professional/strategic, not personal or fun
   ❌ "Have you ever bought something like a gadget or appliance that turned out to be less
      impressive than expected, and do you prefer locally made products?" — two questions in one
 
 GOOD warm-up questions:
   ✅ "Have you ever bought something you regretted because the brand turned out to be overhyped?"
   ✅ "What matters more to you when choosing a product — brand reputation or price?"
-  ✅ "If a company you loved started making worse products, would you stay loyal or switch?"
+  ✅ "If you could only watch one TV show for the rest of your life, what would it be — and why?"
+  ✅ "Have you ever been so bored in a meeting or class that you started doodling or daydreaming?"
 
 ══════════════════════════════════════════════
 STAGE 2 — PRE-TEACH KEY VOCABULARY (5-7 min)
 ══════════════════════════════════════════════
 
-Pick 5 SINGLE WORDS from the transcript the student needs to understand the video.
+Pick 5 SINGLE WORDS the student needs to understand the video OR that are closely
+thematically connected to it.
+
+TRANSCRIPT-FIRST, THEN SUPPLEMENT:
+- First, try to find all 5 words from the transcript.
+- If the transcript is too short, too simple, or too repetitive to supply 5 genuinely
+  teachable words at CEFR ${level}, SUPPLEMENT with words that are:
+    • thematically connected to the video's topic (e.g. a video about office boredom
+      → "enthusiasm", "distraction", "monotonous")
+    • level-appropriate for ${level}
+    • would help the student TALK about the video afterward
+- NEVER scrape the bottom of the barrel just to stay inside the transcript.
+  A strong word from outside the transcript is always better than a weak word from inside it.
 
 SELECTION RULES:
 1. Content words only: nouns, verbs, or adjectives.
-2. Must appear in the transcript AND be useful in completely different topics.
+2. Must be useful in completely different topics — not topic-locked.
 3. Pitch difficulty correctly for CEFR ${level}:
    - A1/A2: genuinely unknown basics (e.g. "profit", "rival", "crisis")
    - B1/B2: mid-frequency news/general words (e.g. "plunge", "overtake", "urgency", "dominant")
@@ -211,6 +229,11 @@ SELF-CHECK before keeping a word:
      If NO → reject.
   → "Do most ${level} learners already know this?"
      If YES → reject and find something harder.
+  → "Is this just a common verb being presented as if it were difficult?"
+     (e.g. "bounce", "grab", "watch", "look", "walk" — these are NOT vocabulary words)
+     If YES → reject.
+  → "Can the student decode this from word parts?" (e.g. "unreadable" = un + read + able)
+     If YES → reject — transparent formations are not teachable vocabulary.
 
 LENGTH RULE for definitions: Maximum 10 words. Simple and direct.
   ❌ "a promise or firm decision to do something, or the state of being dedicated to a cause"
@@ -373,6 +396,40 @@ the verb alone. It must be listed in the Oxford Phrasal Verbs Dictionary or equi
    "push on" / "push on go on" — garbled transcript speech. Not clean enough to teach.
    "play a role" — "role" is the object; "play" is literal. Not a phrasal verb.
    "feel the need" — "need" is the object. No particle. Not a phrasal verb.
+   "look for" — too basic and too literal. Every A1 learner knows this.
+   "put in" (effort/hours) — this is a collocation, NOT a phrasal verb.
+
+──────────────────────────────────────────────
+PHYSICAL MOVEMENT RULE — CRITICAL
+──────────────────────────────────────────────
+Verbs describing LITERAL PHYSICAL MOVEMENT are NEVER phrasal verbs or idioms:
+   "bounce around" — literal: a ball bouncing. Not idiomatic.
+   "bounce away" — literal: something bouncing away. Not idiomatic.
+   "head into" / "heading into" — literal: walking into a room. Not idiomatic.
+   "walk over" — literal: walking to a location.
+   "run out" (of a room) — literal: physically running.
+   "jump up" — literal: physically jumping.
+
+If the verb describes something MOVING THROUGH SPACE in the transcript,
+it is almost certainly literal and must be rejected.
+The only exception is when the phrase has a CLEAR FIGURATIVE meaning
+that has nothing to do with movement (e.g. "run out" of time, "jump in" to help).
+
+──────────────────────────────────────────────
+LITERALNESS TEST — MANDATORY FOR EVERY CANDIDATE
+──────────────────────────────────────────────
+Before accepting ANY phrase, ask:
+  1. "If I replace each word with its dictionary definition, does the phrase
+     still mean the same thing?" If YES → it's literal → REJECT.
+  2. "Would a learner who knows each word individually understand this phrase
+     without being taught it?" If YES → REJECT.
+  3. "Does this phrase describe physical action in the transcript?"
+     (e.g. a screensaver bouncing, someone walking into a room)
+     If YES → REJECT.
+
+NO DUPLICATES: Never include two forms of the same base verb.
+  ❌ "bounce around" + "bounce away" — same verb, both literal
+  ❌ "take off" + "take on" — acceptable individually but check variety
 
 ──────────────────────────────────────────────
 PHRASE SELECTION PROCESS — FOLLOW THIS EXACTLY
@@ -386,11 +443,16 @@ Step 2: For each candidate, ask:
   All three must be YES. If any is NO → discard it.
 Step 3: From your validated list, select the 8 best items — prioritising variety
   (mix of idioms and phrasal verbs) and usefulness at CEFR ${level}.
-Step 4: If the transcript does not contain 8 valid items, supplement with closely related
-  phrasal verbs or idioms that are THEMATICALLY CONNECTED to the video's topic but
-  NOT in the transcript. Label these clearly — they are still valid teaching items.
-  Do NOT lower your quality standards just to reach 8. A related idiom not in the
-  transcript is far better than a bad phrase that is in it.
+Step 4: If the transcript does not contain 8 valid items — AND IT OFTEN WON'T —
+  supplement aggressively with phrasal verbs and idioms that are:
+    • THEMATICALLY CONNECTED to the video's topic or situations
+    • genuinely idiomatic (pass the literalness test)
+    • level-appropriate for CEFR ${level}
+  For example, a video about workplace boredom might only have 2-3 genuine idioms
+  in the transcript. Supplement with related ones like "zone out", "slack off",
+  "kill time", "wind down", "goof off" — all thematically connected and teachable.
+  NEVER lower your quality standards just to stay inside the transcript.
+  A related idiom not in the transcript is ALWAYS better than a literal phrase from it.
 
 NORMALIZATION:
   - Base/infinitive form: "catch up" not "caught up"
