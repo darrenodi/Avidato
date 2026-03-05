@@ -207,11 +207,11 @@ function PhraseMatchingGame({ phrases }: { phrases: PhraseItem[] }) {
 // Helper components
 // ---------------------------------------------------------------------------
 
-function StageHeader({ num, label, time, icon, onEdit }: { num: number | string; label: string; time: string; icon: string; onEdit?: () => void }) {
+function StageHeader({ num, label, time, onEdit }: { num: number | string; label: string; time: string; onEdit?: () => void }) {
   return (
     <div className="flex items-center gap-3 mb-4">
       <span className="flex items-center justify-center w-8 h-8 rounded-full bg-brand-primary text-white text-sm font-bold shrink-0">{num}</span>
-      <div className="flex-1 min-w-0"><h3 className="text-lg font-semibold text-gray-900 dark:text-white">{icon} {label}</h3></div>
+      <div className="flex-1 min-w-0"><h3 className="text-lg font-semibold text-gray-900 dark:text-white">{label}</h3></div>
       {onEdit && <EditButton onClick={onEdit} label="Edit" />}
       <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 whitespace-nowrap">{time}</span>
     </div>
@@ -467,7 +467,7 @@ export default function YouTubeLessonDetailPage() {
           {/* ---- STAGE 1: Warm-Up ---- */}
           {result.warmUp && result.warmUp.length > 0 && (
             <Card>
-              <StageHeader num={1} label="Warm-Up" time="5 min" icon="💬" onEdit={() => setEditingStage('warmUp')} />
+              <StageHeader num={1} label="Warm-Up" time="5 min" onEdit={() => setEditingStage('warmUp')} />
               <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">Ask these BEFORE watching. Get the student talking about the topic.</p>
               <div className="space-y-3">
                 {result.warmUp.map((q) => (
@@ -482,7 +482,7 @@ export default function YouTubeLessonDetailPage() {
           {/* ---- STAGE 2: Pre-Teach Vocabulary ---- */}
           {result.preTeach && result.preTeach.length > 0 && (
             <Card>
-              <StageHeader num={2} label="Pre-Teach Vocabulary" time="5-7 min" icon="📖" onEdit={() => setEditingStage('preTeach')} />
+              <StageHeader num={2} label="Pre-Teach Vocabulary" time="5-7 min" onEdit={() => setEditingStage('preTeach')} />
               <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">Teach these BEFORE watching. They&apos;re essential for understanding the video.</p>
               <div className="space-y-4">
                 {result.preTeach.map((item, i) => (
@@ -533,7 +533,7 @@ export default function YouTubeLessonDetailPage() {
 
           {/* ---- STAGE 3: Watch & Comprehend ---- */}
           <Card>
-            <StageHeader num={3} label="Watch & Comprehend" time="8-10 min" icon="▶️" onEdit={() => setEditingStage('detailQuestions')} />
+            <StageHeader num={3} label="Watch & Comprehend" time="8-10 min" onEdit={() => setEditingStage('detailQuestions')} />
             <YouTubeEmbed videoId={result.videoId} instruction="Play the video. The student watches once and answers the comprehension questions below." />
             {result.detailQuestions && result.detailQuestions.length > 0 && (
               <div>
@@ -553,17 +553,33 @@ export default function YouTubeLessonDetailPage() {
             )}
           </Card>
 
-          {/* ---- STAGE 4: Language Focus ---- */}
+          {/* ---- STAGE 4: Discussion ---- */}
+          {result.discussion && result.discussion.length > 0 && (
+            <Card>
+              <StageHeader num={4} label="Discussion" time="8-10 min" onEdit={() => setEditingStage('discussion')} />
+              <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">Encourage the student to use the vocabulary from Stage 2.</p>
+              <div className="space-y-4">
+                {result.discussion.map((q) => (
+                  <div key={q.id} className="p-4 rounded-lg bg-rose-50 dark:bg-rose-900/10 border border-rose-100 dark:border-rose-800/30">
+                    <p className="text-gray-900 dark:text-white font-medium">{q.id}. {formatText(q.question)}</p>
+                    {showAnswers && <p className="text-sm text-rose-700 dark:text-rose-400 mt-2"><span className="font-medium">Follow-up:</span> {formatText(q.followUp)}</p>}
+                  </div>
+                ))}
+              </div>
+            </Card>
+          )}
+
+          {/* ---- STAGE 5: Language Focus ---- */}
           {result.phrases && result.phrases.length > 0 && (
             <Card>
-              <StageHeader num={4} label="Language Focus: Idioms & Expressions" time="12-15 min" icon="🗣️" onEdit={() => setEditingStage('phrases')} />
+              <StageHeader num={5} label="Language Focus: Idioms & Expressions" time="12-15 min" onEdit={() => setEditingStage('phrases')} />
               <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">Idioms, phrasal verbs, collocations and fixed expressions from the video.</p>
-              <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">4a — Match Phrase to Meaning</h4>
+              <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">5a — Match Phrase to Meaning</h4>
               <PhraseMatchingGame phrases={result.phrases} />
 
               {result.fillBlanks && result.fillBlanks.length > 0 && (
                 <div className="mt-8">
-                  <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">4b — Fill in the Blanks</h4>
+                  <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">5b — Fill in the Blanks</h4>
                   <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">Use the phrases from the word box to complete each sentence.</p>
                   <div className="flex flex-wrap gap-2 mb-5 p-3 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
                     {shuffledWordBox.map((word, i) => (
@@ -584,10 +600,10 @@ export default function YouTubeLessonDetailPage() {
               {result.speakingPractice && result.speakingPractice.length > 0 && (
                 <div className="mt-8">
                   <div className="flex items-center gap-2 mb-3">
-                    <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">4c — Speaking Practice</h4>
+                    <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">5c — Speaking Practice</h4>
                     <EditButton onClick={() => setEditingStage('speakingPractice')} label="Edit" />
                   </div>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">Discuss these questions. Try to use the phrases and idioms from Stage 4.</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">Discuss these questions. Try to use the phrases and idioms from Stage 5.</p>
                   <div className="space-y-3">
                     {result.speakingPractice.map((sp) => (
                       <div key={`sp-${sp.id}`} className="p-3 rounded-lg bg-teal-50 dark:bg-teal-900/10 border border-teal-100 dark:border-teal-800/30">
@@ -600,26 +616,10 @@ export default function YouTubeLessonDetailPage() {
             </Card>
           )}
 
-          {/* ---- STAGE 5: Discussion ---- */}
-          {result.discussion && result.discussion.length > 0 && (
-            <Card>
-              <StageHeader num={5} label="Discussion" time="8-10 min" icon="💡" onEdit={() => setEditingStage('discussion')} />
-              <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">Encourage the student to use the vocabulary from stages 2 and 4.</p>
-              <div className="space-y-4">
-                {result.discussion.map((q) => (
-                  <div key={q.id} className="p-4 rounded-lg bg-rose-50 dark:bg-rose-900/10 border border-rose-100 dark:border-rose-800/30">
-                    <p className="text-gray-900 dark:text-white font-medium">{q.id}. {formatText(q.question)}</p>
-                    {showAnswers && <p className="text-sm text-rose-700 dark:text-rose-400 mt-2"><span className="font-medium">Follow-up:</span> {formatText(q.followUp)}</p>}
-                  </div>
-                ))}
-              </div>
-            </Card>
-          )}
-
           {/* ---- STAGE 6: Wrap-Up ---- */}
           {((result.wrapUp && result.wrapUp.length > 0) || result.homework?.task) && (
             <Card>
-              <StageHeader num={6} label="Wrap-Up" time="3-5 min" icon="✅" onEdit={() => setEditingStage('wrapUp')} />
+              <StageHeader num={6} label="Wrap-Up" time="3-5 min" onEdit={() => setEditingStage('wrapUp')} />
               {result.wrapUp && result.wrapUp.length > 0 && (
                 <div className="space-y-3 mb-4">
                   {result.wrapUp.map((r) => (

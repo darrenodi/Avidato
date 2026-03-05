@@ -66,14 +66,14 @@ interface StudentLesson {
 // Helpers
 // ---------------------------------------------------------------------------
 
-function StageHeader({ num, label, time, icon }: { num: number | string; label: string; time: string; icon: string }) {
+function StageHeader({ num, label, time }: { num: number | string; label: string; time: string }) {
   return (
     <div className="flex items-center gap-3 mb-4">
       <span className="flex items-center justify-center w-8 h-8 rounded-full bg-brand-primary text-white text-sm font-bold shrink-0">
         {num}
       </span>
       <h3 className="flex-1 text-lg font-semibold text-gray-900 dark:text-white">
-        {icon} {label}
+        {label}
       </h3>
       <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 whitespace-nowrap">
         {time}
@@ -410,7 +410,7 @@ function SharedYouTubeLessonContent() {
             {/* ---- STAGE 1: Warm-Up ---- */}
             {lesson.warmUp?.length > 0 && (
               <Card>
-                <StageHeader num={1} label="Warm-Up" time="5 min" icon="💬" />
+                <StageHeader num={1} label="Warm-Up" time="5 min" />
                 <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
                   Discuss these questions with your teacher before watching.
                 </p>
@@ -427,7 +427,7 @@ function SharedYouTubeLessonContent() {
             {/* ---- STAGE 2: Key Vocabulary ---- */}
             {lesson.preTeach?.length > 0 && (
               <Card>
-                <StageHeader num={2} label="Key Vocabulary" time="5-7 min" icon="📖" />
+                <StageHeader num={2} label="Key Vocabulary" time="5-7 min" />
                 <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
                   Learn these words before watching the video.
                 </p>
@@ -472,7 +472,7 @@ function SharedYouTubeLessonContent() {
 
             {/* ---- STAGE 3: Watch & Comprehend ---- */}
             <Card>
-              <StageHeader num={3} label="Watch & Comprehend" time="8-10 min" icon="▶️" />
+              <StageHeader num={3} label="Watch & Comprehend" time="8-10 min" />
               <YouTubeEmbed videoId={lesson.videoId} instruction="Watch the video and answer the questions below." />
 
               {lesson.detailQuestions?.length > 0 && (
@@ -491,20 +491,37 @@ function SharedYouTubeLessonContent() {
               )}
             </Card>
 
-            {/* ---- STAGE 4: Language Focus — Matching, Fill-in-the-Blanks & Speaking ---- */}
+            {/* ---- STAGE 4: Discussion ---- */}
+            {lesson.discussion?.length > 0 && (
+              <Card>
+                <StageHeader num={4} label="Discussion" time="8-10 min" />
+                <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
+                  Discuss these questions with your teacher. Try to use the vocabulary you learned.
+                </p>
+                <div className="space-y-3">
+                  {lesson.discussion.map((q) => (
+                    <div key={q.id} className="p-4 rounded-lg bg-rose-50 dark:bg-rose-900/10 border border-rose-100 dark:border-rose-800/30">
+                      <p className="text-gray-900 dark:text-white font-medium">{q.id}. {formatText(q.question)}</p>
+                    </div>
+                  ))}
+                </div>
+              </Card>
+            )}
+
+            {/* ---- STAGE 5: Language Focus — Matching, Fill-in-the-Blanks & Speaking ---- */}
             {lesson.phrases?.length > 0 && (
               <Card>
-                <StageHeader num={4} label="Language Focus: Idioms & Expressions" time="12-15 min" icon="🗣️" />
+                <StageHeader num={5} label="Language Focus: Idioms & Expressions" time="12-15 min" />
                 <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
                   Idioms, phrasal verbs, collocations and fixed expressions from the video. Match each item to its meaning.
                 </p>
-                <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">4a — Match Phrase to Meaning</h4>
+                <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">5a — Match Phrase to Meaning</h4>
                 <PhraseMatchingGame phrases={lesson.phrases} />
 
-                {/* 4b — Fill-in-the-blanks */}
+                {/* 5b — Fill-in-the-blanks */}
                 {lesson.fillBlanks && lesson.fillBlanks.length > 0 && (
                   <div className="mt-8">
-                    <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">4b — Fill in the Blanks</h4>
+                    <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">5b — Fill in the Blanks</h4>
                     <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
                       Use the phrases from the word box to complete each sentence.You may have to change the form of the word.
                     </p>
@@ -529,10 +546,10 @@ function SharedYouTubeLessonContent() {
                   </div>
                 )}
 
-                {/* 4c — Speaking Practice using phrases */}
+                {/* 5c — Speaking Practice using phrases */}
                 {lesson.speakingPractice && lesson.speakingPractice.length > 0 && (
                   <div className="mt-8">
-                    <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">4c — Speaking Practice</h4>
+                    <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">5c — Speaking Practice</h4>
                     <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
                       Discuss these questions with your teacher. Try to use the phrases and idioms you just learned in your answers.
                     </p>
@@ -548,27 +565,10 @@ function SharedYouTubeLessonContent() {
               </Card>
             )}
 
-            {/* ---- STAGE 5: Discussion ---- */}
-            {lesson.discussion?.length > 0 && (
-              <Card>
-                <StageHeader num={5} label="Discussion" time="8-10 min" icon="💡" />
-                <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
-                  Discuss these questions with your teacher. Try to use the phrases you learned.
-                </p>
-                <div className="space-y-3">
-                  {lesson.discussion.map((q) => (
-                    <div key={q.id} className="p-4 rounded-lg bg-rose-50 dark:bg-rose-900/10 border border-rose-100 dark:border-rose-800/30">
-                      <p className="text-gray-900 dark:text-white font-medium">{q.id}. {formatText(q.question)}</p>
-                    </div>
-                  ))}
-                </div>
-              </Card>
-            )}
-
             {/* ---- STAGE 6: Wrap-Up ---- */}
             {lesson.wrapUp?.length > 0 && (
               <Card>
-                <StageHeader num={6} label="Wrap-Up" time="3-5 min" icon="✅" />
+                <StageHeader num={6} label="Wrap-Up" time="3-5 min" />
                 <div className="space-y-3">
                   {lesson.wrapUp.map((r) => (
                     <div key={r.id} className="p-3 rounded-lg bg-gray-50 dark:bg-gray-900/20 border border-gray-200 dark:border-gray-700">
