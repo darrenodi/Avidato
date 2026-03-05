@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useSWRConfig } from 'swr'
 import DashboardLayout from '@/components/layout/DashboardLayout'
 import { targetLanguages, nativeLanguages, levels, ageGroups } from '@/lib/form-data-mappings'
 import { addStudent } from '../../../actions/students'
@@ -50,6 +51,7 @@ const initialFormData: StudentFormData = {
 
 export default function AddStudentPage() {
   const router = useRouter()
+  const { mutate } = useSWRConfig()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [formData, setFormData] = useState<StudentFormData>(initialFormData)
@@ -115,7 +117,9 @@ export default function AddStudentPage() {
       const result = await addStudent(formDataToSubmit)
       
       if (result.success) {
-        // Redirect to dashboard on success
+        // Invalidate SWR caches so dashboard & students show fresh data
+        mutate('dashboard-stats')
+        mutate((key: unknown) => Array.isArray(key) && key[0] === 'students', undefined, { revalidate: false })
         router.push('/dashboard')
       } else {
         // Handle server-side validation or creation errors

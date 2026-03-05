@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import useSWR, { useSWRConfig } from 'swr'
 import DashboardLayout from '@/components/layout/DashboardLayout'
 import { getStudents, toggleStudentArchive, deleteStudent } from '../../actions/students'
 import { nativeLanguages, levels, ageGroups } from '@/lib/form-data-mappings'
@@ -56,12 +57,9 @@ type TabType = 'active' | 'archived'
 export default function StudentsPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
-  const [students, setStudents] = useState<StudentData[]>([])
-  const [total, setTotal] = useState(0) // Total students for pagination
+  const { mutate: globalMutate } = useSWRConfig()
   const [page, setPage] = useState(1)
   const pageSize = 10 // Students per page
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<TabType>('active')
   const [openMenuId, setOpenMenuId] = useState<string | null>(null)
   const [filters, setFilters] = useState<StudentFilters>({
@@ -69,46 +67,25 @@ export default function StudentsPage() {
     sortOrder: 'desc',
     archived: false
   })
-  const [lastFetchParams, setLastFetchParams] = useState<{ page: number; filters: StudentFilters; activeTab: TabType } | null>(null)
 
-  // Fetch students data
-  // Fetch students with pagination
-  useEffect(() => {
-    const fetchStudents = async () => {
-      if (session) {
-        // Skip if already fetched with same parameters (prevents refetch on tab focus)
-        const currentParams = { page, filters, activeTab }
-        if (lastFetchParams && 
-            lastFetchParams.page === page && 
-            lastFetchParams.activeTab === activeTab &&
-            JSON.stringify(lastFetchParams.filters) === JSON.stringify(filters)) {
-          return
-        }
+  // ─── SWR: cached student fetching ───
+  const swrKey = session
+    ? ['students', page, pageSize, activeTab, filters.search, filters.targetLanguage, filters.level, filters.ageGroup, filters.sortBy, filters.sortOrder]
+    : null
 
-        try {
-          setLoading(true)
-          setError(null)
-          // Add pagination params to filters
-          const updatedFilters = { ...filters, archived: activeTab === 'archived', page, pageSize }
-          const response = await getStudents(updatedFilters)
-          if (response.success && response.data) {
-            setStudents(response.data.students)
-            setTotal(response.data.total)
-            setLastFetchParams(currentParams)
-          } else {
-            setError(response.error || 'Failed to load students')
-          }
-        } catch (err) {
-          console.error('Error fetching students:', err)
-          setError('Failed to load students. Please try again.')
-        } finally {
-          setLoading(false)
-        }
-      }
+  const { data: studentsData, isLoading: loading, error: swrError, mutate } = useSWR(
+    swrKey,
+    async () => {
+      const updatedFilters = { ...filters, archived: activeTab === 'archived', page, pageSize }
+      const response = await getStudents(updatedFilters)
+      if (response.success && response.data) return response.data
+      throw new Error(response.error || 'Failed to load students')
     }
+  )
 
-    fetchStudents()
-  }, [session, filters, activeTab, page, lastFetchParams])
+  const students = studentsData?.students || []
+  const total = studentsData?.total || 0
+  const error = swrError?.message || null
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -139,24 +116,6 @@ export default function StudentsPage() {
       return
     }
   }, [session, status, router])
-
-  // Prevent automatic refetch when browser tab regains focus
-  useEffect(() => {
-    let hasUnmounted = false
-
-    const handleVisibilityChange = () => {
-      // Don't refetch if component has unmounted or page is still hidden
-      if (!hasUnmounted && document.visibilityState === 'hidden') {
-        return
-      }
-    }
-
-    document.addEventListener('visibilitychange', handleVisibilityChange)
-    return () => {
-      hasUnmounted = true
-      document.removeEventListener('visibilitychange', handleVisibilityChange)
-    }
-  }, [])
 
   // Handle filter changes, reset to page 1
   const handleFilterChange = (key: keyof StudentFilters, value: string) => {
@@ -197,18 +156,12 @@ export default function StudentsPage() {
         try {
           const response = await toggleStudentArchive(studentId, activeTab === 'active')
           if (response.success) {
-            // Refresh the students list
-            const updatedFilters = { ...filters, archived: activeTab === 'archived' }
-            const studentsResponse = await getStudents(updatedFilters)
-            if (studentsResponse.success && studentsResponse.data) {
-              setStudents(studentsResponse.data.students)
-            }
-          } else {
-            setError(response.error || 'Failed to archive student')
+            // Revalidate students list and dashboard stats
+            mutate()
+            globalMutate('dashboard-stats')
           }
         } catch (err) {
           console.error('Archive error:', err)
-          setError('Failed to archive student')
         }
         break
       case 'delete':
@@ -217,18 +170,12 @@ export default function StudentsPage() {
           try {
             const response = await deleteStudent(studentId)
             if (response.success) {
-              // Refresh the students list
-              const updatedFilters = { ...filters, archived: activeTab === 'archived' }
-              const studentsResponse = await getStudents(updatedFilters)
-              if (studentsResponse.success && studentsResponse.data) {
-                setStudents(studentsResponse.data.students)
-              }
-            } else {
-              setError(response.error || 'Failed to delete student')
+              // Revalidate students list and dashboard stats
+              mutate()
+              globalMutate('dashboard-stats')
             }
           } catch (err) {
             console.error('Delete error:', err)
-            setError('Failed to delete student')
           }
         }
         break

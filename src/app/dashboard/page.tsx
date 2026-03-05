@@ -2,8 +2,9 @@
 
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import Link from 'next/link'
+import useSWR from 'swr'
 import DashboardLayout from '@/components/layout/DashboardLayout'
 import NotificationCenter from '@/components/NotificationCenter'
 import { getDashboardStats } from '../actions/dashboard'
@@ -76,59 +77,29 @@ const LEVEL_DOT_COLORS: Record<string, string> = {
 export default function DashboardPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
-  const [dashboardStats, setDashboardStats] = useState<DashboardStats | null>(null)
-  const [statsLoading, setStatsLoading] = useState(true)
-  const [generationStats, setGenerationStats] = useState({ used: 0, limit: 10, remaining: 10 })
+
+  // ─── SWR: cached data fetching ───
+  const { data: dashboardStats, isLoading: statsLoading } = useSWR<DashboardStats>(
+    session ? 'dashboard-stats' : null,
+    async () => {
+      const res = await getDashboardStats()
+      if (res.success && res.data) return res.data
+      throw new Error(res.error || 'Failed to fetch stats')
+    }
+  )
+
+  const { data: generationData } = useSWR(
+    session ? 'generation-stats' : null,
+    () => getGenerationStats()
+  )
+
+  const generationStats = generationData || { used: 0, limit: 10, remaining: 10 }
 
   // Date info
   const now = useMemo(() => new Date(), [])
   const dayNum = now.getDate()
   const dayName = now.toLocaleDateString('en-US', { weekday: 'long' })
   const monthYear = now.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
-
-  // Fetch dashboard statistics
-  useEffect(() => {
-    const fetchStats = async () => {
-      if (session) {
-        if (dashboardStats && !statsLoading) return
-
-        try {
-          setStatsLoading(true)
-
-          const withRetry = async <T,>(fn: () => Promise<T>, retries = 2): Promise<T> => {
-            for (let i = 0; i <= retries; i++) {
-              try { return await fn() } catch (err) { if (i === retries) throw err; await new Promise(r => setTimeout(r, 1000 * (i + 1))) }
-            }
-            throw new Error('Exhausted retries')
-          }
-
-          const [dashboardResponse, generationResponse] = await Promise.all([
-            withRetry(() => getDashboardStats()),
-            withRetry(() => getGenerationStats())
-          ])
-          
-          if (dashboardResponse.success && dashboardResponse.data) {
-            setDashboardStats(dashboardResponse.data)
-          }
-          
-          setGenerationStats(generationResponse)
-        } catch (error) {
-          console.error('Error fetching dashboard stats:', error)
-        } finally {
-          setStatsLoading(false)
-        }
-      }
-    }
-
-    fetchStats()
-  }, [session, dashboardStats, statsLoading])
-
-  // Prevent auto-refresh when switching tabs
-  useEffect(() => {
-    const handleVisibilityChange = () => {}
-    document.addEventListener('visibilitychange', handleVisibilityChange)
-    return () => document.removeEventListener('visibilitychange', handleVisibilityChange)
-  }, [])
 
   // Sync subscription after checkout redirect
   useEffect(() => {

@@ -3,6 +3,7 @@
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { useEffect } from "react"
+import { SWRConfig } from "swr"
 import DashboardThemeProvider from "@/components/DashboardThemeProvider"
 
 export default function DashboardRootLayout({
@@ -40,10 +41,17 @@ export default function DashboardRootLayout({
   }
 
   return (
-    <DashboardThemeProvider>
-      <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-white transition-colors">
-        {children}
-      </div>
-    </DashboardThemeProvider>
+    <SWRConfig value={{
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      dedupingInterval: 60000,
+      keepPreviousData: true,
+    }}>
+      <DashboardThemeProvider>
+        <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-white transition-colors">
+          {children}
+        </div>
+      </DashboardThemeProvider>
+    </SWRConfig>
   );
 }

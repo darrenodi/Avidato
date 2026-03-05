@@ -4,6 +4,7 @@ import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import useSWR from 'swr'
 import DashboardLayout from '@/components/layout/DashboardLayout'
 
 type CEFRLevel = 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2'
@@ -32,14 +33,10 @@ export default function YouTubeLessonsLibraryPage() {
   const { status } = useSession()
   const router = useRouter()
 
-  const [lessons, setLessons] = useState<YouTubeLessonSummary[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
   const [filterLevel, setFilterLevel] = useState<string>('all')
   const [searchQuery, setSearchQuery] = useState('')
+  const [debouncedSearch, setDebouncedSearch] = useState('')
   const [page, setPage] = useState(1)
-  const [totalPages, setTotalPages] = useState(1)
-  const [totalCount, setTotalCount] = useState(0)
 
   useEffect(() => {
     if (status === 'unauthenticated') router.push('/login')
@@ -48,35 +45,33 @@ export default function YouTubeLessonsLibraryPage() {
   // Reset to page 1 when filters change
   useEffect(() => {
     setPage(1)
-  }, [filterLevel, searchQuery])
+  }, [filterLevel, debouncedSearch])
 
+  // Debounce search input
   useEffect(() => {
-    if (status !== 'authenticated') return
-
-    const fetchLessons = async () => {
-      setLoading(true)
-      try {
-        const params = new URLSearchParams({ page: String(page) })
-        if (filterLevel !== 'all') params.set('level', filterLevel)
-        if (searchQuery.trim()) params.set('q', searchQuery.trim())
-
-        const res = await fetch(`/api/tools/youtube-to-lesson/library?${params}`)
-        const data = await res.json()
-        if (!res.ok) throw new Error(data.error || 'Failed to fetch lessons')
-        setLessons(data.lessons)
-        setTotalPages(data.totalPages)
-        setTotalCount(data.totalCount)
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to load lessons')
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    // Debounce search queries
-    const timer = setTimeout(fetchLessons, searchQuery ? 300 : 0)
+    const timer = setTimeout(() => setDebouncedSearch(searchQuery.trim()), 300)
     return () => clearTimeout(timer)
-  }, [status, page, filterLevel, searchQuery])
+  }, [searchQuery])
+
+  // ─── SWR: cached lesson fetching ───
+  const { data: lessonsData, isLoading: loading, error: swrError } = useSWR(
+    status === 'authenticated' ? ['youtube-lessons', page, filterLevel, debouncedSearch] : null,
+    async () => {
+      const params = new URLSearchParams({ page: String(page) })
+      if (filterLevel !== 'all') params.set('level', filterLevel)
+      if (debouncedSearch) params.set('q', debouncedSearch)
+
+      const res = await fetch(`/api/tools/youtube-to-lesson/library?${params}`)
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Failed to fetch lessons')
+      return data as { lessons: YouTubeLessonSummary[]; totalPages: number; totalCount: number }
+    }
+  )
+
+  const lessons = lessonsData?.lessons || []
+  const totalPages = lessonsData?.totalPages || 1
+  const totalCount = lessonsData?.totalCount || 0
+  const error = swrError?.message || null
 
   if (status === 'loading' || loading) {
     return (

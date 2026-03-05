@@ -51,6 +51,7 @@
     "recharts": "^3.7.0",
     "resend": "^6.4.1",
     "slugify": "^1.6.6",
+    "swr": "^2.4.1",
     "zod": "^4.1.12"
   },
   "devDependencies": {
