@@ -11,6 +11,7 @@ import type { Session } from 'next-auth'
 interface DashboardStats {
   studentCount: number
   lessonCount: number
+  youtubeLessonCount: number
   recentStudents: Array<{
     id: string
     name: string
@@ -18,6 +19,8 @@ interface DashboardStats {
     level: string
     createdAt: Date
   }>
+  levelDistribution: Array<{ level: string; count: number }>
+  monthlyActivity: Array<{ month: string; lessons: number; students: number }>
 }
 
 /**
@@ -51,8 +54,14 @@ export async function getDashboardStats(): Promise<DashboardResponse> {
       // Use a single transaction for all queries to improve performance
       const result = await Promise.race([
         prisma.$transaction(async (tx) => {
+          // 6 months ago for activity chart
+          const sixMonthsAgo = new Date()
+          sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 5)
+          sixMonthsAgo.setDate(1)
+          sixMonthsAgo.setHours(0, 0, 0, 0)
+
           // Run all queries in parallel within the transaction
-          const [studentCount, lessonCount, recentStudents] = await Promise.all([
+          const [studentCount, lessonCount, youtubeLessonCount, recentStudents, levelGroups, recentLessons, recentStudentsByMonth] = await Promise.all([
             tx.student.count({
               where: {
                 tutorId: userId,
@@ -67,7 +76,10 @@ export async function getDashboardStats(): Promise<DashboardResponse> {
                 }
               }
             }),
-            // Only return the 2 most recently created students for dashboard
+            tx.youTubeLesson.count({
+              where: { createdBy: userId }
+            }),
+            // Only return the 5 most recently created students for dashboard
             tx.student.findMany({
               where: {
                 tutorId: userId,
@@ -83,14 +95,72 @@ export async function getDashboardStats(): Promise<DashboardResponse> {
               orderBy: {
                 createdAt: 'desc'
               },
-              take: 2 // Limit to 2 most recent students
+              take: 5
+            }),
+            // Level distribution
+            tx.student.groupBy({
+              by: ['level'],
+              where: {
+                tutorId: userId,
+                archived: false
+              },
+              _count: { level: true }
+            }),
+            // Lessons created in last 6 months (for monthly chart)
+            tx.lesson.findMany({
+              where: {
+                student: { tutorId: userId },
+                createdAt: { gte: sixMonthsAgo }
+              },
+              select: { createdAt: true }
+            }),
+            // Students created in last 6 months (for monthly chart)
+            tx.student.findMany({
+              where: {
+                tutorId: userId,
+                createdAt: { gte: sixMonthsAgo }
+              },
+              select: { createdAt: true }
             })
           ])
+
+          // Build level distribution
+          const levelDistribution = levelGroups.map(g => ({
+            level: g.level,
+            count: g._count.level
+          })).sort((a, b) => {
+            const order = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']
+            return order.indexOf(a.level) - order.indexOf(b.level)
+          })
+
+          // Build monthly activity for last 6 months
+          const monthlyActivity: Array<{ month: string; lessons: number; students: number }> = []
+          for (let i = 5; i >= 0; i--) {
+            const d = new Date()
+            d.setMonth(d.getMonth() - i)
+            const monthKey = d.toLocaleString('en-US', { month: 'short' })
+            const year = d.getFullYear()
+            const month = d.getMonth()
+            monthlyActivity.push({
+              month: monthKey,
+              lessons: recentLessons.filter(l => {
+                const c = new Date(l.createdAt)
+                return c.getFullYear() === year && c.getMonth() === month
+              }).length,
+              students: recentStudentsByMonth.filter(s => {
+                const c = new Date(s.createdAt)
+                return c.getFullYear() === year && c.getMonth() === month
+              }).length
+            })
+          }
 
           return {
             studentCount,
             lessonCount,
-            recentStudents
+            youtubeLessonCount,
+            recentStudents,
+            levelDistribution,
+            monthlyActivity
           }
         }),
         new Promise((_, reject) => 
@@ -103,6 +173,7 @@ export async function getDashboardStats(): Promise<DashboardResponse> {
         data: result as {
           studentCount: number
           lessonCount: number
+          youtubeLessonCount: number
           recentStudents: Array<{
             id: string
             name: string
@@ -110,6 +181,8 @@ export async function getDashboardStats(): Promise<DashboardResponse> {
             level: string
             createdAt: Date
           }>
+          levelDistribution: Array<{ level: string; count: number }>
+          monthlyActivity: Array<{ month: string; lessons: number; students: number }>
         }
       }
 
@@ -122,7 +195,10 @@ export async function getDashboardStats(): Promise<DashboardResponse> {
         data: {
           studentCount: 0,
           lessonCount: 0,
-          recentStudents: []
+          youtubeLessonCount: 0,
+          recentStudents: [],
+          levelDistribution: [],
+          monthlyActivity: []
         }
       }
     }
