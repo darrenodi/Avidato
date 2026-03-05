@@ -28,9 +28,12 @@ interface WarmUpQuestion {
 
 interface PreTeachItem {
   term: string
-  type: 'noun' | 'verb' | 'adjective'
+  type: 'noun' | 'verb' | 'adjective' | 'adverb'
+  phonetics: string
   definition: string
   exampleSentence: string
+  synonym?: string
+  expressions?: string[]
 }
 
 interface DetailQuestion {
@@ -219,7 +222,7 @@ TRANSCRIPT-FIRST, THEN SUPPLEMENT:
   A strong word from outside the transcript is always better than a weak word from inside it.
 
 SELECTION RULES:
-1. Content words only: nouns, verbs, or adjectives.
+1. Content words only: nouns, verbs, adjectives, or adverbs.
 2. Must be useful in completely different topics — not topic-locked.
 3. Pitch difficulty correctly for CEFR ${level}:
    - A1/A2: genuinely unknown basics (e.g. "profit", "rival", "crisis")
@@ -246,8 +249,13 @@ LENGTH RULE for definitions: Maximum 10 words. Simple and direct.
   ❌ "to change your ideas or behaviour to deal with new situations or conditions"
   ✅ "to change in order to deal with new conditions"
 
-For each word provide: a short definition (max 10 words) and one example sentence NOT from the
-transcript.
+For each word provide:
+  - IPA phonetics (e.g. "/ˈklæsɪfaɪd/")
+  - a short definition (max 10 words)
+  - one example sentence NOT from the transcript
+  - a contextual synonym (leave empty string "" if no simple synonym exists at ${level})
+  - 2-3 expressions/collocations that use the word naturally (empty array [] for A1 students)
+    e.g. for "commit": ["commit a crime", "commit to a plan", "fully committed"]
 
 ══════════════════════════════════════════════
 STAGE 3 — WATCH & COMPREHEND (8-10 min)
@@ -575,8 +583,11 @@ OUTPUT JSON ONLY — no markdown, no explanation, no code fences:
     {
       "term": "single word",
       "type": "noun",
+      "phonetics": "/fəˈnetɪks/",
       "definition": "max 10 words",
-      "exampleSentence": "Example sentence not from transcript"
+      "exampleSentence": "Example sentence not from transcript",
+      "synonym": "contextual synonym or empty string",
+      "expressions": ["collocation 1", "collocation 2"]
     }
   ],
   "detailQuestions": [
@@ -613,7 +624,7 @@ OUTPUT JSON ONLY — no markdown, no explanation, no code fences:
 
 COUNTS (strict — no exceptions):
 - warmUp: exactly 3 items
-- preTeach: exactly 5 items (type: "noun", "verb", or "adjective")
+- preTeach: exactly 5 items (type: "noun", "verb", "adjective", or "adverb")
 - detailQuestions: exactly 5 items
 - discussion: exactly 5 items
 - phrases: exactly 8 items, each 2-5 words (type: "idiom" or "phrasal verb" ONLY)

@@ -18,9 +18,12 @@ interface WarmUpQuestion { id: number; question: string }
 
 interface PreTeachItem {
   term: string
-  type: 'noun' | 'verb' | 'adjective'
+  type: 'noun' | 'verb' | 'adjective' | 'adverb'
+  phonetics: string
   definition: string
   exampleSentence: string
+  synonym?: string
+  expressions?: string[]
 }
 
 interface DetailQuestion { id: number; question: string; answer: string }
@@ -335,9 +338,33 @@ export default function YouTubeToLessonPage() {
   const [transcriptError, setTranscriptError] = useState<string | null>(null)
   const [result, setResult] = useState<YouTubeLessonResult | null>(null)
   const [showAnswers, setShowAnswers] = useState(true)
+  const [playingWord, setPlayingWord] = useState<string | null>(null)
+  const [loadingWord, setLoadingWord] = useState<string | null>(null)
   const [shareCopied, setShareCopied] = useState(false)
   const [shareLoading, setShareLoading] = useState(false)
   const [editingStage, setEditingStage] = useState<string | null>(null)
+
+  const playAudio = async (word: string) => {
+    try {
+      setLoadingWord(word)
+      let response = await fetch(`/api/vocabulary/${encodeURIComponent(word)}/audio`)
+      if (response.status >= 500) {
+        await new Promise(r => setTimeout(r, 1000))
+        response = await fetch(`/api/vocabulary/${encodeURIComponent(word)}/audio`)
+      }
+      if (response.status === 403 || !response.ok) return
+      const data = await response.json()
+      const audio = new Audio(data.audioUrl)
+      setPlayingWord(word)
+      audio.onended = () => setPlayingWord(null)
+      audio.onerror = () => setPlayingWord(null)
+      await audio.play()
+    } catch (error) {
+      console.error('Error playing audio:', error)
+    } finally {
+      setLoadingWord(null)
+    }
+  }
 
   // Shuffle fill-in-the-blanks word box once per generated result
   const shuffledWordBox = useMemo(() => {
@@ -364,8 +391,8 @@ export default function YouTubeToLessonPage() {
         topic: result.topic,
         estimatedMinutes: result.estimatedMinutes,
         warmUp: result.warmUp,
-        preTeach: (result.preTeach || []).map(({ term, type, definition, exampleSentence }) => ({
-          term, type, definition, exampleSentence,
+        preTeach: (result.preTeach || []).map(({ term, type, phonetics, definition, exampleSentence, synonym, expressions }) => ({
+          term, type, phonetics, definition, exampleSentence, ...(synonym && { synonym }), ...(expressions?.length && { expressions }),
         })),
         detailQuestions: (result.detailQuestions || []).map(({ id, question }) => ({ id, question })),
         phrases: (result.phrases || []).map(({ term, type, meaning }) => ({
@@ -740,19 +767,50 @@ export default function YouTubeToLessonPage() {
                 <div className="space-y-4">
                   {result.preTeach.map((item, i) => (
                     <div key={`pt-${i}`} className="p-4 rounded-lg bg-violet-50 dark:bg-violet-900/10 border border-violet-100 dark:border-violet-800/30">
-                      <div className="flex items-baseline gap-2 mb-2">
-                        <span className="font-bold text-gray-900 dark:text-white text-lg">{item.term}</span>
+                      <div className="flex items-baseline gap-2 mb-1">
+                        <span className="font-bold text-blue-600 dark:text-blue-400 text-lg">{item.term}</span>
+                        {item.synonym && (
+                          <span className="text-xs text-gray-500 dark:text-gray-400 italic"><sub>{item.synonym}</sub></span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-3 mb-2">
                         <span className="text-xs px-2 py-0.5 rounded-full bg-violet-100 dark:bg-violet-800/40 text-violet-700 dark:text-violet-300">
                           {item.type}
                         </span>
+                        <button
+                          onClick={() => playAudio(item.term)}
+                          disabled={loadingWord === item.term}
+                          className="text-gray-400 dark:text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 transition-colors disabled:opacity-50"
+                          aria-label={`Play audio for ${item.term}`}
+                        >
+                          {playingWord === item.term ? (
+                            <svg className="w-4 h-4 animate-pulse" fill="currentColor" viewBox="0 0 24 24"><path d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 14.142M9 9a3 3 0 000 6h4a1 1 0 001-1v-4a1 1 0 00-1-1H9z" /></svg>
+                          ) : loadingWord === item.term ? (
+                            <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" /></svg>
+                          ) : (
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 14.142M9 9a3 3 0 000 6h4a1 1 0 001-1v-4a1 1 0 00-1-1H9z" /></svg>
+                          )}
+                        </button>
+                        {item.phonetics && (
+                          <span className="text-orange-600 dark:text-orange-400 font-mono text-sm">{item.phonetics}</span>
+                        )}
                       </div>
                       <p className="text-sm text-gray-700 dark:text-gray-300 mb-1">
-                        <span className="font-medium">Meaning:</span> {formatText(item.definition)}
+                        {formatText(item.definition)}
                       </p>
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
-                        <span className="font-medium">Example:</span> <em>{formatText(item.exampleSentence)}</em>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 italic">
+                        {formatText(item.exampleSentence)}
                       </p>
-
+                      {item.expressions && item.expressions.length > 0 && (
+                        <div className="mt-2 pt-2 border-t border-violet-200 dark:border-violet-700/30">
+                          <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Useful phrases:</span>
+                          <div className="flex flex-wrap gap-1.5 mt-1">
+                            {item.expressions.map((expr, ei) => (
+                              <span key={ei} className="px-2 py-0.5 text-xs bg-amber-50 dark:bg-amber-900/20 text-amber-800 dark:text-amber-300 rounded border border-amber-200 dark:border-amber-800">{expr}</span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
