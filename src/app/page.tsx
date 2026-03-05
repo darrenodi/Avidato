@@ -148,68 +148,17 @@ export default function LandingPage() {
         {/* ============================================================ */}
         {/*  HERO                                                        */}
         {/* ============================================================ */}
-        <section className="relative overflow-hidden pt-20 pb-28 md:pt-28 md:pb-36">
+        <section className="relative overflow-hidden pt-20 pb-16 md:pt-28 md:pb-24">
           <div className="container mx-auto px-4 relative z-10">
-            {/* Center column */}
-            <div className="max-w-2xl mx-auto text-center">
-              <motion.div
-                initial={{ opacity: 0, scale: 0.85 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.45 }}
-                className="mb-7"
-              >
-                <Image
-                  src="/android-chrome-192x192.png"
-                  alt="Avidato"
-                  width={52}
-                  height={52}
-                  priority
-                  className="mx-auto drop-shadow-md rounded-xl"
-                />
-              </motion.div>
+            {/* Hero wrapper — cards positioned around the text */}
+            <div className="relative max-w-5xl mx-auto">
 
-              <motion.h1
-                initial={{ opacity: 0, y: 18 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.12, duration: 0.55 }}
-                className="text-[2.6rem] md:text-[3.75rem] font-extrabold tracking-tight text-gray-900 leading-[1.08]"
-              >
-                Plan, teach, and share
-                <br />
-                <span className="text-gray-400">all in one place</span>
-              </motion.h1>
+              {/* ---- Floating cards (desktop only, positioned around heading) ---- */}
 
-              <motion.p
-                initial={{ opacity: 0, y: 18 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.26, duration: 0.55 }}
-                className="mt-5 text-base md:text-lg text-gray-500 max-w-md mx-auto"
-              >
-                Generate structured ESL lesson plans in minutes. Customize anything. Share with your students instantly.
-              </motion.p>
-
-              <motion.div
-                initial={{ opacity: 0, y: 18 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4, duration: 0.55 }}
-                className="mt-8"
-              >
-                <Link
-                  href="/signup"
-                  className="inline-flex items-center px-7 py-3.5 text-base font-semibold text-white bg-brand-primary rounded-full hover:bg-brand-dark transition-colors shadow-lg shadow-brand-primary/20"
-                >
-                  Get started free
-                  <ArrowForwardIcon className="w-5 h-5 ml-2" />
-                </Link>
-              </motion.div>
-            </div>
-
-            {/* Floating cards around the hero */}
-            <div className="relative mt-16 md:mt-20 max-w-5xl mx-auto hidden md:block" style={{ height: 400 }}>
-              {/* Left: Lesson card */}
+              {/* Top-left: Lesson card */}
               <motion.div
                 custom={0} initial="hidden" animate="visible" variants={floatIn}
-                className="absolute left-0 top-10 w-60 bg-white rounded-2xl shadow-xl border border-gray-100 p-5 -rotate-6 hover:-rotate-3 transition-transform duration-500"
+                className="hidden md:block absolute -left-4 lg:left-0 top-4 w-60 bg-white rounded-2xl shadow-xl border border-gray-100 p-5 -rotate-6 hover:-rotate-3 transition-transform duration-500 z-0"
               >
                 <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-400">Lesson 3 / 10</p>
                 <h3 className="text-sm font-bold mt-1 text-gray-900">Discussing Future Trips</h3>
@@ -224,7 +173,7 @@ export default function LandingPage() {
               {/* Top-right: Student card */}
               <motion.div
                 custom={1} initial="hidden" animate="visible" variants={floatIn}
-                className="absolute right-0 top-0 w-52 bg-white rounded-2xl shadow-xl border border-gray-100 p-5 rotate-6 hover:rotate-3 transition-transform duration-500"
+                className="hidden md:block absolute -right-4 lg:right-0 top-8 w-52 bg-white rounded-2xl shadow-xl border border-gray-100 p-5 rotate-6 hover:rotate-3 transition-transform duration-500 z-0"
               >
                 <div className="flex items-center gap-3 mb-3">
                   <div className="w-8 h-8 rounded-full bg-brand-secondary/20 flex items-center justify-center">
@@ -246,18 +195,10 @@ export default function LandingPage() {
                 </div>
               </motion.div>
 
-              {/* Center: Dashboard screenshot */}
-              <motion.div
-                custom={2} initial="hidden" animate="visible" variants={floatIn}
-                className="absolute left-1/2 -translate-x-1/2 top-4 w-[420px] bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden"
-              >
-                <Image src="/images/dashboard.png" alt="Avidato dashboard" width={840} height={560} className="w-full h-auto" priority />
-              </motion.div>
-
               {/* Bottom-left: YouTube chip */}
               <motion.div
                 custom={3} initial="hidden" animate="visible" variants={floatIn}
-                className="absolute left-20 bottom-0 bg-white rounded-xl shadow-lg border border-gray-100 px-4 py-3 flex items-center gap-3 rotate-3 hover:rotate-0 transition-transform duration-500"
+                className="hidden md:block absolute left-8 lg:left-16 bottom-0 bg-white rounded-xl shadow-lg border border-gray-100 px-4 py-3 flex items-center gap-3 rotate-3 hover:rotate-0 transition-transform duration-500 z-0"
               >
                 <div className="w-8 h-8 rounded-lg bg-red-500/10 flex items-center justify-center">
                   <svg className="w-4 h-4 text-red-500" fill="currentColor" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
@@ -271,7 +212,7 @@ export default function LandingPage() {
               {/* Bottom-right: Share chip */}
               <motion.div
                 custom={4} initial="hidden" animate="visible" variants={floatIn}
-                className="absolute right-16 bottom-6 bg-white rounded-xl shadow-lg border border-gray-100 px-4 py-3 flex items-center gap-3 -rotate-3 hover:rotate-0 transition-transform duration-500"
+                className="hidden md:block absolute right-8 lg:right-16 bottom-2 bg-white rounded-xl shadow-lg border border-gray-100 px-4 py-3 flex items-center gap-3 -rotate-3 hover:rotate-0 transition-transform duration-500 z-0"
               >
                 <div className="w-8 h-8 rounded-lg bg-brand-primary/10 flex items-center justify-center">
                   <AutoAwesomeIcon className="w-4 h-4 text-brand-primary" />
@@ -281,7 +222,72 @@ export default function LandingPage() {
                   <p className="text-[11px] text-gray-400">No login needed</p>
                 </div>
               </motion.div>
+
+              {/* ---- Center column: text content (on top of cards) ---- */}
+              <div className="max-w-2xl mx-auto text-center relative z-10 py-8 md:py-16">
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.85 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.45 }}
+                  className="mb-7"
+                >
+                  <Image
+                    src="/android-chrome-192x192.png"
+                    alt="Avidato"
+                    width={52}
+                    height={52}
+                    priority
+                    className="mx-auto drop-shadow-md rounded-xl"
+                  />
+                </motion.div>
+
+                <motion.h1
+                  initial={{ opacity: 0, y: 18 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.12, duration: 0.55 }}
+                  className="text-[2.6rem] md:text-[3.75rem] font-extrabold tracking-tight text-gray-900 leading-[1.08]"
+                >
+                  Plan, teach, and share
+                  <br />
+                  <span className="text-gray-400">all in one place</span>
+                </motion.h1>
+
+                <motion.p
+                  initial={{ opacity: 0, y: 18 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.26, duration: 0.55 }}
+                  className="mt-5 text-base md:text-lg text-gray-500 max-w-md mx-auto"
+                >
+                  Generate structured ESL lesson plans in minutes. Customize anything. Share with your students instantly.
+                </motion.p>
+
+                <motion.div
+                  initial={{ opacity: 0, y: 18 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.4, duration: 0.55 }}
+                  className="mt-8"
+                >
+                  <Link
+                    href="/signup"
+                    className="inline-flex items-center px-7 py-3.5 text-base font-semibold text-white bg-brand-primary rounded-full hover:bg-brand-dark transition-colors shadow-lg shadow-brand-primary/20"
+                  >
+                    Get started free
+                    <ArrowForwardIcon className="w-5 h-5 ml-2" />
+                  </Link>
+                </motion.div>
+              </div>
+
             </div>
+
+            {/* Dashboard screenshot — below hero on desktop */}
+            <motion.div
+              custom={2} initial="hidden" animate="visible" variants={floatIn}
+              className="hidden md:block max-w-lg mx-auto -mt-4"
+            >
+              <div className="bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden">
+                <Image src="/images/dashboard.png" alt="Avidato dashboard" width={840} height={560} className="w-full h-auto" priority />
+              </div>
+            </motion.div>
 
             {/* Mobile: single screenshot */}
             <motion.div
