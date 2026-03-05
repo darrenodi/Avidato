@@ -158,7 +158,9 @@ export default function LandingPage() {
               {/* Top-left: Lesson card */}
               <motion.div
                 custom={0} initial="hidden" animate="visible" variants={floatIn}
-                className="hidden md:block absolute -left-4 lg:left-0 top-4 w-60 bg-white rounded-2xl shadow-xl border border-gray-100 p-5 -rotate-6 hover:-rotate-3 transition-transform duration-500 z-0"
+                whileHover={{ rotate: -2, x: 8, y: -4, scale: 1.04 }}
+                transition={{ type: 'spring', stiffness: 260, damping: 20 }}
+                className="hidden md:block absolute -left-4 lg:left-0 top-4 w-60 bg-white rounded-2xl shadow-xl hover:shadow-2xl border border-gray-100 p-5 -rotate-6 cursor-pointer z-0"
               >
                 <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-400">Lesson 3 / 10</p>
                 <h3 className="text-sm font-bold mt-1 text-gray-900">Discussing Future Trips</h3>
@@ -173,7 +175,9 @@ export default function LandingPage() {
               {/* Top-right: Student card */}
               <motion.div
                 custom={1} initial="hidden" animate="visible" variants={floatIn}
-                className="hidden md:block absolute -right-4 lg:right-0 top-8 w-52 bg-white rounded-2xl shadow-xl border border-gray-100 p-5 rotate-6 hover:rotate-3 transition-transform duration-500 z-0"
+                whileHover={{ rotate: 2, x: -8, y: -4, scale: 1.04 }}
+                transition={{ type: 'spring', stiffness: 260, damping: 20 }}
+                className="hidden md:block absolute -right-4 lg:right-0 top-8 w-52 bg-white rounded-2xl shadow-xl hover:shadow-2xl border border-gray-100 p-5 rotate-6 cursor-pointer z-0"
               >
                 <div className="flex items-center gap-3 mb-3">
                   <div className="w-8 h-8 rounded-full bg-brand-secondary/20 flex items-center justify-center">
@@ -198,7 +202,9 @@ export default function LandingPage() {
               {/* Bottom-left: YouTube chip */}
               <motion.div
                 custom={3} initial="hidden" animate="visible" variants={floatIn}
-                className="hidden md:block absolute left-8 lg:left-16 bottom-0 bg-white rounded-xl shadow-lg border border-gray-100 px-4 py-3 flex items-center gap-3 rotate-3 hover:rotate-0 transition-transform duration-500 z-0"
+                whileHover={{ rotate: 0, x: 6, y: -6, scale: 1.06 }}
+                transition={{ type: 'spring', stiffness: 260, damping: 20 }}
+                className="hidden md:block absolute left-8 lg:left-16 bottom-0 bg-white rounded-xl shadow-lg hover:shadow-xl border border-gray-100 px-4 py-3 flex items-center gap-3 rotate-3 cursor-pointer z-0"
               >
                 <div className="w-8 h-8 rounded-lg bg-red-500/10 flex items-center justify-center">
                   <svg className="w-4 h-4 text-red-500" fill="currentColor" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
@@ -212,7 +218,9 @@ export default function LandingPage() {
               {/* Bottom-right: Share chip */}
               <motion.div
                 custom={4} initial="hidden" animate="visible" variants={floatIn}
-                className="hidden md:block absolute right-8 lg:right-16 bottom-2 bg-white rounded-xl shadow-lg border border-gray-100 px-4 py-3 flex items-center gap-3 -rotate-3 hover:rotate-0 transition-transform duration-500 z-0"
+                whileHover={{ rotate: 0, x: -6, y: -6, scale: 1.06 }}
+                transition={{ type: 'spring', stiffness: 260, damping: 20 }}
+                className="hidden md:block absolute right-8 lg:right-16 bottom-2 bg-white rounded-xl shadow-lg hover:shadow-xl border border-gray-100 px-4 py-3 flex items-center gap-3 -rotate-3 cursor-pointer z-0"
               >
                 <div className="w-8 h-8 rounded-lg bg-brand-primary/10 flex items-center justify-center">
                   <AutoAwesomeIcon className="w-4 h-4 text-brand-primary" />
