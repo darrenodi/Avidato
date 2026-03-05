@@ -8,7 +8,6 @@ import useSWR from 'swr'
 import DashboardLayout from '@/components/layout/DashboardLayout'
 import NotificationCenter from '@/components/NotificationCenter'
 import { getDashboardStats } from '../actions/dashboard'
-import { getGenerationStats } from '../actions/ai-generation'
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
   AreaChart, Area
@@ -31,6 +30,9 @@ interface DashboardStats {
   studentCount: number
   lessonCount: number
   youtubeLessonCount: number
+  lessonsThisWeek: number
+  teachingStreak: number
+  weeklyActivity: number[]
   recentStudents: Array<{
     id: string
     name: string
@@ -40,33 +42,6 @@ interface DashboardStats {
   }>
   levelDistribution: Array<{ level: string; count: number }>
   monthlyActivity: Array<{ month: string; lessons: number; students: number }>
-}
-
-/* ───────── Circular Progress Ring ───────── */
-function ProgressRing({ value, max, label, sublabel }: { value: number; max: number; label: string; sublabel: string }) {
-  const pct = max > 0 ? Math.round((value / max) * 100) : 0
-  const r = 54
-  const circ = 2 * Math.PI * r
-  const offset = circ - (pct / 100) * circ
-
-  return (
-    <div className="flex flex-col items-center justify-center">
-      <div className="relative w-32 h-32">
-        <svg className="w-full h-full -rotate-90" viewBox="0 0 128 128">
-          <circle cx="64" cy="64" r={r} fill="none" stroke="currentColor" strokeWidth="8" className="text-gray-100 dark:text-gray-700" />
-          <circle cx="64" cy="64" r={r} fill="none" stroke="currentColor" strokeWidth="8"
-            strokeDasharray={circ} strokeDashoffset={offset} strokeLinecap="round"
-            className="text-brand-primary transition-all duration-700"
-          />
-        </svg>
-        <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-2xl font-bold text-gray-900 dark:text-white">{pct}%</span>
-        </div>
-      </div>
-      <p className="mt-2 text-sm font-medium text-gray-900 dark:text-white">{label}</p>
-      <p className="text-xs text-gray-400 dark:text-gray-500">{sublabel}</p>
-    </div>
-  )
 }
 
 /* ───────── Level Dot Grid ───────── */
@@ -87,13 +62,6 @@ export default function DashboardPage() {
       throw new Error(res.error || 'Failed to fetch stats')
     }
   )
-
-  const { data: generationData } = useSWR(
-    session ? 'generation-stats' : null,
-    () => getGenerationStats()
-  )
-
-  const generationStats = generationData || { used: 0, limit: 10, remaining: 10 }
 
   // Date info
   const now = useMemo(() => new Date(), [])
@@ -133,10 +101,12 @@ export default function DashboardPage() {
 
   const extendedSession = session as ExtendedSession
   const firstName = extendedSession.user?.name?.split(' ')[0] || 'there'
-  const usagePct = generationStats.limit > 0 ? generationStats.used : 0
   const totalStudents = dashboardStats?.studentCount || 0
   const totalLessons = dashboardStats?.lessonCount || 0
   const ytLessons = dashboardStats?.youtubeLessonCount || 0
+  const lessonsThisWeek = dashboardStats?.lessonsThisWeek || 0
+  const teachingStreak = dashboardStats?.teachingStreak || 0
+  const weeklyActivity = dashboardStats?.weeklyActivity || [0, 0, 0, 0, 0, 0, 0]
   const levelDist = dashboardStats?.levelDistribution || []
   const monthlyData = dashboardStats?.monthlyActivity || []
 
@@ -208,20 +178,51 @@ export default function DashboardPage() {
             )}
           </div>
 
-          {/* Card 3: Usage Ring (spans 1 col, 2 rows) */}
-          <div className="col-span-1 row-span-2 bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-5 sm:p-6 flex flex-col items-center justify-center">
+          {/* Card 3: This Week (spans 1 col, 2 rows) */}
+          <div className="col-span-1 row-span-2 bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-5 sm:p-6 flex flex-col justify-between">
             {statsLoading ? (
-              <div className="animate-pulse flex flex-col items-center gap-3">
-                <div className="w-28 h-28 rounded-full bg-gray-200 dark:bg-gray-700" />
+              <div className="animate-pulse flex flex-col gap-3">
                 <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-20" />
+                <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded w-14" />
+                <div className="flex gap-1.5 mt-auto">{[...Array(7)].map((_, i) => <div key={i} className="h-8 w-full bg-gray-200 dark:bg-gray-700 rounded" />)}</div>
               </div>
             ) : (
-              <ProgressRing
-                value={usagePct}
-                max={generationStats.limit === -1 ? 100 : generationStats.limit}
-                label="Daily Usage"
-                sublabel={generationStats.limit === -1 ? 'Unlimited' : `${generationStats.used} of ${generationStats.limit}`}
-              />
+              <>
+                <div>
+                  <p className="text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wide">This Week</p>
+                  <p className="text-4xl font-bold text-gray-900 dark:text-white tracking-tight mt-2">{lessonsThisWeek}</p>
+                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">lesson{lessonsThisWeek !== 1 ? 's' : ''} created</p>
+                </div>
+                {/* Weekly activity bars (Mon → Sun) */}
+                <div className="flex items-end gap-1.5 mt-4">
+                  {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((day, i) => {
+                    const max = Math.max(...weeklyActivity, 1)
+                    const height = weeklyActivity[i] > 0
+                      ? Math.max(20, (weeklyActivity[i] / max) * 100)
+                      : 8
+                    const isToday = (() => {
+                      const d = new Date().getDay()
+                      const todayIdx = d === 0 ? 6 : d - 1
+                      return i === todayIdx
+                    })()
+                    return (
+                      <div key={i} className="flex flex-col items-center gap-1 flex-1">
+                        <div
+                          className={`w-full rounded-md transition-all ${
+                            weeklyActivity[i] > 0
+                              ? 'bg-brand-primary'
+                              : isToday
+                                ? 'bg-gray-200 dark:bg-gray-600'
+                                : 'bg-gray-100 dark:bg-gray-700'
+                          }`}
+                          style={{ height: `${height}%`, minHeight: '4px' }}
+                        />
+                        <span className={`text-[9px] ${isToday ? 'font-bold text-gray-900 dark:text-white' : 'text-gray-400 dark:text-gray-500'}`}>{day}</span>
+                      </div>
+                    )
+                  })}
+                </div>
+              </>
             )}
           </div>
 
@@ -250,19 +251,19 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* Card 5: Remaining Generations */}
+          {/* Card 5: Teaching Streak */}
           <div className="col-span-1 bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-5 sm:p-6 flex flex-col justify-between min-h-[160px]">
             <div className="w-9 h-9 rounded-xl bg-amber-50 dark:bg-amber-900/30 flex items-center justify-center">
-              <svg className="w-4.5 h-4.5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+              <svg className="w-4.5 h-4.5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.879 16.121A3 3 0 1012.015 11L11 14H9c0 .768.293 1.536.879 2.121z" /></svg>
             </div>
             {statsLoading ? (
               <div className="animate-pulse"><div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-12 mb-1" /><div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-16" /></div>
             ) : (
               <div>
                 <p className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white tracking-tight">
-                  {generationStats.limit === -1 ? '∞' : generationStats.remaining}
+                  {teachingStreak}
                 </p>
-                <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Remaining Today</p>
+                <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Day Streak {teachingStreak > 0 ? '🔥' : ''}</p>
               </div>
             )}
           </div>

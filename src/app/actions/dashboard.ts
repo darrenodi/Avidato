@@ -12,6 +12,9 @@ interface DashboardStats {
   studentCount: number
   lessonCount: number
   youtubeLessonCount: number
+  lessonsThisWeek: number
+  teachingStreak: number
+  weeklyActivity: number[]          // 7 values, Mon → Sun
   recentStudents: Array<{
     id: string
     name: string
@@ -60,8 +63,21 @@ export async function getDashboardStats(): Promise<DashboardResponse> {
           sixMonthsAgo.setDate(1)
           sixMonthsAgo.setHours(0, 0, 0, 0)
 
+          // Start of current week (Monday 00:00)
+          const now = new Date()
+          const dayOfWeek = now.getDay()            // 0=Sun … 6=Sat
+          const mondayOffset = dayOfWeek === 0 ? 6 : dayOfWeek - 1
+          const weekStart = new Date(now)
+          weekStart.setDate(weekStart.getDate() - mondayOffset)
+          weekStart.setHours(0, 0, 0, 0)
+
+          // 60 days back for streak calculation
+          const sixtyDaysAgo = new Date()
+          sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60)
+          sixtyDaysAgo.setHours(0, 0, 0, 0)
+
           // Run all queries in parallel within the transaction
-          const [studentCount, lessonCount, youtubeLessonCount, recentStudents, levelGroups, recentLessons, recentStudentsByMonth] = await Promise.all([
+          const [studentCount, lessonCount, youtubeLessonCount, recentStudents, levelGroups, recentLessons, recentStudentsByMonth, lessonsForWeek, lessonsForStreak] = await Promise.all([
             tx.student.count({
               where: {
                 tutorId: userId,
@@ -121,6 +137,22 @@ export async function getDashboardStats(): Promise<DashboardResponse> {
                 createdAt: { gte: sixMonthsAgo }
               },
               select: { createdAt: true }
+            }),
+            // Lessons created this week (Mon–Sun) for weekly dots
+            tx.lesson.findMany({
+              where: {
+                student: { tutorId: userId },
+                createdAt: { gte: weekStart }
+              },
+              select: { createdAt: true }
+            }),
+            // Lessons created in last 60 days for streak calculation
+            tx.lesson.findMany({
+              where: {
+                student: { tutorId: userId },
+                createdAt: { gte: sixtyDaysAgo }
+              },
+              select: { createdAt: true }
             })
           ])
 
@@ -154,10 +186,45 @@ export async function getDashboardStats(): Promise<DashboardResponse> {
             })
           }
 
+          // Build weekly activity (Mon=0 … Sun=6)
+          const weeklyActivity = [0, 0, 0, 0, 0, 0, 0]
+          for (const l of lessonsForWeek) {
+            const d = new Date(l.createdAt).getDay()     // 0=Sun
+            const idx = d === 0 ? 6 : d - 1              // remap to Mon=0
+            weeklyActivity[idx]++
+          }
+
+          // Calculate teaching streak (consecutive days with ≥1 lesson, going backwards from today)
+          const streakDays = new Set<string>()
+          for (const l of lessonsForStreak) {
+            const d = new Date(l.createdAt)
+            streakDays.add(`${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`)
+          }
+          let teachingStreak = 0
+          const cursor = new Date()
+          cursor.setHours(0, 0, 0, 0)
+          // If no lessons today, check if yesterday had lessons (allow in-progress day)
+          const todayKey = `${cursor.getFullYear()}-${cursor.getMonth()}-${cursor.getDate()}`
+          if (!streakDays.has(todayKey)) {
+            cursor.setDate(cursor.getDate() - 1)
+          }
+          while (true) {
+            const key = `${cursor.getFullYear()}-${cursor.getMonth()}-${cursor.getDate()}`
+            if (streakDays.has(key)) {
+              teachingStreak++
+              cursor.setDate(cursor.getDate() - 1)
+            } else {
+              break
+            }
+          }
+
           return {
             studentCount,
             lessonCount,
             youtubeLessonCount,
+            lessonsThisWeek: lessonsForWeek.length,
+            teachingStreak,
+            weeklyActivity,
             recentStudents,
             levelDistribution,
             monthlyActivity
@@ -170,20 +237,7 @@ export async function getDashboardStats(): Promise<DashboardResponse> {
 
       return {
         success: true,
-        data: result as {
-          studentCount: number
-          lessonCount: number
-          youtubeLessonCount: number
-          recentStudents: Array<{
-            id: string
-            name: string
-            targetLanguage: string
-            level: string
-            createdAt: Date
-          }>
-          levelDistribution: Array<{ level: string; count: number }>
-          monthlyActivity: Array<{ month: string; lessons: number; students: number }>
-        }
+        data: result as DashboardStats
       }
 
     } catch (error) {
@@ -196,6 +250,9 @@ export async function getDashboardStats(): Promise<DashboardResponse> {
           studentCount: 0,
           lessonCount: 0,
           youtubeLessonCount: 0,
+          lessonsThisWeek: 0,
+          teachingStreak: 0,
+          weeklyActivity: [0, 0, 0, 0, 0, 0, 0],
           recentStudents: [],
           levelDistribution: [],
           monthlyActivity: []
