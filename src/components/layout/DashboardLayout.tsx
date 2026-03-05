@@ -68,7 +68,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
       {/* Sidebar - both desktop and mobile */}
       <div className={`
-        fixed inset-y-0 left-0 z-50 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 transition-all duration-300 ease-in-out lg:relative lg:translate-x-0 h-screen overflow-hidden
+        fixed inset-y-0 left-0 z-50 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 transition-all duration-300 ease-in-out lg:relative lg:translate-x-0 h-screen overflow-y-auto
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
         ${sidebarCollapsed ? 'lg:w-16' : 'lg:w-64'}
         w-64

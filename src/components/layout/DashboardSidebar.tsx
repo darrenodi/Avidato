@@ -255,7 +255,7 @@ export default function DashboardSidebar({
       </nav>
 
       {/* Bottom Navigation and User Section */}
-      <div className="border-t border-gray-200 dark:border-gray-700 p-3 space-y-1">
+      <div className="border-t border-gray-200 dark:border-gray-700 p-3 space-y-1 flex-shrink-0">
         {bottomNavigation.map((item) => {
           const isActive = isActiveRoute(item.href)
           return (
