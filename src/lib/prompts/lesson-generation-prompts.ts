@@ -101,9 +101,9 @@ WARMUP GENERATION RULES (STRICT):
 - DO NOT add a 4th item to the array
 - DO NOT add a 4th question with text like "Discuss the questions" - that's the instruction, NOT a question
 - Natural, conversational tone - NOT textbook style
-- Each question should be 1-2 sentences max
+- Each question should be SHORT — MAX 15 words. Keep it punchy and conversational.
+- NEVER use the student's name in the questions. Write generic "you" questions.
 - Questions directly relate to the work scenario in the dialogue
-- Include follow-up potential ("Why?" or "What made you..." style)
 - Questions should activate student's professional experience and perspective
 - Just simple question text - no labels, titles, or metadata
 - Do NOT include duplicate text
@@ -208,7 +208,8 @@ Format: { "type": "sentence-correction", "title": "[title in ${student.targetLan
 **Exercise 6: Discussion** (12 min)
 MERGED DISCUSSION EXERCISE - Combines free practice and extended conversation into one section:
 - Generate exactly 5 questions total
-- Questions should be short, direct, and conversational
+- Questions should be SHORT — MAX 15 words each. Direct and conversational.
+- NEVER use the student's name in the questions. Write generic "you" questions.
 - NO instructional language (avoid "explain", "describe", "how do you approach", "tell me about")
 - NO framing or explanations before questions
 - Assume the student has real work experience

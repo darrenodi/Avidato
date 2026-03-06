@@ -651,7 +651,7 @@ export default function LessonPage() {
                         </div>
                         <div className="min-w-0 flex-1">
                           <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white truncate">
-                            {exercise.title}
+                            <span className="text-brand-primary">Exercise {index + 1}:</span> {exercise.title}
                           </h3>
                           <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
                             {exercise.timeMinutes} minutes
