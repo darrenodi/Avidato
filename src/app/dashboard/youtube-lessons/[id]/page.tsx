@@ -247,6 +247,7 @@ export default function YouTubeLessonDetailPage() {
   const [result, setResult] = useState<YouTubeLessonData | null>(null)
   const [lessonDbId, setLessonDbId] = useState<string | null>(null)
   const [creatorName, setCreatorName] = useState<string | null>(null)
+  const [isOwner, setIsOwner] = useState(false)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [showAnswers, setShowAnswers] = useState(true)
@@ -255,6 +256,8 @@ export default function YouTubeLessonDetailPage() {
   const [shareCopied, setShareCopied] = useState(false)
   const [shareLoading, setShareLoading] = useState(false)
   const [editingStage, setEditingStage] = useState<string | null>(null)
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [deleting, setDeleting] = useState(false)
 
   const playAudio = async (word: string) => {
     try {
@@ -299,6 +302,7 @@ export default function YouTubeLessonDetailPage() {
         const lesson = json.lesson
         setLessonDbId(lesson.id)
         setCreatorName(lesson.creator?.name || null)
+        setIsOwner(!!lesson.isOwner)
 
         // The full lesson data is stored in the `data` JSON field
         const data = lesson.data as YouTubeLessonData
@@ -458,10 +462,46 @@ export default function YouTubeLessonDetailPage() {
                   <><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg>Share with Student</>
                 )}
               </button>
+              {isOwner && (
+                <button type="button" onClick={() => setShowDeleteConfirm(true)}
+                  className="text-sm px-4 py-2 rounded-md border border-red-300 dark:border-red-700 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors">
+                  Delete
+                </button>
+              )}
               {result.sourceUrl && (
                 <a href={result.sourceUrl} target="_blank" rel="noreferrer" className="ml-auto text-sm text-brand-primary hover:underline font-medium">Open Video &rarr;</a>
               )}
             </div>
+
+            {/* Delete confirmation */}
+            {showDeleteConfirm && (
+              <div className="mt-4 p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
+                <p className="text-sm text-red-700 dark:text-red-300 font-medium mb-3">Are you sure you want to delete this lesson? This cannot be undone.</p>
+                <div className="flex gap-2">
+                  <button type="button" onClick={async () => {
+                    setDeleting(true)
+                    try {
+                      const res = await fetch(`/api/tools/youtube-to-lesson/library/${lessonDbId}`, { method: 'DELETE' })
+                      if (!res.ok) {
+                        const json = await res.json()
+                        throw new Error(json.error || 'Failed to delete')
+                      }
+                      router.push('/dashboard/youtube-lessons')
+                    } catch (err) {
+                      alert(err instanceof Error ? err.message : 'Failed to delete lesson')
+                      setDeleting(false)
+                    }
+                  }} disabled={deleting}
+                    className="text-sm px-4 py-2 rounded-md bg-red-600 text-white hover:bg-red-700 transition-colors disabled:opacity-50">
+                    {deleting ? 'Deleting...' : 'Yes, Delete'}
+                  </button>
+                  <button type="button" onClick={() => setShowDeleteConfirm(false)}
+                    className="text-sm px-4 py-2 rounded-md border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
           </Card>
 
           {/* ---- STAGE 1: Warm-Up ---- */}

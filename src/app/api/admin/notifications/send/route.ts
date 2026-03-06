@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { sendNotificationEmail } from '@/lib/email-service';
 
 export async function POST(request: NextRequest) {
   try {
@@ -41,7 +42,7 @@ export async function POST(request: NextRequest) {
 
     // Parse request body
     const body = await request.json();
-    const { type, title, message, link, sendToAll, recipientIds } = body;
+    const { type, title, message, link, sendToAll, recipientIds, sendEmail = true } = body;
 
     // Validation
     if (!type || !title || !message) {
@@ -75,7 +76,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create notifications for each user
+    // Create in-app notifications for each user
     const notifications = await prisma.notification.createMany({
       data: targetUserIds.map(userId => ({
         userId,
@@ -86,11 +87,43 @@ export async function POST(request: NextRequest) {
       }))
     });
 
+    // Send emails to recipients (non-blocking — don't fail the request if emails fail)
+    let emailsSent = 0;
+    let emailsFailed = 0;
+
+    if (sendEmail) {
+      // Fetch recipient emails
+      const recipients = await prisma.user.findMany({
+        where: { id: { in: targetUserIds } },
+        select: { email: true, name: true },
+      });
+
+      // Send emails in batches of 10 to avoid rate limits
+      const batchSize = 10;
+      for (let i = 0; i < recipients.length; i += batchSize) {
+        const batch = recipients.slice(i, i + batchSize);
+        const results = await Promise.allSettled(
+          batch.map(r =>
+            sendNotificationEmail(r.email, r.name, type, title, message, link)
+          )
+        );
+        results.forEach(result => {
+          if (result.status === 'fulfilled' && result.value.success) {
+            emailsSent++;
+          } else {
+            emailsFailed++;
+          }
+        });
+      }
+    }
+
     return NextResponse.json(
       {
         success: true,
         message: `Notification sent to ${notifications.count} users`,
-        count: notifications.count
+        count: notifications.count,
+        emailsSent,
+        emailsFailed,
       },
       { status: 201 }
     );

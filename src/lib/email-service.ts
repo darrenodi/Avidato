@@ -418,3 +418,109 @@ export async function sendPlacementTestCompleteEmail(
     // Don't throw - email failure shouldn't break test completion
   }
 }
+
+// ─── Admin Notification Email ────────────────────────────────────────
+
+export async function sendNotificationEmail(
+  recipientEmail: string,
+  recipientName: string | null,
+  notificationType: string,
+  notificationTitle: string,
+  notificationMessage: string,
+  notificationLink?: string | null
+) {
+  try {
+    const typeEmoji: Record<string, string> = {
+      announcement: '📢',
+      feature: '✨',
+      update: '🔄',
+      maintenance: '🔧',
+      alert: '⚠️',
+    }
+
+    const typeLabel: Record<string, string> = {
+      announcement: 'Announcement',
+      feature: 'New Feature',
+      update: 'System Update',
+      maintenance: 'Maintenance Notice',
+      alert: 'Important Alert',
+    }
+
+    const emoji = typeEmoji[notificationType] || '📢'
+    const label = typeLabel[notificationType] || 'Notification'
+    const baseUrl = getBaseUrl()
+    const ctaUrl = notificationLink
+      ? (notificationLink.startsWith('http') ? notificationLink : `${baseUrl}${notificationLink}`)
+      : `${baseUrl}/dashboard`
+
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <style>
+            body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .header { background: linear-gradient(135deg, #3d74b5 0%, #467bab 100%); color: white; padding: 30px 20px; text-align: center; border-radius: 8px 8px 0 0; }
+            .header h1 { margin: 0; font-size: 24px; font-weight: bold; }
+            .header .type-badge { display: inline-block; background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 20px; font-size: 12px; margin-top: 8px; }
+            .content { background: #f9fafb; padding: 30px 20px; border-radius: 0 0 8px 8px; }
+            .greeting { font-size: 16px; margin-bottom: 16px; color: #252e48; }
+            .message-box { background: white; border-radius: 8px; padding: 20px; border: 1px solid #e5e7eb; margin: 20px 0; font-size: 14px; color: #4b5563; line-height: 1.8; white-space: pre-line; }
+            .button-wrapper { text-align: center; margin: 24px 0; }
+            .cta-button { display: inline-block; background: #3d74b5 !important; color: white !important; padding: 12px 32px !important; text-decoration: none !important; border-radius: 6px; font-weight: 600 !important; font-size: 14px !important; }
+            .footer { font-size: 12px; color: #999; margin-top: 20px; text-align: center; }
+            .footer a { color: #3d74b5; text-decoration: none; }
+            .unsubscribe { font-size: 11px; color: #bbb; text-align: center; margin-top: 16px; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <h1>${emoji} ${notificationTitle}</h1>
+              <div class="type-badge">${label}</div>
+            </div>
+            <div class="content">
+              <div class="greeting">
+                Hi ${recipientName || 'there'},
+              </div>
+              <div class="message-box">
+                ${notificationMessage.replace(/\n/g, '<br>')}
+              </div>
+              ${notificationLink ? `
+              <div class="button-wrapper">
+                <a href="${ctaUrl}" class="cta-button">View Details</a>
+              </div>
+              ` : ''}
+              <div class="footer">
+                <p>© ${new Date().getFullYear()} Avidato. All rights reserved.</p>
+                <p><a href="${baseUrl}/privacy">Privacy Policy</a> | <a href="${baseUrl}/terms">Terms of Service</a></p>
+              </div>
+              <div class="unsubscribe">
+                You're receiving this because you have an Avidato account.
+              </div>
+            </div>
+          </div>
+        </body>
+      </html>
+    `
+
+    const response = await resend.emails.send({
+      from: 'support@avidato.com',
+      to: recipientEmail,
+      subject: `${emoji} ${notificationTitle}`,
+      html: htmlContent,
+    })
+
+    if (response.error) {
+      console.error('Resend error (notification):', response.error)
+      return { success: false, error: response.error.message }
+    }
+
+    return { success: true }
+  } catch (error) {
+    console.error('Email service error (notification):', error)
+    return { success: false, error: String(error) }
+  }
+}

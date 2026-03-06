@@ -30,6 +30,11 @@ export async function GET(
       },
     })
 
+    // Attach createdBy so the frontend can check ownership
+    if (lesson) {
+      (lesson as Record<string, unknown>).isOwner = lesson.createdBy === session.user.id
+    }
+
     if (!lesson) {
       return NextResponse.json({ error: 'Lesson not found' }, { status: 404 })
     }
@@ -78,6 +83,52 @@ export async function PATCH(
     console.error('Error updating YouTube lesson:', error)
     return NextResponse.json(
       { error: 'Failed to update YouTube lesson' },
+      { status: 500 }
+    )
+  }
+}
+
+/**
+ * DELETE /api/tools/youtube-to-lesson/library/[id]
+ *
+ * Deletes a YouTube lesson. Only the creator or an admin can delete.
+ */
+export async function DELETE(
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const session = await getServerSession(authOptions)
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const { id } = await params
+
+    const lesson = await prisma.youTubeLesson.findUnique({
+      where: { id },
+      select: { createdBy: true },
+    })
+
+    if (!lesson) {
+      return NextResponse.json({ error: 'Lesson not found' }, { status: 404 })
+    }
+
+    // Only the creator or an admin can delete
+    if (lesson.createdBy !== session.user.id && !session.user.isAdmin) {
+      return NextResponse.json(
+        { error: 'You can only delete lessons you created' },
+        { status: 403 }
+      )
+    }
+
+    await prisma.youTubeLesson.delete({ where: { id } })
+
+    return NextResponse.json({ success: true })
+  } catch (error) {
+    console.error('Error deleting YouTube lesson:', error)
+    return NextResponse.json(
+      { error: 'Failed to delete YouTube lesson' },
       { status: 500 }
     )
   }
