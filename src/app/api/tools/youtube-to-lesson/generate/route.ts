@@ -796,9 +796,10 @@ export async function POST(request: NextRequest) {
     // -----------------------------------------------------------------------
     // Auto-save to YouTube Lessons library
     // -----------------------------------------------------------------------
+    let savedLessonId: string | null = null
     if (resolvedSourceUrl) {
       try {
-        await prisma.youTubeLesson.upsert({
+        const saved = await prisma.youTubeLesson.upsert({
           where: {
             sourceUrl_level: { sourceUrl: resolvedSourceUrl, level },
           },
@@ -818,13 +819,14 @@ export async function POST(request: NextRequest) {
             topic: response.topic || null,
           },
         })
+        savedLessonId = saved.id
       } catch (saveError) {
         // Don't fail the request if library save fails
         console.error('Failed to save YouTube lesson to library:', saveError)
       }
     }
 
-    return NextResponse.json(response)
+    return NextResponse.json({ ...response, savedLessonId })
   } catch (error) {
     console.error('Error generating YouTube lesson:', error)
 

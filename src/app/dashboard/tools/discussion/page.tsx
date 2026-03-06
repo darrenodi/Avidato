@@ -2,7 +2,7 @@
 
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import DashboardLayout from '@/components/layout/DashboardLayout'
 
 interface DiscussionQuestion {
@@ -45,6 +45,7 @@ export default function DiscussionToolPage() {
   const [loading, setLoading] = useState(false)
   const [discussion, setDiscussion] = useState<Discussion | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const resultsRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -78,6 +79,10 @@ export default function DiscussionToolPage() {
 
       const data = await response.json()
       setDiscussion(data)
+      // Scroll to results after a short delay for rendering
+      setTimeout(() => {
+        resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }, 100)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred')
     } finally {
@@ -252,7 +257,7 @@ export default function DiscussionToolPage() {
 
         {/* Discussion Results */}
         {discussion && (
-          <div className="space-y-6">
+          <div ref={resultsRef} className="space-y-6">
             {/* Header */}
             <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 shadow-sm">
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">

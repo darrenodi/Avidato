@@ -489,6 +489,12 @@ export default function YouTubeToLessonPage() {
         data.sourceUrl = `https://www.youtube.com/watch?v=${videoId}`
       }
 
+      // Redirect to the saved lesson detail page
+      if (data.savedLessonId) {
+        router.push(`/dashboard/youtube-lessons/${data.savedLessonId}`)
+        return
+      }
+
       setResult(data)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred')
