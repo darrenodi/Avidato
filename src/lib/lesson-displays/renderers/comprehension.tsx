@@ -73,13 +73,13 @@ export const ComprehensionRenderer: React.FC<ComprehensionRendererProps> = ({
         {questions.map((q, index) => (
           <div
             key={index}
-            className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6"
+            className="rounded-lg p-4 sm:p-6"
           >
             {/* Question Number and Text */}
             <div className="mb-4">
               <div className="flex items-start gap-3 mb-2">
-                <span className="flex-shrink-0 w-6 h-6 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-full flex items-center justify-center text-sm font-bold">
-                  {index + 1}
+                <span className="flex-shrink-0 w-6 h-6 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-sm font-bold">
+                  {index + 1}.
                 </span>
                 <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white flex-1">
                   {formatText(q.question)}
@@ -90,7 +90,7 @@ export const ComprehensionRenderer: React.FC<ComprehensionRendererProps> = ({
             {/* Question Type Badge */}
             {q.type && (
               <div className="mb-3">
-                <span className="inline-block px-2 py-1 text-xs font-medium rounded bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300">
+                <span className="inline-block px-2 py-1 text-xs font-medium rounded text-gray-600 dark:text-gray-400">
                   {q.type === 'multiple-choice' && '📋 Multiple Choice'}
                   {q.type === 'open-ended' && '✏️ Open-ended'}
                   {q.type === 'true-false' && '✓ True/False'}
@@ -132,12 +132,11 @@ export const ComprehensionRenderer: React.FC<ComprehensionRendererProps> = ({
                           {showWrong && <span className="ml-auto text-lg font-bold">✗</span>}
                         </div>
                       </button>
-                      {/* Show feedback below selected answer */}
                       {hasAnswered && isSelected && (
                         <div className={`mt-1 text-sm font-bold px-2 py-1 rounded flex items-center gap-1 ${
                           isCorrect 
-                            ? 'text-green-700 dark:text-green-300 bg-green-50 dark:bg-green-900/20' 
-                            : 'text-red-700 dark:text-red-300 bg-red-50 dark:bg-red-900/20'
+                            ? 'text-green-700 dark:text-green-300' 
+                            : 'text-red-700 dark:text-red-300'
                         }`}>
                           {isCorrect ? (
                             <>
@@ -195,8 +194,8 @@ export const ComprehensionRenderer: React.FC<ComprehensionRendererProps> = ({
                 {answeredQuestions.has(index) && (
                   <div className={`text-sm font-bold px-2 py-1 rounded flex items-center gap-1 ${
                     selectedAnswers[index] === q.answer
-                      ? 'text-green-700 dark:text-green-300 bg-green-50 dark:bg-green-900/20' 
-                      : 'text-red-700 dark:text-red-300 bg-red-50 dark:bg-red-900/20'
+                      ? 'text-green-700 dark:text-green-300' 
+                      : 'text-red-700 dark:text-red-300'
                   }`}>
                     {selectedAnswers[index] === q.answer ? (
                       <>
@@ -235,9 +234,9 @@ export const ComprehensionRenderer: React.FC<ComprehensionRendererProps> = ({
                   {revealedAnswers.has(index) ? 'Hide Answer' : 'Show Answer'}
                 </button>
                 {revealedAnswers.has(index) && (
-                  <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-3">
+                  <div className="rounded-lg p-3">
                     <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-1">✅ Expected Answer:</p>
-                    <p className="text-sm text-green-800 dark:text-green-200 font-medium">{formatText(q.answer)}</p>
+                    <p className="text-sm text-gray-900 dark:text-white font-medium">{formatText(q.answer)}</p>
                   </div>
                 )}
               </div>
@@ -245,7 +244,7 @@ export const ComprehensionRenderer: React.FC<ComprehensionRendererProps> = ({
 
             {/* Short-answer — Student view (no answer shown) */}
             {(q.type === 'short-answer' || (!q.type && !q.options)) && !isTutorView && (
-              <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded text-sm text-blue-700 dark:text-blue-300">
+              <div className="mt-3 p-3 rounded text-sm text-gray-600 dark:text-gray-400">
                 ✏️ <strong>Your turn:</strong> Answer this question in your own words.
               </div>
             )}
@@ -254,8 +253,8 @@ export const ComprehensionRenderer: React.FC<ComprehensionRendererProps> = ({
       </div>
 
       {/* Study Tip */}
-      <div className="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800 rounded-lg p-4">
-        <p className="text-sm text-indigo-800 dark:text-indigo-300">
+      <div className="rounded-lg p-4">
+        <p className="text-sm text-gray-600 dark:text-gray-400">
           🎯 <strong>Tip:</strong> Click on an answer to check if it&apos;s correct. You&apos;ll see instant feedback below each question!
         </p>
       </div>

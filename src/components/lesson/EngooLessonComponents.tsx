@@ -158,7 +158,7 @@ export function VocabularyExercise({ vocabulary }: { vocabulary: VocabularyItem[
                     {item.expressions.map((expr, exprIndex) => (
                       <span
                         key={exprIndex}
-                        className="px-2 py-1 text-xs bg-amber-50 dark:bg-amber-900/20 text-amber-800 dark:text-amber-300 rounded border border-amber-200 dark:border-amber-800"
+                        className="px-2 py-1 text-xs bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded"
                       >
                         {expr}
                       </span>
@@ -281,8 +281,8 @@ export function DialogueExercise({
   return (
     <div className="space-y-6">
       {context && (
-        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-          <p className="text-blue-800 dark:text-blue-400 text-sm">
+        <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+          <p className="text-gray-700 dark:text-gray-300 text-sm">
             <strong>Context:</strong>{' '}
             {formatText(context)}
           </p>
@@ -454,7 +454,7 @@ export function ComprehensionExercise({
               )}
               
               {q.type === 'multiple-choice' && !q.options && (
-                <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3 mb-4 text-sm text-amber-700 dark:text-amber-300">
+                <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-3 mb-4 text-sm text-gray-600 dark:text-gray-400">
                   ⚠️ MCQ options not available - this lesson may have been generated before the format was updated
                 </div>
               )}
@@ -523,8 +523,8 @@ export function ComprehensionExercise({
                   </button>
                   
                   {showAnswers[index] && (
-                    <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3 flex-1">
-                      <p className="text-blue-800 dark:text-blue-300 text-sm">
+                    <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-3 flex-1">
+                      <p className="text-gray-700 dark:text-gray-300 text-sm">
                         <span className="font-medium">Answer:</span>{' '}
                         {formatText(q.answer)}
                       </p>
@@ -558,9 +558,9 @@ export function RolePlayExercise({
 }) {
   return (
     <div className="space-y-6 max-w-4xl">
-      <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
-        <h4 className="font-semibold text-yellow-800 dark:text-yellow-400 mb-2">Scenario</h4>
-        <p className="text-yellow-700 dark:text-yellow-300 text-sm">
+      <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+        <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Scenario</h4>
+        <p className="text-gray-700 dark:text-gray-300 text-sm">
           {formatText(scenario)}
         </p>
       </div>
@@ -593,7 +593,7 @@ export function RolePlayExercise({
         ))}
       </div>
       
-      <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+      <div className="rounded-lg p-4">
         <div className="flex items-center justify-between mb-2">
           <h4 className="font-semibold text-gray-900 dark:text-white">Instructions</h4>
           <span className="text-sm text-gray-500 dark:text-gray-400">
@@ -682,7 +682,7 @@ export function PreparationExercise({
           </h4>
           <div className="space-y-3">
             {questions.map((question, index) => (
-              <div key={index} className="flex items-start space-x-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+              <div key={index} className="flex items-start space-x-3 p-3 rounded-lg">
                 <span className="flex-shrink-0 w-6 h-6 bg-purple-100 dark:bg-purple-900/20 text-purple-800 dark:text-purple-400 rounded-full flex items-center justify-center text-sm font-medium">
                   {index + 1}
                 </span>
@@ -721,8 +721,8 @@ export function FinalPrepExercise({
           </h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {phrases.map((phrase, index) => (
-              <div key={index} className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
-                <span className="text-blue-800 dark:text-blue-300 font-medium text-sm">
+              <div key={index} className="border border-gray-200 dark:border-gray-700 rounded-lg p-3">
+                <span className="text-gray-700 dark:text-gray-300 font-medium text-sm">
                   &ldquo;{formatText(phrase)}&rdquo;
                 </span>
               </div>
@@ -762,12 +762,12 @@ export function FinalPrepExercise({
             </svg>
             Confidence Boosters
           </h4>
-          <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
+          <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
             <ul className="space-y-2">
               {confidence.map((item, index) => (
                 <li key={index} className="flex items-start space-x-2">
                   <span className="text-yellow-600 dark:text-yellow-400 text-lg">💪</span>
-                  <span className="text-yellow-800 dark:text-yellow-300 text-sm leading-relaxed">
+                  <span className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed">
                     {formatText(item)}
                   </span>
                 </li>

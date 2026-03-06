@@ -43,6 +43,10 @@ The objective MUST be outcome-focused and specific, showing exactly what the stu
 FORMAT (concise version): "By the end of this lesson, ${student.name} will confidently [main skill], including [3-4 specific sub-skills]." — WRITE THIS IN ${student.targetLanguage}.
 
 
+GLOBAL FORMATTING RULES (APPLY TO ALL CONTENT):
+- NEVER use em dashes (—) anywhere in any content. Use commas, periods, or semicolons instead.
+- NEVER suggest or include background colors, colored badges, or colored containers in any content field.
+
 CRITICAL RULES:
 - Maximum 120 characters (count carefully!)
 - Start with "By the end of this lesson, [Name] will confidently"

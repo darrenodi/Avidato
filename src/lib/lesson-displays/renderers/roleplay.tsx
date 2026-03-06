@@ -41,8 +41,8 @@ export const RoleplayRenderer: React.FC<RoleplayRendererProps> = ({
         </p>
       )}
 
-      <div className="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg p-4 sm:p-6">
-        <h3 className="text-sm font-semibold text-purple-900 dark:text-purple-300 mb-2">
+      <div className="rounded-lg p-4 sm:p-6">
+        <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">
           📍 Scenario:
         </h3>
         <p className="text-gray-900 dark:text-gray-100">{formatText(scenario)}</p>
@@ -57,11 +57,11 @@ export const RoleplayRenderer: React.FC<RoleplayRendererProps> = ({
           {roles.map((role, index) => (
             <div
               key={index}
-              className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6"
+              className="rounded-lg p-4 sm:p-6"
             >
               <div className="flex items-start gap-3 mb-4 pb-4 border-b border-gray-200 dark:border-gray-700">
-                <div className="flex-shrink-0 w-10 h-10 bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-full flex items-center justify-center font-bold text-sm">
-                  {index + 1}
+                <div className="flex-shrink-0 w-10 h-10 text-purple-600 dark:text-purple-400 rounded-full flex items-center justify-center font-bold text-sm">
+                  {index + 1}.
                 </div>
                 <div className="flex-1">
                   <h4 className="font-bold text-gray-900 dark:text-white">{role.name}</h4>
@@ -97,8 +97,8 @@ export const RoleplayRenderer: React.FC<RoleplayRendererProps> = ({
         </div>
       </div>
 
-      <div className="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800 rounded-lg p-4">
-        <p className="text-sm text-indigo-800 dark:text-indigo-300">
+      <div className="rounded-lg p-4">
+        <p className="text-sm text-gray-600 dark:text-gray-400">
           🎭 <strong>How to Practice:</strong> With a partner or teacher, act out this scenario. Take turns playing different roles. Focus on using the new vocabulary naturally in your conversation.
         </p>
       </div>

@@ -42,6 +42,7 @@ export interface AdaptiveState {
   consecutiveWrong: number
   answeredQuestionIds: string[]
   levelHistory: CEFRLevel[]
+  levelAccuracy?: Record<string, { correct: number; total: number }>
   isComplete: boolean
   determinedLevel: CEFRLevel | null
 }
@@ -56,6 +57,7 @@ export function createInitialState(): AdaptiveState {
     consecutiveWrong: 0,
     answeredQuestionIds: [],
     levelHistory: [],
+    levelAccuracy: {},
     isComplete: false,
     determinedLevel: null,
   }
@@ -74,6 +76,49 @@ function clampDifficulty(d: number): number {
   return Math.max(1, Math.min(60, d))
 }
 
+function levelToDifficulty(level: CEFRLevel): number {
+  const midpoints: Record<CEFRLevel, number> = {
+    A1: 5, A2: 15, B1: 25, B2: 35, C1: 45, C2: 55,
+  }
+  return midpoints[level]
+}
+
+/**
+ * Rebuild the full level history by replaying all past answers through the
+ * adaptive algorithm. This is necessary because levelHistory is not persisted
+ * in the database — we reconstruct it deterministically from the answer log.
+ */
+export function rebuildLevelHistory(
+  answers: { questionId: string; isCorrect: boolean }[]
+): { levelHistory: CEFRLevel[]; currentDifficulty: number } {
+  let difficulty = CONFIG.START_DIFFICULTY
+  let consecutiveCorrect = 0
+  let consecutiveWrong = 0
+  const history: CEFRLevel[] = []
+
+  for (const answer of answers) {
+    if (answer.isCorrect) {
+      consecutiveCorrect++
+      consecutiveWrong = 0
+    } else {
+      consecutiveCorrect = 0
+      consecutiveWrong++
+    }
+
+    if (consecutiveCorrect >= CONFIG.CONSECUTIVE_CORRECT_TO_ADVANCE) {
+      difficulty = clampDifficulty(difficulty + CONFIG.DIFFICULTY_STEP_UP)
+      consecutiveCorrect = 0
+    } else if (consecutiveWrong >= CONFIG.CONSECUTIVE_WRONG_TO_REGRESS) {
+      difficulty = clampDifficulty(difficulty - CONFIG.DIFFICULTY_STEP_DOWN)
+      consecutiveWrong = 0
+    }
+
+    history.push(difficultyToLevel(difficulty))
+  }
+
+  return { levelHistory: history, currentDifficulty: difficulty }
+}
+
 /**
  * Process an answer and update the adaptive state.
  * Returns the updated state.
@@ -83,6 +128,17 @@ export function processAnswer(state: AdaptiveState, questionId: string, isCorrec
   newState.questionsAsked++
   newState.answeredQuestionIds = [...state.answeredQuestionIds, questionId]
   
+  // Track per-level accuracy (before difficulty adjustment, so we know
+  // what level the question was actually targeting)
+  const questionLevel = newState.currentLevel
+  const acc = { ...(state.levelAccuracy || {}) }
+  if (!acc[questionLevel]) acc[questionLevel] = { correct: 0, total: 0 }
+  acc[questionLevel] = {
+    correct: acc[questionLevel].correct + (isCorrect ? 1 : 0),
+    total: acc[questionLevel].total + 1,
+  }
+  newState.levelAccuracy = acc
+
   if (isCorrect) {
     newState.correctCount++
     newState.consecutiveCorrect++
@@ -140,33 +196,50 @@ function checkConvergence(state: AdaptiveState): boolean {
 }
 
 /**
- * Determine final CEFR level from test data
+ * Determine final CEFR level from test data.
+ * Strategy: Place the student at the highest level where they demonstrated
+ * adequate accuracy (≥60%). Falls back to weighted level history if no
+ * per-level accuracy data is available.
  */
 function determineFinalLevel(state: AdaptiveState): CEFRLevel {
-  // Use weighted approach: recent levels matter more
-  const weights = state.levelHistory.map((_, i) => 1 + i * 0.5) // later questions weighted more
-  const levelScores = new Map<CEFRLevel, number>()
-
-  for (let i = 0; i < state.levelHistory.length; i++) {
-    const level = state.levelHistory[i]
-    levelScores.set(level, (levelScores.get(level) || 0) + weights[i])
-  }
-
-  // Also factor in the final difficulty zone
-  const finalLevel = difficultyToLevel(state.currentDifficulty)
-  levelScores.set(finalLevel, (levelScores.get(finalLevel) || 0) + 5)
-
-  // Find the level with highest weighted score
-  let bestLevel: CEFRLevel = 'B1'
-  let bestScore = 0
-  for (const [level, score] of levelScores) {
-    if (score > bestScore) {
-      bestScore = score
-      bestLevel = level as CEFRLevel
+  // If we have per-level accuracy data, use it for a reliable placement
+  if (state.levelAccuracy && Object.keys(state.levelAccuracy).length > 0) {
+    const PASS_THRESHOLD = 0.6
+    // Walk from highest level down; place at highest level with ≥60% accuracy
+    for (let i = CEFR_LEVELS.length - 1; i >= 0; i--) {
+      const level = CEFR_LEVELS[i]
+      const acc = state.levelAccuracy[level]
+      if (acc && acc.total >= 2 && acc.correct / acc.total >= PASS_THRESHOLD) {
+        return level
+      }
     }
   }
 
-  return bestLevel
+  // Fallback: weighted level history (recent answers matter more)
+  if (state.levelHistory.length > 0) {
+    const weights = state.levelHistory.map((_, i) => 1 + i * 0.5)
+    const levelScores = new Map<CEFRLevel, number>()
+
+    for (let i = 0; i < state.levelHistory.length; i++) {
+      const level = state.levelHistory[i]
+      levelScores.set(level, (levelScores.get(level) || 0) + weights[i])
+    }
+
+    const finalLevel = difficultyToLevel(state.currentDifficulty)
+    levelScores.set(finalLevel, (levelScores.get(finalLevel) || 0) + 5)
+
+    let bestLevel: CEFRLevel = 'B1'
+    let bestScore = 0
+    for (const [level, score] of levelScores) {
+      if (score > bestScore) {
+        bestScore = score
+        bestLevel = level as CEFRLevel
+      }
+    }
+    return bestLevel
+  }
+
+  return difficultyToLevel(state.currentDifficulty)
 }
 
 /**

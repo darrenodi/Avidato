@@ -667,7 +667,7 @@ export default function LessonPage() {
                       </p>
                     )}
                     
-                    <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3 sm:p-4 overflow-x-auto">
+                    <div className="rounded-lg p-3 sm:p-4 overflow-x-auto">
                       {renderExerciseContent(exercise)}
                     </div>
                   </div>

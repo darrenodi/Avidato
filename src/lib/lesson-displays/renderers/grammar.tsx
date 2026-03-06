@@ -59,7 +59,7 @@ export const GrammarRenderer: React.FC<GrammarRendererProps> = ({
         {sentences.map((sentence, index) => (
           <div
             key={index}
-            className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 space-y-3"
+            className="rounded-lg p-4 space-y-3"
           >
             <div className="flex items-start gap-3">
               <span className="flex-shrink-0 w-8 h-8 bg-blue-500 dark:bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold">
@@ -68,7 +68,7 @@ export const GrammarRenderer: React.FC<GrammarRendererProps> = ({
               <div className="flex-1">
                 {/* Sentence to Check */}
                 <div className="mb-3">
-                  <p className="text-gray-900 dark:text-white bg-gray-100 dark:bg-gray-700 p-3 rounded italic">
+                  <p className="text-gray-900 dark:text-white p-3 rounded italic">
                     {formatText(sentence.incorrect)}
                   </p>
                 </div>
@@ -85,7 +85,7 @@ export const GrammarRenderer: React.FC<GrammarRendererProps> = ({
                 {revealedIndexes.has(index) && (
                   <div>
                     <p className="text-xs font-medium text-green-600 dark:text-green-400 mb-1">✅ Correct:</p>
-                    <p className="text-gray-900 dark:text-white bg-green-50 dark:bg-green-900/20 p-3 rounded font-medium">
+                    <p className="text-gray-900 dark:text-white p-3 rounded font-medium">
                       {formatText(sentence.correct)}
                     </p>
                   </div>
@@ -97,8 +97,8 @@ export const GrammarRenderer: React.FC<GrammarRendererProps> = ({
       </div>
 
       {/* Study Tip */}
-      <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mt-4">
-        <p className="text-sm text-red-800 dark:text-red-300">
+      <div className="rounded-lg p-4 mt-4">
+        <p className="text-sm text-gray-600 dark:text-gray-400">
           🎓 <strong>Learning Strategy:</strong> Try to find the error BEFORE clicking show. This helps your brain learn!
         </p>
       </div>

@@ -90,17 +90,8 @@ export default function DiscussionToolPage() {
     }
   }
 
-  const getQuestionTypeColor = (type: string) => {
-    switch (type) {
-      case 'warm-up':
-        return 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800'
-      case 'main':
-        return 'bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800'
-      case 'deep-dive':
-        return 'bg-orange-50 dark:bg-orange-900/20 border-orange-200 dark:border-orange-800'
-      default:
-        return 'bg-gray-50 dark:bg-gray-900/20 border-gray-200 dark:border-gray-800'
-    }
+  const getQuestionTypeColor = (_type: string) => {
+    return 'border-gray-200 dark:border-gray-700'
   }
 
   const getQuestionTypeBadgeColor = (type: string) => {
@@ -337,7 +328,7 @@ export default function DiscussionToolPage() {
 
         {/* Empty State */}
         {!discussion && !loading && (
-          <div className="text-center py-12 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
+          <div className="text-center py-12 rounded-lg border border-gray-200 dark:border-gray-700">
             <svg className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>

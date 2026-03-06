@@ -45,8 +45,8 @@ export const ExpressionsRenderer: React.FC<ExpressionsRendererProps> = ({
             key={index}
             className={`p-4 rounded-lg border-2 transition-all cursor-pointer ${
               selectedIndex === index
-                ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/20'
-                : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-purple-300 dark:hover:border-purple-700'
+                ? 'border-purple-500'
+                : 'border-gray-200 dark:border-gray-700 hover:border-purple-300 dark:hover:border-purple-700'
             }`}
             onClick={() => setSelectedIndex(selectedIndex === index ? null : index)}
           >
@@ -61,7 +61,7 @@ export const ExpressionsRenderer: React.FC<ExpressionsRendererProps> = ({
               <div className="mt-3 space-y-2 pt-3 border-t border-gray-200 dark:border-gray-700">
                 <div>
                   <p className="text-xs font-medium text-purple-600 dark:text-purple-400 mb-1">Example:</p>
-                  <p className="text-sm text-gray-900 dark:text-gray-100 italic bg-purple-50 dark:bg-purple-900/20 p-2 rounded">
+                  <p className="text-sm text-gray-900 dark:text-gray-100 italic p-2 rounded">
                     &quot;{formatText(expr.example)}&quot;
                   </p>
                 </div>
@@ -80,8 +80,8 @@ export const ExpressionsRenderer: React.FC<ExpressionsRendererProps> = ({
       </div>
 
       {/* Study Tip */}
-      <div className="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg p-4 mt-4">
-        <p className="text-sm text-purple-800 dark:text-purple-300">
+      <div className="rounded-lg p-4 mt-4">
+        <p className="text-sm text-gray-600 dark:text-gray-400">
           💡 <strong>Tip:</strong> Click on each expression to see examples. Try using these in your speaking practice!
         </p>
       </div>

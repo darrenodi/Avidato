@@ -2,7 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Test with minimal CSS to see if basic Tailwind dark mode works */
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+}
 
 @layer utilities {
   .animation-delay-2000 { animation-delay: 2s; }

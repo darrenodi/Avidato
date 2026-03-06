@@ -19,7 +19,7 @@ const config: Config = {
         },
       },
       fontFamily: {
-        sans: ["var(--font-inter)", "sans-serif"],
+        sans: ["var(--font-jakarta)", "sans-serif"],
       },
       keyframes: {
         blob: {

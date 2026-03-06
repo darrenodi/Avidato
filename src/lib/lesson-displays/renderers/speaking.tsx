@@ -41,13 +41,13 @@ export const SpeakingRenderer: React.FC<SpeakingRendererProps> = ({
   const getDifficultyColor = (difficulty?: string) => {
     switch (difficulty) {
       case 'easy':
-        return 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
+        return 'text-green-700 dark:text-green-400'
       case 'medium':
-        return 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400'
+        return 'text-yellow-700 dark:text-yellow-400'
       case 'hard':
-        return 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'
+        return 'text-red-700 dark:text-red-400'
       default:
-        return 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400'
+        return 'text-blue-700 dark:text-blue-400'
     }
   }
 
@@ -86,18 +86,18 @@ export const SpeakingRenderer: React.FC<SpeakingRendererProps> = ({
             key={index}
             className={`p-4 rounded-lg border-2 transition-all cursor-pointer ${
               currentQuestion === index
-                ? 'border-cyan-500 bg-cyan-50 dark:bg-cyan-900/20'
+                ? 'border-cyan-500'
                 : answeredIndexes.has(index)
-                  ? 'border-green-300 dark:border-green-700 bg-green-50 dark:bg-green-900/20'
-                  : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800'
+                  ? 'border-green-300 dark:border-green-700'
+                  : 'border-gray-200 dark:border-gray-700'
             }`}
             onClick={() => setCurrentQuestion(index)}
           >
             <div className="flex items-start justify-between gap-3">
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="flex-shrink-0 w-6 h-6 bg-cyan-100 dark:bg-cyan-900/30 text-cyan-600 dark:text-cyan-400 rounded-full flex items-center justify-center text-sm font-bold">
-                    {index + 1}
+                  <span className="flex-shrink-0 w-6 h-6 text-cyan-600 dark:text-cyan-400 flex items-center justify-center text-sm font-bold">
+                    {index + 1}.
                   </span>
                   <h4 className="text-gray-900 dark:text-white font-semibold flex-1">
                     {formatText(question.question)}
@@ -145,11 +145,11 @@ export const SpeakingRenderer: React.FC<SpeakingRendererProps> = ({
       </div>
 
       {/* Speaking Tips */}
-      <div className="bg-cyan-50 dark:bg-cyan-900/20 border border-cyan-200 dark:border-cyan-800 rounded-lg p-4">
-        <p className="text-sm text-cyan-800 dark:text-cyan-300 mb-2">
+      <div className="rounded-lg p-4">
+        <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
           🎤 <strong>Speaking Tips:</strong>
         </p>
-        <ul className="text-sm text-cyan-700 dark:text-cyan-400 space-y-1 ml-4">
+        <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1 ml-4">
           <li>• Speak slowly and clearly</li>
           <li>• Use complete sentences when possible</li>
           <li>• It&apos;s okay to make mistakes - that&apos;s how we learn!</li>

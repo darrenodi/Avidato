@@ -123,7 +123,7 @@ function SharedFillBlanks({ exercise }: { exercise: GrammarExercise }) {
                 ? 'bg-green-50 border border-green-300'
                 : wrong
                 ? 'bg-red-50 border border-red-300'
-                : 'bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-700'
+                : 'border border-gray-200 dark:border-gray-700'
             }`}
           >
             <p className="mb-2 text-gray-800 dark:text-gray-200">{s.sentence}</p>
@@ -179,7 +179,7 @@ function SharedMultipleChoice({ exercise }: { exercise: GrammarExercise }) {
                 ? 'bg-green-50 border border-green-300'
                 : touched[qi] && chosen !== undefined
                 ? 'bg-red-50 border border-red-300'
-                : 'bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-700'
+                : 'border border-gray-200 dark:border-gray-700'
             }`}
           >
             <p className="font-medium text-gray-900 dark:text-white mb-2">{q.question}</p>
@@ -257,7 +257,7 @@ function SharedSentenceBuilding({ exercise }: { exercise: GrammarExercise }) {
                 ? 'bg-green-50 border border-green-300'
                 : red
                 ? 'bg-red-50 border border-red-300'
-                : 'bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-700'
+                : 'border border-gray-200 dark:border-gray-700'
             }`}
           >
             <p className="font-medium text-gray-900 dark:text-white mb-2">{ex.instruction}</p>
@@ -340,7 +340,7 @@ function SharedGrammarLesson({ lesson }: { lesson: SharedLessonData }) {
         )}
         {context && <p className="text-gray-600 dark:text-gray-300 mb-4">{context}</p>}
         {explanation && (explanation.definition || explanation.usage || explanation.examples) && (
-          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 sm:p-6">
+          <div className="border border-blue-200 dark:border-blue-800 rounded-lg p-4 sm:p-6">
             {explanation.definition && (
               <>
                 <h2 className="text-lg font-semibold text-blue-900 dark:text-blue-100 mb-2">Definition</h2>
@@ -438,7 +438,7 @@ function SharedGrammarLesson({ lesson }: { lesson: SharedLessonData }) {
                         {Array.isArray((ex.content as GrammarFocusContent).commonMistakes) && (ex.content as GrammarFocusContent).commonMistakes!.map((m: { incorrect: string; correct: string; why?: string }, i: number) => (
                           <li
                             key={i}
-                            className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded p-3 text-xs"
+                            className="border border-red-200 dark:border-red-800 rounded p-3 text-xs"
                           >
                             <div className="text-red-700 dark:text-red-300">
                               <span className="font-semibold">Incorrect:</span> {m.incorrect}
@@ -471,7 +471,7 @@ function SharedGrammarLesson({ lesson }: { lesson: SharedLessonData }) {
                   {ex.type === 'sentence-practice' && Array.isArray(ex?.content?.sentences) && (
                     <ul className="space-y-2 text-sm">
                       {(ex.content.sentences as SentencePracticeItem[]).map((s, i) => (
-                        <li key={i} className="bg-gray-50 dark:bg-gray-700 rounded p-3">
+                        <li key={i} className="rounded p-3">
                           <div className="text-gray-900 dark:text-white">{s.sentence}</div>
                           {s.context && (
                             <div className="text-gray-600 dark:text-gray-400 text-xs mt-1 italic">{s.context}</div>
@@ -848,7 +848,7 @@ export default function SharedLessonPage() {
                           {exercise.description}
                         </p>
                         )}
-                        <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 overflow-x-auto">{renderExerciseContent({ type: exercise.type, content: exercise.content, timeMinutes: exercise.timeMinutes || 0 })}</div>
+                        <div className="rounded-lg p-4 overflow-x-auto">{renderExerciseContent({ type: exercise.type, content: exercise.content, timeMinutes: exercise.timeMinutes || 0 })}</div>
                       </div>
                     ))}
                   </div>

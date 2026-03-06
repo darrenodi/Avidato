@@ -26,10 +26,10 @@ export default function DashboardRootLayout({
   // Show loading while checking authentication
   if (status === 'loading') {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-900">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-2 text-gray-600">Checking authentication...</p>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 dark:border-white mx-auto"></div>
+          <p className="mt-2 text-gray-600 dark:text-gray-400">Checking authentication...</p>
         </div>
       </div>
     )

@@ -144,8 +144,8 @@ function PhraseMatchingGame({ phrases }: { phrases: PhraseItem[] }) {
   return (
     <div className="mt-6 space-y-4">
       {/* Header */}
-      <div className="p-4 rounded-lg bg-teal-50 dark:bg-teal-900/10 border border-teal-200 dark:border-teal-800/30">
-        <h4 className="text-sm font-semibold text-teal-800 dark:text-teal-300 mb-2">
+      <div className="p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+        <h4 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">
           🎯 Match the Phrases to Their Meanings
         </h4>
         <p className="text-xs text-gray-600 dark:text-gray-400 mb-3">
@@ -185,8 +185,8 @@ function PhraseMatchingGame({ phrases }: { phrases: PhraseItem[] }) {
                 className={`flex items-start gap-4 p-4 rounded-lg border-2 transition-colors ${
                   isCorrect ? 'bg-green-50 dark:bg-green-900/20 border-green-300 dark:border-green-700'
                   : isIncorrect ? 'bg-red-50 dark:bg-red-900/20 border-red-300 dark:border-red-700'
-                  : draggedDef !== null ? 'bg-teal-50 dark:bg-teal-900/10 border-teal-200 dark:border-teal-700'
-                  : 'bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600'
+                  : draggedDef !== null ? 'bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-gray-600'
+                  : 'border-gray-200 dark:border-gray-600'
                 }`}
               >
                 <div className="flex-shrink-0 min-w-[120px]">
@@ -220,7 +220,7 @@ function PhraseMatchingGame({ phrases }: { phrases: PhraseItem[] }) {
         </div>
 
         {/* Meanings to drag */}
-        <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4 h-fit border border-gray-200 dark:border-gray-600">
+        <div className="rounded-lg p-4 h-fit border border-gray-200 dark:border-gray-600">
           <h4 className="font-bold text-gray-900 dark:text-white mb-3 text-sm">Meanings</h4>
           <div className="space-y-2">
             {shuffledMeanings.map((meaning, defIdx) => {
@@ -755,7 +755,7 @@ export default function YouTubeToLessonPage() {
                 </p>
                 <div className="space-y-3">
                   {result.warmUp.map((q) => (
-                    <div key={q.id} className="p-3 rounded-lg bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-800/30">
+                    <div key={q.id} className="p-3 rounded-lg">
                       <p className="text-gray-900 dark:text-white">{q.id}. {formatText(q.question)}</p>
                     </div>
                   ))}
@@ -772,7 +772,7 @@ export default function YouTubeToLessonPage() {
                 </p>
                 <div className="space-y-4">
                   {result.preTeach.map((item, i) => (
-                    <div key={`pt-${i}`} className="p-4 rounded-lg bg-violet-50 dark:bg-violet-900/10 border border-violet-100 dark:border-violet-800/30">
+                    <div key={`pt-${i}`} className="p-4 rounded-lg">
                       <div className="flex items-baseline gap-2 mb-1">
                         <span className="font-bold text-blue-600 dark:text-blue-400 text-lg">{item.term}</span>
                         {item.synonym && (
@@ -780,7 +780,7 @@ export default function YouTubeToLessonPage() {
                         )}
                       </div>
                       <div className="flex items-center gap-3 mb-2">
-                        <span className="text-xs px-2 py-0.5 rounded-full bg-violet-100 dark:bg-violet-800/40 text-violet-700 dark:text-violet-300">
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400">
                           {item.type}
                         </span>
                         <button
@@ -808,11 +808,11 @@ export default function YouTubeToLessonPage() {
                         {formatText(item.exampleSentence)}
                       </p>
                       {item.expressions && item.expressions.length > 0 && (
-                        <div className="mt-2 pt-2 border-t border-violet-200 dark:border-violet-700/30">
+                        <div className="mt-2 pt-2 border-t border-gray-200 dark:border-gray-700">
                           <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Useful phrases:</span>
                           <div className="flex flex-wrap gap-1.5 mt-1">
                             {item.expressions.map((expr, ei) => (
-                              <span key={ei} className="px-2 py-0.5 text-xs bg-amber-50 dark:bg-amber-900/20 text-amber-800 dark:text-amber-300 rounded border border-amber-200 dark:border-amber-800">{expr}</span>
+                              <span key={ei} className="px-2 py-0.5 text-xs bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded">{expr}</span>
                             ))}
                           </div>
                         </div>
@@ -837,10 +837,10 @@ export default function YouTubeToLessonPage() {
                   </p>
                   <div className="space-y-3">
                     {result.detailQuestions.map((q) => (
-                      <div key={q.id} className="p-3 rounded-lg bg-indigo-50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-800/30">
+                      <div key={q.id} className="p-3 rounded-lg">
                         <p className="text-gray-900 dark:text-white mb-1">{q.id}. {formatText(q.question)}</p>
                         {showAnswers && (
-                          <p className="text-sm text-indigo-700 dark:text-indigo-400 mt-2 pt-2 border-t border-indigo-200 dark:border-indigo-700/40">
+                          <p className="text-sm text-gray-600 dark:text-gray-400 mt-2 pt-2 border-t border-gray-200 dark:border-gray-700">
                             <span className="font-medium">Answer:</span> {formatText(q.answer)}
                           </p>
                         )}
@@ -860,10 +860,10 @@ export default function YouTubeToLessonPage() {
                 </p>
                 <div className="space-y-4">
                   {result.discussion.map((q) => (
-                    <div key={q.id} className="p-4 rounded-lg bg-rose-50 dark:bg-rose-900/10 border border-rose-100 dark:border-rose-800/30">
+                    <div key={q.id} className="p-4 rounded-lg">
                       <p className="text-gray-900 dark:text-white font-medium">{q.id}. {formatText(q.question)}</p>
                       {showAnswers && (
-                        <p className="text-sm text-rose-700 dark:text-rose-400 mt-2">
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
                           <span className="font-medium">Follow-up:</span> {formatText(q.followUp)}
                         </p>
                       )}
@@ -894,7 +894,7 @@ export default function YouTubeToLessonPage() {
                     </p>
 
                     {/* Word box — shuffled so answers aren't in sentence order */}
-                    <div className="flex flex-wrap gap-2 mb-5 p-3 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+                    <div className="flex flex-wrap gap-2 mb-5 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
                       {shuffledWordBox.map((word, i) => (
                         <span key={`wb-${i}`} className="text-sm px-3 py-1.5 rounded-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-800 dark:text-gray-200 font-medium">
                           {showAnswers ? word : '•••'}
@@ -905,10 +905,10 @@ export default function YouTubeToLessonPage() {
                     {/* Sentences */}
                     <div className="space-y-3">
                       {result.fillBlanks.map((fb) => (
-                        <div key={`fb-${fb.id}`} className="p-3 rounded-lg bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-800/30">
+                        <div key={`fb-${fb.id}`} className="p-3 rounded-lg">
                           <p className="text-gray-900 dark:text-white">{fb.id}. {formatText(fb.sentence)}</p>
                           {showAnswers && (
-                            <p className="text-sm text-amber-700 dark:text-amber-400 mt-2 pt-2 border-t border-amber-200 dark:border-amber-700/40">
+                            <p className="text-sm text-gray-600 dark:text-gray-400 mt-2 pt-2 border-t border-gray-200 dark:border-gray-700">
                               <span className="font-medium">Answer:</span> {formatText(fb.answer)}
                             </p>
                           )}
@@ -930,7 +930,7 @@ export default function YouTubeToLessonPage() {
                     </p>
                     <div className="space-y-3">
                       {result.speakingPractice.map((sp) => (
-                        <div key={`sp-${sp.id}`} className="p-3 rounded-lg bg-teal-50 dark:bg-teal-900/10 border border-teal-100 dark:border-teal-800/30">
+                        <div key={`sp-${sp.id}`} className="p-3 rounded-lg">
                           <p className="text-gray-900 dark:text-white">{sp.id}. {formatText(sp.question)}</p>
                         </div>
                       ))}
@@ -947,21 +947,21 @@ export default function YouTubeToLessonPage() {
                 {result.wrapUp.length > 0 && (
                   <div className="space-y-3 mb-4">
                     {result.wrapUp.map((r) => (
-                      <div key={r.id} className="p-3 rounded-lg bg-gray-50 dark:bg-gray-900/20 border border-gray-200 dark:border-gray-700">
+                      <div key={r.id} className="p-3 rounded-lg border border-gray-200 dark:border-gray-700">
                         <p className="text-gray-900 dark:text-white">{r.id}. {formatText(r.prompt)}</p>
                       </div>
                     ))}
                   </div>
                 )}
                 {result.homework?.task && (
-                  <div className="p-4 rounded-lg bg-blue-50 dark:bg-blue-900/15 border border-blue-100 dark:border-blue-800/30">
+                  <div className="p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                     <div className="flex items-center gap-2 mb-2">
-                      <span className="text-sm font-semibold text-blue-800 dark:text-blue-300">📝 Optional Homework</span>
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-800/40 text-blue-700 dark:text-blue-300">
+                      <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">📝 Optional Homework</span>
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400">
                         {result.homework.type}
                       </span>
                     </div>
-                    <p className="text-sm text-blue-800 dark:text-blue-300">{formatText(result.homework.task)}</p>
+                    <p className="text-sm text-gray-700 dark:text-gray-300">{formatText(result.homework.task)}</p>
                   </div>
                 )}
               </Card>

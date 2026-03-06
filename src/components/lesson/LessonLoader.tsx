@@ -100,7 +100,7 @@ export function LessonLoader({ exercises, priorityCount = 2 }: LessonLoaderProps
       default:
         // Fallback for unknown exercise types
         return (
-          <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+          <div className="p-4 rounded-lg">
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
               Exercise type: {exercise.type}
             </p>

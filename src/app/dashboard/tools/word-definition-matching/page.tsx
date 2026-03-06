@@ -172,7 +172,7 @@ function InteractiveMatchingGame({ exercise }: { exercise: MatchingExercise }) {
                       : isIncorrect
                         ? 'bg-red-50 dark:bg-red-900/20 border-red-300 dark:border-red-700'
                         : draggedDef !== null ? 'bg-blue-50 dark:bg-blue-900/10 border-blue-200 dark:border-blue-700'
-                        : 'bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600'
+                        : 'border-gray-200 dark:border-gray-600'
                   }`}
                 >
                   {/* Word */}

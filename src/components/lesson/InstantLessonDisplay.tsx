@@ -43,9 +43,9 @@ function QuestionsList({ questions, instructions }: { questions: Array<string | 
   return (
     <div className="space-y-4">
       {instructions && (
-        <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4 mb-4">
+        <div className="border-l-4 border-blue-500 pl-4 mb-4">
           <div className="flex items-start gap-2">
-            <svg className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <p className="text-sm text-gray-700 dark:text-gray-300">{instructions}</p>
@@ -55,7 +55,7 @@ function QuestionsList({ questions, instructions }: { questions: Array<string | 
       {questions.map((q, idx) => {
         if (typeof q === 'string') {
           return (
-            <div key={idx} className="flex items-start gap-3 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+            <div key={idx} className="flex items-start gap-3 p-4 rounded-lg">
               <span className="flex-shrink-0 w-7 h-7 rounded-full bg-green-600 text-white flex items-center justify-center text-sm font-bold">
                 {idx + 1}
               </span>
@@ -67,7 +67,7 @@ function QuestionsList({ questions, instructions }: { questions: Array<string | 
           const hasAnswer = typeof question.answer === 'string' || typeof question.answer === 'number'
           
           return (
-            <div key={idx} className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
+            <div key={idx} className="rounded-lg p-4">
               <div className="flex items-start gap-3 mb-3">
                 <span className="flex-shrink-0 w-7 h-7 rounded-full bg-green-600 text-white flex items-center justify-center text-sm font-bold">
                   {idx + 1}
@@ -94,7 +94,7 @@ function QuestionsList({ questions, instructions }: { questions: Array<string | 
                     {showAnswers[idx] ? 'Hide Answer' : 'Show Answer'}
                   </button>
                   {showAnswers[idx] && (
-                    <div className="mt-3 bg-green-100 dark:bg-green-900/30 border border-green-300 dark:border-green-700 rounded p-3">
+                    <div className="mt-3 rounded p-3">
                       <p className="text-sm text-green-800 dark:text-green-200">
                         <span className="font-semibold">Answer:</span> {String(question.answer)}
                       </p>
@@ -126,7 +126,7 @@ const renderExerciseContent = (exercise: { type: string; content: string | strin
     return (
       <div className="grid gap-4">
         {lessonVocabulary.map((item, idx) => (
-          <div key={idx} className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg p-4 border border-blue-200 dark:border-blue-800">
+          <div key={idx} className="rounded-lg p-4">
             <div className="flex items-start gap-3">
               <span className="flex-shrink-0 w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold text-sm">
                 {idx + 1}
@@ -137,7 +137,7 @@ const renderExerciseContent = (exercise: { type: string; content: string | strin
                     {String(item.word || item.term || '')}
                   </h4>
                   {(typeof item.partOfSpeech === 'string') && (
-                    <span className="px-2 py-0.5 bg-blue-100 dark:bg-blue-800 text-xs font-medium text-blue-800 dark:text-blue-100 rounded">
+                    <span className="px-2 py-0.5 text-xs font-medium text-gray-600 dark:text-gray-400 rounded">
                       {String(item.partOfSpeech)}
                     </span>
                   )}
@@ -166,7 +166,7 @@ const renderExerciseContent = (exercise: { type: string; content: string | strin
   // If content is a string, render it directly
   if (typeof content === 'string') {
     return (
-      <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+      <div className="rounded-lg p-4">
         <p className="text-gray-700 dark:text-gray-300">{content}</p>
       </div>
     )
@@ -199,7 +199,7 @@ const renderExerciseContent = (exercise: { type: string; content: string | strin
       return (
         <div className="grid gap-4">
           {(obj.vocabulary as Array<Record<string, unknown>>).map((item, idx) => (
-            <div key={idx} className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg p-4 border border-blue-200 dark:border-blue-800">
+            <div key={idx} className="rounded-lg p-4">
               <div className="flex items-start gap-3">
                 <span className="flex-shrink-0 w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold text-sm">
                   {idx + 1}
@@ -217,7 +217,7 @@ const renderExerciseContent = (exercise: { type: string; content: string | strin
                     </p>
                   )}
                   {(typeof item.partOfSpeech === 'string') && (
-                    <span className="inline-block mt-2 px-2 py-1 bg-blue-100 dark:bg-blue-800 text-xs font-medium text-blue-800 dark:text-blue-100 rounded">
+                    <span className="inline-block mt-2 px-2 py-1 text-xs font-medium text-gray-600 dark:text-gray-400 rounded">
                       {String(item.partOfSpeech)}
                     </span>
                   )}
@@ -246,8 +246,8 @@ const renderExerciseContent = (exercise: { type: string; content: string | strin
       return (
         <div className="space-y-6">
           {setting && (
-            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-              <p className="text-blue-800 dark:text-blue-400 text-sm">
+            <div className="rounded-lg p-4">
+              <p className="text-gray-900 dark:text-white text-sm">
                 <strong>Setting:</strong> {setting}
               </p>
             </div>
@@ -301,9 +301,9 @@ const renderExerciseContent = (exercise: { type: string; content: string | strin
                         {characterName}
                       </div>
                     )}
-                    <div className="bg-gray-100 dark:bg-gray-700 rounded-lg p-4 relative shadow-sm">
+                    <div className="rounded-lg p-4 relative">
                       {isFirstSpeaker && (
-                        <div className="absolute left-0 top-3 w-0 h-0 border-t-[6px] border-b-[6px] border-r-[8px] border-transparent border-r-gray-100 dark:border-r-gray-700 -ml-2"></div>
+                        <div className="absolute left-0 top-3 w-0 h-0 border-t-[6px] border-b-[6px] border-r-[8px] border-transparent -ml-2"></div>
                       )}
                       <p className="text-gray-900 dark:text-white leading-relaxed">
                         {String(line.text || line.line || '')}
@@ -326,8 +326,8 @@ const renderExerciseContent = (exercise: { type: string; content: string | strin
       return (
         <div className="space-y-4">
           {scenario && (
-            <div className="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800 rounded-lg p-4">
-              <h4 className="font-semibold text-indigo-900 dark:text-indigo-200 mb-2">Scenario</h4>
+            <div className="rounded-lg p-4">
+              <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Scenario</h4>
               <p className="text-gray-700 dark:text-gray-300">{scenario}</p>
             </div>
           )}
@@ -335,7 +335,7 @@ const renderExerciseContent = (exercise: { type: string; content: string | strin
           {roles && roles.length > 0 && (
             <div className="grid gap-4">
               {roles.map((role, idx) => (
-                <div key={idx} className="bg-gradient-to-br from-pink-50 to-purple-50 dark:from-pink-900/20 dark:to-purple-900/20 border border-pink-200 dark:border-pink-800 rounded-lg p-4">
+                <div key={idx} className="rounded-lg p-4">
                   <h4 className="font-bold text-lg text-gray-900 dark:text-white mb-2">
                     {String(role.name || '')}
                   </h4>
@@ -367,7 +367,7 @@ const renderExerciseContent = (exercise: { type: string; content: string | strin
     return (
       <div className="space-y-3">
         {Object.entries(obj).map(([key, value], index) => (
-          <div key={index} className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
+          <div key={index} className="rounded-lg p-4">
             <h4 className="font-semibold text-gray-900 dark:text-white mb-2 capitalize">
               {key.replace(/([A-Z])/g, ' $1').trim()}
             </h4>
@@ -461,16 +461,12 @@ export default function InstantLessonDisplay({ lesson }: InstantLessonDisplayPro
         {lesson.exercises.map((exercise, index) => (
           <div 
             key={index} 
-            className={`bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden transition-all hover:shadow-lg ${
+            className={`bg-white dark:bg-gray-800 rounded-xl overflow-hidden transition-all ${
               !is25Minutes && index === 0 ? 'col-span-1' : ''
             }`}
           >
             {/* Exercise Header */}
-            <div className={`p-6 border-b border-gray-200 dark:border-gray-700 ${
-              is25Minutes
-                ? 'bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20'
-                : 'bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20'
-            }`}>
+            <div className="p-6 border-b border-gray-200 dark:border-gray-700">
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-2">
@@ -512,7 +508,7 @@ export default function InstantLessonDisplay({ lesson }: InstantLessonDisplayPro
       {(lesson.homework || lesson.teachingNotes || lesson.materials) && (
         <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
           {lesson.homework && (
-            <div className="bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 rounded-xl p-6 border border-amber-200 dark:border-amber-800">
+            <div className="bg-white dark:bg-gray-800 rounded-xl p-6">
               <div className="flex items-center gap-2 mb-3">
                 <svg className="w-5 h-5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -528,7 +524,7 @@ export default function InstantLessonDisplay({ lesson }: InstantLessonDisplayPro
           )}
 
           {lesson.teachingNotes && (
-            <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-xl p-6 border border-green-200 dark:border-green-800">
+            <div className="bg-white dark:bg-gray-800 rounded-xl p-6">
               <div className="flex items-center gap-2 mb-3">
                 <svg className="w-5 h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
@@ -544,7 +540,7 @@ export default function InstantLessonDisplay({ lesson }: InstantLessonDisplayPro
           )}
 
           {lesson.materials && lesson.materials.length > 0 && (
-            <div className="bg-gradient-to-br from-cyan-50 to-blue-50 dark:from-cyan-900/20 dark:to-blue-900/20 rounded-xl p-6 border border-cyan-200 dark:border-cyan-800 md:col-span-2">
+            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 md:col-span-2">
               <div className="flex items-center gap-2 mb-3">
                 <svg className="w-5 h-5 text-cyan-600 dark:text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />

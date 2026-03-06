@@ -136,10 +136,10 @@ export const DialogueRenderer: React.FC<DialogueRendererProps> = ({
   
   const getCharacterColor = (index: number) => {
     const colors = [
-      { bg: 'bg-blue-100 dark:bg-blue-900/30', text: 'text-blue-700 dark:text-blue-300', border: 'border-blue-300 dark:border-blue-700' },
-      { bg: 'bg-green-100 dark:bg-green-900/30', text: 'text-green-700 dark:text-green-300', border: 'border-green-300 dark:border-green-700' },
-      { bg: 'bg-purple-100 dark:bg-purple-900/30', text: 'text-purple-700 dark:text-purple-300', border: 'border-purple-300 dark:border-purple-700' },
-      { bg: 'bg-orange-100 dark:bg-orange-900/30', text: 'text-orange-700 dark:text-orange-300', border: 'border-orange-300 dark:border-orange-700' },
+      { bg: '', text: 'text-blue-700 dark:text-blue-300', border: '' },
+      { bg: '', text: 'text-green-700 dark:text-green-300', border: '' },
+      { bg: '', text: 'text-purple-700 dark:text-purple-300', border: '' },
+      { bg: '', text: 'text-orange-700 dark:text-orange-300', border: '' },
     ]
     return colors[index % colors.length]
   }
@@ -147,7 +147,7 @@ export const DialogueRenderer: React.FC<DialogueRendererProps> = ({
   return (
     <div className="space-y-4">
       {/* Setting */}
-      <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg border-l-4 border-indigo-500">
+      <div className="p-4 rounded-lg border-l-4 border-indigo-500">
         <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Setting:</p>
         <p className="text-gray-900 dark:text-white font-semibold">
           {formatText(displaySetting)}
@@ -173,7 +173,7 @@ export const DialogueRenderer: React.FC<DialogueRendererProps> = ({
       <div className="flex items-center gap-3">
         <button
           onClick={() => setShowTranslations(!showTranslations)}
-          className="text-sm px-4 py-2 rounded bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-200 dark:hover:bg-indigo-800 transition-colors font-medium"
+          className="text-sm px-4 py-2 rounded text-indigo-700 dark:text-indigo-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors font-medium"
         >
           {showTranslations ? '✓ Translations On' : 'Show Translations'}
         </button>
@@ -183,7 +183,7 @@ export const DialogueRenderer: React.FC<DialogueRendererProps> = ({
       </div>
 
       {/* Dialogue - Clean List Format */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 divide-y divide-gray-200 dark:divide-gray-700">
+      <div className="rounded-lg divide-y divide-gray-200 dark:divide-gray-700">
         {dialogue.map((exchange, index) => {
           // Normalize character name - handle various formats
           let charName = exchange.character || '';
@@ -217,7 +217,7 @@ export const DialogueRenderer: React.FC<DialogueRendererProps> = ({
           return (
             <div key={index} className="p-4 sm:p-6">
               <div className="flex gap-3 mb-2">
-                <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs ${color.bg} ${color.text} border-2 ${color.border}`}>
+                <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs ${color.text}`}>
                   {(displayName || 'U')[0].toUpperCase()}
                 </div>
                 <div className="flex-1 min-w-0">
@@ -243,20 +243,20 @@ export const DialogueRenderer: React.FC<DialogueRendererProps> = ({
 
       {/* Comprehension Questions */}
       {comprehensionQuestions && comprehensionQuestions.length > 0 && (
-        <div className="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800 rounded-lg p-4">
-          <p className="text-sm font-medium text-indigo-800 dark:text-indigo-300 mb-3">
+        <div className="rounded-lg p-4">
+          <p className="text-sm font-medium text-gray-900 dark:text-white mb-3">
             ❓ Comprehension Check:
           </p>
           <div className="space-y-3">
             {comprehensionQuestions.map((q, index) => (
               <div key={index} className="space-y-2">
-                <p className="text-sm text-indigo-900 dark:text-indigo-200 font-medium">
+                <p className="text-sm text-gray-900 dark:text-white font-medium">
                   {index + 1}. {formatText(q.question)}
                 </p>
                 {q.options && (
                   <div className="space-y-1 ml-4">
                     {q.options.map((opt, optIndex) => (
-                      <p key={optIndex} className="text-sm text-indigo-800 dark:text-indigo-300">
+                      <p key={optIndex} className="text-sm text-gray-700 dark:text-gray-300">
                         {String.fromCharCode(97 + optIndex)}) {opt}
                       </p>
                     ))}
@@ -272,7 +272,7 @@ export const DialogueRenderer: React.FC<DialogueRendererProps> = ({
                       {revealedAnswers.has(index) ? 'Hide Answer' : 'Show Answer'}
                     </button>
                     {revealedAnswers.has(index) && (
-                      <p className="text-sm text-green-700 dark:text-green-300 mt-1 bg-green-50 dark:bg-green-900/20 px-3 py-2 rounded border border-green-200 dark:border-green-800">
+                      <p className="text-sm text-green-700 dark:text-green-300 mt-1 px-3 py-2 rounded">
                         ✅ {formatText(q.answer)}
                       </p>
                     )}
@@ -285,8 +285,8 @@ export const DialogueRenderer: React.FC<DialogueRendererProps> = ({
       )}
 
       {/* Study Tip */}
-      <div className="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800 rounded-lg p-4">
-        <p className="text-sm text-indigo-800 dark:text-indigo-300">
+      <div className="rounded-lg p-4">
+        <p className="text-sm text-gray-600 dark:text-gray-400">
           🎯 <strong>Practice:</strong> Read the dialogue aloud with different intonations. Then try to memorize it!
         </p>
       </div>

@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import DashboardLayout from '@/components/layout/DashboardLayout'
-import { getPlacementResult } from '@/app/actions/placement-tests'
+import { getPlacementResult, applyPlacementLevel } from '@/app/actions/placement-tests'
 
 // ─── Types ───────────────────────────────────────────────────────────
 
@@ -83,6 +83,9 @@ export default function PlacementTestResultsPage() {
   const [error, setError] = useState<string | null>(null)
   const [result, setResult] = useState<ResultData | null>(null)
   const [expandedSection, setExpandedSection] = useState<string | null>(null)
+  const [levelApplied, setLevelApplied] = useState(false)
+  const [applyingLevel, setApplyingLevel] = useState(false)
+  const [promptDismissed, setPromptDismissed] = useState(false)
   const hasFetched = useRef(false)
 
   const loadResult = useCallback(async () => {
@@ -116,6 +119,30 @@ export default function PlacementTestResultsPage() {
       month: 'short',
       year: 'numeric',
     })
+  }
+
+  useEffect(() => {
+    if (!result || levelApplied || promptDismissed) return
+    const timer = setTimeout(() => setPromptDismissed(true), 30000)
+    return () => clearTimeout(timer)
+  }, [result, levelApplied, promptDismissed])
+
+  const handleApplyLevel = async () => {
+    setApplyingLevel(true)
+    const res = await applyPlacementLevel(assignmentId)
+    if (res.success) {
+      setLevelApplied(true)
+      if (result) {
+        setResult({
+          ...result,
+          assignment: {
+            ...result.assignment,
+            student: { ...result.assignment.student, level: result.overallLevel },
+          },
+        })
+      }
+    }
+    setApplyingLevel(false)
   }
 
   return (
@@ -214,6 +241,61 @@ export default function PlacementTestResultsPage() {
               </div>
             </div>
 
+            {/* Level Update Prompt */}
+            {(() => {
+              const currentLevel = result.assignment.student?.level
+              const determinedLevel = result.overallLevel
+              const shouldPrompt = (!currentLevel || currentLevel !== determinedLevel) && !levelApplied && !promptDismissed
+
+              if (shouldPrompt) {
+                return (
+                  <div className="flex items-center justify-between rounded-xl border border-[#3d74b5]/20 bg-white px-5 py-4 dark:border-[#3d74b5]/30 dark:bg-slate-800">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#3d74b5]/10 text-[#3d74b5]">
+                        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-slate-700 dark:text-slate-200">
+                          {currentLevel
+                            ? <>Student is currently set to <span className="font-bold">{currentLevel}</span> but tested at <span className="font-bold">{determinedLevel}</span></>
+                            : <>Student has no level set. Test determined <span className="font-bold">{determinedLevel}</span></>
+                          }
+                        </p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">
+                          Update their profile to match the placement result?
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={handleApplyLevel}
+                      disabled={applyingLevel}
+                      className="flex-shrink-0 rounded-lg bg-[#3d74b5] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#2f5f9a] disabled:opacity-50"
+                    >
+                      {applyingLevel ? 'Updating...' : `Set to ${determinedLevel}`}
+                    </button>
+                  </div>
+                )
+              }
+
+              if (levelApplied) {
+                return (
+                  <div className="flex items-center gap-3 rounded-xl border border-green-200 bg-white px-5 py-4 dark:border-green-800/40 dark:bg-slate-800">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-green-100 text-green-600 dark:bg-green-900/30">
+                      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                      </svg>
+                    </div>
+                    <p className="text-sm font-medium text-green-700 dark:text-green-400">
+                      Student level updated to {determinedLevel}
+                    </p>
+                  </div>
+                )
+              }
+
+              return null
+            })()}
             {/* Strengths & Weaknesses */}
             {(result.strengths.length > 0 || result.weaknesses.length > 0) && (
               <div className="grid gap-4 sm:grid-cols-2">

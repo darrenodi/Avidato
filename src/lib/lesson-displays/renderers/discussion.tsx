@@ -45,11 +45,11 @@ export const DiscussionRenderer: React.FC<DiscussionRendererProps> = ({
         {questions.map((question, index) => (
           <div
             key={index}
-            className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6"
+            className="rounded-lg p-4 sm:p-6"
           >
             <div className="flex items-start gap-3">
-              <span className="flex-shrink-0 w-8 h-8 bg-cyan-100 dark:bg-cyan-900/30 text-cyan-600 dark:text-cyan-400 rounded-full flex items-center justify-center text-sm font-bold">
-                {index + 1}
+              <span className="flex-shrink-0 w-8 h-8 text-cyan-600 dark:text-cyan-400 font-bold flex items-center justify-center text-sm">
+                {index + 1}.
               </span>
               <p className="text-gray-900 dark:text-white font-medium leading-relaxed">
                 {formatText(question)}
@@ -60,8 +60,8 @@ export const DiscussionRenderer: React.FC<DiscussionRendererProps> = ({
       </div>
 
       {/* Study Tip */}
-      <div className="bg-cyan-50 dark:bg-cyan-900/20 border border-cyan-200 dark:border-cyan-800 rounded-lg p-4">
-        <p className="text-sm text-cyan-800 dark:text-cyan-300">
+      <div className="rounded-lg p-4">
+        <p className="text-sm text-gray-600 dark:text-gray-400">
           🎯 <strong>Practice:</strong> Have these discussions with a partner or record yourself
           answering these questions. The goal is to communicate naturally using the lesson
           vocabulary!

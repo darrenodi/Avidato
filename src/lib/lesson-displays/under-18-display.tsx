@@ -285,7 +285,7 @@ export const Under18LessonDisplay: React.FC<Under18DisplayProps> = ({
     <div className="space-y-6">
       {/* Lesson Header */}
       {showHeader && (
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-6">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
             {lesson.metadata.title}
           </h1>
@@ -329,7 +329,7 @@ export const Under18LessonDisplay: React.FC<Under18DisplayProps> = ({
 
       {/* Progress Bar */}
       {showProgressBar && (
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-6">
           <div className="space-y-3">
             <div className="flex justify-between items-center">
               <span className="font-semibold text-gray-900 dark:text-white">
@@ -352,7 +352,7 @@ export const Under18LessonDisplay: React.FC<Under18DisplayProps> = ({
       )}
 
       {/* Current Exercise */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+      <div className="bg-white dark:bg-gray-800 rounded-xl p-6">
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-500 text-white rounded-full flex items-center justify-center font-bold">
@@ -380,7 +380,7 @@ export const Under18LessonDisplay: React.FC<Under18DisplayProps> = ({
         </div>
 
         {/* Exercise Content */}
-        <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 overflow-x-auto">
+        <div className="rounded-lg p-4 overflow-x-auto">
           {renderExercise(currentExercise)}
         </div>
       </div>
@@ -424,11 +424,11 @@ export const Under18LessonDisplay: React.FC<Under18DisplayProps> = ({
 
       {/* Completion Message */}
       {currentExerciseIndex === lesson.exercises.length - 1 && completedExercises.size === lesson.exercises.length && (
-        <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl p-6 text-center">
+        <div className="rounded-xl p-6 text-center">
           <p className="text-lg font-semibold text-green-800 dark:text-green-300">
             🎉 Excellent! You&apos;ve completed all exercises!
           </p>
-          <p className="text-sm text-green-700 dark:text-green-400 mt-2">
+          <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
             Great effort! Review any challenging parts and discuss with your tutor.
           </p>
         </div>

@@ -8,6 +8,7 @@ import {
   processAnswer,
   calculateScore,
   analyseResults,
+  rebuildLevelHistory,
   type AdaptiveState,
   type CEFRLevel,
 } from '../../lib/placement-test-engine'
@@ -293,6 +294,7 @@ export async function getNextTestQuestion(
         answers: {
           select: {
             questionId: true,
+            isCorrect: true,
             question: {
               select: { topic: true, readingPassageId: true },
             },
@@ -310,16 +312,21 @@ export async function getNextTestQuestion(
       return { success: false, error: 'This section is already complete.' }
     }
 
+    // Rebuild level history from stored answers for accurate state
+    const { levelHistory, currentDifficulty } = rebuildLevelHistory(
+      attempt.answers.map((a) => ({ questionId: a.questionId, isCorrect: a.isCorrect }))
+    )
+
     // Build adaptive state from DB
     const state: AdaptiveState = {
-      currentDifficulty: levelToDifficulty(attempt.currentLevel as CEFRLevel),
+      currentDifficulty: attempt.questionsAsked > 0 ? currentDifficulty : levelToDifficulty(attempt.currentLevel as CEFRLevel),
       currentLevel: attempt.currentLevel as CEFRLevel,
       questionsAsked: attempt.questionsAsked,
       correctCount: attempt.correctCount,
       consecutiveCorrect: attempt.consecutiveCorrect,
       consecutiveWrong: attempt.consecutiveWrong,
       answeredQuestionIds: attempt.answers.map((a) => a.questionId),
-      levelHistory: [],
+      levelHistory,
       isComplete: false,
       determinedLevel: null,
     }
@@ -398,7 +405,10 @@ export async function submitAnswer(
     const attempt = await prisma.placementSectionAttempt.findUnique({
       where: { id: attemptId },
       include: {
-        answers: { select: { questionId: true } },
+        answers: {
+          select: { questionId: true, isCorrect: true },
+          orderBy: { questionOrder: 'asc' },
+        },
         assignment: true,
       },
     })
@@ -427,16 +437,42 @@ export async function submitAnswer(
 
     const isCorrect = selectedAnswer === question.correctAnswer
 
-    // Build current adaptive state
+    // Rebuild full level history from stored answers
+    const answerLog = attempt.answers.map((a) => ({ questionId: a.questionId, isCorrect: a.isCorrect }))
+    const { levelHistory, currentDifficulty } = rebuildLevelHistory(answerLog)
+
+    // Build per-level accuracy from answer history
+    const levelAccuracy: Record<string, { correct: number; total: number }> = {}
+    let replayDiff = CONFIG_START_DIFFICULTY
+    let replayConsCorrect = 0
+    let replayConsWrong = 0
+    for (const a of answerLog) {
+      const lvl = difficultyToLevelHelper(replayDiff)
+      if (!levelAccuracy[lvl]) levelAccuracy[lvl] = { correct: 0, total: 0 }
+      levelAccuracy[lvl].total++
+      if (a.isCorrect) {
+        levelAccuracy[lvl].correct++
+        replayConsCorrect++
+        replayConsWrong = 0
+      } else {
+        replayConsCorrect = 0
+        replayConsWrong++
+      }
+      if (replayConsCorrect >= 3) { replayDiff = Math.min(60, replayDiff + 5); replayConsCorrect = 0 }
+      else if (replayConsWrong >= 2) { replayDiff = Math.max(1, replayDiff - 5); replayConsWrong = 0 }
+    }
+
+    // Build current adaptive state with full history
     const state: AdaptiveState = {
-      currentDifficulty: levelToDifficulty(attempt.currentLevel as CEFRLevel),
+      currentDifficulty: answerLog.length > 0 ? currentDifficulty : levelToDifficulty(attempt.currentLevel as CEFRLevel),
       currentLevel: attempt.currentLevel as CEFRLevel,
       questionsAsked: attempt.questionsAsked,
       correctCount: attempt.correctCount,
       consecutiveCorrect: attempt.consecutiveCorrect,
       consecutiveWrong: attempt.consecutiveWrong,
       answeredQuestionIds: attempt.answers.map((a) => a.questionId),
-      levelHistory: [],
+      levelHistory,
+      levelAccuracy,
       isComplete: false,
       determinedLevel: null,
     }
@@ -726,7 +762,51 @@ export async function getStudentsForAssignment(): Promise<ActionResponse> {
   }
 }
 
+// ─── Apply Level to Student ──────────────────────────────────────────
+
+export async function applyPlacementLevel(assignmentId: string): Promise<ActionResponse> {
+  const session = (await getServerSession(authOptions)) as Session | null
+  if (!session?.user || typeof session.user.id !== 'string') {
+    return { success: false, error: 'You must be logged in.' }
+  }
+
+  try {
+    const result = await prisma.placementTestResult.findUnique({
+      where: { assignmentId },
+      include: {
+        assignment: {
+          select: { assignedById: true, studentId: true },
+        },
+      },
+    })
+
+    if (!result) {
+      return { success: false, error: 'Result not found.' }
+    }
+
+    if (result.assignment.assignedById !== session.user.id) {
+      return { success: false, error: 'Unauthorized.' }
+    }
+
+    await prisma.student.update({
+      where: { id: result.assignment.studentId },
+      data: { level: result.overallLevel },
+    })
+
+    return {
+      success: true,
+      message: `Student level updated to ${result.overallLevel}.`,
+      data: { newLevel: result.overallLevel },
+    }
+  } catch (error) {
+    console.error('Error applying placement level:', error)
+    return { success: false, error: 'Failed to update student level.' }
+  }
+}
+
 // ─── Helpers ─────────────────────────────────────────────────────────
+
+const CONFIG_START_DIFFICULTY = 25
 
 function levelToDifficulty(level: CEFRLevel): number {
   const map: Record<CEFRLevel, number> = {
@@ -738,6 +818,15 @@ function levelToDifficulty(level: CEFRLevel): number {
     C2: 55,
   }
   return map[level]
+}
+
+function difficultyToLevelHelper(difficulty: number): CEFRLevel {
+  if (difficulty <= 10) return 'A1'
+  if (difficulty <= 20) return 'A2'
+  if (difficulty <= 30) return 'B1'
+  if (difficulty <= 40) return 'B2'
+  if (difficulty <= 50) return 'C1'
+  return 'C2'
 }
 
 /**

@@ -41,7 +41,7 @@ export const SentenceCorrectionRenderer: React.FC<SentenceCorrectionRendererProp
         )}
         {isTutorVersion && (
           <p className="text-xs text-orange-600 dark:text-orange-400 mt-2 font-semibold">
-            👨‍🏫 Student cannot see answers
+          Student cannot see answers
           </p>
         )}
       </div>
@@ -51,18 +51,18 @@ export const SentenceCorrectionRenderer: React.FC<SentenceCorrectionRendererProp
         {sentences.map((item, index) => (
           <div
             key={index}
-            className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden"
+            className="rounded-lg overflow-hidden"
           >
             {/* Sentence Number and Incorrect Text */}
             <div className="p-4">
               <div className="flex gap-3">
-                <span className="flex-shrink-0 w-8 h-8 bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 rounded-full flex items-center justify-center text-sm font-semibold">
-                  {index + 1}
+                <span className="flex-shrink-0 w-8 h-8 text-orange-600 dark:text-orange-400 font-semibold flex items-center justify-center text-sm">
+                  {index + 1}.
                 </span>
                 <div className="flex-1">
                   {/* Display incorrect sentence */}
                   <div className="mb-3">
-                    <p className="text-gray-900 dark:text-white font-medium p-3 rounded border bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800">
+                    <p className="text-gray-900 dark:text-white font-medium p-3 rounded">
                       {formatText(item.incorrect)}
                     </p>
                   </div>
@@ -87,7 +87,7 @@ export const SentenceCorrectionRenderer: React.FC<SentenceCorrectionRendererProp
                             <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-1">
                               ✅ Correct:
                             </p>
-                            <p className="text-gray-900 dark:text-white font-medium bg-green-50 dark:bg-green-900/20 p-3 rounded border border-green-200 dark:border-green-800">
+                            <p className="text-gray-900 dark:text-white font-medium p-3 rounded">
                               {formatText(item.correct)}
                             </p>
                           </div>
@@ -96,7 +96,7 @@ export const SentenceCorrectionRenderer: React.FC<SentenceCorrectionRendererProp
                             <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-1">
                               📌 Error Type:
                             </p>
-                            <p className="text-sm text-gray-700 dark:text-gray-300 bg-blue-50 dark:bg-blue-900/20 p-3 rounded border border-blue-200 dark:border-blue-800">
+                            <p className="text-sm text-gray-700 dark:text-gray-300 p-3 rounded">
                               <strong>{item.errorType}</strong>
                               {item.explanation && (
                                 <>
@@ -111,7 +111,7 @@ export const SentenceCorrectionRenderer: React.FC<SentenceCorrectionRendererProp
                     </>
                   ) : (
                     /* Student Version: No answers shown */
-                    <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded text-sm text-blue-700 dark:text-blue-300">
+                    <div className="mt-3 p-3 rounded text-sm text-gray-600 dark:text-gray-400">
                       ✏️ <strong>Your turn:</strong> Find and correct the mistake in this sentence.
                     </div>
                   )}

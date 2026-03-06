@@ -72,6 +72,10 @@ STUDENT: ${level} level, native ${nativeLanguage}, learning ${targetLanguage}.
 
 LANGUAGE RULE: ALL content in EVERY JSON field MUST be in ${targetLanguage}. Zero English anywhere. ONLY exception: vocabulary "translation" field uses ${nativeLanguage}. Adapt complexity to ${level}.
 
+GLOBAL FORMATTING RULES:
+- NEVER use em dashes (—) anywhere. Use commas, periods, or semicolons instead.
+- NEVER suggest or include background colors, colored badges, or colored containers in any content field.
+
 EXERCISES:
 1. vocabulary (10min): 6-8 items — {word, partOfSpeech, phonetics (IPA), definition, translation (${nativeLanguage} only), example, synonym, expressions[]}
 2. warmup (8min): 2-3 discussion questions + instructions
