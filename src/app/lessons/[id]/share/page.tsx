@@ -789,6 +789,7 @@ export default function SharedLessonPage() {
                   }}
                   showObjectives={true}
                   showProgressBar={true}
+                  isTutorView={false}
                 />
               ) : (
                 <div className="space-y-8">

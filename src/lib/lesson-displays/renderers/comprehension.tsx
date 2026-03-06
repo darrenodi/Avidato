@@ -11,7 +11,7 @@ import { formatText } from '@/lib/format-text'
 
 interface ComprehensionQuestion {
   question: string
-  type?: 'multiple-choice' | 'open-ended' | 'true-false'
+  type?: 'multiple-choice' | 'open-ended' | 'true-false' | 'short-answer'
   options?: string[]
   answer?: string
 }
@@ -21,15 +21,27 @@ interface ComprehensionRendererProps {
   instructions: string
   questions: ComprehensionQuestion[]
   timeMinutes: number
+  isTutorView?: boolean
 }
 
 export const ComprehensionRenderer: React.FC<ComprehensionRendererProps> = ({
   instructions,
   questions,
   timeMinutes,
+  isTutorView = false,
 }) => {
   const [selectedAnswers, setSelectedAnswers] = React.useState<Record<number, string>>({})
   const [answeredQuestions, setAnsweredQuestions] = React.useState<Set<number>>(new Set())
+  const [revealedAnswers, setRevealedAnswers] = React.useState<Set<number>>(new Set())
+
+  const toggleRevealAnswer = (index: number) => {
+    setRevealedAnswers((prev) => {
+      const next = new Set(prev)
+      if (next.has(index)) next.delete(index)
+      else next.add(index)
+      return next
+    })
+  }
 
   const handleSelectAnswer = (questionIndex: number, answer: string) => {
     setSelectedAnswers((prev) => ({
@@ -210,6 +222,32 @@ export const ComprehensionRenderer: React.FC<ComprehensionRendererProps> = ({
                 rows={3}
                 onChange={(e) => handleSelectAnswer(index, e.target.value)}
               />
+            )}
+
+            {/* Short-answer / No type — Tutor answer reveal */}
+            {(q.type === 'short-answer' || (!q.type && !q.options)) && q.answer && isTutorView && (
+              <div className="mt-3">
+                <button
+                  onClick={() => toggleRevealAnswer(index)}
+                  className="text-sm font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors flex items-center gap-2 mb-2"
+                >
+                  <span>{revealedAnswers.has(index) ? '▼' : '▶'}</span>
+                  {revealedAnswers.has(index) ? 'Hide Answer' : 'Show Answer'}
+                </button>
+                {revealedAnswers.has(index) && (
+                  <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-3">
+                    <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-1">✅ Expected Answer:</p>
+                    <p className="text-sm text-green-800 dark:text-green-200 font-medium">{formatText(q.answer)}</p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Short-answer — Student view (no answer shown) */}
+            {(q.type === 'short-answer' || (!q.type && !q.options)) && !isTutorView && (
+              <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded text-sm text-blue-700 dark:text-blue-300">
+                ✏️ <strong>Your turn:</strong> Answer this question in your own words.
+              </div>
             )}
           </div>
         ))}

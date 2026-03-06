@@ -28,6 +28,7 @@ import { DialogueCompletionRenderer } from './renderers/dialogue-completion'
 import { ComprehensionRenderer } from './renderers/comprehension'
 import { RoleplayRenderer } from './renderers/roleplay'
 import { DiscussionRenderer } from './renderers/discussion'
+import { SentenceCorrectionRenderer } from './renderers/sentence-correction'
 import { SpeakingRenderer } from './renderers/speaking'
 import { ConversationRenderer } from './renderers/conversation'
 import { ChallengeRenderer } from './renderers/challenge'
@@ -71,6 +72,7 @@ interface Under18DisplayProps {
   showObjectives?: boolean
   showProgressBar?: boolean
   showHeader?: boolean
+  isTutorView?: boolean
 }
 
 export const Under18LessonDisplay: React.FC<Under18DisplayProps> = ({
@@ -78,6 +80,7 @@ export const Under18LessonDisplay: React.FC<Under18DisplayProps> = ({
   showObjectives = true,
   showProgressBar = true,
   showHeader = true,
+  isTutorView = true,
 }) => {
   const [currentExerciseIndex, setCurrentExerciseIndex] = React.useState(0)
   const [completedExercises, setCompletedExercises] = React.useState<Set<number>>(new Set())
@@ -179,6 +182,18 @@ export const Under18LessonDisplay: React.FC<Under18DisplayProps> = ({
           />
         )
 
+      case 'sentence-correction':
+      case 'sentence_correction':
+        return (
+          <SentenceCorrectionRenderer
+            title={exercise.title}
+            instructions={exercise.instructions || 'Find and correct the mistake in each sentence.'}
+            sentences={content.sentences as Parameters<typeof SentenceCorrectionRenderer>[0]['sentences']}
+            timeMinutes={exercise.timeMinutes}
+            isTutorVersion={isTutorView}
+          />
+        )
+
       case 'dialogue-completion':
       case 'dialogue_completion':
         return (
@@ -198,6 +213,7 @@ export const Under18LessonDisplay: React.FC<Under18DisplayProps> = ({
             instructions=""
             questions={content.questions as Parameters<typeof ComprehensionRenderer>[0]['questions']}
             timeMinutes={exercise.timeMinutes}
+            isTutorView={isTutorView}
           />
         )
 

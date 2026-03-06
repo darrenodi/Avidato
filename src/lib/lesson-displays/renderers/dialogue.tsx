@@ -105,6 +105,7 @@ interface DialogueRendererProps {
   comprehensionQuestions?: {
     question: string
     options?: string[]
+    answer?: string
   }[]
   timeMinutes: number
   targetLanguage?: string
@@ -119,6 +120,16 @@ export const DialogueRenderer: React.FC<DialogueRendererProps> = ({
   targetLanguage = 'English',
 }) => {
   const [showTranslations, setShowTranslations] = React.useState(false)
+  const [revealedAnswers, setRevealedAnswers] = React.useState<Set<number>>(new Set())
+  
+  const toggleRevealAnswer = (index: number) => {
+    setRevealedAnswers((prev) => {
+      const next = new Set(prev)
+      if (next.has(index)) next.delete(index)
+      else next.add(index)
+      return next
+    })
+  }
   
   // Generate detailed setting if empty
   const displaySetting = setting || generateDetailedSetting(characters, dialogue, targetLanguage)
@@ -249,6 +260,22 @@ export const DialogueRenderer: React.FC<DialogueRendererProps> = ({
                         {String.fromCharCode(97 + optIndex)}) {opt}
                       </p>
                     ))}
+                  </div>
+                )}
+                {q.answer && (
+                  <div className="ml-4">
+                    <button
+                      onClick={() => toggleRevealAnswer(index)}
+                      className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors flex items-center gap-1"
+                    >
+                      <span>{revealedAnswers.has(index) ? '▼' : '▶'}</span>
+                      {revealedAnswers.has(index) ? 'Hide Answer' : 'Show Answer'}
+                    </button>
+                    {revealedAnswers.has(index) && (
+                      <p className="text-sm text-green-700 dark:text-green-300 mt-1 bg-green-50 dark:bg-green-900/20 px-3 py-2 rounded border border-green-200 dark:border-green-800">
+                        ✅ {formatText(q.answer)}
+                      </p>
+                    )}
                   </div>
                 )}
               </div>
