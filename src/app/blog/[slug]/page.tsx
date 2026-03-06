@@ -74,44 +74,38 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Hero Section */}
+      {/* Hero Image */}
       {post.image && (
-        <div className="h-96 bg-gray-100 overflow-hidden">
+        <div className="relative h-[28rem] bg-slate-100 overflow-hidden">
           <img
             src={post.image}
             alt={post.title}
             className="w-full h-full object-cover"
           />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
         </div>
       )}
 
       <article className="max-w-3xl mx-auto px-4 py-12">
         {/* Back Link */}
-        <Link href="/blog" className="text-blue-600 hover:text-blue-900 mb-6 inline-block">
-          ← Back to Blog
+        <Link
+          href="/blog"
+          className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-400 hover:text-brand-primary transition-colors mb-8"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+          Back to Blog
         </Link>
-
-        {/* Title and Meta */}
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">{post.title}</h1>
-
-        <div className="flex flex-wrap items-center gap-4 text-gray-600 mb-8 pb-8 border-b border-gray-200">
-          {post.author && <span>{post.author}</span>}
-          <span>{publishDate.toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-          })}</span>
-          <span>{readingTime} min read</span>
-        </div>
 
         {/* Tags */}
         {post.tags && post.tags.length > 0 && (
-          <div className="flex flex-wrap gap-2 mb-8">
+          <div className="flex flex-wrap gap-1.5 mb-5">
             {post.tags.map((tag) => (
               <Link
                 key={tag}
                 href={`/blog?tag=${encodeURIComponent(tag)}`}
-                className="inline-block px-3 py-1 bg-blue-50 text-blue-700 text-sm rounded-full hover:bg-blue-100 transition"
+                className="inline-block px-3 py-1 bg-brand-primary/5 text-brand-primary text-xs font-medium rounded-lg hover:bg-brand-primary/10 transition-colors"
               >
                 {tag}
               </Link>
@@ -119,26 +113,50 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
           </div>
         )}
 
+        {/* Title */}
+        <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 tracking-tight leading-tight mb-6">
+          {post.title}
+        </h1>
+
+        {/* Meta */}
+        <div className="flex flex-wrap items-center gap-3 text-sm text-slate-400 mb-10 pb-8 border-b border-slate-100">
+          {post.author && (
+            <span className="font-medium text-slate-600">{post.author}</span>
+          )}
+          {post.author && <span className="text-slate-200">|</span>}
+          <span>{publishDate.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+          })}</span>
+          <span className="text-slate-200">|</span>
+          <span>{readingTime} min read</span>
+        </div>
+
         {/* Content */}
         <BlogPostContent content={post.content} />
 
         {/* Footer */}
-        <div className="border-t border-gray-200 pt-8 mt-12">
-          <p className="text-gray-600 text-sm">
-            Last updated on {new Date(post.updatedAt).toLocaleDateString()}
+        <div className="border-t border-slate-100 pt-8 mt-16">
+          <p className="text-slate-400 text-sm">
+            Last updated on {new Date(post.updatedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
           </p>
         </div>
       </article>
 
-      {/* Related Posts Section - Optional */}
-      <div className="bg-gray-50 py-12 mt-12">
-        <div className="max-w-3xl mx-auto px-4">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Read More</h2>
+      {/* Read More */}
+      <div className="bg-slate-50/80 py-14 mt-12">
+        <div className="max-w-3xl mx-auto px-4 text-center">
+          <h2 className="text-2xl font-bold text-slate-900 mb-4">Enjoyed this article?</h2>
+          <p className="text-slate-500 mb-6">Explore more insights and resources on our blog.</p>
           <Link
             href="/blog"
-            className="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-brand-primary text-white rounded-xl hover:bg-brand-dark transition-colors text-sm font-medium shadow-sm shadow-brand-primary/20"
           >
             Browse all posts
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
           </Link>
         </div>
       </div>

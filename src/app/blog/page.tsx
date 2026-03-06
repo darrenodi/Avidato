@@ -1,5 +1,4 @@
-import Link from 'next/link'
-import { getAllBlogPosts, getAllBlogTags } from '@/lib/blog-service'
+import { getAllBlogPosts } from '@/lib/blog-service'
 import BlogListClient from './blog-list-client'
 import type { Metadata } from 'next'
 
@@ -45,13 +44,18 @@ export default async function BlogPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-      <div className="max-w-6xl mx-auto px-4 py-12">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Blog</h1>
-          <p className="text-lg text-gray-600">Insights, tutorials, and stories</p>
+    <div className="min-h-screen bg-slate-50/80">
+      {/* Hero */}
+      <div className="bg-brand-dark">
+        <div className="max-w-6xl mx-auto px-4 py-16 sm:py-20">
+          <h1 className="text-4xl sm:text-5xl font-bold text-white tracking-tight">Blog</h1>
+          <p className="text-lg text-slate-400 mt-3 max-w-xl">
+            Insights, tutorials, and resources for English language educators
+          </p>
         </div>
+      </div>
 
+      <div className="max-w-6xl mx-auto px-4 py-10">
         <BlogListClient posts={posts} tags={allTags} />
       </div>
     </div>

@@ -305,3 +305,116 @@ export async function sendWelcomeEmail(
     throw error
   }
 }
+
+// ─── Placement Test Complete Email ───────────────────────────────────
+
+export async function sendPlacementTestCompleteEmail(
+  teacherEmail: string,
+  teacherName: string | null,
+  studentName: string,
+  overallLevel: string,
+  grammarLevel: string | null,
+  readingLevel: string | null,
+  resultsUrl: string
+) {
+  try {
+    const levelLabels: Record<string, string> = {
+      A1: 'Beginner', A2: 'Elementary', B1: 'Intermediate',
+      B2: 'Upper Intermediate', C1: 'Advanced', C2: 'Proficiency',
+    }
+    const levelColors: Record<string, string> = {
+      A1: '#22c55e', A2: '#84cc16', B1: '#eab308',
+      B2: '#f97316', C1: '#ef4444', C2: '#a855f7',
+    }
+
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <style>
+            body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif; line-height: 1.6; color: #333; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .header { background: linear-gradient(135deg, #3d74b5 0%, #467bab 100%); color: white; padding: 30px 20px; text-align: center; border-radius: 8px 8px 0 0; }
+            .header h1 { margin: 0; font-size: 28px; font-weight: bold; }
+            .content { background: #f9fafb; padding: 30px 20px; border-radius: 0 0 8px 8px; }
+            .greeting { font-size: 18px; color: #252e48; margin-bottom: 16px; }
+            .level-badge { display: inline-block; font-size: 32px; font-weight: 800; padding: 12px 24px; border-radius: 12px; margin: 16px 0; }
+            .level-label { font-size: 14px; font-weight: 600; margin-top: 4px; }
+            .score-card { background: white; border-radius: 8px; padding: 12px 20px; text-align: center; flex: 1; border: 1px solid #e5e7eb; }
+            .score-title { font-size: 11px; text-transform: uppercase; color: #9ca3af; letter-spacing: 1px; }
+            .score-value { font-size: 24px; font-weight: 700; margin-top: 4px; }
+            .btn { display: inline-block; background: #3d74b5; color: white; text-decoration: none; padding: 12px 28px; border-radius: 8px; font-weight: 600; margin: 20px 0; }
+            .footer { text-align: center; padding: 20px; font-size: 12px; color: #9ca3af; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <h1>Placement Test Complete</h1>
+            </div>
+            <div class="content" style="text-align: center;">
+              <p class="greeting">Hi ${teacherName || 'there'},</p>
+              <p style="color: #6b7280; margin-bottom: 20px;">
+                <strong>${studentName}</strong> has completed their placement test. Here are the results:
+              </p>
+              <div>
+                <div class="level-badge" style="background: ${levelColors[overallLevel] || '#3d74b5'}15; color: ${levelColors[overallLevel] || '#3d74b5'};">
+                  ${overallLevel}
+                </div>
+                <div class="level-label" style="color: ${levelColors[overallLevel] || '#3d74b5'};">
+                  ${levelLabels[overallLevel] || overallLevel}
+                </div>
+              </div>
+              <table width="100%" cellpadding="0" cellspacing="0" style="margin: 20px 0;">
+                <tr>
+                  ${grammarLevel ? `
+                  <td align="center" style="padding: 0 8px;">
+                    <div class="score-card">
+                      <div class="score-title">Grammar</div>
+                      <div class="score-value" style="color: ${levelColors[grammarLevel] || '#3d74b5'};">${grammarLevel}</div>
+                    </div>
+                  </td>
+                  ` : ''}
+                  ${readingLevel ? `
+                  <td align="center" style="padding: 0 8px;">
+                    <div class="score-card">
+                      <div class="score-title">Reading</div>
+                      <div class="score-value" style="color: ${levelColors[readingLevel] || '#3d74b5'};">${readingLevel}</div>
+                    </div>
+                  </td>
+                  ` : ''}
+                </tr>
+              </table>
+              <a href="${resultsUrl}" class="btn">View Full Results</a>
+              <p style="color: #9ca3af; font-size: 13px; margin-top: 12px;">
+                View detailed question breakdown, strengths, weaknesses and recommended focus areas.
+              </p>
+            </div>
+            <div class="footer">
+              <p>&copy; ${new Date().getFullYear()} Avidato. All rights reserved.</p>
+            </div>
+          </div>
+        </body>
+      </html>
+    `
+
+    const response = await resend.emails.send({
+      from: 'support@avidato.com',
+      to: teacherEmail,
+      subject: `Placement Test Complete: ${studentName} - Level ${overallLevel}`,
+      html: htmlContent,
+    })
+
+    if (response.error) {
+      console.error('Resend error:', response.error)
+      throw new Error(`Failed to send placement test email: ${response.error.message}`)
+    }
+
+    return response
+  } catch (error) {
+    console.error('Email service error (placement test):', error)
+    // Don't throw - email failure shouldn't break test completion
+  }
+}

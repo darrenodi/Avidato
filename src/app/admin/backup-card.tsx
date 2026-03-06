@@ -53,16 +53,13 @@ export default function BackupCard() {
       });
 
       if (response.ok) {
-        // Get the blob from response
         const blob = await response.blob();
         
-        // Extract filename from Content-Disposition header
         const disposition = response.headers.get('content-disposition');
         const filename = disposition
           ? disposition.split('filename="')[1]?.split('"')[0]
           : `avidato-backup-${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
 
-        // Create a download link
         const url = window.URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
@@ -70,15 +67,10 @@ export default function BackupCard() {
         document.body.appendChild(link);
         link.click();
 
-        // Cleanup
         window.URL.revokeObjectURL(url);
         document.body.removeChild(link);
 
-        setSuccessMessage(
-          `✓ Backup downloaded successfully: ${filename}`
-        );
-
-        // Refresh status
+        setSuccessMessage(`Backup downloaded: ${filename}`);
         setTimeout(fetchBackupStatus, 2000);
       } else {
         const errorData = await response.json();
@@ -93,30 +85,11 @@ export default function BackupCard() {
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 border border-gray-200 dark:border-gray-700">
-      <div className="flex items-center">
-        <div className="flex-1">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-            Database Backup
-          </h3>
-          <p className="text-gray-600 dark:text-gray-400 text-sm mt-2">
-            {statusInfo?.message ||
-              'Create and manage database backups. Supabase automatically backs up your database daily.'}
-          </p>
-          {statusInfo && (
-            <div className="mt-3 text-xs text-gray-500 dark:text-gray-400 space-y-1">
-              <p>
-                <strong>Provider:</strong> {statusInfo.provider}
-              </p>
-              <p>
-                <strong>Backup Frequency:</strong> {statusInfo.backupFrequency}
-              </p>
-            </div>
-          )}
-        </div>
-        <div className="ml-4 p-3 bg-red-100 dark:bg-red-900 rounded-lg">
+    <div className="group bg-white rounded-2xl border border-slate-200/80 p-6 hover:shadow-lg hover:shadow-slate-200/50 hover:border-slate-300/80 transition-all duration-300">
+      <div className="flex items-start justify-between mb-4">
+        <div className="p-3 rounded-xl bg-rose-50">
           <svg
-            className="w-6 h-6 text-red-600 dark:text-red-200"
+            className="w-6 h-6 text-rose-500"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -124,45 +97,68 @@ export default function BackupCard() {
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+              strokeWidth={1.5}
+              d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375m16.5 0v3.75m-16.5-3.75v3.75m16.5 0v3.75C20.25 16.153 16.556 18 12 18s-8.25-1.847-8.25-4.125v-3.75m16.5 0c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125"
             />
           </svg>
         </div>
       </div>
 
+      <h3 className="text-base font-semibold text-slate-900 mb-1.5">Database Backup</h3>
+      <p className="text-sm text-slate-500 leading-relaxed mb-3">
+        {statusInfo?.message || 'Create and download database backups.'}
+      </p>
+
+      {statusInfo && (
+        <div className="flex gap-4 text-xs text-slate-400 mb-4">
+          <span>{statusInfo.provider}</span>
+          <span>{statusInfo.backupFrequency}</span>
+        </div>
+      )}
+
       {successMessage && (
-        <div className="mt-4 p-3 bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-700 rounded text-green-800 dark:text-green-200 text-sm">
+        <div className="mb-4 p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-700 text-sm">
           {successMessage}
         </div>
       )}
 
-      <div className="mt-4 flex gap-2">
+      <div className="flex items-center gap-3">
         <button
           onClick={handleBackup}
           disabled={isLoading}
-          className={`inline-block px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+          className={`inline-flex items-center gap-1.5 text-sm font-medium transition-colors ${
             isLoading
-              ? 'bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed'
-              : 'bg-red-600 hover:bg-red-700 text-white cursor-pointer'
+              ? 'text-slate-400 cursor-not-allowed'
+              : 'text-brand-primary hover:text-brand-dark cursor-pointer'
           }`}
         >
-          {isLoading ? 'Creating Backup...' : 'Create Backup'}
+          {isLoading ? (
+            <>
+              <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+              </svg>
+              Creating...
+            </>
+          ) : (
+            <>
+              Download Backup
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+            </>
+          )}
         </button>
-
+        <span className="text-slate-200">|</span>
         <a
           href="https://supabase.com/dashboard"
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-block px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors"
+          className="text-sm text-slate-400 hover:text-slate-600 transition-colors"
         >
-          Open Supabase Dashboard
+          Supabase
         </a>
       </div>
-
-      <p className="text-xs text-gray-500 dark:text-gray-400 mt-3">
-        💡 Tip: Go to Project Settings → Backups in Supabase Dashboard to view, download, and restore backups.
-      </p>
     </div>
   );
 }
