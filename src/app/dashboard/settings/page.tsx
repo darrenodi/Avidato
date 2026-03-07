@@ -42,23 +42,6 @@ export default function SettingsPage() {
     { id: 'notifications', label: 'Notifications' }
   ]
 
-  const renderTabContent = () => {
-    switch (activeTab) {
-      case 'profile':
-        return <ProfileTab />
-      case 'password':
-        return <SecurityTab />
-      case 'billing':
-        return <BillingTab />
-      case 'email':
-        return <EmailTab />
-      case 'notifications':
-        return <NotificationsTab />
-      default:
-        return <ProfileTab />
-    }
-  }
-
   return (
     <DashboardLayout>
       <div className="max-w-6xl mx-auto px-4 py-8">
@@ -88,9 +71,13 @@ export default function SettingsPage() {
               ))}
             </div>
 
-            {/* Tab Content */}
+            {/* Tab Content - all tabs rendered simultaneously for instant switching */}
             <div className="p-5 sm:p-6">
-              {renderTabContent()}
+              <div className={activeTab === 'profile' ? '' : 'hidden'}><ProfileTab /></div>
+              <div className={activeTab === 'password' ? '' : 'hidden'}><SecurityTab /></div>
+              <div className={activeTab === 'billing' ? '' : 'hidden'}><BillingTab /></div>
+              <div className={activeTab === 'email' ? '' : 'hidden'}><EmailTab /></div>
+              <div className={activeTab === 'notifications' ? '' : 'hidden'}><NotificationsTab /></div>
             </div>
           </div>
         </div>
@@ -733,14 +720,6 @@ function SecurityTab() {
 
       {/* Account Linking Section */}
       <AccountLinkingSection />
-
-      {/* Security Tip */}
-      <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-6">
-        <h3 className="text-lg font-semibold text-yellow-900 dark:text-yellow-200 mb-2">Tip</h3>
-        <p className="text-sm text-yellow-800 dark:text-yellow-300">
-          Keep at least one authentication method (password or linked account) to ensure you can always access your account.
-        </p>
-      </div>
     </div>
   )
 }
@@ -783,8 +762,8 @@ function AccountLinkingSection() {
       icon: 'google-logo',
       color: 'bg-white dark:bg-white border border-gray-300',
       textColor: 'text-gray-700',
-      bgLight: 'bg-blue-50 dark:bg-blue-900/20',
-      borderColor: 'border-blue-200 dark:border-blue-800'
+      bgLight: 'bg-gray-50 dark:bg-gray-700/50',
+      borderColor: 'border-gray-300 dark:border-gray-600'
     }
   ]
 

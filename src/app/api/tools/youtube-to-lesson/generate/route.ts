@@ -127,7 +127,25 @@ Every item must be level-appropriate for CEFR ${level}.
 The student watches the video ONCE only.
 
 ══════════════════════════════════════════════
-GLOBAL LANGUAGE QUALITY RULES — APPLY EVERYWHERE
+GLOBAL FORMATTING RULES — APPLY TO ALL CONTENT
+══════════════════════════════════════════════
+
+NO EM DASHES:
+  Never use em dashes anywhere in any lesson output. Use commas, full stops,
+  colons, or restructure the sentence instead.
+
+BANNED QUALIFIERS:
+  Never use the phrases "big or small", "large or small", "great or small",
+  or similar paired qualifiers in any question. Just ask the question directly.
+
+BANNED AI-TELL WORDS (applies to ALL stages):
+  Never use these anywhere in any question, prompt, or instruction:
+  "resonate", "navigate", "landscape", "leverage", "dynamics", "paradigm",
+  "facilitate", "implications", "aspects", "in terms of", "when it comes to",
+  "have you ever found yourself", "what role does X play".
+
+══════════════════════════════════════════════
+GLOBAL LANGUAGE QUALITY RULES — VOCABULARY & PHRASES
 ══════════════════════════════════════════════
 
 These rules apply to BOTH vocabulary (Stage 2) AND phrases (Stage 5).
@@ -203,6 +221,14 @@ GOOD warm-up questions:
   ✅ "If you could only watch one TV show for the rest of your life, what would it be — and why?"
   ✅ "Have you ever been so bored in a meeting or class that you started doodling or daydreaming?"
 
+TOPIC ANCHORING — CRITICAL:
+  All three warm-up questions must directly relate to the video's specific topic.
+  If the video is about football, ask about football. If it is about cooking, ask
+  about cooking. If it is about workplace communication, ask about workplace
+  communication. Never ask generic questions that could apply to any lesson.
+  A student watching a football video should be asked about football before they
+  watch, not about historical events or personal achievements in general.
+
 ══════════════════════════════════════════════
 STAGE 2 — PRE-TEACH KEY VOCABULARY (5-7 min)
 ══════════════════════════════════════════════
@@ -266,25 +292,31 @@ The student watches the video ONCE, then answers 5 detail questions.
 RULES:
 - Each question targets ONE specific piece of information. No double-barreled questions.
 - Mix question types — use each of these once:
-    • 1 true/false question
+    • 1 true/false/not given question (answer must be T, F, or NG with correction for false)
     • 2 short-answer questions (specific facts, figures, or causes)
     • 1 inference: "What does the speaker mean when they say...?"
     • 1 cause-and-effect: "Why did X happen?"
 - Answerable from the video alone. No outside knowledge required.
 - Reference answers: 1-2 sentences max.
+- For T/F/NG: "True" means stated in the video, "False" means contradicted
+  by the video (student must correct it), "Not Given" means the video
+  does not provide enough information to decide.
 
 BAD detail questions:
   ❌ "What challenges does Germany face?" — vague, too many possible answers
   ❌ "What is mentioned regarding e-mobility strategy and infrastructure?" — double-barreled
   ❌ "Is the German car industry in trouble?" — obvious before watching
+  ❌ "What are your thoughts on what the speaker said?" — opinion, not comprehension
 
 GOOD detail questions:
-  ✅ "True or false: Porsche's profits fell by around 50% this year."
-     Answer: False — they fell by 95%.
+  ✅ "True, false, or not given: Porsche's profits fell by around 50% this year."
+     Answer: False. They fell by 95%.
   ✅ "Why are German carmakers specifically losing market share in the US?"
      Answer: Because of tariffs.
   ✅ "What does the speaker mean when he says companies 'didn't feel the need to invest in e-mobility'?"
      Answer: They were making too much money from diesel cars to feel any pressure to change.
+  ✅ "True, false, or not given: The company has plans to expand into Asia next year."
+     Answer: Not Given. The speaker does not mention any expansion plans.
 
 ══════════════════════════════════════════════
 STAGE 4 — DISCUSSION (8-10 min)
@@ -346,6 +378,23 @@ GOOD discussion questions with follow-ups:
   ✅ "The speaker claims some brands lost customers by ignoring what people wanted —
      has a company ever lost you as a customer? What happened?"
      Follow-up: "Could they have done anything to keep you?"
+
+TOPIC ANCHORING — CRITICAL:
+  All five discussion questions must connect directly to the video's specific topic
+  and themes. Use the video's content as the anchor for every question. If the video
+  is about football records and panel banter, ask about football, sports media,
+  memorable sporting moments, and panel shows. Do not drift into generic life
+  questions. A discussion question like "do you prefer watching football live or at
+  home" is correctly anchored to the topic. A question like "what historical event
+  have you witnessed" is not, even if the video mentions history.
+
+BANNED QUALIFIERS:
+  Never use the phrases "big or small", "large or small", "great or small", or
+  similar qualifiers in any question. Just ask the question directly.
+
+NO EM DASHES:
+  Never use em dashes anywhere in any lesson output. Use commas, full stops, or
+  restructure the sentence instead.
 
 ══════════════════════════════════════════════
 STAGE 5 — LANGUAGE FOCUS (12-15 min)

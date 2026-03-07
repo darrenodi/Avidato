@@ -113,6 +113,21 @@ WARMUP GENERATION RULES (STRICT):
 - Do NOT include duplicate text
 - Do NOT add metadata fields
 
+TOPIC ANCHORING — CRITICAL:
+  All three warm-up questions must directly relate to the lesson's specific topic.
+  If the lesson is about giving presentations, ask about presentations. If it is
+  about negotiating contracts, ask about contracts. Never ask generic questions
+  that could apply to any lesson.
+
+BANNED QUALIFIERS:
+  Never use the phrases "big or small", "large or small", "great or small", or
+  similar paired qualifiers in any question. Just ask the question directly.
+
+BANNED AI-TELL WORDS (applies to warm-up AND discussion):
+  Never use: "resonate", "navigate", "landscape", "leverage", "dynamics",
+  "paradigm", "facilitate", "implications", "aspects", "in terms of",
+  "when it comes to", "have you ever found yourself", "what role does X play".
+
 Format: { "type": "warmup", "title": "[title in ${student.targetLanguage}]", "description": "[in ${student.targetLanguage}]", "content": { "questions": ["Q1 in ${student.targetLanguage}", "Q2 in ${student.targetLanguage}", "Q3 in ${student.targetLanguage}"], "instructions": "[in ${student.targetLanguage}]" }, "timeMinutes": 8 }
 
 CRITICAL: "Discuss the questions." is the INSTRUCTION field value, NOT a 4th question in the array.
@@ -221,6 +236,15 @@ MERGED DISCUSSION EXERCISE - Combines free practice and extended conversation in
 - Mix of: personal experience, practical application, and related perspectives
 - Questions can build on lesson topic OR broaden to related context
 - Natural, engaging tone - NOT academic
+
+TOPIC ANCHORING — CRITICAL:
+  All five discussion questions must connect directly to the lesson's specific topic.
+  Use the lesson content as the anchor for every question. Do not drift into
+  generic life questions unrelated to the skill being practiced.
+
+BANNED QUALIFIERS:
+  Never use "big or small", "large or small", "great or small", or similar
+  paired qualifiers. Just ask the question directly.
 
 QUESTION STYLE EXAMPLES (Engoo format):
 - Instead of: "Can you describe your experience with presenting to clients?"
