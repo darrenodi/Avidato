@@ -323,78 +323,94 @@ STAGE 4 — DISCUSSION (8-10 min)
 ══════════════════════════════════════════════
 
 The student has just watched the video and answered comprehension questions.
-Now they react to what they saw — connecting the video's ideas to their own life.
+Now they discuss the TOPIC, not the video itself.
 
 5 discussion questions with teacher follow-up prompts.
+Encourage the student to use the vocabulary from Stage 2.
 
 CORE PRINCIPLE:
-Every question must be SPARKED by something specific in the video — a claim,
-a situation, a decision, a surprise. The student should feel like they're
-discussing THIS video, not answering generic conversation questions.
-But they answer from their own experience and opinions — NOT by recalling video facts.
+Discussion questions are about the TOPIC, not about the video. Do NOT open
+questions with "The video says...", "The speaker mentions...", "The panel
+discusses...", or any video reference. Just ask about the topic directly.
+
+Think of it this way: if the video is about whether husbands should do
+housework, the questions should be about chores, household responsibilities,
+gender roles, etc. NOT "The video argues that men should help more, do you
+agree?" Just ask: "Do you think housework should be split equally?"
+
+VIDEO REFERENCES — STRICT RULES:
+  - Main questions: NEVER reference the video. Ask about the topic directly.
+  - Follow-ups: You MAY reference a specific opinion or claim from the video
+    in AT MOST 1-2 follow-ups across all 5 questions. This is optional.
+    Example follow-up: "One of the speakers said X, what do you think of that?"
+  - The default is: no video references anywhere. Only add one if it genuinely
+    adds value to the follow-up.
 
 RULES:
 - Use each of these question types exactly once across the 5 questions:
-    • Personal connection: "The video talks about X — have you experienced something like that?"
-    • Agree/disagree: "The speaker says X — do you agree?"
+    • Personal connection: "Have you ever experienced something like X?"
+    • Agree/disagree: "Do you think X is true?"
     • Hypothetical: "If you were in that situation, what would you do?"
-    • Comparison: "The video mentions X and Y — which matters more to you?"
-    • Bigger picture: "This is about X — do you think it's happening in other areas too?"
+    • Comparison: "Which matters more to you, X or Y?"
+    • Bigger picture: "Do you think X is happening in other areas too?"
 - Do NOT repeat any theme or angle already used in the warm-up questions (Stage 1).
-- Do NOT ask for factual recall. Wrong: "What did the speaker say about X?"
-  Right: "The speaker argues X — does that match what you've seen?"
+- Do NOT ask for factual recall about the video.
 - Follow-ups push deeper: ask for reasons, real examples, or the opposite viewpoint.
   Do NOT just rephrase the main question.
 - Do NOT write leading follow-ups that assume a "correct" answer.
 
 TONE — mandatory for every question:
-  - Sound like a teacher who just watched something interesting with a student
-    and wants to chat about it — curious, relaxed, genuinely interested.
+  - Sound like a teacher chatting with a student about an interesting topic.
+  - Curious, relaxed, genuinely interested.
   - BANNED AI-tell words: "resonate", "navigate", "landscape", "leverage",
     "dynamics", "paradigm", "facilitate", "implications", "factor", "aspects",
     "in terms of", "when it comes to", "what role does X play".
   - NO essay-prompt phrasing: "To what extent...", "Discuss the role of...",
     "What factors contribute to..."
-  - Use contractions. Use dashes. Keep it human.
+  - Use contractions. Keep it human.
 
 QUESTION LENGTH: Main question max 30 words. Follow-up max 20 words.
 
 BAD discussion questions:
-  ❌ "What do you think about the German car industry?" — just asks for a vague opinion
-  ❌ "Do you like electric cars?" — closed, shallow, barely connected to the video's point
-  ❌ "How does technological disruption impact traditional industries?" — MBA exam, not a chat
-  ❌ "To what extent did complacency play a role in the challenges discussed?"
-     — essay prompt, nobody talks like this
+  ❌ "The video celebrates a night for the ages, what historical event have you
+     followed?" — references the video AND drifts off-topic
+  ❌ "The panel brings up what players were doing years ago, do you think
+     reflecting on past achievements is important?" — opens with video reference
+  ❌ "The presenters enjoy some friendly banter, do you think informal interaction
+     makes sports commentary more engaging?" — video reference framing
+  ❌ "What do you think about the German car industry?" — vague opinion dump
+  ❌ "How does technological disruption impact traditional industries?" — MBA exam
   ❌ "What factors contribute to a company's ability to navigate change?"
-     — pure AI slop, zero personality
+     — pure AI slop
 
-GOOD discussion questions with follow-ups:
-  ✅ "The speaker says these companies were too comfortable to bother changing —
-     have you ever put off fixing something because it was still working OK?"
-     Follow-up: "What finally pushed you to act?"
-  ✅ "The video shows companies cutting thousands of jobs — if your employer was
-     struggling, would you rather take a pay cut or risk layoffs?"
-     Follow-up: "What would change your answer?"
-  ✅ "The speaker claims some brands lost customers by ignoring what people wanted —
-     has a company ever lost you as a customer? What happened?"
-     Follow-up: "Could they have done anything to keep you?"
+GOOD discussion questions with follow-ups (for a football video):
+  ✅ "Do you prefer watching football live at the stadium or at home on TV?"
+     Follow-up: "What's the best atmosphere you've experienced at a match?"
+  ✅ "Which is more impressive, breaking a record at 18 or at 38?"
+     Follow-up: "One of the pundits said the older record was more surprising. Do you agree?"
+  ✅ "If you could be a pundit on a sports panel show, which sport would you pick?"
+     Follow-up: "Would you go for a serious style or more banter?"
+  ✅ "Do you think sports commentary is better when the pundits joke around?"
+     Follow-up: "Has a commentator ever ruined a match for you?"
+  ✅ "What's the most memorable sporting moment you've ever watched?"
+     Follow-up: "Were you watching alone or with other people?"
+
+GOOD discussion questions (for a housework video):
+  ✅ "Do you think housework should be split 50/50 in a relationship?"
+  ✅ "Which household chore do you hate the most?"
+  ✅ "If your partner never cleaned, would that be a dealbreaker?"
 
 TOPIC ANCHORING — CRITICAL:
   All five discussion questions must connect directly to the video's specific topic
-  and themes. Use the video's content as the anchor for every question. If the video
-  is about football records and panel banter, ask about football, sports media,
-  memorable sporting moments, and panel shows. Do not drift into generic life
-  questions. A discussion question like "do you prefer watching football live or at
-  home" is correctly anchored to the topic. A question like "what historical event
-  have you witnessed" is not, even if the video mentions history.
+  and themes. If the video is about football records and panel banter, ask about
+  football, sports media, memorable sporting moments, and panel shows. Do not
+  drift into generic life questions. A question like "do you prefer watching
+  football live or at home" is correctly anchored. A question like "what historical
+  event have you witnessed" is NOT, even if the video mentions history.
 
 BANNED QUALIFIERS:
   Never use the phrases "big or small", "large or small", "great or small", or
   similar qualifiers in any question. Just ask the question directly.
-
-NO EM DASHES:
-  Never use em dashes anywhere in any lesson output. Use commas, full stops, or
-  restructure the sentence instead.
 
 ══════════════════════════════════════════════
 STAGE 5 — LANGUAGE FOCUS (12-15 min)
