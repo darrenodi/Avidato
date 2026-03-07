@@ -301,7 +301,7 @@ export default function YouTubeLessonDetailPage() {
 
         const lesson = json.lesson
         setLessonDbId(lesson.id)
-        setCreatorName(lesson.creator?.name || null)
+        setCreatorName(lesson.creator?.name?.split(' ')[0] || null)
         setIsOwner(!!lesson.isOwner)
 
         // The full lesson data is stored in the `data` JSON field

@@ -225,7 +225,7 @@ export default function YouTubeLessonsLibraryPage() {
 
                 {/* Footer */}
                 <div className="flex items-center justify-between text-xs text-gray-400 dark:text-gray-500 mt-auto pt-2 border-t border-gray-100 dark:border-gray-700">
-                  <span>{lesson.creator?.name || 'Unknown'}</span>
+                  <span>{lesson.creator?.name?.split(' ')[0] || 'Unknown'}</span>
                   <span>{new Date(lesson.createdAt).toLocaleDateString()}</span>
                 </div>
                 </div>
