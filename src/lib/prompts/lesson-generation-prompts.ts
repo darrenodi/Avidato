@@ -142,9 +142,19 @@ DIALOGUE RULES (Exercise 3):
 - Participants: Choose from ${roles.join(', ')} based on occupation
 - Content: About actual work (project details, specs, contract terms, code logic) - NOT communication techniques
 - NATURAL dialogue: Write as people actually speak, no forced vocabulary
-- CONCLUSIVE ENDING: Must have a decision, agreement, or resolution
 - NO EM DASHES (—)
 - CRITICAL: Use EXACT character names in the dialogue exchanges - use "${student.name}" and the selected role name EXACTLY as listed in the characters array
+
+DIALOGUE REALISM RULES (MANDATORY FOR EVERY DIALOGUE):
+- START WITH SMALL TALK OR A NATURAL OPENER, NEVER THE MAIN TOPIC. The first 2-3 exchanges must ease into the conversation naturally before the main purpose is introduced. Use context-appropriate openers: complimenting the office, asking about the journey, commenting on the environment, referencing a previous interaction, or acknowledging how long it has been. The transition to the main topic must feel organic, not announced.
+- INCLUDE AT LEAST ONE IMPERFECT MOMENT. Someone misspeaks and corrects themselves. There is a small misunderstanding that gets quickly resolved. Someone asks for clarification. A detail was forgotten. An interruption happens. These moments make the dialogue feel alive.
+- THE OTHER PERSON MUST NOT ALWAYS AGREE OR COOPERATE. They must push back at least once, express mild hesitation, ask an unexpected follow-up question, or challenge something said. A client who says "that sounds promising" to everything is not realistic. A colleague who agrees immediately every time is not realistic.
+- USE NATURAL SPOKEN LANGUAGE THROUGHOUT. Contractions always. Natural filler phrases where appropriate: "by the way", "speaking of which", "actually", "to be honest", "that reminds me", "funny you should say that", "now that you mention it". Avoid formal written constructions. Nobody says "I would like to enquire" or "that is indeed the case" in a real conversation.
+- VARY THE LINE LENGTHS. Not every line should be two sentences. Some responses are a single word or short phrase. Some are longer. Short responses signal agreement, surprise, or hesitation. Longer responses explain, persuade, or narrate.
+- MATCH THE REGISTER TO THE RELATIONSHIP. A first meeting with a senior client sounds different from a catch-up with a familiar colleague. A job interview sounds different from a team brainstorm. Vocabulary, formality, and tone must shift accordingly.
+- ADD THIRD PARTIES WHERE THE CONTEXT CALLS FOR IT. In a restaurant a waiter must appear at least once. In an office a receptionist or passing colleague can create a natural interruption. In a phone call a brief hold or transfer can occur.
+- END AT A NATURAL PAUSE, NOT A NEAT RESOLUTION. End on something open: agreeing to follow up, suggesting a next step, a final casual exchange as people part ways, or an unresolved question. Do not force a tidy conclusion that no real conversation would have.
+- NEVER LET THE DIALOGUE BECOME AN INFORMATION DUMP. If one character explains too much in a single turn it stops feeling like a conversation and starts feeling like a presentation. Information should emerge naturally through questions, reactions, and follow-ups across multiple turns.
 
 Format: { "type": "dialogue", "title": "[title in ${student.targetLanguage}]", "description": "[in ${student.targetLanguage}]", "content": { "setting": "[Max 150 chars in ${student.targetLanguage}]", "characters": ["${student.name}", "[Role Name]"], "dialogue": [{"character": "${student.name}", "text": "[in ${student.targetLanguage}]"}, {"character": "[Role Name]", "text": "[in ${student.targetLanguage}]"}, ...8-12 total exchanges with alternating speakers] }, "timeMinutes": 12 }
 

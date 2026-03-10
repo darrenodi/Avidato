@@ -55,6 +55,16 @@ EXERCISES (6 required):
 1. grammar-focus: Keys as relevant — explanation(string), form(string), structures[], uses[], contrasts[], commonMistakes[{incorrect,correct,why}], miniChart[{label,example}], tips[], registerNotes(string,C1+), examples[], keyPoints[]. B2+: ≥2 contrasts, ≥3 commonMistakes.
 2. sentence-practice: [{sentence,context}]. Count: A1 4-6 | A2 6-8 | B1 8-10 | B2 10-12 | C1/C2 12-15.
 3. dialogue-practice: {character1,character2,context,dialogue[{speaker,text}]}. Turns: A1/A2 6-8 | B1 8-10 | B2/C1 10-14.
+
+DIALOGUE REALISM RULES (MANDATORY):
+- START WITH SMALL TALK OR A NATURAL OPENER, NEVER THE MAIN TOPIC. The first 2-3 exchanges must ease in naturally before the grammar point is practised.
+- INCLUDE AT LEAST ONE IMPERFECT MOMENT. Someone misspeaks and corrects themselves, a small misunderstanding gets resolved, or someone asks for clarification.
+- THE OTHER PERSON MUST NOT ALWAYS AGREE. They must push back at least once, express hesitation, or challenge something said.
+- USE NATURAL SPOKEN LANGUAGE. Contractions always. Natural fillers: "by the way", "actually", "to be honest", "that reminds me". No formal written constructions.
+- VARY LINE LENGTHS. Some responses are a single word or short phrase, others are longer.
+- MATCH REGISTER TO RELATIONSHIP. Vocabulary, formality, and tone must fit the characters and context.
+- END AT A NATURAL PAUSE, NOT A NEAT RESOLUTION. Agree to follow up, suggest a next step, or leave something open.
+- NEVER LET DIALOGUE BECOME AN INFORMATION DUMP. Information emerges through questions and follow-ups, not long monologues.
 4. fill-blanks: [{sentence(with _____),answer,hint}]. Count: A1 4-6 | A2/B1 6-8 | B2/C1 8-10.
 5. multiple-choice: [{question,options[4],correctAnswer(index),explanation}]. Count: A1 3-4 | A2/B1 4-6 | B2/C1 6-8.
 6. sentence-building: Mix ordering {instruction,words[],correct} and transformation {instruction,from,target}. Count: A1/A2 2-3 | B1 3-4 | B2/C1 4-5.
