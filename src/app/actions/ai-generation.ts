@@ -12,6 +12,97 @@ import { getVocabularyContext } from '@/lib/vocabulary-tracker';
 import { checkRateLimit, recordFailedAttempt } from '@/lib/turnstile';
 import { canAccessVocabTracking } from '@/lib/feature-gates';
 
+// ─── Previous Lesson Context ─────────────────────────────────────────────────
+
+export interface PreviousLessonContext {
+  recentVocabulary: string[]
+  recentGrammarErrors: string[]
+  recentDiscussionQuestions: string[]
+  recentTopics: string[]
+}
+
+async function getPreviousLessonContext(studentId: string): Promise<PreviousLessonContext> {
+  try {
+    const lessons = await prisma.lesson.findMany({
+      where: { studentId },
+      orderBy: { createdAt: 'desc' },
+      take: 3,
+      select: { title: true, content: true },
+    })
+
+    const recentVocabulary: string[] = []
+    const recentGrammarErrors: string[] = []
+    const recentDiscussionQuestions: string[] = []
+    const recentTopics: string[] = []
+
+    for (const lesson of lessons) {
+      recentTopics.push(lesson.title)
+      const content = lesson.content as Record<string, unknown>
+      const exercises = (content?.exercises as Record<string, unknown>[]) ?? []
+
+      for (const ex of exercises) {
+        const c = ex.content as Record<string, unknown>
+        if (!c) continue
+
+        if (ex.type === 'vocabulary') {
+          const vocab = c.vocabulary as { word?: string }[] ?? []
+          vocab.forEach(v => { if (v.word) recentVocabulary.push(v.word.toLowerCase()) })
+        }
+
+        if (ex.type === 'sentence-correction' || ex.type === 'sentenceCorrection' || ex.type === 'sentence_correction') {
+          const sentences = c.sentences as { errorType?: string }[] ?? []
+          sentences.forEach(s => { if (s.errorType) recentGrammarErrors.push(s.errorType) })
+        }
+
+        if (ex.type === 'discussion') {
+          const questions = c.questions as string[] ?? []
+          questions.forEach(q => recentDiscussionQuestions.push(q))
+        }
+      }
+    }
+
+    return {
+      recentVocabulary: [...new Set(recentVocabulary)],
+      recentGrammarErrors: [...new Set(recentGrammarErrors)],
+      recentDiscussionQuestions: recentDiscussionQuestions.slice(0, 10),
+      recentTopics,
+    }
+  } catch {
+    return { recentVocabulary: [], recentGrammarErrors: [], recentDiscussionQuestions: [], recentTopics: [] }
+  }
+}
+
+// ─── Provider Selection ───────────────────────────────────────────────────────
+
+/**
+ * Returns how many AI generations this user has done today.
+ * Uses the existing dailyGenerationCount field (resets automatically each day).
+ */
+async function getTodayGenerationCount(userId: string): Promise<number> {
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { dailyGenerationCount: true, lastGenerationDate: true },
+  })
+  if (!user) return 0
+  if (!user.lastGenerationDate || user.lastGenerationDate < today) return 0
+  return user.dailyGenerationCount
+}
+
+/**
+ * Pick the AI provider for this generation.
+ * First 2 generations per user per day use Claude (if ANTHROPIC_API_KEY is set).
+ * All subsequent generations use the default configured provider (Gemini).
+ */
+async function resolveProvider(userId: string) {
+  if (!process.env.ANTHROPIC_API_KEY) return undefined
+  const count = await getTodayGenerationCount(userId)
+  return count < 2 ? ('claude' as const) : undefined
+}
+
+// ─── Security ─────────────────────────────────────────────────────────────────
+
 /**
  * Security wrapper for AI generation operations
  * Prevents abuse of expensive operations
@@ -224,7 +315,7 @@ export async function generateLearningPlan(studentId: string): Promise<{
     };
 
     // Generate learning plan
-    const lessonAIService = await getLessonAIService();
+    const lessonAIService = await getLessonAIService(await resolveProvider(session.user.id));
     const learningPlan = await lessonAIService.generateLearningPlan(studentProfile);
 
     // Save learning plan to database
@@ -353,7 +444,7 @@ export async function generateBlockLearningPlan(studentId: string): Promise<{
       interests: student.interests || undefined,
     };
 
-    const lessonAIService = await getLessonAIService();
+    const lessonAIService = await getLessonAIService(await resolveProvider(session.user.id));
     const blockPlan = await lessonAIService.generateBlockPlan(studentProfile);
 
     const savedPlan = await prisma.learningPlan.create({
@@ -424,7 +515,7 @@ export async function generateTBLTLesson(
       interests: student.interests || undefined,
     };
 
-    const lessonAIService = await getLessonAIService();
+    const lessonAIService = await getLessonAIService(await resolveProvider(session.user.id));
     const methodology = lessonData.methodology ?? 'TBLT';
     const generatedLesson = methodology === 'PPP'
       ? await lessonAIService.generatePPPLesson(studentProfile, lessonData, duration)
@@ -525,7 +616,7 @@ export async function generateMoreLessons(studentId: string): Promise<{
     };
 
     // Generate next 10 lessons
-    const lessonAIService = await getLessonAIService();
+    const lessonAIService = await getLessonAIService(await resolveProvider(session.user.id));
     const newLessons = await lessonAIService.generateLearningPlan(studentProfile, existingTopics);
 
     // Combine existing and new topics
@@ -643,16 +734,23 @@ export async function generateLesson(
       ? await getVocabularyContext(studentId)
       : { previousVocabulary: [], previousLessonTitle: undefined, shouldReuseInDialogue: false };
 
+    // Fetch previous lesson context for anti-repetition rules
+    const prevContext = await getPreviousLessonContext(studentId);
+
     // Prepare lesson data with vocabulary context
     const lessonDataWithContext = {
       ...lessonData,
       previousVocabulary: vocabContext.previousVocabulary,
       previousLessonTitle: vocabContext.previousLessonTitle,
       shouldReuseVocabularyInDialogue: vocabContext.shouldReuseInDialogue,
+      recentVocabulary: prevContext.recentVocabulary,
+      recentGrammarErrors: prevContext.recentGrammarErrors,
+      recentDiscussionQuestions: prevContext.recentDiscussionQuestions,
+      recentTopics: prevContext.recentTopics,
     };
 
     // Generate lesson
-    const lessonAIService = await getLessonAIService();
+    const lessonAIService = await getLessonAIService(await resolveProvider(session.user.id));
     const generatedLesson = await lessonAIService.generateLesson(
       studentProfile,
       lessonDataWithContext as LearningTopic,

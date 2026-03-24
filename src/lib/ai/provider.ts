@@ -1,4 +1,4 @@
-export type AIProvider = 'openai' | 'gemini'
+export type AIProvider = 'openai' | 'gemini' | 'claude'
 
 const DEFAULT_PROVIDER: AIProvider = 'gemini'
 

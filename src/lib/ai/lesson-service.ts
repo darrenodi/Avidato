@@ -19,6 +19,11 @@ export interface LessonAIService {
 }
 
 export async function getLessonAIService(provider: AIProvider = getAIProvider()): Promise<LessonAIService> {
+  if (provider === 'claude') {
+    const loadedService = await import('@/lib/AIAGENT/claudeService')
+    return loadedService.default as LessonAIService
+  }
+
   if (provider === 'openai') {
     const loadedService = await import('@/lib/openai')
     return loadedService.default as LessonAIService
