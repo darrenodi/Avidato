@@ -3,12 +3,19 @@ import type {
   LearningPlan,
   LearningTopic,
   StudentProfile,
+  BlockLearningPlan,
+  BlockLesson,
+  TopicBlock,
 } from '@/types/lesson-template'
 import { getAIProvider, type AIProvider } from './provider'
 
 export interface LessonAIService {
   generateLearningPlan(student: StudentProfile, existingTopics?: LearningTopic[]): Promise<LearningPlan>
   generateLesson(student: StudentProfile, topic: LearningTopic, duration?: 25 | 50): Promise<GeneratedLesson>
+  generateBlockPlan(student: StudentProfile, existingBlocks?: TopicBlock[]): Promise<BlockLearningPlan>
+  generateTBLTLesson(student: StudentProfile, lesson: BlockLesson, duration?: 25 | 50): Promise<GeneratedLesson>
+  generatePPPLesson(student: StudentProfile, lesson: BlockLesson, duration?: 25 | 50): Promise<GeneratedLesson>
+  generateCLTLesson(student: StudentProfile, lesson: BlockLesson, duration?: 25 | 50): Promise<GeneratedLesson>
 }
 
 export async function getLessonAIService(provider: AIProvider = getAIProvider()): Promise<LessonAIService> {

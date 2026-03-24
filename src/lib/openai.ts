@@ -11,7 +11,8 @@ import { getSuggestedRolesAndScenarios, getOccupationExclusions } from './consta
 import { extractJSONFromText, cleanAndParseJSON } from './utils/json-parser';
 import { enforceSynonymConstraints } from './utils/vocabulary-validator';
 import { enforceDialogueStructure } from './utils/dialogue-validator';
-import { buildLessonGenerationPrompt } from './prompts/lesson-generation-prompts';
+import { buildLessonGenerationPrompt, buildBlockPlanPrompt, buildTBLTLessonPrompt } from './prompts/lesson-generation-prompts';
+import { buildPPPLessonPrompt, buildCLTLessonPrompt } from './prompts/ppp-clt-prompts';
 
 if (!process.env.OPENAI_API_KEY) {
   throw new Error('OPENAI_API_KEY is not set');
@@ -25,7 +26,10 @@ import {
   StudentProfile,
   LearningTopic,
   LearningPlan,
-  GeneratedLesson
+  GeneratedLesson,
+  BlockLearningPlan,
+  BlockLesson,
+  TopicBlock,
 } from '../types/lesson-template';
 // NEVER EDIT THIS MODEL WITHOUT APPROVAL FROM THE OWNER
 class OpenAIService {
@@ -282,8 +286,8 @@ RESPONSE FORMAT FOR EXERCISE 5:
 CRITICAL: This exercise must appear as Exercise 5 in the exercises array. ALL sentences must be thematically related to the lesson topic and use the vocabulary being taught.`;
   }
 
-  const { roles, examples } = getSuggestedRolesAndScenarios(student.occupation);
-  
+  const { roles } = getSuggestedRolesAndScenarios(student.occupation);
+
   // Build the prompt using the extracted template function
   const prompt = buildLessonGenerationPrompt(
     student,
@@ -292,7 +296,6 @@ CRITICAL: This exercise must appear as Exercise 5 in the exercises array. ALL se
     vocabularyGuideSection + vocabularyContextSection,
     under18Section,
     roles,
-    examples.join('; '),
     this.getLevelVocabularyGuide(student.level),
     this.getCEFRModule(student.level).getVocabularyGuide()
   );
@@ -354,6 +357,120 @@ CRITICAL: This exercise must appear as Exercise 5 in the exercises array. ALL se
     }
     // Default to intermediate if level unclear
     return new B1LessonModule().getVocabularyGuide();
+  }
+
+  // Generate block-structured learning plan (Preply TBLT format)
+  async generateBlockPlan(student: StudentProfile, existingBlocks: TopicBlock[] = []): Promise<BlockLearningPlan> {
+    const { roles } = getSuggestedRolesAndScenarios(student.occupation);
+    const prompt = buildBlockPlanPrompt(student, roles, existingBlocks);
+
+    try {
+      const response = await openai.chat.completions.create({
+        model: this.model,
+        messages: [{ role: 'user', content: prompt }],
+        temperature: 0.1,
+        max_tokens: 16384,
+      });
+      const text = response.choices[0]?.message?.content || '';
+      const jsonStr = extractJSONFromText(text);
+      return cleanAndParseJSON<BlockLearningPlan>(jsonStr);
+    } catch (error) {
+      console.error('Error generating block plan:', error);
+      throw new Error('Failed to generate learning plan. Please try again.');
+    }
+  }
+
+  // Generate a TBLT lesson from a BlockLesson
+  async generateTBLTLesson(
+    student: StudentProfile,
+    lesson: BlockLesson,
+    duration: 25 | 50 = 50
+  ): Promise<GeneratedLesson> {
+    const { roles } = getSuggestedRolesAndScenarios(student.occupation);
+    const prompt = buildTBLTLessonPrompt(
+      student,
+      lesson,
+      duration,
+      roles,
+      this.getLevelVocabularyGuide(student.level),
+      this.getCEFRModule(student.level).getVocabularyGuide(),
+      ''
+    );
+
+    try {
+      const response = await openai.chat.completions.create({
+        model: this.model,
+        messages: [{ role: 'user', content: prompt }],
+        temperature: 0.1,
+        max_tokens: 16384,
+      });
+      const text = response.choices[0]?.message?.content || '';
+      const jsonStr = extractJSONFromText(text);
+      const parsedResponse = cleanAndParseJSON<GeneratedLesson>(jsonStr);
+
+      try {
+        enforceSynonymConstraints(parsedResponse, student.level);
+      } catch (err) {
+        console.warn('Failed to sanitize synonyms:', err);
+      }
+
+      return parsedResponse;
+    } catch (error) {
+      console.error('Error generating TBLT lesson:', error);
+      throw new Error('Failed to generate lesson. Please try again.');
+    }
+  }
+
+  // Generate a PPP lesson from a BlockLesson
+  async generatePPPLesson(
+    student: StudentProfile,
+    lesson: BlockLesson,
+    duration: 25 | 50 = 50
+  ): Promise<GeneratedLesson> {
+    const prompt = buildPPPLessonPrompt(
+      student, lesson, duration,
+      this.getLevelVocabularyGuide(student.level),
+      this.getCEFRModule(student.level).getVocabularyGuide(),
+      ''
+    );
+    try {
+      const response = await openai.chat.completions.create({
+        model: this.model,
+        messages: [{ role: 'user', content: prompt }],
+        temperature: 0.1,
+        max_tokens: 16384,
+      });
+      return cleanAndParseJSON<GeneratedLesson>(extractJSONFromText(response.choices[0]?.message?.content || ''));
+    } catch (error) {
+      console.error('Error generating PPP lesson:', error);
+      throw new Error('Failed to generate lesson. Please try again.');
+    }
+  }
+
+  // Generate a CLT lesson from a BlockLesson
+  async generateCLTLesson(
+    student: StudentProfile,
+    lesson: BlockLesson,
+    duration: 25 | 50 = 50
+  ): Promise<GeneratedLesson> {
+    const prompt = buildCLTLessonPrompt(
+      student, lesson, duration,
+      this.getLevelVocabularyGuide(student.level),
+      this.getCEFRModule(student.level).getVocabularyGuide(),
+      ''
+    );
+    try {
+      const response = await openai.chat.completions.create({
+        model: this.model,
+        messages: [{ role: 'user', content: prompt }],
+        temperature: 0.1,
+        max_tokens: 16384,
+      });
+      return cleanAndParseJSON<GeneratedLesson>(extractJSONFromText(response.choices[0]?.message?.content || ''));
+    } catch (error) {
+      console.error('Error generating CLT lesson:', error);
+      throw new Error('Failed to generate lesson. Please try again.');
+    }
   }
 
   /**

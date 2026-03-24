@@ -18,6 +18,15 @@ import {
   PreparationExercise,
   FinalPrepExercise,
 } from '@/components/lesson/EngooLessonComponents'
+import {
+  LeadInExercise,
+  TaskPrepExercise,
+  TaskPerformanceExercise,
+  PostTaskExercise,
+  HomeworkExercise,
+} from '@/components/lesson/TBLTLessonComponents'
+import { PresentationExercise, PracticeExercise, ProductionExercise } from '@/components/lesson/PPPLessonComponents'
+import { WarmerExercise, LanguageInputExercise, CommunicativeActivityExercise, WrapUpExercise } from '@/components/lesson/CLTLessonComponents'
 
 interface StudentInfo {
   id: string
@@ -550,7 +559,7 @@ const getExerciseIcon = (type: string) => {
   }
 }
 
-const renderExerciseContent = (exercise: { type: string; content: BaseExerciseContent; timeMinutes: number }) => {
+const renderExerciseContent = (exercise: { type: string; content: BaseExerciseContent; timeMinutes: number }, studentName?: string) => {
   const content = exercise.content || {}
   switch (exercise.type) {
     case 'vocabulary':
@@ -630,26 +639,48 @@ const renderExerciseContent = (exercise: { type: string; content: BaseExerciseCo
       return (
         <FinalPrepExercise phrases={(content.phrases as string[]) || []} checklist={(content.checklist as string[]) || []} confidence={(content.confidence as string[]) || []} />
       )
+    case 'lead-in':
+      if (Array.isArray(content?.questions)) {
+        return <LeadInExercise content={{ questions: content.questions as string[], instructions: content.instructions as string }} />
+      }
+      break
+    case 'task-prep':
+      return <TaskPrepExercise content={content as unknown as Parameters<typeof TaskPrepExercise>[0]['content']} />
+    case 'task-performance':
+      if (content?.scenario && content?.roles) {
+        return <TaskPerformanceExercise content={content as unknown as Parameters<typeof TaskPerformanceExercise>[0]['content']} studentName={studentName} isStudentView={true} />
+      }
+      break
+    case 'post-task':
+      if (content?.grammarFocus) {
+        return <PostTaskExercise content={content as unknown as Parameters<typeof PostTaskExercise>[0]['content']} isStudentView={true} />
+      }
+      break
+    case 'homework':
+      if (content?.taskName) {
+        return <HomeworkExercise content={content as unknown as Parameters<typeof HomeworkExercise>[0]['content']} isStudentView={true} />
+      }
+      break
+    case 'presentation':
+      return <PresentationExercise content={content as unknown as Parameters<typeof PresentationExercise>[0]['content']} />
+    case 'practice':
+      return <PracticeExercise content={content as unknown as Parameters<typeof PracticeExercise>[0]['content']} isStudentView={true} />
+    case 'production':
+      return <ProductionExercise content={content as unknown as Parameters<typeof ProductionExercise>[0]['content']} />
+    case 'warmer':
+      return <WarmerExercise content={content as unknown as Parameters<typeof WarmerExercise>[0]['content']} isStudentView={true} />
+    case 'language-input':
+      return <LanguageInputExercise content={content as unknown as Parameters<typeof LanguageInputExercise>[0]['content']} />
+    case 'communicative-activity':
+      return <CommunicativeActivityExercise content={content as unknown as Parameters<typeof CommunicativeActivityExercise>[0]['content']} isStudentView={true} />
+    case 'wrap-up':
+      return <WrapUpExercise content={content as unknown as Parameters<typeof WrapUpExercise>[0]['content']} isStudentView={true} />
   }
   return (
     <div className="whitespace-pre-wrap text-gray-900 dark:text-white">{typeof exercise.content === 'string' ? exercise.content : JSON.stringify(exercise.content, null, 2)}</div>
   )
 }
 
-const getExerciseTitle = (type: string) => {
-  switch (type) {
-    case 'controlled-input':
-      return 'Controlled Input'
-    case 'structured-practice':
-      return 'Structured Practice'
-    case 'freer-production':
-      return 'Freer Production'
-    case 'extension':
-      return 'Extension Activity'
-    default:
-      return type
-  }
-}
 
 export default function SharedLessonPage() {
   const params = useParams()
@@ -814,7 +845,7 @@ export default function SharedLessonPage() {
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
                       <div>
                         <h3 className="font-semibold text-gray-900 dark:text-white mb-2 text-sm sm:text-base">Objectives</h3>
-                        <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">{lesson.content.objective}</p>
+                        <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">{lesson.content.objective?.replace(new RegExp(`\\b${lesson.student.name}\\b`, 'gi'), 'you').replace(/\byou will\b/gi, "you'll")}</p>
                       </div>
                       <div>
                         <h3 className="font-semibold text-gray-900 dark:text-white mb-2 text-sm sm:text-base">Skills Practiced</h3>
@@ -848,7 +879,7 @@ export default function SharedLessonPage() {
                           {exercise.description}
                         </p>
                         )}
-                        <div className="rounded-lg p-4 overflow-x-auto">{renderExerciseContent({ type: exercise.type, content: exercise.content, timeMinutes: exercise.timeMinutes || 0 })}</div>
+                        <div className="rounded-lg p-4 overflow-x-auto">{renderExerciseContent({ type: exercise.type, content: exercise.content, timeMinutes: exercise.timeMinutes || 0 }, lesson.student.name)}</div>
                       </div>
                     ))}
                   </div>

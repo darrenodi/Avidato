@@ -10,16 +10,25 @@ import { updateLessonContent } from '@/app/actions/ai-generation'
 import { Under18LessonDisplay } from '@/lib/lesson-displays'
 import GrammarLessonDisplay from '@/components/lesson/GrammarLessonDisplay'
 import InstantLessonDisplay from '@/components/lesson/InstantLessonDisplay'
-import { 
-  VocabularyExercise, 
-  WarmupExercise, 
-  DialogueExercise, 
-  ComprehensionExercise, 
-  RolePlayExercise, 
+import {
+  VocabularyExercise,
+  WarmupExercise,
+  DialogueExercise,
+  ComprehensionExercise,
+  RolePlayExercise,
   DiscussionExercise,
   PreparationExercise,
   FinalPrepExercise
 } from '@/components/lesson/EngooLessonComponents'
+import {
+  LeadInExercise,
+  TaskPrepExercise,
+  TaskPerformanceExercise,
+  PostTaskExercise,
+  HomeworkExercise,
+} from '@/components/lesson/TBLTLessonComponents'
+import { PresentationExercise, PracticeExercise, ProductionExercise } from '@/components/lesson/PPPLessonComponents'
+import { WarmerExercise, LanguageInputExercise, CommunicativeActivityExercise, WrapUpExercise } from '@/components/lesson/CLTLessonComponents'
 import { SentenceCorrectionRenderer } from '@/lib/lesson-displays'
 import EditSectionModal, { EditButton } from '@/components/lesson/EditSectionModal'
 
@@ -275,12 +284,86 @@ export default function LessonPage() {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
           </svg>
         )
+      case 'lead-in':
+        return (
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+        )
+      case 'task-prep':
+        return (
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+          </svg>
+        )
+      case 'task-performance':
+        return (
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        )
+      case 'post-task':
+        return (
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        )
+      case 'homework':
+        return (
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+          </svg>
+        )
       case 'final-prep':
       case 'finalPrep':
       case 'finalprep':
         return (
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+          </svg>
+        )
+      // PPP
+      case 'presentation':
+        return (
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+          </svg>
+        )
+      case 'practice':
+        return (
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+          </svg>
+        )
+      case 'production':
+        return (
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" />
+          </svg>
+        )
+      // CLT
+      case 'warmer':
+        return (
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.879 16.121A3 3 0 1012.015 11L11 14H9c0 .768.293 1.536.879 2.121z" />
+          </svg>
+        )
+      case 'language-input':
+        return (
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C20.832 18.477 19.246 18 17.5 18c-1.746 0-3.332.477-4.5 1.253z" />
+          </svg>
+        )
+      case 'communicative-activity':
+        return (
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+        )
+      case 'wrap-up':
+        return (
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
           </svg>
         )
       default:
@@ -389,13 +472,64 @@ export default function LessonPage() {
       case 'finalPrep':
       case 'finalprep':
         return (
-          <FinalPrepExercise 
+          <FinalPrepExercise
             phrases={content.phrases as string[] || []}
             checklist={content.checklist as string[] || []}
             confidence={content.confidence as string[] || []}
           />
         )
-      
+
+      // ── TBLT exercise types ──────────────────────────────────────────────
+      case 'lead-in':
+        if (content?.questions && Array.isArray(content.questions)) {
+          return <LeadInExercise content={{ questions: content.questions as string[], instructions: content.instructions as string }} />
+        }
+        break
+
+      case 'task-prep':
+        return <TaskPrepExercise content={content as unknown as Parameters<typeof TaskPrepExercise>[0]['content']} />
+
+      case 'task-performance':
+        if (content?.scenario && content?.roles) {
+          return <TaskPerformanceExercise content={content as unknown as Parameters<typeof TaskPerformanceExercise>[0]['content']} studentName={lesson?.student?.name} />
+        }
+        break
+
+      case 'post-task':
+        if (content?.grammarFocus) {
+          return <PostTaskExercise content={content as unknown as Parameters<typeof PostTaskExercise>[0]['content']} />
+        }
+        break
+
+      case 'homework':
+        if (content?.taskName) {
+          return <HomeworkExercise content={content as unknown as Parameters<typeof HomeworkExercise>[0]['content']} />
+        }
+        break
+
+      // ── PPP exercise types ───────────────────────────────────────────────
+      case 'presentation':
+        return <PresentationExercise content={content as unknown as Parameters<typeof PresentationExercise>[0]['content']} />
+
+      case 'practice':
+        return <PracticeExercise content={content as unknown as Parameters<typeof PracticeExercise>[0]['content']} />
+
+      case 'production':
+        return <ProductionExercise content={content as unknown as Parameters<typeof ProductionExercise>[0]['content']} />
+
+      // ── CLT exercise types ───────────────────────────────────────────────
+      case 'warmer':
+        return <WarmerExercise content={content as unknown as Parameters<typeof WarmerExercise>[0]['content']} />
+
+      case 'language-input':
+        return <LanguageInputExercise content={content as unknown as Parameters<typeof LanguageInputExercise>[0]['content']} />
+
+      case 'communicative-activity':
+        return <CommunicativeActivityExercise content={content as unknown as Parameters<typeof CommunicativeActivityExercise>[0]['content']} />
+
+      case 'wrap-up':
+        return <WrapUpExercise content={content as unknown as Parameters<typeof WrapUpExercise>[0]['content']} />
+
       default:
         // Fallback for other exercise types or malformed content
         return (
@@ -413,30 +547,6 @@ export default function LessonPage() {
     )
   }
 
-  const getExerciseTitle = (type: string) => {
-    switch (type) {
-      case 'vocabulary':
-        return 'Vocabulary'
-      case 'expressions':
-        return 'Useful Expressions'
-      case 'dialogue':
-        return 'Dialogue Practice'
-      case 'roleplay':
-        return 'Role Play'
-      case 'discussion':
-        return 'Discussion'
-      case 'grammar':
-        return 'Grammar Focus'
-      case 'article':
-        return 'Article Reading'
-      case 'fill_blanks':
-        return 'Fill in the Blanks'
-      case 'sentence_building':
-        return 'Sentence Building'
-      default:
-        return type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
-    }
-  }
 
   if (status === 'loading') {
     return (
@@ -607,7 +717,7 @@ export default function LessonPage() {
                   <div>
                     <h3 className="font-semibold text-gray-900 dark:text-white mb-2 text-sm sm:text-base">Objectives</h3>
                     <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400">
-                      {lesson.content.objective}
+                      {lesson.content.objective?.replace(new RegExp(`\\b${lesson.student.name}\\b`, 'gi'), 'you').replace(/\byou will\b/gi, "you'll")}
                     </p>
                   </div>
                   <div>

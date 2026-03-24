@@ -5,7 +5,7 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { getLessonAIService } from '@/lib/ai/lesson-service';
-import { StudentProfile, LearningPlan, GeneratedLesson, LearningTopic } from '@/types/lesson-template';
+import { StudentProfile, LearningPlan, GeneratedLesson, LearningTopic, BlockLearningPlan, BlockLesson, TopicBlock } from '@/types/lesson-template';
 import { revalidatePath } from 'next/cache';
 import type { Session } from 'next-auth';
 import { getVocabularyContext } from '@/lib/vocabulary-tracker';
@@ -256,10 +256,11 @@ export async function generateLearningPlan(studentId: string): Promise<{
   }
 }
 
-// Get existing learning plan for a student
+// Get existing learning plan for a student — returns either legacy or block format
 export async function getStudentLearningPlan(studentId: string): Promise<{
   success: boolean;
-  data?: LearningPlan;
+  format?: 'legacy' | 'block';
+  data?: LearningPlan | BlockLearningPlan;
   planId?: string;
   error?: string;
 }> {
@@ -269,19 +270,14 @@ export async function getStudentLearningPlan(studentId: string): Promise<{
       return { success: false, error: 'Unauthorized' };
     }
 
-    // Get student to verify ownership
     const student = await prisma.student.findUnique({
-      where: { 
-        id: studentId,
-        tutorId: session.user.id,
-      },
+      where: { id: studentId, tutorId: session.user.id },
     });
 
     if (!student) {
       return { success: false, error: 'Student not found' };
     }
 
-    // Get latest learning plan for this student
     const learningPlan = await prisma.learningPlan.findFirst({
       where: { studentId },
       orderBy: { createdAt: 'desc' },
@@ -291,34 +287,169 @@ export async function getStudentLearningPlan(studentId: string): Promise<{
       return { success: false, error: 'No learning plan found' };
     }
 
-    // Convert back to LearningPlan format
+    const raw = learningPlan.topics as unknown[];
+
+    // Version guard: block format has blockNumber on first element; legacy has lessonNumber
+    const isBlockFormat = Array.isArray(raw) && raw.length > 0 &&
+      typeof (raw[0] as Record<string, unknown>).blockNumber === 'number';
+
+    if (isBlockFormat) {
+      const planData: BlockLearningPlan = {
+        selectedMethodology: learningPlan.selectedMethodology,
+        methodologyReasoning: learningPlan.methodologyReasoning,
+        blocks: raw as TopicBlock[],
+      };
+      return { success: true, format: 'block', data: planData, planId: learningPlan.id };
+    }
+
     const planData: LearningPlan = {
       selectedMethodology: learningPlan.selectedMethodology as 'CLT' | 'TBLT' | 'PPP' | 'TTT',
       methodologyReasoning: learningPlan.methodologyReasoning,
-      topics: learningPlan.topics as Array<{
-        lessonNumber: number;
-        title: string;
-        objective: string;
-        vocabulary: string[];
-        grammarFocus?: string;
-        skills: string[];
-        context: string;
-        methodology: 'CLT' | 'TBLT' | 'PPP' | 'TTT';
-      }>,
+      topics: raw as LearningTopic[],
     };
 
-    return { 
-      success: true, 
-      data: planData,
-      planId: learningPlan.id 
-    };
+    return { success: true, format: 'legacy', data: planData, planId: learningPlan.id };
 
   } catch (error) {
     console.error('Error getting learning plan:', error);
-    return { 
-      success: false, 
-      error: error instanceof Error ? error.message : 'Failed to get learning plan' 
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to get learning plan'
     };
+  }
+}
+
+// Generate block-structured learning plan (Preply TBLT format)
+export async function generateBlockLearningPlan(studentId: string): Promise<{
+  success: boolean;
+  data?: BlockLearningPlan;
+  planId?: string;
+  error?: string;
+}> {
+  try {
+    const session = await getServerSession(authOptions) as Session | null;
+    if (!session?.user?.id) return { success: false, error: 'Unauthorized' };
+
+    const accessCheck = await validateServerActionAccess(session.user.id, 'generateLearningPlan');
+    if (!accessCheck.allowed) return { success: false, error: accessCheck.error };
+
+    const canGenerate = await checkGenerationLimit(session.user.id);
+    if (!canGenerate) return { success: false, error: 'Daily generation limit reached. Try again tomorrow.' };
+
+    const student = await prisma.student.findUnique({
+      where: { id: studentId, tutorId: session.user.id },
+    });
+    if (!student) return { success: false, error: 'Student not found' };
+
+    const studentProfile: StudentProfile = {
+      name: student.name,
+      targetLanguage: student.targetLanguage,
+      nativeLanguage: student.nativeLanguage,
+      ageGroup: student.ageGroup,
+      level: student.level,
+      endGoals: student.endGoals,
+      occupation: student.occupation || undefined,
+      weaknesses: student.weaknesses || undefined,
+      interests: student.interests || undefined,
+    };
+
+    const lessonAIService = await getLessonAIService();
+    const blockPlan = await lessonAIService.generateBlockPlan(studentProfile);
+
+    const savedPlan = await prisma.learningPlan.create({
+      data: {
+        selectedMethodology: blockPlan.selectedMethodology,
+        methodologyReasoning: blockPlan.methodologyReasoning,
+        topics: JSON.parse(JSON.stringify(blockPlan.blocks)),
+        studentId,
+      },
+    });
+
+    await recordSuccessfulGeneration(session.user.id);
+    revalidatePath(`/dashboard/students/${studentId}`);
+
+    return { success: true, data: blockPlan, planId: savedPlan.id };
+
+  } catch (error) {
+    console.error('Error generating block plan:', error);
+    return { success: false, error: error instanceof Error ? error.message : 'Failed to generate learning plan' };
+  }
+}
+
+// Generate a TBLT lesson from a BlockLesson
+export async function generateTBLTLesson(
+  studentId: string,
+  lessonData: BlockLesson,
+  duration: 25 | 50 = 50
+): Promise<{
+  success: boolean;
+  data?: { lesson: GeneratedLesson; lessonId: string };
+  error?: string;
+}> {
+  try {
+    const session = await getServerSession(authOptions) as Session | null;
+    if (!session?.user?.id) return { success: false, error: 'Unauthorized' };
+
+    const canGenerate = await checkGenerationLimit(session.user.id);
+    if (!canGenerate) return { success: false, error: 'Daily generation limit reached. Try again tomorrow.' };
+
+    const student = await prisma.student.findUnique({
+      where: { id: studentId, tutorId: session.user.id },
+    });
+    if (!student) return { success: false, error: 'Student not found' };
+
+    // Check if a lesson with this title already exists
+    const existingLesson = await prisma.lesson.findFirst({
+      where: {
+        studentId,
+        OR: [
+          { title: { contains: lessonData.title, mode: 'insensitive' } },
+          { title: { contains: lessonData.title.split(':')[0], mode: 'insensitive' } },
+        ],
+      },
+    });
+    if (existingLesson) {
+      return { success: false, error: `A lesson about "${lessonData.title}" has already been generated for this student.` };
+    }
+
+    const studentProfile: StudentProfile = {
+      name: student.name,
+      targetLanguage: student.targetLanguage,
+      nativeLanguage: student.nativeLanguage,
+      ageGroup: student.ageGroup,
+      level: student.level,
+      endGoals: student.endGoals,
+      occupation: student.occupation || undefined,
+      weaknesses: student.weaknesses || undefined,
+      interests: student.interests || undefined,
+    };
+
+    const lessonAIService = await getLessonAIService();
+    const methodology = lessonData.methodology ?? 'TBLT';
+    const generatedLesson = methodology === 'PPP'
+      ? await lessonAIService.generatePPPLesson(studentProfile, lessonData, duration)
+      : methodology === 'CLT'
+        ? await lessonAIService.generateCLTLesson(studentProfile, lessonData, duration)
+        : await lessonAIService.generateTBLTLesson(studentProfile, lessonData, duration);
+
+    const savedLesson = await prisma.lesson.create({
+      data: {
+        title: generatedLesson.title,
+        overview: `${generatedLesson.objective} | Skills: ${generatedLesson.skills.join(', ')}`,
+        content: JSON.parse(JSON.stringify(generatedLesson)),
+        studentId,
+        isRefined: true,
+      },
+    });
+
+    await recordSuccessfulGeneration(session.user.id);
+    revalidatePath(`/dashboard/students/${studentId}`);
+
+    return { success: true, data: { lesson: generatedLesson, lessonId: savedLesson.id } };
+
+  } catch (error) {
+    console.error('Error generating TBLT lesson:', error);
+    return { success: false, error: error instanceof Error ? error.message : 'Failed to generate lesson' };
   }
 }
 

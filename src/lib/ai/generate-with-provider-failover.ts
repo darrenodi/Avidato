@@ -5,6 +5,7 @@ interface ProviderGenerationConfig {
   temperature?: number
   topK?: number
   topP?: number
+  responseMimeType?: string
 }
 
 interface GenerateWithProviderOptions {

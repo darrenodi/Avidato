@@ -37,7 +37,7 @@ export interface LearningPlan {
 }
 
 export interface LessonExercise {
-  type: 'vocabulary' | 'expressions' | 'dialogue' | 'roleplay' | 'discussion' | 'grammar' | 'article' | 'fill_blanks' | 'sentence_building' | 'pronunciation' | 'listening';
+  type: 'vocabulary' | 'expressions' | 'dialogue' | 'roleplay' | 'discussion' | 'grammar' | 'article' | 'fill_blanks' | 'sentence_building' | 'pronunciation' | 'listening' | 'lead-in' | 'task-prep' | 'task-performance' | 'post-task' | 'homework';
   title: string;
   description: string;
   content: string | string[] | object;
@@ -164,6 +164,145 @@ export interface LessonTemplate {
   homework?: string
   additionalMaterials?: string[]
   teacherNotes?: string
+}
+
+// === BLOCK LEARNING PLAN TYPES (Preply TBLT structure) ===
+
+export type LessonMethodology = 'TBLT' | 'PPP' | 'CLT';
+
+export interface BlockLesson {
+  lessonNumber: number; // global number across all blocks
+  title: string;
+  communicativeNeed: string; // what the student will be able to DO
+  keyLanguageFeatures: string[]; // phrases, structures (not just words)
+  isReview: boolean;
+  methodology: LessonMethodology; // teaching methodology for this specific lesson
+}
+
+export interface TopicBlock {
+  blockNumber: number;
+  title: string;
+  rationale: string;
+  lessons: BlockLesson[];
+}
+
+export interface BlockLearningPlan {
+  selectedMethodology: string;
+  methodologyReasoning: string;
+  blocks: TopicBlock[];
+}
+
+// === TBLT LESSON EXERCISE CONTENT TYPES ===
+
+export interface LeadInContent {
+  questions: string[];
+  instructions?: string;
+}
+
+export interface KeyPhrase {
+  phrase: string;
+  usage: string;
+  example: string;
+}
+
+export interface TaskPrepContent {
+  vocabulary: VocabularyItem[];
+  keyPhrases: KeyPhrase[];
+  modelDialogue: {
+    setting: string;
+    characters: DialogueCharacter[];
+    dialogue: DialogueLine[];
+  };
+}
+
+export interface TaskPerformanceContent {
+  scenario: string;
+  roles: {
+    name: string;
+    description: string;
+    keyPoints?: string[];
+  }[];
+  instructions: string;
+  phrasesToUse?: string[];
+}
+
+export interface PostTaskContent {
+  grammarFocus: string;
+  explanation: string;
+  examples: string[];
+  corrections?: {
+    error: string;
+    correction: string;
+    rule: string;
+  }[];
+}
+
+export interface HomeworkContent {
+  taskName: string;
+  description: string;
+  instructions: string;
+}
+
+// === PPP LESSON EXERCISE CONTENT TYPES ===
+
+export interface PPPPresentationContent {
+  targetStructure: string;        // e.g. "Present Perfect with 'just', 'already', 'yet'"
+  explanation: string;
+  examples: { sentence: string; note?: string }[];
+  conceptCheckQuestions: string[]; // CCQs to check understanding
+}
+
+export interface PPPPracticeContent {
+  instructions: string;
+  exercises: {
+    type: 'gap-fill' | 'transformation' | 'matching' | 'reorder';
+    items: {
+      id: number;
+      prompt: string;
+      answer: string;
+      hint?: string;
+    }[];
+  }[];
+}
+
+export interface PPPProductionContent {
+  scenario: string;
+  task: string;          // what student must do
+  targetStructure: string; // the structure they should use
+  prompts?: string[];    // optional sentence starters / cues
+}
+
+// === CLT LESSON EXERCISE CONTENT TYPES ===
+
+export interface CLTWarmerContent {
+  activity: string;       // e.g. "Quick-fire questions", "Word association"
+  instructions: string;
+  prompts: string[];
+}
+
+export interface CLTInputContent {
+  vocabulary: {
+    word: string;
+    partOfSpeech: string;
+    phonetics: string;
+    definition: string;
+    example: string;
+    synonym?: string;
+  }[];
+  contextText?: string;   // short text/dialogue showing vocab in context
+}
+
+export interface CLTActivityContent {
+  activityName: string;   // e.g. "Information gap", "Describe and draw", "20 questions"
+  instructions: string;
+  studentRole: string;
+  tutorRole: string;
+  prompts?: string[];
+}
+
+export interface CLTWrapUpContent {
+  reviewQuestions: string[];
+  homework: string;
 }
 
 // Helper type for the complete lesson data structure

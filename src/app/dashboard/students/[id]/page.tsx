@@ -6,9 +6,9 @@ import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import DashboardLayout from '@/components/layout/DashboardLayout'
 import { getStudent } from '../../../actions/students'
-import { generateLearningPlan, generateLesson, getGenerationStats, getStudentLearningPlan, shareLesson, generateMoreLessons } from '../../../actions/ai-generation'
+import { generateLesson, getGenerationStats, getStudentLearningPlan, shareLesson, generateMoreLessons, generateBlockLearningPlan, generateTBLTLesson } from '../../../actions/ai-generation'
 import { nativeLanguages, levels, ageGroups } from '@/lib/form-data-mappings'
-import type { LearningPlan } from '@/types/lesson-template'
+import type { LearningPlan, BlockLearningPlan, BlockLesson } from '@/types/lesson-template'
 
 /**
  * StudentProfilePage Component
@@ -70,7 +70,11 @@ export default function StudentProfilePage() {
   const [generationStats, setGenerationStats] = useState({ used: 0, limit: 10, remaining: 10 })
   const [isGeneratingPlan, setIsGeneratingPlan] = useState(false)
   const [isGeneratingLesson, setIsGeneratingLesson] = useState(false)
+  const [generatingLessonKey, setGeneratingLessonKey] = useState<string | null>(null)
   const [currentLearningPlan, setCurrentLearningPlan] = useState<LearningPlan | null>(null)
+  const [currentBlockPlan, setCurrentBlockPlan] = useState<BlockLearningPlan | null>(null)
+  const [planFormat, setPlanFormat] = useState<'legacy' | 'block' | null>(null)
+  const [expandedBlocks, setExpandedBlocks] = useState<Set<number>>(new Set([1]))
   const [lessons, setLessons] = useState<StudentLesson[]>([])
   const [loadingLessons, setLoadingLessons] = useState(false)
   const [isGeneratingMoreLessons, setIsGeneratingMoreLessons] = useState(false)
@@ -139,18 +143,26 @@ export default function StudentProfilePage() {
     try {
       const result = await getStudentLearningPlan(studentId)
       if (result.success && result.data) {
-        setCurrentLearningPlan(result.data)
-        // Convert AI topics to display format
-        const aiTopics: LearningTopic[] = result.data.topics.map((topic) => ({
-          id: topic.lessonNumber.toString(),
-          title: topic.title,
-          description: topic.objective,
-          difficulty: topic.lessonNumber <= 3 ? 'Beginner' : 
-                     topic.lessonNumber <= 7 ? 'Intermediate' : 'Advanced',
-          estimatedLessons: 1,
-          skills: topic.skills
-        }))
-        setLearningTopics(aiTopics)
+        setPlanFormat(result.format ?? 'legacy')
+        if (result.format === 'block') {
+          setCurrentBlockPlan(result.data as BlockLearningPlan)
+          setCurrentLearningPlan(null)
+          setLearningTopics([])
+        } else {
+          const legacyPlan = result.data as LearningPlan
+          setCurrentLearningPlan(legacyPlan)
+          setCurrentBlockPlan(null)
+          const aiTopics: LearningTopic[] = legacyPlan.topics.map((topic) => ({
+            id: topic.lessonNumber.toString(),
+            title: topic.title,
+            description: topic.objective,
+            difficulty: topic.lessonNumber <= 3 ? 'Beginner' :
+                       topic.lessonNumber <= 7 ? 'Intermediate' : 'Advanced',
+            estimatedLessons: 1,
+            skills: topic.skills
+          }))
+          setLearningTopics(aiTopics)
+        }
       }
     } catch (err) {
       console.error('Error fetching existing learning plan:', err)
@@ -183,7 +195,7 @@ export default function StudentProfilePage() {
           if (response.success && response.data) {
             setStudent(response.data)
             // Generate learning topics based on student data
-            generateLearningTopics(response.data)
+            generateLearningTopics()
             // Fetch lessons for this student
             fetchLessons()
             // Fetch existing learning plan
@@ -220,28 +232,19 @@ export default function StudentProfilePage() {
     fetchStats()
   }, [session])
 
-  // Handle AI learning plan generation
+  // Handle AI learning plan generation (block format)
   const handleGenerateLearningPlan = async () => {
     if (!student || isGeneratingPlan) return
 
     setIsGeneratingPlan(true)
     try {
-      const result = await generateLearningPlan(student.id)
+      const result = await generateBlockLearningPlan(student.id)
       if (result.success && result.data) {
-        setCurrentLearningPlan(result.data)
-        // Convert AI topics to display format
-        const aiTopics: LearningTopic[] = result.data.topics.map((topic) => ({
-          id: topic.lessonNumber.toString(),
-          title: topic.title,
-          description: topic.objective,
-          difficulty: topic.lessonNumber <= 3 ? 'Beginner' : 
-                     topic.lessonNumber <= 7 ? 'Intermediate' : 'Advanced',
-          estimatedLessons: 1,
-          skills: topic.skills
-        }))
-        setLearningTopics(aiTopics)
-        
-        // Update generation stats
+        setCurrentBlockPlan(result.data)
+        setCurrentLearningPlan(null)
+        setLearningTopics([])
+        setPlanFormat('block')
+        setExpandedBlocks(new Set([1]))
         const stats = await getGenerationStats()
         setGenerationStats(stats)
       } else {
@@ -290,28 +293,23 @@ export default function StudentProfilePage() {
     }
   }
 
-  // Handle AI lesson generation
+  // Handle legacy AI lesson generation
   const handleGenerateLesson = async () => {
     if (!student || !selectedTopic || !currentLearningPlan || isGeneratingLesson) return
 
     const selectedAITopic = currentLearningPlan.topics.find(t => t.lessonNumber.toString() === selectedTopic)
     if (!selectedAITopic) return
 
-    // Ensure vocabulary is always an array (default to empty if not provided)
-    const topicWithVocabulary = {
-      ...selectedAITopic,
-      vocabulary: selectedAITopic.vocabulary || []
-    }
+    const topicWithVocabulary = { ...selectedAITopic, vocabulary: selectedAITopic.vocabulary || [] }
 
     setIsGeneratingLesson(true)
     try {
       const result = await generateLesson(student.id, topicWithVocabulary, 50)
       if (result.success && result.data) {
-        // Refresh lessons list and generation stats
         await fetchLessons()
         const stats = await getGenerationStats()
         setGenerationStats(stats)
-        setSelectedTopic(null) // Clear selection
+        setSelectedTopic(null)
       } else {
         setError(result.error || 'Failed to generate lesson')
       }
@@ -323,10 +321,33 @@ export default function StudentProfilePage() {
     }
   }
 
+  // Handle block-format TBLT lesson generation
+  const handleGenerateBlockLesson = async (lesson: BlockLesson) => {
+    if (!student || isGeneratingLesson) return
+
+    setIsGeneratingLesson(true)
+    setGeneratingLessonKey(`${lesson.lessonNumber}`)
+    try {
+      const result = await generateTBLTLesson(student.id, lesson, 50)
+      if (result.success && result.data) {
+        await fetchLessons()
+        const stats = await getGenerationStats()
+        setGenerationStats(stats)
+      } else {
+        setError(result.error || 'Failed to generate lesson')
+      }
+    } catch (err) {
+      console.error('Error generating TBLT lesson:', err)
+      setError('Failed to generate lesson. Please try again.')
+    } finally {
+      setIsGeneratingLesson(false)
+      setGeneratingLessonKey(null)
+    }
+  }
+
   // Generate learning topics based on student's profile
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const generateLearningTopics = (studentData: StudentData) => {
-    // Remove demo data - topics will come from AI generation only
+  const generateLearningTopics = () => {
+    // Topics come from AI generation only
     setLearningTopics([])
   }
 
@@ -698,14 +719,16 @@ export default function StudentProfilePage() {
                           Personalized Learning Plan
                         </h3>
                         <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">
-                          {currentLearningPlan 
+                          {currentBlockPlan
+                            ? `${currentBlockPlan.blocks.length} topic blocks · mixed methodologies`
+                            : currentLearningPlan
                             ? `AI-generated using ${currentLearningPlan.selectedMethodology} methodology`
-                            : `10 topics tailored to ${student.name}'s goals and level`
+                            : `Structured topic blocks tailored to ${student.name}'s goals`
                           }
                         </p>
-                        {currentLearningPlan && (
-                          <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">
-                            {currentLearningPlan.methodologyReasoning}
+                        {(currentBlockPlan?.methodologyReasoning || currentLearningPlan?.methodologyReasoning) && (
+                          <p className="text-xs text-blue-600 dark:text-blue-400 mt-1 line-clamp-2">
+                            {currentBlockPlan?.methodologyReasoning || currentLearningPlan?.methodologyReasoning}
                           </p>
                         )}
                       </div>
@@ -721,7 +744,7 @@ export default function StudentProfilePage() {
                       </button>
                     </div>
 
-                    {learningTopics.length === 0 && !isGeneratingPlan && (
+                    {!currentBlockPlan && learningTopics.length === 0 && !isGeneratingPlan && (
                       <div className="text-center py-12 rounded-lg">
                         <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
@@ -752,7 +775,139 @@ export default function StudentProfilePage() {
                       </div>
                     )}
 
-                    {learningTopics.length > 0 && (
+                    {/* Block-format plan (new TBLT structure) */}
+                    {planFormat === 'block' && currentBlockPlan && (
+                      <div className="space-y-3">
+                        {currentBlockPlan.blocks.map((block) => {
+                          const isExpanded = expandedBlocks.has(block.blockNumber)
+                          const blockLessons = block.lessons
+                          const generatedCount = blockLessons.filter(l => isLessonGenerated(l.title)).length
+                          const progress = Math.round((generatedCount / blockLessons.length) * 100)
+
+                          return (
+                            <div key={block.blockNumber} className="rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+                              {/* Block header */}
+                              <button
+                                onClick={() => setExpandedBlocks(prev => {
+                                  const next = new Set(prev)
+                                  if (next.has(block.blockNumber)) next.delete(block.blockNumber)
+                                  else next.add(block.blockNumber)
+                                  return next
+                                })}
+                                className="w-full flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-750 transition-colors text-left"
+                              >
+                                <div className="flex items-center gap-3 min-w-0">
+                                  <span className="flex-shrink-0 w-7 h-7 rounded-full bg-brand-primary text-white text-xs flex items-center justify-center font-semibold">
+                                    {block.blockNumber}
+                                  </span>
+                                  <div className="min-w-0">
+                                    <p className="font-semibold text-gray-900 dark:text-white text-sm truncate">{block.title}</p>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400">{blockLessons.length} lessons · {generatedCount} generated</p>
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-3 flex-shrink-0 ml-3">
+                                  {/* Progress bar */}
+                                  <div className="hidden sm:flex items-center gap-2">
+                                    <div className="w-20 h-1.5 rounded-full bg-gray-200 dark:bg-gray-600">
+                                      <div
+                                        className="h-1.5 rounded-full bg-brand-primary transition-all"
+                                        style={{ width: `${progress}%` }}
+                                      />
+                                    </div>
+                                    <span className="text-xs text-gray-500 dark:text-gray-400">{progress}%</span>
+                                  </div>
+                                  <svg
+                                    className={`w-4 h-4 text-gray-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
+                                    fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                  >
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                  </svg>
+                                </div>
+                              </button>
+
+                              {/* Block rationale */}
+                              {isExpanded && block.rationale && (
+                                <div className="px-4 py-2 bg-blue-50 dark:bg-blue-900/10 border-b border-gray-200 dark:border-gray-700">
+                                  <p className="text-xs text-blue-700 dark:text-blue-300">{block.rationale}</p>
+                                </div>
+                              )}
+
+                              {/* Lessons list */}
+                              {isExpanded && (
+                                <div className="divide-y divide-gray-100 dark:divide-gray-700">
+                                  {blockLessons.map((lesson) => {
+                                    const isGenerated = isLessonGenerated(lesson.title)
+                                    const generatedLesson = lessons.find(l => l.title.toLowerCase().includes(lesson.title.toLowerCase()))
+                                    const isTaught = generatedLesson?.sharedAt
+                                    const isThisGenerating = generatingLessonKey === `${lesson.lessonNumber}` && isGeneratingLesson
+
+                                    return (
+                                      <div key={lesson.lessonNumber} className="p-4">
+                                        <div className="flex items-start justify-between gap-3">
+                                          <div className="flex items-start gap-3 min-w-0">
+                                            <span className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium mt-0.5 ${
+                                              lesson.isReview ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400' :
+                                              isGenerated ? (isTaught ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400' : 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400') :
+                                              'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400'
+                                            }`}>
+                                              {isGenerated ? (isTaught ? '✓' : '⚡') : lesson.isReview ? '★' : lesson.lessonNumber}
+                                            </span>
+                                            <div className="min-w-0">
+                                              <p className="text-sm font-medium text-gray-900 dark:text-white">{lesson.title}</p>
+                                              <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{lesson.communicativeNeed}</p>
+                                              {lesson.keyLanguageFeatures?.length > 0 && (
+                                                <div className="flex flex-wrap gap-1 mt-1.5">
+                                                  {lesson.keyLanguageFeatures.slice(0, 3).map((f, i) => (
+                                                    <span key={i} className="px-1.5 py-0.5 rounded text-xs bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
+                                                      {f.split(':')[0]}
+                                                    </span>
+                                                  ))}
+                                                  {lesson.methodology && (
+                                                    <span className={`px-1.5 py-0.5 rounded text-xs font-medium ${
+                                                      lesson.methodology === 'PPP' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400' :
+                                                      lesson.methodology === 'CLT' ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400' :
+                                                      'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400'
+                                                    }`}>
+                                                      {lesson.methodology}
+                                                    </span>
+                                                  )}
+                                                </div>
+                                              )}
+                                            </div>
+                                          </div>
+                                          <div className="flex-shrink-0">
+                                            {!isGenerated ? (
+                                              <button
+                                                onClick={() => handleGenerateBlockLesson(lesson)}
+                                                disabled={isGeneratingLesson || (generationStats.remaining !== -1 && generationStats.remaining <= 0)}
+                                                className="px-3 py-1.5 rounded-lg bg-brand-primary text-white text-xs font-medium hover:bg-brand-accent transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5"
+                                              >
+                                                {isThisGenerating && <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white" />}
+                                                {isThisGenerating ? 'Generating...' : 'Generate'}
+                                              </button>
+                                            ) : (
+                                              <Link
+                                                href={`/lessons/${generatedLesson?.id}`}
+                                                className={`px-3 py-1.5 rounded-lg text-white text-xs font-medium transition-colors ${isTaught ? 'bg-green-500 hover:bg-green-600' : 'bg-purple-500 hover:bg-purple-600'}`}
+                                              >
+                                                View
+                                              </Link>
+                                            )}
+                                          </div>
+                                        </div>
+                                      </div>
+                                    )
+                                  })}
+                                </div>
+                              )}
+                            </div>
+                          )
+                        })}
+                      </div>
+                    )}
+
+                    {/* Legacy flat-list plan */}
+                    {planFormat === 'legacy' && learningTopics.length > 0 && (
                     <>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {learningTopics.map((topic, index) => {
@@ -783,7 +938,6 @@ export default function StudentProfilePage() {
                                 ))}
                               </div>
                             </div>
-                            {/* Generate/View Button */}
                             {!isGenerated ? (
                               <button
                                 onClick={async () => {
