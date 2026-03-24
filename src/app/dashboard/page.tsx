@@ -237,7 +237,7 @@ export default function DashboardPage() {
             </div>
             {/* Mini sparkline */}
             <div className="h-16 mt-3 -mx-1">
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height="100%" minWidth={0}>
                 <AreaChart data={monthlyData.length > 0 ? monthlyData : [{ month: '', lessons: 0 }]}>
                   <defs>
                     <linearGradient id="sparkGrad" x1="0" y1="0" x2="0" y2="1">
@@ -323,7 +323,7 @@ export default function DashboardPage() {
               {statsLoading ? (
                 <div className="animate-pulse w-full h-full bg-gray-100 dark:bg-gray-700 rounded-xl" />
               ) : (
-                <ResponsiveContainer width="100%" height="100%">
+                <ResponsiveContainer width="100%" height="100%" minWidth={0}>
                   <BarChart data={monthlyData} barGap={2}>
                     <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#9ca3af' }} />
                     <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#9ca3af' }} allowDecimals={false} width={24} />

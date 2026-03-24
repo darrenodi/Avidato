@@ -14,11 +14,11 @@ const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY)
 // Ordered by preference / capability (adjust as needed)
 // Using only models that support generateContent API
 // Based on quota limits from Google AI Studio:
-// - gemini-3.1-flash-lite: 15 RPM, 250K TPM, 500 RPD
 // - gemini-2.5-flash: 5 RPM, 250K TPM, 20 RPD
+// Note: gemini-3.1-flash-lite not yet confirmed as valid API model ID
 export const MODEL_FALLBACK_CHAIN: string[] = [
-  'gemini-3.1-flash-lite', // Primary: fastest, 15 RPM, 500 RPD
-  'gemini-2.5-flash',      // Fallback: higher quality, 5 RPM, 20 RPD
+  'gemini-2.5-flash',      // Primary: confirmed working
+  'gemini-2.5-flash-lite-preview-06-17', // Fallback if available
 ]
 
 export interface FailoverResult {
