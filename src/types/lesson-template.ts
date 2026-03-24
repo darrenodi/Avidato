@@ -28,6 +28,11 @@ export interface LearningTopic {
   }>;
   previousLessonTitle?: string;
   shouldReuseVocabularyInDialogue?: boolean;
+  // Recent lesson history for anti-repetition rules
+  recentVocabulary?: string[];
+  recentGrammarErrors?: string[];
+  recentDiscussionQuestions?: string[];
+  recentTopics?: string[];
 }
 
 export interface LearningPlan {
