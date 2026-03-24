@@ -619,7 +619,7 @@ export default function LessonPage() {
             {lesson.content?.lessonType === 'instant' ? (
               <div className="space-y-4 sm:space-y-6">
                 {/* Header with Back Button and Share */}
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 sm:mb-8">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                   <Link
                     href={`/dashboard/students/${lesson.student.id}`}
                     className="inline-flex items-center text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 text-sm sm:text-base"
@@ -658,22 +658,26 @@ export default function LessonPage() {
                   </button>
                 </div>
 
-                <InstantLessonDisplay lesson={{
-                  ...lesson.content,
-                  vocabulary: (lesson.content.vocabulary?.filter(v => typeof v === 'object') || []) as Array<{
-                    word?: string
-                    term?: string
-                    definition?: string
-                    example?: string
-                    partOfSpeech?: string
-                    phonetics?: string
-                  }>
-                }} />
+                <InstantLessonDisplay
+                  lesson={{
+                    ...lesson.content,
+                    vocabulary: (lesson.content.vocabulary?.filter(v => typeof v === 'object') || []) as Array<{
+                      word?: string
+                      term?: string
+                      definition?: string
+                      example?: string
+                      partOfSpeech?: string
+                      phonetics?: string
+                    }>
+                  }}
+                  isStudentView={false}
+                  studentName={lesson.student.name}
+                />
               </div>
             ) : (
           <div className="space-y-4 sm:space-y-6">
             {/* Header with Back Button */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 sm:mb-8">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <Link
                 href={`/dashboard/students/${lesson.student.id}`}
                 className="inline-flex items-center text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 text-sm sm:text-base"
@@ -713,53 +717,31 @@ export default function LessonPage() {
             </div>
 
             {/* Lesson Header */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6 lg:p-8">
-              <div className="mb-4 sm:mb-6">
-                <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white mb-4">
-                  {lesson.content.title}
-                </h1>
-                <div className="flex flex-wrap gap-3 sm:gap-4 text-xs sm:text-sm mb-6">
-                  <div className="flex items-center space-x-2">
-                    <span className="font-medium text-gray-500 dark:text-gray-400">Student:</span>
-                    <span className="text-gray-900 dark:text-white">{lesson.student.name}</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <span className="font-medium text-gray-500 dark:text-gray-400">Level:</span>
-                    <span className="text-gray-900 dark:text-white">{lesson.student.level}</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <span className="font-medium text-gray-500 dark:text-gray-400">Duration:</span>
-                    <span className="text-gray-900 dark:text-white">{lesson.content.duration} minutes</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <span className="font-medium text-gray-500 dark:text-gray-400">Lesson Type:</span>
-                    <span className="px-2 py-1 bg-brand-primary/10 text-brand-primary rounded-full text-xs font-medium">
-                      {lesson.content.lessonType === 'Under-18' ? 'kids' : lesson.content.lessonType}
-                    </span>
-                  </div>
-                </div>
+            <div className="pb-5 border-b border-gray-200 dark:border-gray-700">
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-3">
+                {lesson.content.title}
+              </h1>
+              <div className="flex flex-wrap items-center gap-2 mb-3">
+                <span className="px-2 py-0.5 rounded text-xs border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300">{lesson.student.name}</span>
+                <span className="px-2 py-0.5 rounded text-xs border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300">{lesson.student.level}</span>
+                <span className="px-2 py-0.5 rounded text-xs border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300">{lesson.content.duration} min</span>
+                <span className="px-2 py-0.5 rounded text-xs bg-brand-primary/10 text-brand-primary border border-brand-primary/20 font-medium">
+                  {lesson.content.lessonType === 'Under-18' ? 'kids' : lesson.content.lessonType}
+                </span>
               </div>
-
-              {/* Lesson Overview - Objectives & Skills */}
               {!(lesson.content as Record<string, unknown>).isGrammarLesson && (
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-                  <div>
-                    <h3 className="font-semibold text-gray-900 dark:text-white mb-2 text-sm sm:text-base">Objectives</h3>
-                    <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400">
-                      {lesson.content.objective?.replace(new RegExp(`\\b${lesson.student.name}\\b`, 'gi'), 'you').replace(/\byou will\b/gi, "you'll")}
-                    </p>
+                <>
+                  <p className="text-gray-600 dark:text-gray-400 leading-relaxed mb-3">
+                    {lesson.content.objective?.replace(new RegExp(`\\b${lesson.student.name}\\b`, 'gi'), 'you').replace(/\byou will\b/gi, "you'll")}
+                  </p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {((lesson.content as Record<string, unknown>).skills as string[]).map((skill) => (
+                      <span key={skill} className="px-2 py-0.5 rounded-full text-xs bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400">
+                        {skill}
+                      </span>
+                    ))}
                   </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-900 dark:text-white mb-2 text-sm sm:text-base">Skills Practiced</h3>
-                    <div className="flex flex-wrap gap-2">
-                      {((lesson.content as Record<string, unknown>).skills as string[]).map((skill) => (
-                        <span key={skill} className="px-2 py-1 bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-400 rounded text-xs sm:text-sm">
-                          {skill}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                </div>
+                </>
               )}
             </div>
 
@@ -780,33 +762,27 @@ export default function LessonPage() {
                 exercises: { type: string; title: string; content: Record<string, unknown> }[]
               }} />
             ) : (
-              <div className="space-y-4 sm:space-y-6">
+              <div className="space-y-4">
                 {lesson.content.exercises.map((exercise, index) => (
-                  <div key={index} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
-                    <div className="flex items-start sm:items-center space-x-3 sm:space-x-4 mb-3 sm:mb-4">
-                      <div className="flex items-center space-x-3 min-w-0 flex-1">
-                        <div className="w-8 h-8 sm:w-10 sm:h-10 bg-brand-primary text-white rounded-full flex items-center justify-center flex-shrink-0">
+                  <div key={index} className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+                    <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-gray-700">
+                      <div className="flex items-center gap-3 min-w-0 flex-1">
+                        <div className="w-7 h-7 bg-brand-primary text-white rounded-full flex items-center justify-center flex-shrink-0">
                           {getExerciseIcon(exercise.type)}
                         </div>
-                        <div className="min-w-0 flex-1">
-                          <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white truncate">
-                            <span className="text-brand-primary">Exercise {index + 1}:</span> {exercise.title}
-                          </h3>
-                          <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
-                            {exercise.timeMinutes} minutes
-                          </p>
+                        <div className="min-w-0">
+                          <h3 className="text-sm font-semibold text-gray-900 dark:text-white truncate">{exercise.title}</h3>
+                          {exercise.type !== 'warmup' && exercise.description && (
+                            <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{exercise.description}</p>
+                          )}
                         </div>
                       </div>
-                      <EditButton onClick={() => setEditingExerciseIndex(index)} label="Edit" />
+                      <div className="flex items-center gap-3 flex-shrink-0">
+                        <span className="text-xs text-gray-400 dark:text-gray-500">{exercise.timeMinutes} min</span>
+                        <EditButton onClick={() => setEditingExerciseIndex(index)} label="Edit" />
+                      </div>
                     </div>
-                    
-                    {exercise.type !== 'warmup' && exercise.description && (
-                      <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300 mb-3 sm:mb-4">
-                        {exercise.description}
-                      </p>
-                    )}
-                    
-                    <div className="rounded-lg p-3 sm:p-4 overflow-x-auto">
+                    <div className="p-4 overflow-x-auto">
                       {renderExerciseContent(exercise)}
                     </div>
                   </div>

@@ -27,10 +27,6 @@ interface GeneratedLesson {
   teachingNotes?: string;
 }
 
-/**
- * Generate an instant lesson for any language
- * This is a simplified, language-agnostic version of the main lesson generator
- */
 export async function generateInstantLesson(params: InstantLessonParams): Promise<GeneratedLesson> {
   const prompt = buildInstantLessonPrompt(params);
 
@@ -38,15 +34,12 @@ export async function generateInstantLesson(params: InstantLessonParams): Promis
     const { rawText: text } = await generateWithProviderFailover({
       prompt,
       generationConfig: {
-        maxOutputTokens: 16384,
+        maxOutputTokens: 8192,
       },
     });
 
-    // Extract and parse JSON
     const jsonStr = extractJSONFromText(text);
-    const parsedResponse = cleanAndParseJSON<GeneratedLesson>(jsonStr);
-
-    return parsedResponse;
+    return cleanAndParseJSON<GeneratedLesson>(jsonStr);
   } catch (error) {
     console.error('Error generating instant lesson:', error);
     throw new Error('Failed to generate lesson. Please try again.');
@@ -54,69 +47,53 @@ export async function generateInstantLesson(params: InstantLessonParams): Promis
 }
 
 function buildInstantLessonPrompt(params: InstantLessonParams): string {
-  const {
-    targetLanguage,
-    nativeLanguage,
-    level,
-    topic,
-    description,
-    duration,
-    studentName = 'Student'
-  } = params;
-
+  const { targetLanguage, nativeLanguage, level, topic, description, duration, studentName = 'Student' } = params;
+  const is50 = duration === 50;
+  const taskPrepTime = is50 ? 10 : 8;
+  const taskPerfTime = is50 ? 20 : 8;
+  const postTaskTime = is50 ? 10 : 2;
+  const hwTime = is50 ? 5 : 2;
   const additionalContext = description ? `\nContext: ${description}` : '';
 
-  return `Expert ${targetLanguage} teacher. Create a ${duration}-minute lesson on "${topic}" for ${studentName}.${additionalContext}
+  return `Expert ${targetLanguage} instructor. Generate a TBLT instant lesson as JSON.
 
-STUDENT: ${level} level, native ${nativeLanguage}, learning ${targetLanguage}.
+STUDENT: ${studentName}, ${level}, native ${nativeLanguage}.
+TOPIC: "${topic}"${additionalContext}
 
-LANGUAGE RULE: ALL content in EVERY JSON field MUST be in ${targetLanguage}. Zero English anywhere. ONLY exception: vocabulary "translation" field uses ${nativeLanguage}. Adapt complexity to ${level}.
+RULES:
+- ALL content in ${targetLanguage} (JSON keys stay in English)
+- Only vocabulary "translation" field uses ${nativeLanguage}
+- NO em dashes (—). BANNED: "resonate","navigate","landscape","leverage","dynamics","paradigm"
+- Adapt complexity to ${level}
 
-GLOBAL FORMATTING RULES:
-- NEVER use em dashes (—) anywhere. Use commas, periods, or semicolons instead.
-- NEVER suggest or include background colors, colored badges, or colored containers in any content field.
-
-EXERCISES:
-1. vocabulary (10min): 6-8 items — {word, partOfSpeech, phonetics (IPA), definition, translation (${nativeLanguage} only), example, synonym, expressions[]}
-2. warmup (8min): EXACTLY 3 questions — no more, no less. Q1: Personal experience ("Have you ever...?" or "When did you last...?"). Q2: Personal familiarity with the topic — have they done it, seen it, been involved? NEVER "What is important when X?" or "What are the key factors?" — those are Discussion questions. Q3: Story or memory prompt — "What's the most memorable/challenging...?" NEVER starts with "How can...", "Why is...", "What are the effects/implications of..." — those are analytical Discussion questions. WARM-UP = story or memory. DISCUSSION = analysis or opinion. Each question MAX 15 words, conversational not academic, never use student name.
-3. dialogue (12min): Realistic conversation using vocabulary. Include ${studentName} as speaker. Fields: setting, characters[{name,role,avatar}], dialogue[{character,text}], instructions
-
-DIALOGUE REALISM RULES (MANDATORY):
-- START WITH SMALL TALK OR A NATURAL OPENER, NEVER THE MAIN TOPIC. The first 2-3 exchanges must ease in naturally before the main purpose. Use context-appropriate openers: complimenting the office, asking about the journey, commenting on the environment, referencing a previous interaction.
-- INCLUDE AT LEAST ONE IMPERFECT MOMENT. Someone misspeaks and corrects themselves, a small misunderstanding gets quickly resolved, someone asks for clarification, or a detail was forgotten.
-- THE OTHER PERSON MUST NOT ALWAYS AGREE. They must push back at least once, express mild hesitation, ask an unexpected follow-up, or challenge something said.
-- USE NATURAL SPOKEN LANGUAGE. Contractions always. Natural fillers: "by the way", "actually", "to be honest", "that reminds me", "now that you mention it". No formal written constructions.
-- VARY LINE LENGTHS. Some responses are a single word or short phrase. Some are longer. Not every line should be two sentences.
-- MATCH REGISTER TO RELATIONSHIP. A first meeting with a client sounds different from a catch-up with a colleague.
-- ADD THIRD PARTIES WHERE CONTEXT CALLS FOR IT. In a restaurant a waiter appears. In an office a passing colleague can interrupt.
-- END AT A NATURAL PAUSE, NOT A NEAT RESOLUTION. Agree to follow up, suggest a next step, or leave something open.
-- NEVER LET DIALOGUE BECOME AN INFORMATION DUMP. Information emerges through questions, reactions, and follow-ups across multiple turns.
-4. comprehension (8min): 4-5 questions about the dialogue. Mix multiple-choice {question,type:"multiple-choice",options[],answer} and open-ended {question,type:"open-ended",answer}
-5. roleplay (${duration === 50 ? '10' : '5'}min): Practice scenario — {scenario, roles[{name,description,keyPoints[]}]}
-6. discussion (${duration === 50 ? '12' : '7'}min): 4-5 open questions + instructions
+STRUCTURE (${duration} min):
+1. lead-in (5min): 3 questions to activate prior knowledge on "${topic}". Personal/story-based, NOT analytical.
+2. task-prep (${taskPrepTime}min): 5 vocabulary words (single words only) + 4-5 key phrases + short model dialogue (6-8 lines, 2-3 characters, small talk opener, contractions, natural fillers)
+3. task-performance (${taskPerfTime}min): realistic roleplay. ${studentName} = first role. Tutor = second role. Include 3-4 phrasesToUse from task-prep.
+4. post-task (${postTaskTime}min): one grammar or language point likely to arise from this topic. 3-4 examples.
+5. homework (${hwTime}min): one concrete real-world task to practise outside class.
 
 JSON OUTPUT:
 {
-  "title":"string",
-  "lessonType":"instant",
-  "difficulty":"${level}",
-  "duration":${duration},
-  "objective":"string",
-  "skills":["Speaking","Listening","Reading","Vocabulary"],
-  "vocabulary":[/* vocab items per spec above */],
-  "context":"string",
-  "exercises":[
-    {"type":"vocabulary","title":"string","description":"string","content":{"vocabulary":[]},"timeMinutes":10},
-    {"type":"warmup","title":"string","description":"string","content":{"questions":[],"instructions":"string"},"timeMinutes":8},
-    {"type":"dialogue","title":"string","description":"string","content":{"setting":"string","characters":[],"dialogue":[],"instructions":"string"},"timeMinutes":12},
-    {"type":"comprehension","title":"string","description":"string","content":{"questions":[]},"timeMinutes":8},
-    {"type":"roleplay","title":"string","description":"string","content":{"scenario":"string","roles":[]},"timeMinutes":${duration === 50 ? 10 : 5}},
-    {"type":"discussion","title":"string","description":"string","content":{"questions":[],"instructions":"string"},"timeMinutes":${duration === 50 ? 12 : 7}}
+  "title": "string",
+  "lessonType": "instant",
+  "difficulty": "${level}",
+  "duration": ${duration},
+  "objective": "By the end, ${studentName} will be able to [specific communicative outcome] (MAX 120 chars in ${targetLanguage})",
+  "skills": ["Speaking", "Vocabulary", "Listening"],
+  "vocabulary": [],
+  "context": "string",
+  "exercises": [
+    {"type":"lead-in","title":"string","description":"string","content":{"questions":["","",""],"instructions":"string"},"timeMinutes":5},
+    {"type":"task-prep","title":"string","description":"string","content":{"vocabulary":[{"word":"","partOfSpeech":"","phonetics":"/ipa/","definition":"","example":"","synonym":"","translation":"(${nativeLanguage})"}],"keyPhrases":[{"phrase":"","usage":"","example":""}],"modelDialogue":{"setting":"","characters":[{"name":"","role":""}],"dialogue":[{"character":"","text":""}]}},"timeMinutes":${taskPrepTime}},
+    {"type":"task-performance","title":"string","description":"string","content":{"scenario":"","roles":[{"name":"${studentName}","description":"","keyPoints":[]},{"name":"Tutor","description":"","keyPoints":[]}],"instructions":"","phrasesToUse":[]},"timeMinutes":${taskPerfTime}},
+    {"type":"post-task","title":"string","description":"string","content":{"grammarFocus":"","explanation":"","examples":[],"corrections":[]},"timeMinutes":${postTaskTime}},
+    {"type":"homework","title":"string","description":"string","content":{"taskName":"","description":"","instructions":""},"timeMinutes":${hwTime}}
   ],
-  "homework":"string",
-  "materials":["string"],
-  "teachingNotes":"string"
+  "homework": "",
+  "materials": [],
+  "teachingNotes": "string"
 }
 
-Return ONLY valid JSON, no trailing commas. Everything in ${targetLanguage}.`;
+Return ONLY valid JSON. Everything in ${targetLanguage}.`;
 }

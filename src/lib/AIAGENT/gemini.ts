@@ -31,8 +31,8 @@ import {
 } from '../../types/lesson-template';
 // NEVER EDIT THIS MODEL WITHOUT APPROVAL FROM THE OWNER
 class GeminiService {
-  public model = genAI.getGenerativeModel({ 
-    model: 'gemini-2.5-pro',
+  public model = genAI.getGenerativeModel({
+    model: 'gemini-3.1-flash-lite',
   });
 
   // Methodology selection based on student profile
@@ -175,7 +175,7 @@ IMPORTANT:
           temperature: 0.1,
           topK: 40,
           topP: 0.95,
-          maxOutputTokens: 16384,
+          maxOutputTokens: 8192,
         },
       });
       
@@ -313,7 +313,7 @@ CRITICAL: This exercise must appear as Exercise 5 in the exercises array. ALL se
           temperature: 0.1,
           topK: 40,
           topP: 0.95,
-          maxOutputTokens: 16384,
+          maxOutputTokens: 8192,
         },
       });
 
@@ -381,7 +381,7 @@ CRITICAL: This exercise must appear as Exercise 5 in the exercises array. ALL se
           temperature: 0.1,
           topK: 40,
           topP: 0.95,
-          maxOutputTokens: 16384,
+          maxOutputTokens: 8192,
         },
       });
 
@@ -419,7 +419,7 @@ CRITICAL: This exercise must appear as Exercise 5 in the exercises array. ALL se
           temperature: 0.1,
           topK: 40,
           topP: 0.95,
-          maxOutputTokens: 16384,
+          maxOutputTokens: 8192,
         },
       });
 
