@@ -1,7 +1,7 @@
 'use client'
 
 // src/components/lesson/EngooLessonComponents.tsx
-import React, { useState, useRef } from 'react'
+import React, { useState } from 'react'
 import { formatText } from '@/lib/format-text'
 
 /**
@@ -96,7 +96,7 @@ export function VocabularyExercise({ vocabulary }: { vocabulary: VocabularyItem[
                 </div>
               )}
               <div className="flex items-center gap-3 mb-3 lg:mb-2">
-                <span className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 text-xs rounded font-medium">
+                <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">
                   {item.partOfSpeech}
                 </span>
                 {/* Audio button */}
@@ -154,16 +154,9 @@ export function VocabularyExercise({ vocabulary }: { vocabulary: VocabularyItem[
                   <div className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">
                     Useful phrases:
                   </div>
-                  <div className="flex flex-wrap gap-2">
-                    {item.expressions.map((expr, exprIndex) => (
-                      <span
-                        key={exprIndex}
-                        className="px-2 py-1 text-xs bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded"
-                      >
-                        {expr}
-                      </span>
-                    ))}
-                  </div>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    {item.expressions.join(' · ')}
+                  </p>
                 </div>
               )}
             </div>
@@ -195,7 +188,7 @@ export function WarmupExercise({ questions, instructions }: { questions: (string
           
           return (
             <div key={index} className="flex items-start space-x-3">
-              <span className="flex-shrink-0 w-6 h-6 bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-400 rounded-full flex items-center justify-center text-sm font-medium">
+              <span className="flex-shrink-0 w-6 h-6 bg-brand-primary text-white rounded-full flex items-center justify-center text-xs font-medium">
                 {index + 1}
               </span>
               <p className="text-gray-900 dark:text-white">
@@ -281,12 +274,7 @@ export function DialogueExercise({
   return (
     <div className="space-y-6">
       {context && (
-        <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-          <p className="text-gray-700 dark:text-gray-300 text-sm">
-            <strong>Context:</strong>{' '}
-            {formatText(context)}
-          </p>
-        </div>
+        <p className="text-sm italic text-gray-500 dark:text-gray-400">{formatText(context)}</p>
       )}
       
       {instructions && (
@@ -314,14 +302,7 @@ export function DialogueExercise({
                     {line.character}
                   </div>
                 )}
-                <div className="bg-gray-100 dark:bg-gray-700 rounded-lg p-4 relative shadow-sm">
-                  {isFirstSpeaker && (
-                    <div className="absolute left-0 top-3 w-0 h-0 border-t-[6px] border-b-[6px] border-r-[8px] border-transparent border-r-gray-100 dark:border-r-gray-700 -ml-2"></div>
-                  )}
-                  <p className="text-gray-900 dark:text-white leading-relaxed">
-                    {formatText(line.text)}
-                  </p>
-                </div>
+                <p className="text-gray-900 dark:text-white leading-relaxed pt-0.5">{formatText(line.text)}</p>
               </div>
             </div>
           )
@@ -391,7 +372,7 @@ export function ComprehensionExercise({
       {questions.map((q, index) => (
         <div key={index} className="space-y-4">
           <div className="flex items-start space-x-3">
-            <span className="flex-shrink-0 w-6 h-6 bg-purple-100 dark:bg-purple-900/20 text-purple-800 dark:text-purple-400 rounded-full flex items-center justify-center text-sm font-medium">
+            <span className="flex-shrink-0 w-6 h-6 bg-brand-primary text-white rounded-full flex items-center justify-center text-xs font-medium">
               {index + 1}
             </span>
             <div className="flex-1">
@@ -523,12 +504,9 @@ export function ComprehensionExercise({
                   </button>
                   
                   {showAnswers[index] && (
-                    <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-3 flex-1">
-                      <p className="text-gray-700 dark:text-gray-300 text-sm">
-                        <span className="font-medium">Answer:</span>{' '}
-                        {formatText(q.answer)}
-                      </p>
-                    </div>
+                    <p className="text-sm text-green-600 dark:text-green-400 font-medium">
+                      → {formatText(q.answer)}
+                    </p>
                   )}
                 </div>
               )}
@@ -541,12 +519,11 @@ export function ComprehensionExercise({
 }
 
 // Role Play Exercise Component
-export function RolePlayExercise({ 
-  scenario, 
-  roles, 
+export function RolePlayExercise({
+  scenario,
+  roles,
   instructions,
-  timeMinutes 
-}: { 
+}: {
   scenario: string
   roles: Array<{
     name: string
@@ -557,53 +534,36 @@ export function RolePlayExercise({
   timeMinutes: number
 }) {
   return (
-    <div className="space-y-6 max-w-4xl">
-      <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-        <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Scenario</h4>
-        <p className="text-gray-700 dark:text-gray-300 text-sm">
-          {formatText(scenario)}
-        </p>
+    <div className="space-y-5 max-w-4xl">
+      <div>
+        <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-1">Scenario</p>
+        <p className="text-gray-700 dark:text-gray-300 text-sm">{formatText(scenario)}</p>
       </div>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+      <div className="space-y-3">
         {roles.map((role, index) => (
-          <div key={index} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-            <h5 className="font-semibold text-gray-900 dark:text-white mb-2">
-              {formatText(role.name)}
-            </h5>
-            <p className="text-gray-700 dark:text-gray-300 text-sm mb-3">
-              {formatText(role.description)}
-            </p>
+          <div key={index} className="border-l-2 border-brand-primary pl-3">
+            <p className="font-semibold text-gray-900 dark:text-white mb-0.5">{formatText(role.name)}</p>
+            <p className="text-gray-600 dark:text-gray-400 text-sm mb-1">{formatText(role.description)}</p>
             {role.keyPoints && (
-              <div>
-                <h6 className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">
-                  Key Points:
-                </h6>
-                <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
-                  {role.keyPoints.map((point, pointIndex) => (
-                    <li key={pointIndex} className="flex items-start space-x-1">
-                      <span className="text-gray-400">•</span>
-                      <span>{formatText(point)}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+              <ul className="space-y-0.5">
+                {role.keyPoints.map((point, pointIndex) => (
+                  <li key={pointIndex} className="text-sm text-gray-500 dark:text-gray-400 flex gap-1.5">
+                    <span>·</span><span>{formatText(point)}</span>
+                  </li>
+                ))}
+              </ul>
             )}
           </div>
         ))}
       </div>
-      
-      <div className="rounded-lg p-4">
-        <div className="flex items-center justify-between mb-2">
-          <h4 className="font-semibold text-gray-900 dark:text-white">Instructions</h4>
-          <span className="text-sm text-gray-500 dark:text-gray-400">
-            {timeMinutes} minutes
-          </span>
+
+      {instructions && (
+        <div>
+          <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-1">Instructions</p>
+          <p className="text-gray-700 dark:text-gray-300 text-sm">{formatText(instructions)}</p>
         </div>
-        <p className="text-gray-700 dark:text-gray-300 text-sm">
-          {formatText(instructions)}
-        </p>
-      </div>
+      )}
     </div>
   )
 }
@@ -624,7 +584,7 @@ export function DiscussionExercise({ questions, instructions }: { questions: str
       <div className="space-y-4">
         {filteredQuestions.map((question, index) => (
           <div key={index} className="flex items-start space-x-3">
-            <span className="flex-shrink-0 w-6 h-6 bg-purple-100 dark:bg-purple-900/20 text-purple-800 dark:text-purple-400 rounded-full flex items-center justify-center text-sm font-medium">
+            <span className="flex-shrink-0 w-6 h-6 bg-brand-primary text-white rounded-full flex items-center justify-center text-xs font-medium">
               {index + 1}
             </span>
             <p className="text-gray-900 dark:text-white">
@@ -659,9 +619,7 @@ export function PreparationExercise({
           <ul className="space-y-2">
             {tips.map((tip, index) => (
               <li key={index} className="flex items-start space-x-3">
-                <span className="flex-shrink-0 w-5 h-5 bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-400 rounded-full flex items-center justify-center text-xs">
-                  ✓
-                </span>
+                <span className="flex-shrink-0 text-green-600 dark:text-green-400 text-sm mt-0.5">✓</span>
                 <span className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed">
                   {formatText(tip)}
                 </span>
@@ -682,8 +640,8 @@ export function PreparationExercise({
           </h4>
           <div className="space-y-3">
             {questions.map((question, index) => (
-              <div key={index} className="flex items-start space-x-3 p-3 rounded-lg">
-                <span className="flex-shrink-0 w-6 h-6 bg-purple-100 dark:bg-purple-900/20 text-purple-800 dark:text-purple-400 rounded-full flex items-center justify-center text-sm font-medium">
+              <div key={index} className="flex items-start space-x-3">
+                <span className="flex-shrink-0 w-6 h-6 bg-brand-primary text-white rounded-full flex items-center justify-center text-xs font-medium">
                   {index + 1}
                 </span>
                 <p className="text-gray-900 dark:text-white text-sm leading-relaxed">
@@ -719,10 +677,10 @@ export function FinalPrepExercise({
             </svg>
             Key Phrases to Remember
           </h4>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div className="space-y-2">
             {phrases.map((phrase, index) => (
-              <div key={index} className="border border-gray-200 dark:border-gray-700 rounded-lg p-3">
-                <span className="text-gray-700 dark:text-gray-300 font-medium text-sm">
+              <div key={index} className="border-l-2 border-brand-primary pl-3">
+                <span className="text-gray-700 dark:text-gray-300 font-medium text-sm italic">
                   &ldquo;{formatText(phrase)}&rdquo;
                 </span>
               </div>
@@ -762,18 +720,16 @@ export function FinalPrepExercise({
             </svg>
             Confidence Boosters
           </h4>
-          <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-            <ul className="space-y-2">
-              {confidence.map((item, index) => (
-                <li key={index} className="flex items-start space-x-2">
-                  <span className="text-yellow-600 dark:text-yellow-400 text-lg">💪</span>
-                  <span className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed">
-                    {formatText(item)}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </div>
+          <ul className="space-y-2">
+            {confidence.map((item, index) => (
+              <li key={index} className="flex items-start space-x-2">
+                <span className="text-yellow-600 dark:text-yellow-400 text-sm mt-0.5">💪</span>
+                <span className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed">
+                  {formatText(item)}
+                </span>
+              </li>
+            ))}
+          </ul>
         </div>
       )}
     </div>

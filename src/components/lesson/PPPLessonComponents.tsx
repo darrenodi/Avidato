@@ -126,13 +126,13 @@ export function PracticeExercise({
           <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide">
             {typeLabel[ex.type] || ex.type}
           </p>
-          <div className="divide-y divide-gray-100 dark:divide-gray-700 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+          <div className="divide-y divide-gray-100 dark:divide-gray-700">
             {ex.items.map((item) => {
               const key = `${ei}-${item.id}`
               const show = showAll || revealed.has(key)
               return (
                 <div key={item.id} className="p-3 flex items-start gap-3">
-                  <span className="flex-shrink-0 w-6 h-6 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs font-semibold flex items-center justify-center">
+                  <span className="flex-shrink-0 w-6 h-6 rounded-full bg-brand-primary text-white text-xs font-semibold flex items-center justify-center">
                     {item.id}
                   </span>
                   <div className="flex-1">

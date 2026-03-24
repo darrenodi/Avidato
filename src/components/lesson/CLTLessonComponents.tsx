@@ -25,9 +25,9 @@ export function WarmerExercise({
         <p className="font-medium text-gray-900 dark:text-white">{content.activity}</p>
       </div>
       {!isStudentView && content.instructions && (
-        <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg px-3 py-2">
-          <p className="text-xs font-semibold text-amber-700 dark:text-amber-400 uppercase tracking-wide mb-1">Tutor Setup</p>
-          <p className="text-sm text-amber-800 dark:text-amber-300">{content.instructions}</p>
+        <div className="border-l-2 border-amber-400 dark:border-amber-600 pl-3">
+          <p className="text-xs font-semibold text-amber-600 dark:text-amber-400 uppercase tracking-wide mb-0.5">Tutor Setup</p>
+          <p className="text-sm text-gray-600 dark:text-gray-400">{content.instructions}</p>
         </div>
       )}
       {content.prompts?.length > 0 && (
@@ -222,9 +222,9 @@ export function CommunicativeActivityExercise({
       </div>
 
       {!isStudentView && content.instructions && (
-        <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg px-3 py-2">
-          <p className="text-xs font-semibold text-amber-700 dark:text-amber-400 uppercase tracking-wide mb-1">Tutor Setup</p>
-          <p className="text-sm text-amber-800 dark:text-amber-300">{content.instructions}</p>
+        <div className="border-l-2 border-amber-400 dark:border-amber-600 pl-3">
+          <p className="text-xs font-semibold text-amber-600 dark:text-amber-400 uppercase tracking-wide mb-0.5">Tutor Setup</p>
+          <p className="text-sm text-gray-600 dark:text-gray-400">{content.instructions}</p>
         </div>
       )}
 
