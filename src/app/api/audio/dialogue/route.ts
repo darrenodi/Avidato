@@ -57,39 +57,47 @@ async function fetchLineAudio(text: string, voiceId: string, apiKey: string): Pr
 }
 
 export async function POST(request: NextRequest) {
-  const apiKey = process.env.ELEVENLABS_API_KEY
-  if (!apiKey) return NextResponse.json({ error: 'Audio not configured' }, { status: 503 })
+  try {
+    const apiKey = process.env.ELEVENLABS_API_KEY
+    if (!apiKey) return NextResponse.json({ error: 'Audio not configured' }, { status: 503 })
 
-  const body = await request.json()
-  const lines: DialogueLine[] = body.lines
-  const isKid: boolean = body.isKid ?? false
+    const body = await request.json()
+    const lines: DialogueLine[] = body.lines
+    const isKid: boolean = body.isKid ?? false
 
-  if (!Array.isArray(lines) || lines.length === 0) {
-    return NextResponse.json({ error: 'No dialogue lines provided' }, { status: 400 })
-  }
+    if (!Array.isArray(lines) || lines.length === 0) {
+      return NextResponse.json({ error: 'No dialogue lines provided' }, { status: 400 })
+    }
 
-  const voiceMap = buildVoiceMap(lines, isKid)
+    const voiceMap = buildVoiceMap(lines, isKid)
 
-  // Generate all lines in parallel, stitch in original order
-  const buffers = await Promise.all(
-    lines.map(line => {
-      const voiceId = voiceMap.get(line.speaker) ?? VOICE_IDS.narrator
-      return fetchLineAudio(line.text, voiceId, apiKey)
+    // Generate all lines in parallel, stitch in original order
+    const buffers = await Promise.all(
+      lines.map(line => {
+        const voiceId = voiceMap.get(line.speaker) ?? VOICE_IDS.narrator
+        return fetchLineAudio(line.text, voiceId, apiKey)
+      })
+    )
+
+    const totalBytes = buffers.reduce((sum, b) => sum + b.byteLength, 0)
+    const stitched = new Uint8Array(totalBytes)
+    let offset = 0
+    for (const buf of buffers) {
+      stitched.set(new Uint8Array(buf), offset)
+      offset += buf.byteLength
+    }
+
+    return new NextResponse(stitched, {
+      headers: {
+        'Content-Type': 'audio/mpeg',
+        'Cache-Control': 'no-store',
+      },
     })
-  )
-
-  const totalBytes = buffers.reduce((sum, b) => sum + b.byteLength, 0)
-  const stitched = new Uint8Array(totalBytes)
-  let offset = 0
-  for (const buf of buffers) {
-    stitched.set(new Uint8Array(buf), offset)
-    offset += buf.byteLength
+  } catch (error) {
+    console.error('Dialogue audio error:', error instanceof Error ? error.message : error)
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Failed to generate audio' },
+      { status: 500 }
+    )
   }
-
-  return new NextResponse(stitched, {
-    headers: {
-      'Content-Type': 'audio/mpeg',
-      'Cache-Control': 'no-store',
-    },
-  })
 }

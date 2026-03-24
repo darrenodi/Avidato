@@ -92,7 +92,7 @@ For vocabulary that's already been taught, naturally incorporate 2-3 of them in 
 ENGOO STRUCTURE (6 exercises in this exact order):
 
 **Exercise 1: Vocabulary** (8 min)
-Format: { "type": "vocabulary", "title": "[title in ${student.targetLanguage}]", "content": { "vocabulary": [{ "word": "word1", "partOfSpeech": "[in ${student.targetLanguage}]", "phonetics": "/fəˈnetɪks/", "definition": "[in ${student.targetLanguage}]", "example": "[in ${student.targetLanguage}]", "synonym": "[in ${student.targetLanguage} or empty]", "expressions": ["[in ${student.targetLanguage}]"] }, ...6 items total] }, "timeMinutes": 8 }
+Format: { "type": "vocabulary", "title": "[the word for 'Vocabulary' in ${student.targetLanguage}]", "content": { "vocabulary": [{ "word": "word1", "partOfSpeech": "[in ${student.targetLanguage}]", "phonetics": "/fəˈnetɪks/", "definition": "[in ${student.targetLanguage}]", "example": "[in ${student.targetLanguage}]", "synonym": "[in ${student.targetLanguage} or empty]", "expressions": ["[in ${student.targetLanguage}]"] }, ...6 items total] }, "timeMinutes": 8 }
 
 **Exercise 2: Warm-up** (8 min)
 WARMUP STRUCTURE: EXACTLY 3 simple, natural questions - NO MORE, NO LESS:
@@ -128,7 +128,7 @@ BANNED AI-TELL WORDS (applies to warm-up AND discussion):
   "paradigm", "facilitate", "implications", "aspects", "in terms of",
   "when it comes to", "have you ever found yourself", "what role does X play".
 
-Format: { "type": "warmup", "title": "[title in ${student.targetLanguage}]", "description": "[in ${student.targetLanguage}]", "content": { "questions": ["Q1 in ${student.targetLanguage}", "Q2 in ${student.targetLanguage}", "Q3 in ${student.targetLanguage}"], "instructions": "[in ${student.targetLanguage}]" }, "timeMinutes": 8 }
+Format: { "type": "warmup", "title": "[the phrase for 'Warm-up' in ${student.targetLanguage}]", "description": "[in ${student.targetLanguage}]", "content": { "questions": ["Q1 in ${student.targetLanguage}", "Q2 in ${student.targetLanguage}", "Q3 in ${student.targetLanguage}"], "instructions": "[in ${student.targetLanguage}]" }, "timeMinutes": 8 }
 
 CRITICAL: "Discuss the questions." is the INSTRUCTION field value, NOT a 4th question in the array.
 
@@ -156,7 +156,7 @@ DIALOGUE REALISM RULES (MANDATORY FOR EVERY DIALOGUE):
 - END AT A NATURAL PAUSE, NOT A NEAT RESOLUTION. End on something open: agreeing to follow up, suggesting a next step, a final casual exchange as people part ways, or an unresolved question. Do not force a tidy conclusion that no real conversation would have.
 - NEVER LET THE DIALOGUE BECOME AN INFORMATION DUMP. If one character explains too much in a single turn it stops feeling like a conversation and starts feeling like a presentation. Information should emerge naturally through questions, reactions, and follow-ups across multiple turns.
 
-Format: { "type": "dialogue", "title": "[title in ${student.targetLanguage}]", "description": "[in ${student.targetLanguage}]", "content": { "setting": "[Max 150 chars in ${student.targetLanguage}]", "characters": ["${student.name}", "[Role Name]"], "dialogue": [{"character": "${student.name}", "text": "[in ${student.targetLanguage}]"}, {"character": "[Role Name]", "text": "[in ${student.targetLanguage}]"}, ...8-12 total exchanges with alternating speakers] }, "timeMinutes": 12 }
+Format: { "type": "dialogue", "title": "[the phrase for 'Dialogue' in ${student.targetLanguage}]", "description": "[in ${student.targetLanguage}]", "content": { "setting": "[Max 150 chars in ${student.targetLanguage}]", "characters": ["${student.name}", "[Role Name]"], "dialogue": [{"character": "${student.name}", "text": "[in ${student.targetLanguage}]"}, {"character": "[Role Name]", "text": "[in ${student.targetLanguage}]"}, ...8-12 total exchanges with alternating speakers] }, "timeMinutes": 12 }
 
 **Exercise 4: Dialogue Comprehension** (8 min)
 COMPREHENSION FORMAT (SIMPLIFIED - OPEN-ENDED ONLY):
@@ -167,7 +167,7 @@ COMPREHENSION FORMAT (SIMPLIFIED - OPEN-ENDED ONLY):
 
 - Total: Always 3 questions in this exact structure (open-ended only, no MCQ or True/False)
 
-Format: { "type": "comprehension", "title": "[title in ${student.targetLanguage}]", "description": "[in ${student.targetLanguage}]", "content": { "questions": [
+Format: { "type": "comprehension", "title": "[the phrase for 'Comprehension' in ${student.targetLanguage}]", "description": "[in ${student.targetLanguage}]", "content": { "questions": [
   {"question": "[Q1 in ${student.targetLanguage}]", "type": "short-answer", "answer": "[in ${student.targetLanguage}]"},
   {"question": "[Q2 in ${student.targetLanguage}]", "type": "short-answer", "answer": "[in ${student.targetLanguage}]"},
   {"question": "[Q3 in ${student.targetLanguage}]", "type": "short-answer", "answer": "[in ${student.targetLanguage}]"}
@@ -229,7 +229,7 @@ RULES:
 
 SELF-CHECK BEFORE OUTPUT: Read each sentence pair. If "incorrect" === "correct", DELETE IT and write a new one with a real error.
 
-Format: { "type": "sentence-correction", "title": "[title in ${student.targetLanguage}]", "content": { "sentences": [
+Format: { "type": "sentence-correction", "title": "[the phrase for 'Sentence Correction' in ${student.targetLanguage}]", "content": { "sentences": [
   { "incorrect": "[Sentence in ${student.targetLanguage} WITH a visible grammar mistake]", "correct": "[Same sentence FIXED in ${student.targetLanguage}]", "errorType": "[rule name in ${student.targetLanguage}]", "explanation": "[in ${student.targetLanguage}, max 12 words]" },
   ...10 total, ALL incorrect, ALL different error types
 ] }, "timeMinutes": 10 }
@@ -264,7 +264,7 @@ QUESTION STYLE EXAMPLES (Engoo format):
 - Instead of: "Tell me about your experience with..."
 - Use: "When was the last time you...?"
 
-Format: { "type": "discussion", "title": "[title in ${student.targetLanguage}]", "description": "[in ${student.targetLanguage}]", "content": { "questions": ["Q1 in ${student.targetLanguage}", "Q2 in ${student.targetLanguage}", "Q3 in ${student.targetLanguage}", "Q4 in ${student.targetLanguage}", "Q5 in ${student.targetLanguage}"], "instructions": "[single instruction in ${student.targetLanguage}]" }, "timeMinutes": 12 }
+Format: { "type": "discussion", "title": "[the phrase for 'Discussion' in ${student.targetLanguage}]", "description": "[in ${student.targetLanguage}]", "content": { "questions": ["Q1 in ${student.targetLanguage}", "Q2 in ${student.targetLanguage}", "Q3 in ${student.targetLanguage}", "Q4 in ${student.targetLanguage}", "Q5 in ${student.targetLanguage}"], "instructions": "[single instruction in ${student.targetLanguage}]" }, "timeMinutes": 12 }
 
 ${levelGuide}
 
@@ -443,7 +443,7 @@ Purpose: Activate prior knowledge and set context BEFORE pre-teaching any langua
 - BANNED words: "resonate", "navigate", "landscape", "leverage", "dynamics", "paradigm", "facilitate"
 - SELF-CHECK: Are all 3 questions unique? If not, replace the duplicate before outputting.
 
-Format: { "type": "lead-in", "title": "[in ${student.targetLanguage}]", "content": { "questions": ["Q1", "Q2", "Q3"], "instructions": "[in ${student.targetLanguage}]" }, "timeMinutes": 5 }
+Format: { "type": "lead-in", "title": "[the phrase for 'Lead-in' in ${student.targetLanguage}]", "content": { "questions": ["Q1", "Q2", "Q3"], "instructions": "[in ${student.targetLanguage}]" }, "timeMinutes": 5 }
 
 ---
 
@@ -482,7 +482,7 @@ DIALOGUE REALISM RULES (MANDATORY):
 Format:
 {
   "type": "task-prep",
-  "title": "[in ${student.targetLanguage}]",
+  "title": "[the phrase for 'Task Preparation' in ${student.targetLanguage}]",
   "content": {
     "vocabulary": [
       { "word": "word1", "partOfSpeech": "[in ${student.targetLanguage}]", "phonetics": "/fəˈnetɪks/", "definition": "[in ${student.targetLanguage}]", "example": "[in ${student.targetLanguage}]", "synonym": "[or empty]", "expressions": [] }
@@ -511,7 +511,7 @@ Purpose: Student performs the actual communicative task. Tutor monitors and prov
 Format:
 {
   "type": "task-performance",
-  "title": "[in ${student.targetLanguage}]",
+  "title": "[the phrase for 'Task Performance' in ${student.targetLanguage}]",
   "content": {
     "scenario": "[max 150 chars: WHO, WHERE, WHAT ${student.name} does, in ${student.targetLanguage}]",
     "roles": [
@@ -539,7 +539,7 @@ ${cefrVocabGuide}
 Format:
 {
   "type": "post-task",
-  "title": "[in ${student.targetLanguage}]",
+  "title": "[the phrase for 'Language Focus' in ${student.targetLanguage}]",
   "content": {
     "grammarFocus": "[grammar topic in ${student.targetLanguage}]",
     "explanation": "[clear rule explanation in ${student.targetLanguage}]",
@@ -562,7 +562,7 @@ Purpose: Real-world observation or practice task to reinforce the lesson.
 Format:
 {
   "type": "homework",
-  "title": "[in ${student.targetLanguage}]",
+  "title": "[the word for 'Homework' in ${student.targetLanguage}]",
   "content": {
     "taskName": "[short name in ${student.targetLanguage}]",
     "description": "[what to do and why, in ${student.targetLanguage}]",
