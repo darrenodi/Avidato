@@ -228,6 +228,7 @@ export function buildCLTLessonPrompt(
     `- "prompts" = the actual questions or cues the student responds to. These ARE shown to the student.`,
     `- NEVER address the student by name anywhere in this exercise.`,
     `- NEVER write instructions as if they appear on a student worksheet.`,
+    `- "prompts" must invite immediate personal responses — stories, opinions, quick reactions. NEVER analytical questions like "How can X impact Y?", "Why is X important?", "What are the implications of X?" — those belong in a discussion exercise, not a warmer.`,
     ``,
     `Format:`,
     `{`,

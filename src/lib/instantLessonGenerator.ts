@@ -78,7 +78,7 @@ GLOBAL FORMATTING RULES:
 
 EXERCISES:
 1. vocabulary (10min): 6-8 items — {word, partOfSpeech, phonetics (IPA), definition, translation (${nativeLanguage} only), example, synonym, expressions[]}
-2. warmup (8min): 2-3 discussion questions + instructions
+2. warmup (8min): EXACTLY 3 questions — no more, no less. Q1: Personal experience ("Have you ever...?" or "When did you last...?"). Q2: Personal familiarity with the topic — have they done it, seen it, been involved? NEVER "What is important when X?" or "What are the key factors?" — those are Discussion questions. Q3: Story or memory prompt — "What's the most memorable/challenging...?" NEVER starts with "How can...", "Why is...", "What are the effects/implications of..." — those are analytical Discussion questions. WARM-UP = story or memory. DISCUSSION = analysis or opinion. Each question MAX 15 words, conversational not academic, never use student name.
 3. dialogue (12min): Realistic conversation using vocabulary. Include ${studentName} as speaker. Fields: setting, characters[{name,role,avatar}], dialogue[{character,text}], instructions
 
 DIALOGUE REALISM RULES (MANDATORY):

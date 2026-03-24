@@ -116,9 +116,9 @@ Format: { "type": "vocabulary", "title": "[the word for 'Vocabulary' in ${studen
 
 **Exercise 2: Warm-up** (8 min)
 WARMUP STRUCTURE: EXACTLY 3 simple, natural questions - NO MORE, NO LESS:
-- Question 1 ONLY: Personal experience/opinion question that builds confidence and rapport
-- Question 2 ONLY: Prior knowledge question about the topic/domain that activates context  
-- Question 3 ONLY: Thought-provoking question that primes the key communication concept
+- Question 1 ONLY: Personal experience — "Have you ever...?" or "When did you last...?" Opens with a story prompt.
+- Question 2 ONLY: Personal familiarity — have they done it, seen it, been involved in it? Still experience-based. NEVER knowledge-testing ("What is important when X?", "What information is needed?", "What are the key factors?").
+- Question 3 ONLY: Story or memory prompt — "What's the most memorable/challenging/awkward...?" Must invite a personal anecdote, NOT an analysis.
 
 WARMUP GENERATION RULES (STRICT):
 - Generate EXACTLY 3 questions in the array. Not 2, not 4, not 5. Exactly 3 questions ONLY.
@@ -127,8 +127,10 @@ WARMUP GENERATION RULES (STRICT):
 - Natural, conversational tone - NOT textbook style
 - Each question should be SHORT — MAX 15 words. Keep it punchy and conversational.
 - NEVER use the student's name in the questions. Write generic "you" questions.
-- Q1 and Q2: personal experience or opinion relating to the lesson topic
-- Q3: personal or experiential — NEVER a professional scenario, strategic hypothetical, or analytical question (those belong in Discussion)
+- All 3 questions: personal experience, familiarity, or memorable moment relating to the lesson topic
+- Q2 MUST be experience/familiarity based — NEVER "What is important when X?", "What information is needed for X?", "What are the key factors in X?" — those are Discussion questions, not warm-up questions.
+- Q3 MUST invite a personal story — NEVER starts with "How can...", "Why is...", "What are the effects/impact/implications of..." — those are analytical Discussion questions, not warm-up questions.
+- WARM-UP question = invites a STORY or MEMORY. DISCUSSION question = invites ANALYSIS or OPINION. Never confuse the two.
 - Questions directly relate to the work scenario in the dialogue
 - Just simple question text - no labels, titles, or metadata
 - Do NOT include duplicate text
@@ -497,7 +499,10 @@ Purpose: Activate prior knowledge and set context BEFORE pre-teaching any langua
 - EXACTLY 3 questions — NOT 2, NOT 4. Count to 3 before outputting.
 - Each question must be DIFFERENT. Read all 3 before outputting and remove any duplicates.
 - MAX 15 words each
-- Personal experience / prior knowledge / thought-provoking (one of each)
+- Q1: Personal experience — "Have you ever...?" or "When did you last...?"
+- Q2: Personal familiarity — have they done this task before, and what was it like? NEVER knowledge-testing ("What is important?", "What are the key factors?")
+- Q3: Story or memory — "What's the most memorable/challenging...?" NEVER analytical. NEVER starts with "How can...", "Why is...", "What are the effects/implications of..." — those belong in Discussion.
+- WARM-UP = invites a STORY or MEMORY. DISCUSSION = invites ANALYSIS or OPINION. Never confuse the two.
 - Generic "you" questions — NEVER use student's name
 - Directly related to the lesson's communicative task
 - Conversational tone, NOT academic
