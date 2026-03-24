@@ -587,6 +587,28 @@ const renderExerciseContent = (exercise: { type: string; content: BaseExerciseCo
         )
       }
       break
+    case 'useful-phrases':
+      if (Array.isArray(content?.phrases)) {
+        return (
+          <div className="space-y-3">
+            {!!content.context && (
+              <p className="text-sm text-gray-600 dark:text-gray-400 italic">{String(content.context)}</p>
+            )}
+            {(content.phrases as Array<{ phrase: string; usage: string }>).map((item, index) => (
+              <div key={index} className="flex gap-3 p-3 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg border border-indigo-100 dark:border-indigo-800">
+                <span className="flex-shrink-0 w-7 h-7 bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 rounded-full flex items-center justify-center text-xs font-semibold">
+                  {index + 1}
+                </span>
+                <div>
+                  <p className="font-semibold text-gray-900 dark:text-white">{item.phrase}</p>
+                  {item.usage && <p className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">{item.usage}</p>}
+                </div>
+              </div>
+            ))}
+          </div>
+        )
+      }
+      break
     case 'comprehension':
       if (Array.isArray(content?.questions)) {
         return <ComprehensionExercise questions={content.questions} hideAnswers={true} />

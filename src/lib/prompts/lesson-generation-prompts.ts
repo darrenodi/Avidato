@@ -78,16 +78,36 @@ ALL lesson content MUST be in ${student.targetLanguage}. This means:
 The ONLY English allowed is in the JSON keys ("type", "content", etc.) and the "type" values ("vocabulary", "warmup", etc.).
 Every piece of text the student or teacher reads MUST be in ${student.targetLanguage}. ZERO English in any text field.
 
-VOCABULARY RULES:
+${(topic.recentTopics?.length ?? 0) > 0 || (topic.recentVocabulary?.length ?? 0) > 0 ? `
+STUDENT LESSON HISTORY — ANTI-REPETITION RULES (MANDATORY):
+Recent lesson topics: ${topic.recentTopics?.join(', ') || 'none'}
+Recent vocabulary used (DO NOT repeat any of these): ${topic.recentVocabulary?.slice(0, 30).join(', ') || 'none'}
+Recent grammar error types (DO NOT repeat — rotate new types in): ${topic.recentGrammarErrors?.slice(0, 10).join(', ') || 'none'}
+Recent discussion questions (DO NOT repeat same angle or theme): ${topic.recentDiscussionQuestions?.slice(0, 5).join(' | ') || 'none'}
+
+REPETITION RULES:
+- Do NOT use any vocabulary word from the list above.
+- Do NOT repeat any grammar error type from the list above. Introduce at least 2 entirely new error types.
+- Do NOT repeat the same discussion angle or theme from the recent questions above.
+- If the same broad topic has been covered before, approach it from a completely different angle with entirely different vocabulary.
+` : ''}
+VOCABULARY QUALITY RULES:
 - EXACTLY 6 items, all SINGLE WORDS (verbs, adjectives, nouns, idioms, or phrasal verbs only)
 - NO compound phrases (e.g., NO "purchase order", "key stakeholder", "product code")
-- UNIQUE to THIS lesson - don't repeat vocabulary from other lessons
+- UNIQUE to THIS lesson — do not repeat any word from the student's recent vocabulary (listed above)
 - DOMAIN-SPECIFIC to the actual task, not generic business words
-- ALL 6 must appear naturally in the dialogue (Exercise 3)
+- ALL 6 must appear naturally in the dialogue
 - Level-appropriate synonyms (leave blank if no simple synonym exists for beginners)
 - Include expressions/collocations (2-3 per word, empty for A1 students)
+- CEFR FITNESS TEST: Before selecting any word, ask — would a confident learner one level below already know this? If yes, reject it and choose a more challenging word. Permanently banned at B2+: emergency, celebrate, control, unemployment, debt, give up, networking, revolutionary, insult, accountant, impact (as standalone entry)
 
-For vocabulary that's already been taught, naturally incorporate 2-3 of them in the dialogue ONLY - don't teach them again.
+PHRASE AND IDIOM QUALITY RULES (applies to expressions/collocations):
+- LITERALNESS TEST: Can a learner understand the phrase from the individual words alone? If yes, reject it.
+- Permanently banned phrases at all levels: take care of, come back, go on, keep running, get out, walk by, put on (clothing sense), look for, grow up, give up, run it again, eat in, work on
+- Banned at B2+: find out, start off (begin sense)
+- Physical movement is never a phrasal verb — bounce around, head into, take off (remove) are all literal, reject them
+
+For vocabulary that's already been taught, naturally incorporate 2-3 of them in the dialogue ONLY — don't teach them again.
 
 ENGOO STRUCTURE (6 exercises in this exact order):
 
@@ -107,11 +127,12 @@ WARMUP GENERATION RULES (STRICT):
 - Natural, conversational tone - NOT textbook style
 - Each question should be SHORT — MAX 15 words. Keep it punchy and conversational.
 - NEVER use the student's name in the questions. Write generic "you" questions.
+- Q1 and Q2: personal experience or opinion relating to the lesson topic
+- Q3: personal or experiential — NEVER a professional scenario, strategic hypothetical, or analytical question (those belong in Discussion)
 - Questions directly relate to the work scenario in the dialogue
-- Questions should activate student's professional experience and perspective
 - Just simple question text - no labels, titles, or metadata
 - Do NOT include duplicate text
-- Do NOT add metadata fields
+- Never ask a question where the answer is obviously yes given the student's profession — ask what is challenging or memorable instead
 
 TOPIC ANCHORING — CRITICAL:
   All three warm-up questions must directly relate to the lesson's specific topic.
@@ -133,17 +154,24 @@ Format: { "type": "warmup", "title": "[the phrase for 'Warm-up' in ${student.tar
 CRITICAL: "Discuss the questions." is the INSTRUCTION field value, NOT a 4th question in the array.
 
 **Exercise 3: Dialogue** (12 min)
-UPDATED: Natural dialogue with organic length - LIMITED TO 8-12 TOTAL TURNS. Dialogue should start naturally, develop authentically, and end with resolution/conclusion. Write as people actually speak in the real situation.
-DIALOGUE RULES (Exercise 3):
+DIALOGUE RULES:
 - LIMIT: 8-12 total turns (exchanges between student and participant)
-- Let dialogue flow naturally to a conclusion within this limit
-- ${student.name} speaks FIRST and after most responses (realistic conversation flow)
-- Setting: Max 150 characters. Concise description of WHO, WHERE, WHAT event
+- ${student.name} speaks FIRST and after most responses
+- Setting: Max 150 characters — WHO, WHERE, WHAT event
 - Participants: Choose from ${roles.join(', ')} based on occupation
-- Content: About actual work (project details, specs, contract terms, code logic) - NOT communication techniques
-- NATURAL dialogue: Write as people actually speak, no forced vocabulary
+- Content: About actual work (project details, specs, contract terms, code logic) — NOT communication techniques
+- NATURAL dialogue: contractions always, natural fillers where appropriate
 - NO EM DASHES (—)
-- CRITICAL: Use EXACT character names in the dialogue exchanges - use "${student.name}" and the selected role name EXACTLY as listed in the characters array
+- CRITICAL: Use EXACT character names — "${student.name}" and the selected role name EXACTLY as listed in the characters array
+
+DIALOGUE REALISM RULES (MANDATORY):
+- The second character MUST push back at least once — a specific objection, a challenge, or a concern the student must address. They NEVER agree with everything.
+- Include at least one IMPERFECT MOMENT — a misunderstanding, an unexpected question, or mild tension.
+- NEVER let one character deliver more than 3 sentences without the other reacting.
+- END ON A REALISTIC OPEN NOTE — no tidy resolution. End with agreeing to follow up, a next step, or an open question.
+- In restaurant/social contexts: include a third party (waiter, receptionist).
+- In professional contexts: the second character has their own priorities that occasionally conflict with the student's goals.
+- The second character must have a specific objection or concern that requires the student to defend a position.
 
 DIALOGUE REALISM RULES (MANDATORY FOR EVERY DIALOGUE):
 - START WITH SMALL TALK OR A NATURAL OPENER, NEVER THE MAIN TOPIC. The first 2-3 exchanges must ease into the conversation naturally before the main purpose is introduced. Use context-appropriate openers: complimenting the office, asking about the journey, commenting on the environment, referencing a previous interaction, or acknowledging how long it has been. The transition to the main topic must feel organic, not announced.
@@ -158,7 +186,32 @@ DIALOGUE REALISM RULES (MANDATORY FOR EVERY DIALOGUE):
 
 Format: { "type": "dialogue", "title": "[the phrase for 'Dialogue' in ${student.targetLanguage}]", "description": "[in ${student.targetLanguage}]", "content": { "setting": "[Max 150 chars in ${student.targetLanguage}]", "characters": ["${student.name}", "[Role Name]"], "dialogue": [{"character": "${student.name}", "text": "[in ${student.targetLanguage}]"}, {"character": "[Role Name]", "text": "[in ${student.targetLanguage}]"}, ...8-12 total exchanges with alternating speakers] }, "timeMinutes": 12 }
 
-**Exercise 4: Dialogue Comprehension** (8 min)
+**Exercise 4: Useful Phrases** (5 min)
+Purpose: 6-8 immediately usable phrases specific to THIS professional scenario. Appears between the dialogue and comprehension.
+
+USEFUL PHRASES RULES:
+- Phrases must be specific to the scenario, not generic filler
+- For sales/client lessons: phrases for presenting value and handling objections
+- For technical lessons: phrases for explaining data and justifying decisions
+- For negotiation lessons: phrases for proposing terms and declining gracefully
+- For meeting lessons: phrases for summarising, redirecting, and assigning actions
+- Every phrase must be something the student can say tomorrow in their real work
+- ALL phrases must appear in the dialogue above (they should already be modelled)
+
+Format:
+{
+  "type": "useful-phrases",
+  "title": "[the phrase for 'Useful Phrases' in ${student.targetLanguage}]",
+  "content": {
+    "context": "[one sentence describing when to use these phrases, in ${student.targetLanguage}]",
+    "phrases": [
+      { "phrase": "[phrase in ${student.targetLanguage}]", "usage": "[when/why to use it, in ${student.targetLanguage}]" }
+    ]
+  },
+  "timeMinutes": 5
+}
+
+**Exercise 5: Dialogue Comprehension** (8 min)
 COMPREHENSION FORMAT (SIMPLIFIED - OPEN-ENDED ONLY):
 - 3 Structural open-ended questions ONLY
   * Format: "question", "type": "short-answer", "answer": "Full sentence answer"
@@ -183,7 +236,7 @@ UPDATED:
 Format: { "type": "roleplay", "title": "Exercise 5: Role Play", "description": "Practice in new situation", "content": { "scenario": "Max 150 chars: WHO, WHERE, WHAT ${student.name} does", "roles": [{ "name": "${student.name}", "description": "${student.occupation || 'Professional'} performing the task", "keyPoints": ["Step 1: [action - what to do]", "Step 2: [action - use vocabulary]", "Step 3: [action - conclude]"] }, { "name": "Tutor", "description": "Responds to ${student.name} to guide dialogue", "keyPoints": ["Listen and react naturally", "Ask clarifying questions", "Respond based on student's vocabulary use"] }], "instructions": "Student: Perform each step. Use new vocabulary naturally. Tutor: Guide the student with realistic responses and questions." }, "timeMinutes": 10 }
 */
 
-**Exercise 5: Sentence Correction** (10 min)
+**Exercise 6: Sentence Correction** (10 min)
 
 🚨 ABSOLUTE REQUIREMENT: Every single sentence MUST contain a REAL, VISIBLE grammar mistake. The "incorrect" field and "correct" field MUST be DIFFERENT strings. If they are identical, you have FAILED.
 
@@ -218,13 +271,17 @@ ADDITIONAL FOR B2+ ONLY:
 13. Parallel structure: "likes hiking, swimming, and to run" → "and running"
 14. Verb patterns: "prevent him to leave" → "from leaving"; "discussed about" → "discussed"
 
+GRAMMAR ROTATION RULES:
+- Do NOT repeat error types from the student's recent lessons (listed in ANTI-REPETITION section above).
+- Introduce at least 2 error types from this rotation list that have NOT appeared recently: passive voice formation, parallel structure, reported speech tense shift, infinitive after verbs (before→to), double comparative, redundant conjunction after "although", until vs. by for deadlines, fewer vs. less with countable nouns, verb patterns with prevent/suggest/recommend/insist.
+
 RULES:
 1. ALL 10 sentences MUST be WRONG. Zero correct sentences. The "incorrect" and "correct" fields MUST DIFFER.
 2. ONE mistake per sentence. The rest of the sentence must be grammatically perfect.
 3. The error must be OBVIOUS when pointed out — not a stylistic preference or debatable usage.
 4. Use vocabulary from Exercise 1 and keep sentences relevant to the lesson topic.
 5. Each sentence: 8-18 words. No overly complex or technical sentences that hide the error.
-6. All 10 errorTypes must be DIFFERENT — never repeat the same grammar rule.
+6. All 10 errorTypes must be DIFFERENT — never repeat the same grammar rule within this lesson.
 7. Explanation states the RULE: "Use 'has' with third-person singular" — NOT "Changed 'have' to 'has'."
 
 SELF-CHECK BEFORE OUTPUT: Read each sentence pair. If "incorrect" === "correct", DELETE IT and write a new one with a real error.
@@ -234,15 +291,19 @@ Format: { "type": "sentence-correction", "title": "[the phrase for 'Sentence Cor
   ...10 total, ALL incorrect, ALL different error types
 ] }, "timeMinutes": 10 }
 
-**Exercise 6: Discussion** (12 min)
-MERGED DISCUSSION EXERCISE - Combines free practice and extended conversation into one section:
+**Exercise 7: Discussion** (12 min)
+DISCUSSION RULES:
 - Generate exactly 5 questions total
 - Questions should be SHORT — MAX 15 words each. Direct and conversational.
-- NEVER use the student's name in the questions. Write generic "you" questions.
+- NEVER use the student's name. Write generic "you" questions.
 - NO instructional language (avoid "explain", "describe", "how do you approach", "tell me about")
-- NO framing or explanations before questions
 - Assume the student has real work experience
 - Questions should sound like everyday conversation
+- At least 3 questions must connect directly to something specific that was said or shown in the dialogue
+- Never ask a question where the answer is obviously yes given the student's profession (a logistics manager obviously submits expense reports — ask what is challenging about it instead)
+- NEVER open a question with a yes/no structure — rephrase to invite a real answer
+- Q5 must invite personal reflection or a real story — NOT a sociological or academic essay question
+- Do NOT repeat any discussion angle from the student's recent questions listed above
 - Mix of: personal experience, practical application, and related perspectives
 - Questions can build on lesson topic OR broaden to related context
 - Natural, engaging tone - NOT academic
@@ -280,7 +341,7 @@ JSON OUTPUT:
   "skills": ["Speaking", "Listening", "Reading", "Vocabulary"],
   "vocabulary": [],
   "context": "${topic.context}",
-  "exercises": [/* 6 exercises as formatted above - Exercises 1-6 (Exercise 6 merges old Exercises 6 and 7) */],
+  "exercises": [/* 7 exercises in order: vocabulary, warmup, dialogue, useful-phrases, comprehension, sentence-correction, discussion */],
   "homework": "[in ${student.targetLanguage}]",
   "materials": [],
   "teachingNotes": "[in ${student.targetLanguage}]"
