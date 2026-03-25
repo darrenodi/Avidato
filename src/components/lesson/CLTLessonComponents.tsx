@@ -55,6 +55,7 @@ interface CLTDialogueLine {
 }
 
 interface LanguageInputContent {
+  instruction?: string
   vocabulary: {
     word: string
     partOfSpeech: string
@@ -68,7 +69,7 @@ interface LanguageInputContent {
 }
 
 export function LanguageInputExercise({ content }: { content: LanguageInputContent }) {
-  const [showTranscript, setShowTranscript] = useState(false)
+  const [showTranscript, setShowTranscript] = useState(true)
   const [audioUrl, setAudioUrl] = useState<string | null>(null)
   const [loadingAudio, setLoadingAudio] = useState(false)
   const [audioError, setAudioError] = useState<string | null>(null)
@@ -126,7 +127,10 @@ export function LanguageInputExercise({ content }: { content: LanguageInputConte
       {/* Structured dialogue */}
       {dialogue && dialogue.length > 0 && (
         <div>
-          <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-3">In Context</p>
+          <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-2">In Context</p>
+          {content.instruction && (
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">{content.instruction}</p>
+          )}
 
           <div className="flex items-center gap-3 mb-3">
             <button

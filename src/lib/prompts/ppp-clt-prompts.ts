@@ -101,11 +101,13 @@ Get student speaking immediately. ${isKid ? 'Make it a game.' : 'Relevant to les
 Format: { "type": "warmer", "title": "[Warm-up in ${student.targetLanguage}]", "content": { "activity": "[activity type in ${student.targetLanguage}]", "instructions": "[TUTOR SETUP — not shown to student]", "prompts": ["[prompt 1 in ${student.targetLanguage}]","[prompt 2]","[prompt 3]"] }, "timeMinutes": 5 }
 
 **Exercise 2: Language Input** (${inputTime} min)
-4-6 single words in context (NOT isolated lists). Always include a short contextual dialogue (4-8 lines, 2-4 characters) using the vocabulary naturally.
-- Title must be the generic word for "Vocabulary" in ${student.targetLanguage} (NOT topic-specific like "Invitation Words")
-- Each dialogue line: "speaker" (name), "gender" ("male"/"female"/"narrator"), "text"
+4-6 single words. Title = generic word for "Vocabulary" in ${student.targetLanguage}.
 - ${cefrVocabGuide}
-Format: { "type": "language-input", "title": "[Vocabulary in ${student.targetLanguage}]", "content": { "vocabulary": [{ "word": "[word]", "partOfSpeech": "[in ${student.targetLanguage}]", "phonetics": "/ipa/", "definition": "[in ${student.targetLanguage}]", "example": "[in ${student.targetLanguage}]", "synonym": "[or empty]" }], "contextDialogue": [{ "speaker": "[name]", "gender": "male", "text": "[in ${student.targetLanguage}]" }] }, "timeMinutes": ${inputTime} }
+Design the vocabulary list FIRST, then write the dialogue around it.
+DIALOGUE: 10-14 lines, 2 characters. Design a realistic situation that REQUIRES every vocabulary word to arise naturally — do not insert words into an unrelated story. Start with small talk, never jump straight to the main topic. Include one imperfect moment (misunderstanding, correction, forgotten detail). Other person pushes back at least once. At least one genuine emotional reaction. Contractions + natural fillers ("actually", "to be honest", "by the way"). Vary line lengths. End at a natural pause.
+- Each dialogue line: "speaker" (name), "gender" ("male"/"female"), "text"
+- "instruction": one sentence telling the student to read the dialogue aloud with the tutor, in ${student.targetLanguage}
+Format: { "type": "language-input", "title": "[Vocabulary in ${student.targetLanguage}]", "content": { "instruction": "[Read the dialogue aloud with your tutor — in ${student.targetLanguage}]", "vocabulary": [{ "word": "[word]", "partOfSpeech": "[in ${student.targetLanguage}]", "phonetics": "/ipa/", "definition": "[in ${student.targetLanguage}]", "example": "[in ${student.targetLanguage}]", "synonym": "[or empty]" }], "contextDialogue": [{ "speaker": "[name]", "gender": "male", "text": "[in ${student.targetLanguage}]" }] }, "timeMinutes": ${inputTime} }
 
 **Exercise 3: Communicative Activity** (${activityTime} min)
 Student communicates freely. Meaning over perfection. ${isKid ? 'Make it playful.' : 'Relevant to real communication needs.'}
