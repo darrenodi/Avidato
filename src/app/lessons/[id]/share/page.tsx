@@ -16,6 +16,7 @@ import {
   DiscussionExercise,
   PreparationExercise,
   FinalPrepExercise,
+  UsefulExpressionsExercise,
 } from '@/components/lesson/EngooLessonComponents'
 import {
   LeadInExercise,
@@ -525,15 +526,26 @@ const renderExerciseContent = (exercise: { type: string; content: BaseExerciseCo
     case 'dialogue':
       if (Array.isArray(content?.dialogue)) {
         const rawDialogue = content.dialogue as Array<Record<string, unknown>>
-        const speakers = [...new Set(rawDialogue.map((l) => (l.speaker || l.character || 'Unknown') as string))]
-        const characters = speakers.map((speaker) => ({ name: speaker }))
         const transformedDialogue = rawDialogue.map((l) => ({
           character: (l.speaker || l.character || 'Unknown') as string,
           text: (l.line || l.text || '') as string,
         }))
+        const characters = (content.characters as { name: string; role?: string }[]) ||
+          [...new Set(transformedDialogue.map(l => l.character))].map(name => ({ name }))
         const setting = (content.setting as string) || (content.context as string) || ''
+        const castSpeakers = content.cast as { name: string; gender: 'male' | 'female' }[] | undefined
         return (
-          <DialogueExercise context={setting} characters={characters} dialogue={transformedDialogue} instructions={(content.instructions as string) || ''} />
+          <DialogueExercise context={setting} characters={characters} dialogue={transformedDialogue} instructions={(content.instructions as string) || ''} speakers={castSpeakers} />
+        )
+      }
+      break
+    case 'useful-expressions':
+      if (Array.isArray(content?.expressions)) {
+        return (
+          <UsefulExpressionsExercise
+            expressions={content.expressions as { phrase: string; meaning: string; example?: string }[]}
+            instructions={content.instructions as string | undefined}
+          />
         )
       }
       break

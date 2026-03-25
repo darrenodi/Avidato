@@ -71,6 +71,13 @@ export function buildCLTLessonPrompt(
   cefrVocabGuide: string,
   vocabularyContextSection: string
 ): string {
+  const isWorkplace = /business|professional|work|office|career|corporate|workplace|job|colleague|meeting|presentation|negotiat|email/i
+    .test(`${student.endGoals} ${student.occupation || ''}`)
+
+  if (isWorkplace) {
+    return buildBusinessCLTPrompt(student, lesson, duration, levelGuide, cefrVocabGuide, vocabularyContextSection)
+  }
+
   const is50min = duration === 50
   const isKid = ['child','kid','under 12','under 18','teen'].some(k => student.ageGroup.toLowerCase().includes(k))
   const inputTime = is50min ? 15 : 10
@@ -131,6 +138,83 @@ JSON OUTPUT:
   "vocabulary": [],
   "context": "${lesson.communicativeNeed}",
   "exercises": [/* 4 exercises in order */],
+  "homework": "",
+  "materials": [],
+  "teachingNotes": "[tutor notes in ${student.targetLanguage}]"
+}
+
+RETURN ONLY VALID JSON, NO EXPLANATION.`
+}
+
+function buildBusinessCLTPrompt(
+  student: StudentProfile,
+  lesson: BlockLesson,
+  duration: 25 | 50,
+  levelGuide: string,
+  cefrVocabGuide: string,
+  vocabularyContextSection: string
+): string {
+  const is50min = duration === 50
+  const vocabTime = is50min ? 5 : 3
+  const exprTime = is50min ? 10 : 5
+  const dialogueTime = is50min ? 20 : 10
+  const roleplayTime = is50min ? 10 : 5
+  const discussionTime = is50min ? 5 : 2
+
+  return `Expert ${student.targetLanguage} business English instructor. Generate a business CLT lesson as JSON.
+
+STUDENT: ${student.name}, ${student.level}, ${student.ageGroup}, Goals: ${student.endGoals}${student.occupation ? `, Occupation: ${student.occupation}` : ''}
+LESSON: ${lesson.title} | Need: ${lesson.communicativeNeed} | Key language: ${lesson.keyLanguageFeatures.join(', ')}
+${vocabularyContextSection}
+
+RULES:
+- ALL content in ${student.targetLanguage} (JSON keys stay in English)
+- NO em dashes (—). BANNED: "resonate","navigate","landscape","leverage","dynamics","paradigm"
+- Business context throughout: workplace scenarios, professional relationships, real tasks
+
+STRUCTURE (${duration} min): Vocabulary (${vocabTime}min) → Useful Expressions (${exprTime}min) → Dialogue (${dialogueTime}min) → Role Play (${roleplayTime}min) → Discussion (${discussionTime}min)
+
+${levelGuide}
+${cefrVocabGuide}
+
+**Exercise 1: Vocabulary** (${vocabTime} min)
+4-6 single words specific to this business topic. Title = generic word for "Vocabulary" in ${student.targetLanguage}.
+Format: { "type": "vocabulary", "title": "[Vocabulary in ${student.targetLanguage}]", "content": { "vocabulary": [{ "word": "[word]", "partOfSpeech": "[in ${student.targetLanguage}]", "phonetics": "/ipa/", "definition": "[in ${student.targetLanguage}]", "example": "[business example in ${student.targetLanguage}]", "synonym": "[or empty]" }] }, "timeMinutes": ${vocabTime} }
+
+**Exercise 2: Useful Expressions** (${exprTime} min)
+IMPORTANT: Design these expressions FIRST — the dialogue in Ex 3 will be built around them.
+4-6 natural business expressions/phrases for this communicative need. Title = generic word for "Useful Expressions" in ${student.targetLanguage}.
+Each expression: the phrase itself, what it means/when to use it, a short example in context.
+Format: { "type": "useful-expressions", "title": "[Useful Expressions in ${student.targetLanguage}]", "content": { "expressions": [{ "phrase": "[expression in ${student.targetLanguage}]", "meaning": "[explanation in ${student.targetLanguage}]", "example": "[short example in ${student.targetLanguage}]" }] }, "timeMinutes": ${exprTime} }
+
+**Exercise 3: Dialogue** (${dialogueTime} min)
+LANGUAGE REQUIREMENT: Every vocabulary word from Ex 1 AND every expression from Ex 2 must appear. Design the situation to REQUIRE them — do not insert them into an unrelated story.
+10-14 lines, 2 professional characters in a workplace setting. Start with small talk, never jump straight to the main topic. Include one imperfect moment (misunderstanding, a follow-up question, a clarification). One person pushes back or disagrees at least once. At least one genuine emotional reaction (relief, surprise, mild frustration). Contractions + natural fillers. Vary line lengths. End at a natural pause.
+- "cast": array of speakers with name + gender for audio playback
+- Each dialogue line: "character" (name), "text" (line in ${student.targetLanguage})
+- "instructions": one sentence telling student to read the dialogue aloud with the tutor, in ${student.targetLanguage}
+Format: { "type": "dialogue", "title": "[Dialogue in ${student.targetLanguage}]", "content": { "context": "[brief setting description in ${student.targetLanguage}]", "instructions": "[Read the dialogue aloud with your tutor — in ${student.targetLanguage}]", "cast": [{ "name": "[Speaker 1 name]", "gender": "male" }, { "name": "[Speaker 2 name]", "gender": "female" }], "characters": [{ "name": "[Speaker 1 name]", "role": "[job title in ${student.targetLanguage}]" }, { "name": "[Speaker 2 name]", "role": "[job title in ${student.targetLanguage}]" }], "dialogue": [{ "character": "[name]", "text": "[line in ${student.targetLanguage}]" }] }, "timeMinutes": ${dialogueTime} }
+
+**Exercise 4: Role Play** (${roleplayTime} min)
+Student practices the communicative need in a new but similar workplace scenario. Uses the same expressions in a different context.
+- Never use student real name. Use fictional names.
+Format: { "type": "roleplay", "title": "[Role Play in ${student.targetLanguage}]", "content": { "scenario": "[workplace situation in ${student.targetLanguage}]", "roles": [{ "name": "[fictional student name]", "description": "[their role brief in ${student.targetLanguage}]", "keyPoints": ["[point 1 in ${student.targetLanguage}]","[point 2]"] }, { "name": "[tutor character name]", "description": "[tutor role brief in ${student.targetLanguage}]" }], "instructions": "[how to run the roleplay in ${student.targetLanguage}]" }, "timeMinutes": ${roleplayTime} }
+
+**Exercise 5: Discussion** (${discussionTime} min)
+3-5 open discussion questions connecting the lesson topic to the student's real work life. Never use student name. Questions must invite personal experience ("Have you ever...", "In your experience...", "What would you do if...") — NEVER analytical ("Why is X important?", "What are the implications of X?").
+Format: { "type": "discussion", "title": "[Discussion in ${student.targetLanguage}]", "content": { "questions": ["[Q1 in ${student.targetLanguage}]","[Q2]","[Q3]","[Q4]","[Q5]"] }, "timeMinutes": ${discussionTime} }
+
+JSON OUTPUT:
+{
+  "title": "${lesson.title}",
+  "lessonType": "business",
+  "objective": "[By the end of this lesson, you'll be able to ${lesson.communicativeNeed} — MAX 120 chars in ${student.targetLanguage}]",
+  "difficulty": ${student.level === 'beginner' ? 3 : student.level === 'elementary' ? 4 : student.level === 'intermediate' ? 6 : 8},
+  "duration": ${duration},
+  "skills": ["Speaking","Vocabulary","Listening"],
+  "vocabulary": [],
+  "context": "${lesson.communicativeNeed}",
+  "exercises": [/* 5 exercises in order */],
   "homework": "",
   "materials": [],
   "teachingNotes": "[tutor notes in ${student.targetLanguage}]"

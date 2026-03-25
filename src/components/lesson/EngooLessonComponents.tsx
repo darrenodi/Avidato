@@ -1,7 +1,7 @@
 'use client'
 
 // src/components/lesson/EngooLessonComponents.tsx
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
 import { formatText } from '@/lib/format-text'
 
 /**
@@ -260,54 +260,112 @@ function CharacterAvatar({ character }: { character: Character }) {
 }
 
 // Dialogue Exercise Component
-export function DialogueExercise({ 
-  context, 
-  characters, 
-  dialogue, 
-  instructions 
-}: { 
+export function DialogueExercise({
+  context,
+  characters,
+  dialogue,
+  instructions,
+  speakers,
+}: {
   context: string
   characters: Character[]
   dialogue: DialogueLine[]
-  instructions?: string 
+  instructions?: string
+  speakers?: { name: string; gender: 'male' | 'female' }[]
 }) {
+  const [showTranscript, setShowTranscript] = useState(true)
+  const [audioUrl, setAudioUrl] = useState<string | null>(null)
+  const [loadingAudio, setLoadingAudio] = useState(false)
+  const [audioError, setAudioError] = useState<string | null>(null)
+  const audioRef = useRef<HTMLAudioElement | null>(null)
+
+  const hasAudio = speakers && speakers.length > 0
+
+  const handlePlayAudio = async () => {
+    if (audioUrl) { audioRef.current?.play(); return }
+    setLoadingAudio(true)
+    setAudioError(null)
+    try {
+      const genderMap = Object.fromEntries((speakers || []).map(s => [s.name, s.gender]))
+      const lines = dialogue.map(l => ({
+        speaker: l.character,
+        gender: genderMap[l.character] || 'male',
+        text: l.text,
+      }))
+      const res = await fetch('/api/audio/dialogue', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ lines }),
+      })
+      if (!res.ok) throw new Error('Audio generation failed')
+      const url = URL.createObjectURL(await res.blob())
+      setAudioUrl(url)
+      setTimeout(() => audioRef.current?.play(), 50)
+    } catch {
+      setAudioError('Could not generate audio.')
+    } finally {
+      setLoadingAudio(false)
+    }
+  }
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {context && (
         <p className="text-sm italic text-gray-500 dark:text-gray-400">{formatText(context)}</p>
       )}
-      
       {instructions && (
-        <p className="text-gray-600 dark:text-gray-400 italic text-sm">
-          {formatText(instructions)}
-        </p>
+        <p className="text-gray-600 dark:text-gray-400 italic text-sm">{formatText(instructions)}</p>
       )}
 
-      <div className="space-y-4 max-w-4xl">
-        {dialogue.map((line, index) => {
-          const character = characters.find(c => c.name === line.character)
-          const isFirstSpeaker = index === 0 || dialogue[index - 1]?.character !== line.character
-          
-          return (
-            <div key={index} className="flex items-start space-x-3">
-              <div className="flex-shrink-0">
-                {isFirstSpeaker && (
-                  <CharacterAvatar character={character || { name: line.character }} />
-                )}
-                {!isFirstSpeaker && <div className="w-10"></div>}
+      {hasAudio && (
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handlePlayAudio}
+            disabled={loadingAudio}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-brand-primary text-white text-xs font-medium hover:bg-brand-accent transition-colors disabled:opacity-50"
+          >
+            {loadingAudio ? (
+              <><div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />Generating...</>
+            ) : (
+              <><svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>Play Audio</>
+            )}
+          </button>
+          <button
+            onClick={() => setShowTranscript(s => !s)}
+            className="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 underline"
+          >
+            {showTranscript ? 'Hide Transcript' : 'Show Transcript'}
+          </button>
+        </div>
+      )}
+      {audioUrl && <audio ref={audioRef} src={audioUrl} controls className="w-full h-8" />}
+      {audioError && <p className="text-xs text-red-500">{audioError}</p>}
+
+      {(!hasAudio || showTranscript) && (
+        <div className="space-y-4 max-w-4xl">
+          {dialogue.map((line, index) => {
+            const character = characters.find(c => c.name === line.character)
+            const isFirstSpeaker = index === 0 || dialogue[index - 1]?.character !== line.character
+            return (
+              <div key={index} className="flex items-start space-x-3">
+                <div className="flex-shrink-0">
+                  {isFirstSpeaker ? (
+                    <CharacterAvatar character={character || { name: line.character }} />
+                  ) : (
+                    <div className="w-10" />
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  {isFirstSpeaker && (
+                    <div className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{line.character}</div>
+                  )}
+                  <p className="text-gray-900 dark:text-white leading-relaxed pt-0.5">{formatText(line.text)}</p>
+                </div>
               </div>
-              <div className="flex-1 min-w-0">
-                {isFirstSpeaker && (
-                  <div className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    {line.character}
-                  </div>
-                )}
-                <p className="text-gray-900 dark:text-white leading-relaxed pt-0.5">{formatText(line.text)}</p>
-              </div>
-            </div>
-          )
-        })}
-      </div>
+            )
+          })}
+        </div>
+      )}
     </div>
   )
 }
@@ -590,6 +648,34 @@ export function DiscussionExercise({ questions, instructions }: { questions: str
             <p className="text-gray-900 dark:text-white">
               {formatText(question)}
             </p>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// Useful Expressions Exercise Component
+export function UsefulExpressionsExercise({
+  expressions,
+  instructions,
+}: {
+  expressions: { phrase: string; meaning: string; example?: string }[]
+  instructions?: string
+}) {
+  return (
+    <div className="space-y-4">
+      {instructions && (
+        <p className="text-gray-600 dark:text-gray-400 italic text-sm">{formatText(instructions)}</p>
+      )}
+      <div className="space-y-3">
+        {expressions.map((expr, i) => (
+          <div key={i} className="border-l-2 border-brand-primary pl-3">
+            <p className="font-semibold text-gray-900 dark:text-white text-sm">{expr.phrase}</p>
+            <p className="text-gray-600 dark:text-gray-400 text-sm">{expr.meaning}</p>
+            {expr.example && (
+              <p className="text-gray-500 dark:text-gray-500 text-xs italic mt-0.5">{expr.example}</p>
+            )}
           </div>
         ))}
       </div>

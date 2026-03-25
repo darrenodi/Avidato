@@ -18,7 +18,8 @@ import {
   RolePlayExercise,
   DiscussionExercise,
   PreparationExercise,
-  FinalPrepExercise
+  FinalPrepExercise,
+  UsefulExpressionsExercise,
 } from '@/components/lesson/EngooLessonComponents'
 import {
   LeadInExercise,
@@ -255,33 +256,37 @@ export default function LessonPage() {
       
       case 'dialogue':
         if (content?.dialogue && Array.isArray(content.dialogue)) {
-          // Extract unique speakers from dialogue to create characters array
-          const speakers = [...new Set(
-            content.dialogue.map((line: Record<string, unknown>) => 
-              (line.speaker || line.character || 'Unknown') as string
-            )
-          )];
-          const characters = speakers.map(speaker => ({ name: speaker }));
-          
-          // Transform dialogue format to match component expectations
           const transformedDialogue = content.dialogue.map((line: Record<string, unknown>) => ({
             character: (line.speaker || line.character || 'Unknown') as string,
             text: (line.line || line.text || '') as string
           }));
-          
+          const characters = content.characters as { name: string; role?: string }[] ||
+            [...new Set(transformedDialogue.map(l => l.character))].map(name => ({ name }))
           const setting = content.setting as string || content.context as string || '';
-          
+          const castSpeakers = (content.cast as { name: string; gender: 'male' | 'female' }[] | undefined)
           return (
             <DialogueExercise
               context={setting}
               characters={characters}
               dialogue={transformedDialogue}
               instructions={content.instructions as string || ''}
+              speakers={castSpeakers}
             />
           )
         }
         break
       
+      case 'useful-expressions':
+        if (content?.expressions && Array.isArray(content.expressions)) {
+          return (
+            <UsefulExpressionsExercise
+              expressions={content.expressions as { phrase: string; meaning: string; example?: string }[]}
+              instructions={content.instructions as string | undefined}
+            />
+          )
+        }
+        break
+
       case 'useful-phrases':
         if (content?.phrases && Array.isArray(content.phrases)) {
           return (
