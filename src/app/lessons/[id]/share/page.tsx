@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
-import { useTheme } from 'next-themes'
 import Link from 'next/link'
 import Image from 'next/image'
 import ClientThemeProvider from '@/components/ClientThemeProvider'
@@ -510,55 +509,6 @@ function SharedGrammarLesson({ lesson }: { lesson: SharedLessonData }) {
   )
 }
 
-const getExerciseIcon = (type: string) => {
-  switch (type) {
-    case 'controlled-input':
-      return (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C20.832 18.477 19.246 18 17.5 18c-1.746 0-3.332.477-4.5 1.253z" />
-        </svg>
-      )
-    case 'structured-practice':
-      return (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-        </svg>
-      )
-    case 'freer-production':
-      return (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-        </svg>
-      )
-    case 'extension':
-      return (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-        </svg>
-      )
-    case 'preparation':
-      return (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-        </svg>
-      )
-    case 'final-prep':
-    case 'finalPrep':
-    case 'finalprep':
-      return (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
-        </svg>
-      )
-    default:
-      return (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-      )
-  }
-}
-
 const renderExerciseContent = (exercise: { type: string; content: BaseExerciseContent; timeMinutes: number }, studentName?: string) => {
   const content = exercise.content || {}
   switch (exercise.type) {
@@ -707,13 +657,9 @@ const renderExerciseContent = (exercise: { type: string; content: BaseExerciseCo
 export default function SharedLessonPage() {
   const params = useParams()
   const lessonId = params?.id as string
-  const { theme, setTheme } = useTheme()
-  const [mounted, setMounted] = useState(false)
   const [lesson, setLesson] = useState<SharedLessonData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-
-  useEffect(() => setMounted(true), [])
 
   useEffect(() => {
     const fetchLesson = async () => {
@@ -738,35 +684,32 @@ export default function SharedLessonPage() {
     fetchLesson()
   }, [lessonId])
 
-  const logoSrc = mounted && theme === 'light' ? '/logo.svg' : '/white-logo.svg'
-  const nameSrc = mounted && theme === 'light' ? '/logo-dec.svg' : '/white-logo-dec.svg'
+  const [openEx, setOpenEx] = useState<Set<number>>(new Set([0,1,2,3,4,5,6,7,8,9]))
+
+  const toggleEx = (index: number) => {
+    setOpenEx(prev => {
+      const next = new Set(prev)
+      next.has(index) ? next.delete(index) : next.add(index)
+      return next
+    })
+  }
 
   return (
     <ClientThemeProvider>
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-        <header className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
-            <Link href="/" className="flex items-center space-x-2 sm:space-x-3">
-              <Image src={logoSrc} alt="Avidato Logo" width={32} height={32} className="w-6 h-6 sm:w-8 sm:h-8" />
-              <Image src={nameSrc} alt="Avidato" width={80} height={24} className="h-5 sm:h-6" />
+      <div className="min-h-screen bg-[#f7f4ef]">
+        <header className="bg-white border-b border-gray-200/60">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
+            <Link href="/" className="flex items-center space-x-2">
+              <Image src="/logo.svg" alt="Avidato Logo" width={28} height={28} className="w-6 h-6 sm:w-7 sm:h-7" />
+              <Image src="/logo-dec.svg" alt="Avidato" width={80} height={24} className="h-4 sm:h-5" />
             </Link>
-            <button
-              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-              className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-              aria-label="Toggle theme"
-            >
-              <svg className="w-4 h-4 sm:w-5 sm:h-5 text-gray-700 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                {theme === 'dark' ? (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-                ) : (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-                )}
-              </svg>
-            </button>
+            {lesson && (
+              <span className="text-xs text-gray-500 bg-gray-100 rounded-full px-3 py-1">{lesson.student.name}</span>
+            )}
           </div>
         </header>
 
-        <main className="max-w-4xl mx-auto p-4 sm:p-6 lg:p-8">
+        <main className="max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
           {loading && (
             <div className="text-center py-12">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-primary mx-auto"></div>
@@ -849,48 +792,90 @@ export default function SharedLessonPage() {
                   isTutorView={false}
                 />
               ) : (
-                <div className="space-y-4">
-                  <div className="pb-5 border-b border-gray-200 dark:border-gray-700">
-                    <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-3">{lesson.content.title}</h1>
-                    <div className="flex flex-wrap items-center gap-2 mb-3">
-                      <span className="px-2 py-0.5 rounded text-xs border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300">{lesson.student.level}</span>
-                      <span className="px-2 py-0.5 rounded text-xs border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300">{lesson.content.duration} min</span>
-                      <span className="px-2 py-0.5 rounded text-xs bg-brand-primary/10 text-brand-primary border border-brand-primary/20 font-medium">{lesson.content.lessonType === 'Under-18' ? 'kids' : lesson.content.lessonType}</span>
+                <div className="xl:flex xl:gap-10">
+                  {/* Progress sidebar dots — xl+ only */}
+                  <aside className="hidden xl:block w-10 flex-shrink-0">
+                    <div className="sticky top-8 flex flex-col items-center gap-3 pt-2">
+                      {(lesson.content.exercises || []).map((_: LessonExercise, i: number) => {
+                        const dotColors = ['bg-[#2d6a4f]', 'bg-[#b5620b]', 'bg-[#4a3f8f]', 'bg-[#0e7490]', 'bg-[#9d174d]']
+                        return (
+                          <button
+                            key={i}
+                            onClick={() => document.getElementById(`ex-${i}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                            className={`w-2.5 h-2.5 rounded-full transition-opacity hover:opacity-100 ${dotColors[i % dotColors.length]} ${openEx.has(i) ? 'opacity-80' : 'opacity-30'}`}
+                            aria-label={`Go to exercise ${i + 1}`}
+                          />
+                        )
+                      })}
                     </div>
-                    <p className="text-gray-600 dark:text-gray-400 leading-relaxed mb-3">{lesson.content.objective?.replace(new RegExp(`\\b${lesson.student.name}\\b`, 'gi'), 'you').replace(/\byou will\b/gi, "you'll")}</p>
-                    {Array.isArray(lesson.content.skills) && lesson.content.skills.length > 0 && (
-                      <div className="flex flex-wrap gap-1.5">
-                        {lesson.content.skills.map((s: string) => (
-                          <span key={s} className="px-2 py-0.5 rounded-full text-xs bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400">{s}</span>
-                        ))}
-                      </div>
-                    )}
-                  </div>
+                  </aside>
 
-                  <div className="space-y-4">
-                    {(lesson.content.exercises || []).map((exercise: LessonExercise, index: number) => (
-                      <div key={index} className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
-                        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-gray-700">
-                          <div className="flex items-center gap-3 min-w-0 flex-1">
-                            <div className="w-7 h-7 bg-brand-primary text-white rounded-full flex items-center justify-center flex-shrink-0">
-                              {getExerciseIcon(exercise.type)}
-                            </div>
-                            <div className="min-w-0">
-                              <h3 className="text-sm font-semibold text-gray-900 dark:text-white truncate">{exercise.title}</h3>
-                              {exercise.description && (
-                                <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{exercise.description}</p>
-                              )}
-                            </div>
-                          </div>
-                          <span className="text-xs text-gray-400 dark:text-gray-500 flex-shrink-0">{exercise.timeMinutes} min</span>
+                  <div className="flex-1 min-w-0">
+                    {/* Hero */}
+                    <div className="mb-8">
+                      <div className="flex flex-wrap gap-2 mb-4">
+                        <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-white border border-gray-200 text-gray-500">{lesson.student.level}</span>
+                        <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-white border border-gray-200 text-gray-500">{lesson.content.duration} min</span>
+                        {lesson.content.lessonType && (
+                          <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-[#2d6a4f]/10 text-[#2d6a4f] border border-[#2d6a4f]/20">{lesson.content.lessonType === 'Under-18' ? 'Kids' : lesson.content.lessonType}</span>
+                        )}
+                      </div>
+                      <h1 className="font-fraunces text-3xl sm:text-4xl font-bold text-gray-900 leading-tight mb-5">{lesson.content.title}</h1>
+                      {lesson.content.objective && (
+                        <div className="border-l-4 border-[#2d6a4f] pl-4 py-0.5 mb-5">
+                          <p className="text-gray-600 leading-relaxed text-sm sm:text-base">
+                            {lesson.content.objective.replace(new RegExp(`\\b${lesson.student.name}\\b`, 'gi'), 'you').replace(/\byou will\b/gi, "you'll")}
+                          </p>
                         </div>
-                        <div className="p-4 overflow-x-auto">{renderExerciseContent({ type: exercise.type, content: exercise.content, timeMinutes: exercise.timeMinutes || 0 }, lesson.student.name)}</div>
-                      </div>
-                    ))}
-                  </div>
+                      )}
+                      {Array.isArray(lesson.content.skills) && lesson.content.skills.length > 0 && (
+                        <div className="flex flex-wrap gap-1.5">
+                          {lesson.content.skills.map((s: string) => (
+                            <span key={s} className="px-2.5 py-1 rounded-full text-xs bg-[#2d6a4f]/10 text-[#2d6a4f] font-medium">{s}</span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
 
-                  <div className="text-center pt-6 border-t border-gray-200 dark:border-gray-700">
-                    <p className="text-gray-500 dark:text-gray-400 text-xs">Lesson created with Avidato • Generated on {new Date(lesson.createdAt).toLocaleDateString()}</p>
+                    {/* Exercise cards */}
+                    <div className="space-y-3">
+                      {(lesson.content.exercises || []).map((exercise: LessonExercise, index: number) => {
+                        const badgeColors = ['bg-[#2d6a4f]', 'bg-[#b5620b]', 'bg-[#4a3f8f]', 'bg-[#0e7490]', 'bg-[#9d174d]']
+                        const badgeColor = badgeColors[index % badgeColors.length]
+                        const isOpen = openEx.has(index)
+                        return (
+                          <div key={index} id={`ex-${index}`} className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100">
+                            <button
+                              onClick={() => toggleEx(index)}
+                              className="w-full flex items-center gap-4 px-5 py-4 text-left hover:bg-gray-50/80 transition-colors"
+                            >
+                              <span className={`${badgeColor} text-white text-xs font-bold w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 tabular-nums`}>
+                                {String(index + 1).padStart(2, '0')}
+                              </span>
+                              <div className="flex-1 min-w-0">
+                                <p className="font-semibold text-gray-900 text-sm">{exercise.title}</p>
+                                {exercise.description && <p className="text-xs text-gray-500 mt-0.5 line-clamp-1">{exercise.description}</p>}
+                              </div>
+                              <div className="flex items-center gap-3 flex-shrink-0">
+                                <span className="text-xs text-gray-400">{exercise.timeMinutes} min</span>
+                                <svg className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${isOpen ? '' : '-rotate-90'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                </svg>
+                              </div>
+                            </button>
+                            {isOpen && (
+                              <div className="px-5 pb-5 pt-1 border-t border-gray-100 overflow-x-auto">
+                                {renderExerciseContent({ type: exercise.type, content: exercise.content, timeMinutes: exercise.timeMinutes || 0 }, lesson.student.name)}
+                              </div>
+                            )}
+                          </div>
+                        )
+                      })}
+                    </div>
+
+                    <div className="text-center pt-8 pb-4">
+                      <p className="text-gray-400 text-xs">Lesson created with Avidato · {new Date(lesson.createdAt).toLocaleDateString()}</p>
+                    </div>
                   </div>
                 </div>
               )}

@@ -11,14 +11,12 @@ if (!process.env.GOOGLE_API_KEY) {
 
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY)
 
-// Ordered by preference / capability (adjust as needed)
-// Using only models that support generateContent API
-// Based on quota limits from Google AI Studio:
-// - gemini-2.5-flash: 5 RPM, 250K TPM, 20 RPD
-// Note: gemini-3.1-flash-lite not yet confirmed as valid API model ID
+// Ordered by preference / capability
+// gemini-2.5-flash-lite: 15 RPM, 1000 RPD — free tier, high quota
+// gemini-3.1-flash-lite-preview: free tier fallback, newer model
 export const MODEL_FALLBACK_CHAIN: string[] = [
-  'gemini-2.5-flash',      // Primary: confirmed working
-  'gemini-2.5-flash-lite-preview-06-17', // Fallback if available
+  'gemini-3.1-flash-lite-preview',
+  'gemini-2.5-flash-lite',
 ]
 
 export interface FailoverResult {

@@ -1,10 +1,11 @@
 import "./globals.css";
 import type { Metadata } from "next"; // Import the Metadata type for better type-checking
-import { Plus_Jakarta_Sans } from "next/font/google";
+import { Plus_Jakarta_Sans, Fraunces } from "next/font/google";
 import AuthProvider from "@/components/AuthProvider";
 import CookieConsent from "@/components/CookieConsent";
 
 const jakarta = Plus_Jakarta_Sans({ subsets: ["latin"], variable: "--font-jakarta" });
+const fraunces = Fraunces({ subsets: ["latin"], variable: "--font-fraunces", display: "swap" });
 
 // --- Updated Metadata Object ---
 // We are adding the 'icons' and 'manifest' properties to your existing object.
@@ -56,7 +57,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   // Light theme only for public pages (landing, login, signup)
   return (
-    <html lang="en" className={jakarta.variable} suppressHydrationWarning>
+    <html lang="en" className={`${jakarta.variable} ${fraunces.variable}`} suppressHydrationWarning>
       <head>
         {/* Organization Schema Markup for Search Engine Logo Display */}
         <script

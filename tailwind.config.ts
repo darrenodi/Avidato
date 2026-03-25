@@ -20,6 +20,7 @@ const config: Config = {
       },
       fontFamily: {
         sans: ["var(--font-jakarta)", "sans-serif"],
+        fraunces: ["var(--font-fraunces)", "serif"],
       },
       keyframes: {
         blob: {

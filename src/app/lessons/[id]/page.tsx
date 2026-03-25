@@ -127,7 +127,16 @@ export default function LessonPage() {
   const [isTaught, setIsTaught] = useState(false)
   const [isMarking, setIsMarking] = useState(false)
   const [editingExerciseIndex, setEditingExerciseIndex] = useState<number | null>(null)
-  
+  const [openEx, setOpenEx] = useState<Set<number>>(new Set([0,1,2,3,4,5,6,7,8,9]))
+
+  const toggleEx = (index: number) => {
+    setOpenEx(prev => {
+      const next = new Set(prev)
+      next.has(index) ? next.delete(index) : next.add(index)
+      return next
+    })
+  }
+
   // This is tutor view (answers visible) - student view is at /lessons/[id]/share
   const isTutorVersion = true
 
@@ -226,160 +235,6 @@ export default function LessonPage() {
     window.addEventListener('beforeunload', handleBeforeUnload)
     return () => window.removeEventListener('beforeunload', handleBeforeUnload)
   }, [lessonId])
-
-  const getExerciseIcon = (type: string) => {
-    switch (type) {
-      case 'vocabulary':
-        return (
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C20.832 18.477 19.246 18 17.5 18c-1.746 0-3.332.477-4.5 1.253z" />
-          </svg>
-        )
-      case 'expressions':
-      case 'dialogue':
-        return (
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-          </svg>
-        )
-      case 'roleplay':
-        return (
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-          </svg>
-        )
-      case 'discussion':
-        return (
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" />
-          </svg>
-        )
-      case 'grammar':
-        return (
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-          </svg>
-        )
-      case 'article':
-        return (
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
-          </svg>
-        )
-      case 'fill_blanks':
-        return (
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-          </svg>
-        )
-      case 'sentence_building':
-        return (
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-          </svg>
-        )
-      case 'preparation':
-        return (
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-          </svg>
-        )
-      case 'lead-in':
-        return (
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-          </svg>
-        )
-      case 'task-prep':
-        return (
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-          </svg>
-        )
-      case 'task-performance':
-        return (
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-        )
-      case 'post-task':
-        return (
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-        )
-      case 'homework':
-        return (
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-          </svg>
-        )
-      case 'useful-phrases':
-        return (
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
-          </svg>
-        )
-      case 'final-prep':
-      case 'finalPrep':
-      case 'finalprep':
-        return (
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
-          </svg>
-        )
-      // PPP
-      case 'presentation':
-        return (
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-          </svg>
-        )
-      case 'practice':
-        return (
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-          </svg>
-        )
-      case 'production':
-        return (
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" />
-          </svg>
-        )
-      // CLT
-      case 'warmer':
-        return (
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.879 16.121A3 3 0 1012.015 11L11 14H9c0 .768.293 1.536.879 2.121z" />
-          </svg>
-        )
-      case 'language-input':
-        return (
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C20.832 18.477 19.246 18 17.5 18c-1.746 0-3.332.477-4.5 1.253z" />
-          </svg>
-        )
-      case 'communicative-activity':
-        return (
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
-          </svg>
-        )
-      case 'wrap-up':
-        return (
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-          </svg>
-        )
-      default:
-        return (
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-        )
-    }
-  }
 
   const renderExerciseContent = (exercise: { type: string; content: unknown; timeMinutes: number }) => {
     // Type assertion for content - we know the structure from our AI generation
@@ -718,25 +573,27 @@ export default function LessonPage() {
 
             {/* Lesson Header */}
             <div className="pb-5 border-b border-gray-200 dark:border-gray-700">
-              <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-3">
-                {lesson.content.title}
-              </h1>
               <div className="flex flex-wrap items-center gap-2 mb-3">
-                <span className="px-2 py-0.5 rounded text-xs border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300">{lesson.student.name}</span>
-                <span className="px-2 py-0.5 rounded text-xs border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300">{lesson.student.level}</span>
-                <span className="px-2 py-0.5 rounded text-xs border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300">{lesson.content.duration} min</span>
-                <span className="px-2 py-0.5 rounded text-xs bg-brand-primary/10 text-brand-primary border border-brand-primary/20 font-medium">
+                <span className="px-2.5 py-0.5 rounded-full text-xs border border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400">{lesson.student.name}</span>
+                <span className="px-2.5 py-0.5 rounded-full text-xs border border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400">{lesson.student.level}</span>
+                <span className="px-2.5 py-0.5 rounded-full text-xs border border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400">{lesson.content.duration} min</span>
+                <span className="px-2.5 py-0.5 rounded-full text-xs bg-brand-primary/10 text-brand-primary border border-brand-primary/20 font-medium">
                   {lesson.content.lessonType === 'Under-18' ? 'kids' : lesson.content.lessonType}
                 </span>
               </div>
+              <h1 className="font-fraunces text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-4 leading-tight">
+                {lesson.content.title}
+              </h1>
               {!(lesson.content as Record<string, unknown>).isGrammarLesson && (
                 <>
-                  <p className="text-gray-600 dark:text-gray-400 leading-relaxed mb-3">
-                    {lesson.content.objective?.replace(new RegExp(`\\b${lesson.student.name}\\b`, 'gi'), 'you').replace(/\byou will\b/gi, "you'll")}
-                  </p>
+                  <div className="border-l-4 border-brand-primary pl-4 py-0.5 mb-4">
+                    <p className="text-gray-600 dark:text-gray-400 leading-relaxed text-sm">
+                      {lesson.content.objective}
+                    </p>
+                  </div>
                   <div className="flex flex-wrap gap-1.5">
                     {((lesson.content as Record<string, unknown>).skills as string[]).map((skill) => (
-                      <span key={skill} className="px-2 py-0.5 rounded-full text-xs bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400">
+                      <span key={skill} className="px-2.5 py-0.5 rounded-full text-xs bg-brand-primary/10 text-brand-primary font-medium">
                         {skill}
                       </span>
                     ))}
@@ -762,31 +619,44 @@ export default function LessonPage() {
                 exercises: { type: string; title: string; content: Record<string, unknown> }[]
               }} />
             ) : (
-              <div className="space-y-4">
-                {lesson.content.exercises.map((exercise, index) => (
-                  <div key={index} className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
-                    <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-gray-700">
-                      <div className="flex items-center gap-3 min-w-0 flex-1">
-                        <div className="w-7 h-7 bg-brand-primary text-white rounded-full flex items-center justify-center flex-shrink-0">
-                          {getExerciseIcon(exercise.type)}
-                        </div>
-                        <div className="min-w-0">
-                          <h3 className="text-sm font-semibold text-gray-900 dark:text-white truncate">{exercise.title}</h3>
-                          {exercise.type !== 'warmup' && exercise.description && (
-                            <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{exercise.description}</p>
-                          )}
+              <div className="space-y-3">
+                {lesson.content.exercises.map((exercise, index) => {
+                  const badgeColors = ['bg-brand-primary', 'bg-[#b5620b]', 'bg-[#4a3f8f]', 'bg-[#0e7490]', 'bg-[#9d174d]']
+                  const badgeColor = badgeColors[index % badgeColors.length]
+                  const isOpen = openEx.has(index)
+                  return (
+                    <div key={index} className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+                      <div className="flex items-center gap-4 px-4 py-3 border-b border-gray-100 dark:border-gray-700">
+                        <button
+                          onClick={() => toggleEx(index)}
+                          className="flex items-center gap-3 min-w-0 flex-1 text-left"
+                        >
+                          <span className={`${badgeColor} text-white text-xs font-bold w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 tabular-nums`}>
+                            {String(index + 1).padStart(2, '0')}
+                          </span>
+                          <div className="min-w-0 flex-1">
+                            <h3 className="text-sm font-semibold text-gray-900 dark:text-white truncate">{exercise.title}</h3>
+                            {exercise.type !== 'warmup' && exercise.description && (
+                              <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{exercise.description}</p>
+                            )}
+                          </div>
+                          <svg className={`w-4 h-4 text-gray-400 transition-transform duration-200 flex-shrink-0 ${isOpen ? '' : '-rotate-90'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                          </svg>
+                        </button>
+                        <div className="flex items-center gap-3 flex-shrink-0">
+                          <span className="text-xs text-gray-400 dark:text-gray-500">{exercise.timeMinutes} min</span>
+                          <EditButton onClick={() => setEditingExerciseIndex(index)} label="Edit" />
                         </div>
                       </div>
-                      <div className="flex items-center gap-3 flex-shrink-0">
-                        <span className="text-xs text-gray-400 dark:text-gray-500">{exercise.timeMinutes} min</span>
-                        <EditButton onClick={() => setEditingExerciseIndex(index)} label="Edit" />
-                      </div>
+                      {isOpen && (
+                        <div className="p-4 overflow-x-auto">
+                          {renderExerciseContent(exercise)}
+                        </div>
+                      )}
                     </div>
-                    <div className="p-4 overflow-x-auto">
-                      {renderExerciseContent(exercise)}
-                    </div>
-                  </div>
-                ))}
+                  )
+                })}
               </div>
             )}
 
