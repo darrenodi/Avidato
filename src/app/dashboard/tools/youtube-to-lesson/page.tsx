@@ -4,7 +4,7 @@ import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useMemo, useState } from 'react'
 import DashboardLayout from '@/components/layout/DashboardLayout'
-import { fetchTranscriptViaProxy, extractVideoId } from '@/lib/youtube-transcript-client'
+import { extractVideoId } from '@/lib/youtube-transcript-client'
 import { formatText } from '@/lib/format-text'
 import EditSectionModal, { EditButton } from '@/components/lesson/EditSectionModal'
 
@@ -332,12 +332,10 @@ export default function YouTubeToLessonPage() {
   const [manualTranscript, setManualTranscript] = useState('')
   const [context, setContext] = useState('')
   const [level, setLevel] = useState<CEFRLevel>('B1')
-  const [showTranscriptInput, setShowTranscriptInput] = useState(false)
   const [showContext, setShowContext] = useState(false)
   const [loading, setLoading] = useState(false)
   const [loadingStage, setLoadingStage] = useState<'transcript' | 'lesson' | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const [transcriptError, setTranscriptError] = useState<string | null>(null)
   const [result, setResult] = useState<YouTubeLessonResult | null>(null)
   const [showAnswers, setShowAnswers] = useState(true)
   const [playingWord, setPlayingWord] = useState<string | null>(null)
@@ -433,31 +431,15 @@ export default function YouTubeToLessonPage() {
   const handleGenerate = async (event: React.FormEvent) => {
     event.preventDefault()
     setError(null)
-    setTranscriptError(null)
     setLoading(true)
     setShowAnswers(true)
     setShareCopied(false)
     setResult(null)
 
     try {
-      let transcriptText = manualTranscript.trim()
+      const transcriptText = manualTranscript.trim()
       const url = youtubeUrl.trim()
 
-      if (url && !transcriptText) {
-        setLoadingStage('transcript')
-        try {
-          const transcriptResult = await fetchTranscriptViaProxy(url)
-          transcriptText = transcriptResult.transcriptText
-          if (transcriptResult.durationSeconds && transcriptResult.durationSeconds > 300) {
-            throw new Error('Video is too long. Maximum supported duration is 5 minutes.')
-          }
-        } catch {
-          setTranscriptError('auto-fetch-failed')
-          setLoading(false)
-          setLoadingStage(null)
-          return
-        }
-      }
 
       if (!transcriptText) {
         setError('Please paste a transcript or provide a YouTube URL.')
@@ -536,10 +518,36 @@ export default function YouTubeToLessonPage() {
         <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
           <form onSubmit={handleGenerate} className="p-6 space-y-6">
 
-            {/* YouTube URL — primary field */}
+            {/* Transcript — primary */}
             <div>
               <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                Video URL
+                Video Transcript
+              </label>
+              <textarea
+                value={manualTranscript}
+                onChange={(e) => setManualTranscript(e.target.value)}
+                placeholder="Paste the YouTube video transcript here..."
+                rows={10}
+                className="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-900/50 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-brand-primary focus:border-transparent focus:bg-white dark:focus:bg-gray-900 transition-colors text-sm resize-none"
+              />
+              <div className="flex items-center justify-between mt-2">
+                <p className="text-xs text-gray-400 dark:text-gray-500">
+                  Get the transcript from{' '}
+                  <a href="https://www.youtube-transcript.io/" target="_blank" rel="noreferrer" className="text-brand-primary hover:underline font-medium">
+                    youtube-transcript.io
+                  </a>
+                </p>
+                <button type="button" onClick={() => window.open('https://www.youtube-transcript.io/', '_blank')}
+                  className="text-xs px-3 py-1 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300 rounded-lg border border-gray-200 dark:border-gray-600 transition-colors">
+                  Open &rarr;
+                </button>
+              </div>
+            </div>
+
+            {/* YouTube URL — for embedded player */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
+                YouTube URL <span className="text-xs font-normal text-gray-400">(optional — for embedded player)</span>
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
@@ -555,54 +563,7 @@ export default function YouTubeToLessonPage() {
                   className="w-full pl-9 pr-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-900/50 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-red-500 focus:border-transparent focus:bg-white dark:focus:bg-gray-900 transition-colors text-sm"
                 />
               </div>
-              <p className="text-xs text-gray-400 dark:text-gray-500 mt-1.5">Max 5 minutes. Transcript is fetched automatically.</p>
             </div>
-
-            {/* Transcript error — auto-fetch failed */}
-            {transcriptError && (
-              <div className="rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 p-4 space-y-3">
-                <div className="flex items-start gap-2">
-                  <svg className="w-4 h-4 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
-                  </svg>
-                  <div>
-                    <p className="text-sm font-medium text-amber-800 dark:text-amber-300">Auto-fetch unavailable</p>
-                    <p className="text-xs text-amber-700 dark:text-amber-400 mt-0.5">YouTube blocks server requests. Get the transcript from youtube-transcript.io and paste it below.</p>
-                  </div>
-                </div>
-                <button type="button" onClick={() => window.open('https://www.youtube-transcript.io/', '_blank')}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-amber-100 dark:bg-amber-800/40 hover:bg-amber-200 dark:hover:bg-amber-800/60 text-amber-900 dark:text-amber-200 rounded-lg border border-amber-300 dark:border-amber-700 transition-colors">
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                  </svg>
-                  Open youtube-transcript.io
-                </button>
-              </div>
-            )}
-
-            {/* Paste transcript — toggle or always shown when error */}
-            {(transcriptError || showTranscriptInput) && (
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">Transcript</label>
-                <textarea
-                  value={manualTranscript}
-                  onChange={(e) => setManualTranscript(e.target.value)}
-                  placeholder="Paste the video transcript here..."
-                  rows={7}
-                  className="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-900/50 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-brand-primary focus:border-transparent focus:bg-white dark:focus:bg-gray-900 transition-colors text-sm resize-none"
-                />
-              </div>
-            )}
-
-            {!transcriptError && (
-              <button type="button" onClick={() => setShowTranscriptInput(s => !s)}
-                className="flex items-center gap-1.5 text-xs text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors -mt-3">
-                <svg className={`w-3 h-3 transition-transform ${showTranscriptInput ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-                {showTranscriptInput ? 'Hide transcript field' : 'Or paste transcript manually'}
-              </button>
-            )}
 
             {/* Divider */}
             <div className="border-t border-gray-100 dark:border-gray-700" />
