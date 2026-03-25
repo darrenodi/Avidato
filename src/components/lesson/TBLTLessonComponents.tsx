@@ -17,20 +17,15 @@ interface LeadInContent {
 
 export function LeadInExercise({ content }: { content: LeadInContent }) {
   return (
-    <div className="space-y-4">
-      <p className="text-sm text-gray-500 dark:text-gray-400 italic">
-        {content.instructions || 'Discuss the questions with your tutor.'}
-      </p>
-      <ol className="space-y-3">
-        {content.questions.map((q, i) => (
-          <li key={i} className="flex gap-3">
-            <span className="flex-shrink-0 w-6 h-6 rounded-full bg-brand-primary text-white text-xs flex items-center justify-center font-medium">
-              {i + 1}
-            </span>
-            <p className="text-gray-900 dark:text-white pt-0.5">{q}</p>
-          </li>
-        ))}
-      </ol>
+    <div className="space-y-3">
+      {content.questions.map((q, i) => (
+        <div key={i} className="flex gap-3 items-start">
+          <svg className="flex-shrink-0 w-4 h-4 mt-1 text-brand-primary opacity-60" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z" />
+          </svg>
+          <p className="text-gray-900 dark:text-white">{q}</p>
+        </div>
+      ))}
     </div>
   )
 }
@@ -94,18 +89,15 @@ export function TaskPrepExercise({ content }: { content: TaskPrepContent }) {
       )}
 
       {section === 'phrases' && content.keyPhrases?.length > 0 && (
-        <ul className="space-y-2">
+        <div className="space-y-3">
           {content.keyPhrases.map((kp, i) => (
-            <li key={i} className="flex gap-3 items-start py-2 border-b border-gray-100 dark:border-gray-700 last:border-0">
-              <span className="flex-shrink-0 w-5 h-5 rounded-full bg-brand-primary/10 text-brand-primary text-xs flex items-center justify-center font-semibold mt-0.5">
-                {i + 1}
-              </span>
-              <p className="font-medium text-gray-900 dark:text-white">
-                &ldquo;{kp.phrase}&rdquo;
-              </p>
-            </li>
+            <div key={i} className="border-l-2 border-brand-primary pl-3">
+              <p className="font-medium text-gray-900 dark:text-white">&ldquo;{kp.phrase}&rdquo;</p>
+              {kp.usage && <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">{kp.usage}</p>}
+              {kp.example && <p className="text-xs text-gray-400 dark:text-gray-500 italic mt-0.5">{kp.example}</p>}
+            </div>
           ))}
-        </ul>
+        </div>
       )}
 
       {section === 'dialogue' && hasDialogue && (
@@ -213,11 +205,19 @@ export function TaskPerformanceExercise({
 
       {step === 'perform' && (
         <div className="space-y-4">
-          <div>
-            <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-1">Instructions</p>
-            <p className="text-gray-700 dark:text-gray-300">{content.instructions}</p>
-          </div>
-          <p className="text-xs text-gray-400 dark:text-gray-500">Tutor monitors and takes notes.</p>
+          <p className="text-gray-700 dark:text-gray-300">{content.instructions}</p>
+          {content.phrasesToUse && content.phrasesToUse.length > 0 && (
+            <div>
+              <p className="text-xs font-medium text-gray-400 dark:text-gray-500 mb-2">Quick reference:</p>
+              <div className="flex flex-wrap gap-2">
+                {content.phrasesToUse.map((p, i) => (
+                  <span key={i} className="px-2 py-1 rounded-full border border-brand-primary/30 bg-brand-primary/5 text-xs text-brand-primary dark:text-brand-primary italic">
+                    &ldquo;{p}&rdquo;
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
           <button
             onClick={() => setStep('repeat')}
             className="w-full py-2 rounded-lg bg-brand-primary text-white text-sm font-medium hover:bg-brand-accent transition-colors"
@@ -228,10 +228,25 @@ export function TaskPerformanceExercise({
       )}
 
       {step === 'repeat' && (
-        <div className="space-y-3">
-          <p className="text-gray-700 dark:text-gray-300">
-            Apply the tutor&apos;s feedback and repeat the roleplay. Focus on the phrases you missed or the language points that need work.
-          </p>
+        <div className="space-y-4">
+          <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3">
+            <p className="text-sm font-medium text-amber-800 dark:text-amber-300 mb-1">Now repeat the roleplay</p>
+            <p className="text-sm text-amber-700 dark:text-amber-400">
+              Apply the feedback. Try to use the phrases naturally this time — focus on flow, not perfection.
+            </p>
+          </div>
+          {content.phrasesToUse && content.phrasesToUse.length > 0 && (
+            <div>
+              <p className="text-xs font-medium text-gray-400 dark:text-gray-500 mb-2">Phrases to aim for:</p>
+              <div className="flex flex-wrap gap-2">
+                {content.phrasesToUse.map((p, i) => (
+                  <span key={i} className="px-2 py-1 rounded-full border border-brand-primary/30 bg-brand-primary/5 text-xs text-brand-primary dark:text-brand-primary italic">
+                    &ldquo;{p}&rdquo;
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -254,62 +269,44 @@ export function PostTaskExercise({
   content: PostTaskContent
   isStudentView?: boolean
 }) {
-  const [showCorrections, setShowCorrections] = useState(false)
-
   return (
     <div className="space-y-4">
-      <div>
-        <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-1">Grammar Focus</p>
+      <div className="border-l-2 border-brand-primary pl-3">
+        <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-0.5">Language note</p>
         <p className="font-medium text-gray-900 dark:text-white">{content.grammarFocus}</p>
-      </div>
-
-      <div>
-        <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-1">Rule</p>
-        <p className="text-gray-700 dark:text-gray-300">{content.explanation}</p>
+        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{content.explanation}</p>
       </div>
 
       {content.examples && content.examples.length > 0 && (
-        <div>
-          <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-2">Examples</p>
-          <ul className="space-y-1">
-            {content.examples.map((ex, i) => (
-              <li key={i} className="flex gap-2 text-gray-700 dark:text-gray-300">
-                <span className="text-green-500">✓</span>
-                {ex}
-              </li>
-            ))}
-          </ul>
+        <div className="space-y-1.5">
+          {content.examples.map((ex, i) => (
+            <div key={i} className="flex gap-2 text-sm text-gray-700 dark:text-gray-300">
+              <span className="text-green-500 flex-shrink-0">✓</span>
+              <span>{ex}</span>
+            </div>
+          ))}
         </div>
       )}
 
       {content.corrections && content.corrections.length > 0 && (
         <div>
-          <button
-            onClick={() => setShowCorrections(!showCorrections)}
-            className="flex items-center gap-2 text-sm font-medium text-brand-primary hover:underline"
-          >
-            <span>{showCorrections ? '▼' : '▶'}</span>
-            Common errors from this task ({content.corrections.length})
-          </button>
-          {showCorrections && (
-            <div className="mt-3 space-y-3">
-              {content.corrections.map((c, i) => (
-                <div key={i} className="border-l-2 border-gray-200 dark:border-gray-600 pl-3">
-                  <p className="text-red-500 dark:text-red-400 line-through mb-0.5">{c.error}</p>
-                  <p className="text-green-600 dark:text-green-400 mb-1">{c.correction}</p>
-                  <p className="text-xs text-gray-400 dark:text-gray-500">{c.rule}</p>
-                </div>
-              ))}
-            </div>
-          )}
+          <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-2">Watch out for</p>
+          <div className="space-y-3">
+            {content.corrections.map((c, i) => (
+              <div key={i} className="border-l-2 border-red-200 dark:border-red-800 pl-3">
+                <p className="text-sm text-red-500 dark:text-red-400 line-through">{c.error}</p>
+                <p className="text-sm text-green-600 dark:text-green-400">{c.correction}</p>
+                <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">{c.rule}</p>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
       {!isStudentView && (
         <div className="pt-1 border-t border-gray-100 dark:border-gray-700">
-          <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-0.5">Tutor note</p>
           <p className="text-xs text-gray-500 dark:text-gray-400">
-            Consider sending a follow-up grammar exercise on <strong className="text-gray-600 dark:text-gray-300">{content.grammarFocus}</strong> for independent practice — e.g. a gap-fill or sentence correction activity.
+            Follow-up idea: send a quick gap-fill or sentence correction exercise on <strong className="text-gray-600 dark:text-gray-300">{content.grammarFocus}</strong>.
           </p>
         </div>
       )}
