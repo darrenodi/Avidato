@@ -440,21 +440,27 @@ export default function YouTubeToLessonPage() {
       const transcriptText = manualTranscript.trim()
       const url = youtubeUrl.trim()
 
+      if (!url) {
+        setError('Please enter the YouTube video link.')
+        setLoading(false)
+        setLoadingStage(null)
+        return
+      }
 
       if (!transcriptText) {
-        setError('Please paste a transcript or provide a YouTube URL.')
+        setError('Please paste the video transcript.')
         setLoading(false)
         setLoadingStage(null)
         return
       }
 
       setLoadingStage('lesson')
-      const videoId = url ? extractVideoId(url) : null
+      const videoId = extractVideoId(url)
 
       const response = await fetch('/api/tools/youtube-to-lesson/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ transcriptText, youtubeUrl: url || undefined, level, context: context.trim() || undefined }),
+        body: JSON.stringify({ transcriptText, youtubeUrl: url, level, context: context.trim() || undefined }),
       })
 
       const data = await response.json()
@@ -632,7 +638,7 @@ export default function YouTubeToLessonPage() {
             {/* Submit */}
             <button
               type="submit"
-              disabled={loading || (!youtubeUrl.trim() && !manualTranscript.trim())}
+              disabled={loading || !youtubeUrl.trim() || !manualTranscript.trim()}
               className="w-full py-3.5 bg-red-600 hover:bg-red-700 disabled:bg-gray-200 dark:disabled:bg-gray-700 disabled:text-gray-400 dark:disabled:text-gray-500 text-white font-semibold rounded-xl transition-colors flex items-center justify-center gap-2 text-sm"
             >
               {loading ? (

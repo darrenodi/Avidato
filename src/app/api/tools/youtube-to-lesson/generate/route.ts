@@ -727,9 +727,16 @@ export async function POST(request: NextRequest) {
     const level = body.level
     const context = body.context?.trim()
 
-    if (!youtubeUrl && !transcriptText) {
+    if (!youtubeUrl) {
       return NextResponse.json(
-        { error: 'Provide a YouTube URL or paste transcript text.' },
+        { error: 'Please provide a YouTube video link.' },
+        { status: 400 }
+      )
+    }
+
+    if (!transcriptText) {
+      return NextResponse.json(
+        { error: 'Please paste the video transcript.' },
         { status: 400 }
       )
     }
