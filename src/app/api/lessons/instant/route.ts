@@ -69,7 +69,11 @@ export async function POST(request: NextRequest) {
       topic,
       description,
       duration: Number(duration) as 25 | 50,
-      studentName: student.name
+      studentName: student.name,
+      endGoals: student.endGoals || undefined,
+      occupation: student.occupation || undefined,
+      interests: student.interests || undefined,
+      weaknesses: student.weaknesses || undefined,
     });
 
     // Save lesson to database

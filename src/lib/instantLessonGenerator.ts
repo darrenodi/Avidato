@@ -10,6 +10,10 @@ interface InstantLessonParams {
   description?: string;
   duration: 25 | 50;
   studentName?: string;
+  endGoals?: string;
+  occupation?: string;
+  interests?: string;
+  weaknesses?: string;
 }
 
 interface GeneratedLesson {
@@ -47,7 +51,7 @@ export async function generateInstantLesson(params: InstantLessonParams): Promis
 }
 
 function buildInstantLessonPrompt(params: InstantLessonParams): string {
-  const { targetLanguage, nativeLanguage, level, topic, description, duration, studentName = 'Student' } = params;
+  const { targetLanguage, nativeLanguage, level, topic, description, duration, studentName = 'Student', endGoals, occupation, interests, weaknesses } = params;
   const is50 = duration === 50;
   const taskPrepTime = is50 ? 10 : 8;
   const taskPerfTime = is50 ? 20 : 8;
@@ -55,9 +59,16 @@ function buildInstantLessonPrompt(params: InstantLessonParams): string {
   const hwTime = is50 ? 5 : 2;
   const additionalContext = description ? `\nContext: ${description}` : '';
 
+  const bioLines = [
+    endGoals && `Goals: ${endGoals}`,
+    occupation && `Occupation: ${occupation}`,
+    interests && `Interests: ${interests}`,
+    weaknesses && `Areas to develop: ${weaknesses}`,
+  ].filter(Boolean).join('\n');
+
   return `Expert ${targetLanguage} instructor. Generate a TBLT instant lesson as JSON.
 
-STUDENT: ${studentName}, ${level}, native ${nativeLanguage}.
+STUDENT: ${studentName}, ${level}, native ${nativeLanguage}.${bioLines ? '\n' + bioLines : ''}
 TOPIC: "${topic}"${additionalContext}
 
 RULES:

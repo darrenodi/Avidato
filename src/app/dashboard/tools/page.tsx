@@ -25,6 +25,17 @@ const toolGroups: ToolGroup[] = [
     label: 'Lesson Tools',
     tools: [
       {
+        name: 'Instant Lesson',
+        description: 'Generate a complete TBLT lesson on any topic — lead-in, vocabulary, roleplay, grammar note, and homework. Ready in under a minute.',
+        href: '/dashboard/tools/instant-lesson',
+        status: 'available',
+        icon: (
+          <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+        ),
+      },
+      {
         name: 'YouTube to Lesson',
         description: 'Generate a complete 45-minute lesson plan from a YouTube video transcript.',
         href: '/dashboard/tools/youtube-to-lesson',
