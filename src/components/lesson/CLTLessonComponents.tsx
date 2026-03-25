@@ -204,6 +204,7 @@ interface CommunicativeActivityContent {
   studentCharacter?: string
   studentRole: string
   tutorRole: string
+  tutorQuestions?: string[]
   prompts?: string[]
 }
 
@@ -242,6 +243,16 @@ export function CommunicativeActivityExercise({
           <div className="border-l-2 border-gray-200 dark:border-gray-600 pl-3">
             <p className="font-medium text-sm text-gray-900 dark:text-white mb-0.5">Tutor</p>
             <p className="text-sm text-gray-600 dark:text-gray-400">{content.tutorRole}</p>
+            {content.tutorQuestions && content.tutorQuestions.length > 0 && (
+              <ol className="mt-2 space-y-1">
+                {content.tutorQuestions.map((q, i) => (
+                  <li key={i} className="flex gap-2 text-sm text-gray-600 dark:text-gray-400">
+                    <span className="flex-shrink-0 font-medium text-gray-400 dark:text-gray-500">{i + 1}.</span>
+                    <span>{q}</span>
+                  </li>
+                ))}
+              </ol>
+            )}
           </div>
         )}
       </div>

@@ -114,7 +114,7 @@ Student communicates freely. Meaning over perfection. ${isKid ? 'Make it playful
 - "instructions" = TUTOR SETUP only (not shown to student). Never use student real name anywhere in this exercise.
 - "studentCharacter" = fictional name (e.g. Alex, Sam). "studentRole" = their brief in ${student.targetLanguage}.
 - "prompts" = task cues shown to student. Refer to tutor as "the tutor" if needed.
-Format: { "type": "communicative-activity", "title": "[Speaking Activity in ${student.targetLanguage}]", "content": { "activityName": "[in ${student.targetLanguage}]", "instructions": "[TUTOR SETUP — not shown to student]", "studentCharacter": "[fictional name]", "studentRole": "[brief in ${student.targetLanguage} — no real names]", "tutorRole": "[how tutor participates in ${student.targetLanguage}]", "prompts": ["[cue 1 in ${student.targetLanguage}]","[cue 2]"] }, "timeMinutes": ${activityTime} }
+Format: { "type": "communicative-activity", "title": "[Speaking Activity in ${student.targetLanguage}]", "content": { "activityName": "[in ${student.targetLanguage}]", "instructions": "[TUTOR SETUP — not shown to student]", "studentCharacter": "[fictional name]", "studentRole": "[brief in ${student.targetLanguage} — no real names]", "tutorRole": "[how tutor participates in ${student.targetLanguage}]", "tutorQuestions": ["[sample Q1 for tutor to ask — in ${student.targetLanguage}]","[Q2]","[Q3]","[Q4]","[Q5]"], "prompts": ["[cue 1 in ${student.targetLanguage}]","[cue 2]"] }, "timeMinutes": ${activityTime} }
 
 **Exercise 4: Wrap-up** (${wrapTime} min)
 reviewQuestions = tutor asks orally. Plain questions, never address student by name.
