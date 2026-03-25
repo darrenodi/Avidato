@@ -71,13 +71,12 @@ export async function POST(request: NextRequest) {
 
     const voiceMap = buildVoiceMap(lines, isKid)
 
-    // Generate all lines in parallel, stitch in original order
-    const buffers = await Promise.all(
-      lines.map(line => {
-        const voiceId = voiceMap.get(line.speaker) ?? VOICE_IDS.narrator
-        return fetchLineAudio(line.text, voiceId, apiKey)
-      })
-    )
+    // Generate lines sequentially to avoid ElevenLabs rate limiting
+    const buffers: ArrayBuffer[] = []
+    for (const line of lines) {
+      const voiceId = voiceMap.get(line.speaker) ?? VOICE_IDS.narrator
+      buffers.push(await fetchLineAudio(line.text, voiceId, apiKey))
+    }
 
     const totalBytes = buffers.reduce((sum, b) => sum + b.byteLength, 0)
     const stitched = new Uint8Array(totalBytes)

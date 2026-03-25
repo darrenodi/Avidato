@@ -44,14 +44,16 @@ Format: { "type": "vocabulary", "title": "[Vocabulary in ${student.targetLanguag
 EXACTLY 3 questions. Q1: personal experience ("Have you ever...?"). Q2: personal familiarity — have they done/seen this? NEVER "What is important when X?" or "What are the key factors?". Q3: story/memory — "What's the most memorable/challenging...?" NEVER starts with "How can...", "Why is...", "What are the effects/implications...". WARM-UP = story or memory. DISCUSSION = analysis. MAX 15 words each. Never use student name.
 Format: { "type": "warmup", "title": "[Warm-up in ${student.targetLanguage}]", "description": "[in ${student.targetLanguage}]", "content": { "questions": ["Q1","Q2","Q3"], "instructions": "[Discuss the questions in ${student.targetLanguage}]" }, "timeMinutes": 8 }
 
-**Exercise 3: Dialogue** (12 min)
-8-12 turns. ${student.name} speaks first. Characters from: ${roles.join(', ')}.
-REALISM (mandatory): Start with small talk — never jump to the main topic. Include one imperfect moment (misunderstanding, correction, forgotten detail). Other person pushes back at least once. Use contractions + natural fillers ("actually","to be honest","by the way"). Vary line lengths. End at a natural pause, not a tidy resolution. No info dumps.
-Format: { "type": "dialogue", "title": "[Dialogue in ${student.targetLanguage}]", "description": "[in ${student.targetLanguage}]", "content": { "setting": "[MAX 150 chars in ${student.targetLanguage}]", "characters": ["${student.name}", "[Role Name]"], "dialogue": [{"character": "${student.name}", "text": "[in ${student.targetLanguage}]"}, ...8-12 turns alternating] }, "timeMinutes": 12 }
-
-**Exercise 4: Useful Phrases** (5 min)
-6-8 phrases specific to this scenario. All must appear in the dialogue. Every phrase must be usable in real work tomorrow.
+**Exercise 3: Useful Phrases** (5 min)
+6-8 phrases specific to this scenario. Every phrase must be usable in real life tomorrow.
+IMPORTANT: Design these phrases FIRST — the dialogue in Ex 4 will be built around them. Every phrase must appear naturally in Ex 4.
 Format: { "type": "useful-phrases", "title": "[Useful Phrases in ${student.targetLanguage}]", "content": { "context": "[one sentence on when to use these, in ${student.targetLanguage}]", "phrases": [{ "phrase": "[in ${student.targetLanguage}]", "usage": "[when/why, in ${student.targetLanguage}]" }] }, "timeMinutes": 5 }
+
+**Exercise 4: Dialogue** (12 min)
+8-12 turns. ${student.name} speaks first. Characters from: ${roles.join(', ')}.
+LANGUAGE REQUIREMENT: Every vocabulary word from Ex 1 AND every phrase from Ex 3 must appear. Do not insert them into the story — design a situation that REQUIRES them to come up naturally.
+REALISM (mandatory): Start with small talk — never jump to the main topic. Include one imperfect moment (misunderstanding, correction, forgotten detail). Other person pushes back at least once. At least one genuine emotional reaction (surprise, disagreement, relief). Use contractions + natural fillers ("actually","to be honest","by the way"). Vary line lengths. End at a natural pause, not a tidy resolution. No info dumps.
+Format: { "type": "dialogue", "title": "[Dialogue in ${student.targetLanguage}]", "description": "[in ${student.targetLanguage}]", "content": { "setting": "[MAX 150 chars in ${student.targetLanguage}]", "characters": ["${student.name}", "[Role Name]"], "dialogue": [{"character": "${student.name}", "text": "[in ${student.targetLanguage}]"}, ...8-12 turns alternating] }, "timeMinutes": 12 }
 
 **Exercise 5: Comprehension** (8 min)
 EXACTLY 3 open-ended questions about the dialogue (decisions, reasoning, key points).
@@ -83,7 +85,7 @@ JSON OUTPUT:
   "skills": ["Speaking","Listening","Reading","Vocabulary"],
   "vocabulary": [],
   "context": "${topic.context}",
-  "exercises": [/* 7 exercises: vocabulary, warmup, dialogue, useful-phrases, comprehension, sentence-correction, discussion */],
+  "exercises": [/* 7 exercises: vocabulary, warmup, useful-phrases, dialogue, comprehension, sentence-correction, discussion */],
   "homework": "[in ${student.targetLanguage}]",
   "materials": [],
   "teachingNotes": "[in ${student.targetLanguage}]"
@@ -179,9 +181,10 @@ EXACTLY 3 questions. Q1: personal experience. Q2: personal familiarity with this
 Format: { "type": "lead-in", "title": "[Lead-in in ${student.targetLanguage}]", "content": { "questions": ["Q1","Q2","Q3"], "instructions": "[in ${student.targetLanguage}]" }, "timeMinutes": 5 }
 
 **Exercise 2: Task Prep** (${is50min ? 15 : 10} min)
-PART A — Vocabulary: EXACTLY 6 single words, domain-specific, each appears in dialogue. No expressions array (use keyPhrases for functional language).
-PART B — Key Phrases: 4-6 phrases from lesson features (${lesson.keyLanguageFeatures.join('; ')}). Each: phrase + when to use + example. All appear in dialogue.
-PART C — Model Dialogue: 8-12 turns, ${student.name} speaks first. Start with small talk. Include imperfect moment. Other person pushes back once. Contractions + fillers. End at natural pause.
+PART A — Vocabulary: EXACTLY 6 single words, domain-specific. No expressions array.
+PART B — Key Phrases: 4-6 phrases from lesson features (${lesson.keyLanguageFeatures.join('; ')}). Each: phrase + when to use + example.
+Write PART A and PART B first. Then write PART C around them.
+PART C — Model Dialogue: 8-12 turns, ${student.name} speaks first. Design a situation that REQUIRES every vocabulary word and every key phrase to arise naturally — do not insert them into an unrelated story. Start with small talk. Include one imperfect moment (misunderstanding, forgotten detail, correction). Other person pushes back once. At least one genuine emotional reaction (surprise, frustration, relief). Contractions + natural fillers. End at a natural pause, not a tidy resolution. No info dumps.
 Format:
 {
   "type": "task-prep",
