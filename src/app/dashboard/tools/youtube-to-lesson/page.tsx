@@ -332,6 +332,8 @@ export default function YouTubeToLessonPage() {
   const [manualTranscript, setManualTranscript] = useState('')
   const [context, setContext] = useState('')
   const [level, setLevel] = useState<CEFRLevel>('B1')
+  const [showTranscriptInput, setShowTranscriptInput] = useState(false)
+  const [showContext, setShowContext] = useState(false)
   const [loading, setLoading] = useState(false)
   const [loadingStage, setLoadingStage] = useState<'transcript' | 'lesson' | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -516,115 +518,61 @@ export default function YouTubeToLessonPage() {
 
   return (
     <DashboardLayout>
-      <div className="max-w-5xl mx-auto px-4 py-8">
+      <div className="max-w-3xl mx-auto px-4 py-8">
         {/* Header */}
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">YouTube to Lesson</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
-            Generate a full lesson plan from a YouTube video. Max 5 min.
-          </p>
+        <div className="flex items-center gap-4 mb-8">
+          <div className="w-12 h-12 rounded-2xl bg-red-600 flex items-center justify-center flex-shrink-0 shadow-lg shadow-red-200 dark:shadow-red-900/30">
+            <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M21.8 8s-.2-1.4-.8-2c-.8-.8-1.6-.8-2-.9C16.8 5 12 5 12 5s-4.8 0-7 .1c-.4.1-1.2.1-2 .9-.6.6-.8 2-.8 2S2 9.6 2 11.2v1.5c0 1.6.2 3.2.2 3.2s.2 1.4.8 2c.8.8 1.8.8 2.2.8C6.8 19 12 19 12 19s4.8 0 7-.1c.4-.1 1.2-.1 2-.9.6-.6.8-2 .8-2s.2-1.6.2-3.2v-1.5C22 9.6 21.8 8 21.8 8zM9.7 14.5V9l5.3 2.8-5.3 2.7z"/>
+            </svg>
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">YouTube to Lesson</h1>
+            <p className="text-sm text-gray-500 dark:text-gray-400">Turn any video into a full 50-minute lesson plan</p>
+          </div>
         </div>
 
-        {/* ============================================================== */}
-        {/* INPUT FORM                                                      */}
-        {/* ============================================================== */}
-        <Card>
-          <form onSubmit={handleGenerate} className="space-y-6">
-            {/* Transcript — primary */}
+        {/* Form */}
+        <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
+          <form onSubmit={handleGenerate} className="p-6 space-y-6">
+
+            {/* YouTube URL — primary field */}
             <div>
-              <label htmlFor="manualTranscript" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Video Transcript
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
+                Video URL
               </label>
-              <textarea
-                id="manualTranscript"
-                value={manualTranscript}
-                onChange={(e) => setManualTranscript(e.target.value)}
-                placeholder="Paste the YouTube video transcript here..."
-                rows={10}
-                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-primary focus:border-transparent"
-              />
-              <div className="flex items-center gap-2 mt-2">
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  Need the transcript? Copy it from{' '}
-                  <a href="https://www.youtube-transcript.io/" target="_blank" rel="noreferrer" className="text-brand-primary hover:underline font-medium">
-                    youtube-transcript.io
-                  </a>
-                </p>
-                <button
-                  type="button"
-                  onClick={() => window.open('https://www.youtube-transcript.io/', '_blank')}
-                  className="ml-auto text-xs px-3 py-1 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-md border border-gray-300 dark:border-gray-600 transition-colors"
-                >
-                  Open Transcript Tool &rarr;
-                </button>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+                  <svg className="w-4 h-4 text-red-500" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M21.8 8s-.2-1.4-.8-2c-.8-.8-1.6-.8-2-.9C16.8 5 12 5 12 5s-4.8 0-7 .1c-.4.1-1.2.1-2 .9-.6.6-.8 2-.8 2S2 9.6 2 11.2v1.5c0 1.6.2 3.2.2 3.2s.2 1.4.8 2c.8.8 1.8.8 2.2.8C6.8 19 12 19 12 19s4.8 0 7-.1c.4-.1 1.2-.1 2-.9.6-.6.8-2 .8-2s.2-1.6.2-3.2v-1.5C22 9.6 21.8 8 21.8 8zM9.7 14.5V9l5.3 2.8-5.3 2.7z"/>
+                  </svg>
+                </div>
+                <input
+                  type="url"
+                  value={youtubeUrl}
+                  onChange={(e) => setYoutubeUrl(e.target.value)}
+                  placeholder="https://www.youtube.com/watch?v=..."
+                  className="w-full pl-9 pr-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-900/50 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-red-500 focus:border-transparent focus:bg-white dark:focus:bg-gray-900 transition-colors text-sm"
+                />
               </div>
+              <p className="text-xs text-gray-400 dark:text-gray-500 mt-1.5">Max 5 minutes. Transcript is fetched automatically.</p>
             </div>
 
-            {/* YouTube URL */}
-            <div>
-              <label htmlFor="youtubeUrl" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                YouTube URL <span className="text-gray-400 font-normal">(optional — for embedded player)</span>
-              </label>
-              <input
-                id="youtubeUrl"
-                type="url"
-                value={youtubeUrl}
-                onChange={(e) => setYoutubeUrl(e.target.value)}
-                placeholder="https://www.youtube.com/watch?v=..."
-                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-primary focus:border-transparent"
-              />
-            </div>
-
-            {/* CEFR Level */}
-            <div>
-              <label htmlFor="level" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                CEFR Level
-              </label>
-              <select
-                id="level"
-                value={level}
-                onChange={(e) => setLevel(e.target.value as CEFRLevel)}
-                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-primary focus:border-transparent"
-              >
-                {CEFR_LEVELS.map((v) => (
-                  <option key={v} value={v}>{v} - {LEVEL_DESCRIPTIONS[v]}</option>
-                ))}
-              </select>
-            </div>
-
-            {/* Context / Notes */}
-            <div>
-              <label htmlFor="context" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Context <span className="text-gray-400 font-normal">(optional)</span>
-              </label>
-              <textarea
-                id="context"
-                value={context}
-                onChange={(e) => setContext(e.target.value)}
-                placeholder="e.g. My student is a 30-year-old nurse from Brazil who struggles with phrasal verbs. Focus on medical vocabulary if possible."
-                rows={3}
-                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-primary focus:border-transparent"
-              />
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1.5">
-                Give the AI details about your student or lesson goals to shape the output.
-              </p>
-            </div>
-
-            {/* Transcript error */}
+            {/* Transcript error — auto-fetch failed */}
             {transcriptError && (
-              <div className="p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
-                <p className="text-sm font-medium text-amber-800 dark:text-amber-300 mb-2">
-                  Automatic transcript fetch is unavailable.
-                </p>
-                <p className="text-sm text-amber-700 dark:text-amber-400 mb-3">
-                  YouTube blocks server-side requests. Copy the transcript from the tool below and paste it above.
-                </p>
-                <button
-                  type="button"
-                  onClick={() => window.open('https://www.youtube-transcript.io/', '_blank')}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium bg-amber-100 dark:bg-amber-800/40 hover:bg-amber-200 dark:hover:bg-amber-800/60 text-amber-900 dark:text-amber-200 rounded-md border border-amber-300 dark:border-amber-700 transition-colors"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 p-4 space-y-3">
+                <div className="flex items-start gap-2">
+                  <svg className="w-4 h-4 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
+                  </svg>
+                  <div>
+                    <p className="text-sm font-medium text-amber-800 dark:text-amber-300">Auto-fetch unavailable</p>
+                    <p className="text-xs text-amber-700 dark:text-amber-400 mt-0.5">YouTube blocks server requests. Get the transcript from youtube-transcript.io and paste it below.</p>
+                  </div>
+                </div>
+                <button type="button" onClick={() => window.open('https://www.youtube-transcript.io/', '_blank')}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-amber-100 dark:bg-amber-800/40 hover:bg-amber-200 dark:hover:bg-amber-800/60 text-amber-900 dark:text-amber-200 rounded-lg border border-amber-300 dark:border-amber-700 transition-colors">
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                   </svg>
                   Open youtube-transcript.io
@@ -632,23 +580,88 @@ export default function YouTubeToLessonPage() {
               </div>
             )}
 
+            {/* Paste transcript — toggle or always shown when error */}
+            {(transcriptError || showTranscriptInput) && (
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">Transcript</label>
+                <textarea
+                  value={manualTranscript}
+                  onChange={(e) => setManualTranscript(e.target.value)}
+                  placeholder="Paste the video transcript here..."
+                  rows={7}
+                  className="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-900/50 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-brand-primary focus:border-transparent focus:bg-white dark:focus:bg-gray-900 transition-colors text-sm resize-none"
+                />
+              </div>
+            )}
+
+            {!transcriptError && (
+              <button type="button" onClick={() => setShowTranscriptInput(s => !s)}
+                className="flex items-center gap-1.5 text-xs text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors -mt-3">
+                <svg className={`w-3 h-3 transition-transform ${showTranscriptInput ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+                {showTranscriptInput ? 'Hide transcript field' : 'Or paste transcript manually'}
+              </button>
+            )}
+
+            {/* Divider */}
+            <div className="border-t border-gray-100 dark:border-gray-700" />
+
+            {/* CEFR Level pills */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-3">Level</label>
+              <div className="flex flex-wrap gap-2">
+                {CEFR_LEVELS.map((v) => (
+                  <button
+                    key={v}
+                    type="button"
+                    onClick={() => setLevel(v)}
+                    className={`px-4 py-2 rounded-xl border-2 text-sm font-semibold transition-all ${
+                      level === v
+                        ? 'border-brand-primary bg-brand-primary text-white shadow-sm'
+                        : 'border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:border-brand-primary/40 hover:text-gray-900 dark:hover:text-gray-200'
+                    }`}
+                  >
+                    {v}
+                  </button>
+                ))}
+              </div>
+              <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">{LEVEL_DESCRIPTIONS[level]}</p>
+            </div>
+
+            {/* Context — collapsible optional */}
+            <div>
+              <button type="button" onClick={() => setShowContext(s => !s)}
+                className="flex items-center gap-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 transition-colors">
+                <svg className={`w-4 h-4 transition-transform ${showContext ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+                Student context
+                <span className="text-xs font-normal bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 px-1.5 py-0.5 rounded">Optional</span>
+              </button>
+              {showContext && (
+                <div className="mt-3">
+                  <textarea
+                    value={context}
+                    onChange={(e) => setContext(e.target.value)}
+                    placeholder="e.g. My student is a 30-year-old nurse from Brazil who struggles with phrasal verbs."
+                    rows={3}
+                    className="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-900/50 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-brand-primary focus:border-transparent focus:bg-white dark:focus:bg-gray-900 transition-colors text-sm resize-none"
+                  />
+                </div>
+              )}
+            </div>
+
             {/* General error */}
             {error && (
-              <div className={`p-4 border rounded-lg ${
+              <div className={`p-4 rounded-xl border ${
                 error.includes('Premium')
                   ? 'bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800'
                   : 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'
               }`}>
-                <p className={`text-sm ${
-                  error.includes('Premium')
-                    ? 'text-purple-800 dark:text-purple-300'
-                    : 'text-red-800 dark:text-red-300'
-                }`}>{error}</p>
+                <p className={`text-sm ${error.includes('Premium') ? 'text-purple-800 dark:text-purple-300' : 'text-red-800 dark:text-red-300'}`}>{error}</p>
                 {error.includes('Premium') && (
-                  <a
-                    href="/pricing"
-                    className="inline-flex items-center gap-1.5 mt-3 px-4 py-2 text-sm font-medium bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
-                  >
+                  <a href="/pricing" className="inline-flex items-center gap-1.5 mt-3 px-4 py-2 text-sm font-medium bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors">
                     View Plans &rarr;
                   </a>
                 )}
@@ -659,24 +672,24 @@ export default function YouTubeToLessonPage() {
             <button
               type="submit"
               disabled={loading || (!youtubeUrl.trim() && !manualTranscript.trim())}
-              className="w-full px-6 py-3 bg-brand-primary hover:bg-brand-primary/90 disabled:bg-gray-300 dark:disabled:bg-gray-600 text-white font-medium rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
+              className="w-full py-3.5 bg-red-600 hover:bg-red-700 disabled:bg-gray-200 dark:disabled:bg-gray-700 disabled:text-gray-400 dark:disabled:text-gray-500 text-white font-semibold rounded-xl transition-colors flex items-center justify-center gap-2 text-sm"
             >
               {loading ? (
                 <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                  {loadingStage === 'transcript' ? 'Fetching Transcript...' : 'Generating Lesson Plan...'}
+                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
+                  {loadingStage === 'transcript' ? 'Fetching transcript...' : 'Generating lesson...'}
                 </>
               ) : (
                 <>
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14m-6 4h5a2 2 0 002-2V8a2 2 0 00-2-2H9a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M21.8 8s-.2-1.4-.8-2c-.8-.8-1.6-.8-2-.9C16.8 5 12 5 12 5s-4.8 0-7 .1c-.4.1-1.2.1-2 .9-.6.6-.8 2-.8 2S2 9.6 2 11.2v1.5c0 1.6.2 3.2.2 3.2s.2 1.4.8 2c.8.8 1.8.8 2.2.8C6.8 19 12 19 12 19s4.8 0 7-.1c.4-.1 1.2-.1 2-.9.6-.6.8-2 .8-2s.2-1.6.2-3.2v-1.5C22 9.6 21.8 8 21.8 8zM9.7 14.5V9l5.3 2.8-5.3 2.7z"/>
                   </svg>
-                  Generate 50-Minute Lesson Plan
+                  Generate Lesson Plan
                 </>
               )}
             </button>
           </form>
-        </Card>
+        </div>
 
         {/* ============================================================== */}
         {/* LESSON PLAN RESULT — 6 Stages                                   */}
