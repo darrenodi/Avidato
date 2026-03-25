@@ -661,12 +661,10 @@ type MatchFeedback = { [phraseIdx: number]: 'correct' | 'incorrect' | null }
 
 export function UsefulExpressionsExercise({
   expressions,
-  instructions,
 }: {
   expressions: { phrase: string; meaning: string; example?: string }[]
   instructions?: string
 }) {
-  const [mode, setMode] = useState<'study' | 'match'>('study')
   const [shuffledMeanings] = useState(() =>
     expressions.map(e => e.meaning).sort(() => Math.random() - 0.5)
   )
@@ -710,154 +708,114 @@ export function UsefulExpressionsExercise({
 
   return (
     <div className="space-y-4">
-      {/* Mode toggle */}
-      <div className="flex gap-1 p-1 bg-gray-100 dark:bg-gray-800 rounded-lg w-fit">
-        {(['study', 'match'] as const).map(m => (
-          <button
-            key={m}
-            onClick={() => { setMode(m); if (m === 'match') resetGame() }}
-            className={`px-3 py-1 text-xs font-medium rounded-md transition-colors capitalize ${
-              mode === m
-                ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm'
-                : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
-            }`}
-          >
-            {m === 'match' ? '🎯 Match' : '📖 Study'}
-          </button>
-        ))}
+      {/* Progress bar */}
+      <div className="flex items-center justify-between">
+        <span className="text-xs font-medium text-gray-500 dark:text-gray-400">{progress}/{total} matched</span>
+        {allCorrect && progress === total && (
+          <span className="text-xs font-semibold text-green-600 dark:text-green-400">✓ Perfect!</span>
+        )}
+      </div>
+      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
+        <div
+          className={`h-1.5 rounded-full transition-all ${allCorrect && progress === total ? 'bg-green-500' : 'bg-brand-primary'}`}
+          style={{ width: `${total > 0 ? (progress / total) * 100 : 0}%` }}
+        />
       </div>
 
-      {/* Study mode */}
-      {mode === 'study' && (
-        <div className="space-y-3">
-          {instructions && (
-            <p className="text-gray-600 dark:text-gray-400 italic text-sm">{formatText(instructions)}</p>
-          )}
-          {expressions.map((expr, i) => (
-            <div key={i} className="border-l-2 border-brand-primary pl-3">
-              <p className="font-semibold text-gray-900 dark:text-white text-sm">{expr.phrase}</p>
-              <p className="text-gray-600 dark:text-gray-400 text-sm">{expr.meaning}</p>
-              {expr.example && (
-                <p className="text-gray-500 dark:text-gray-500 text-xs italic mt-0.5">{expr.example}</p>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Match mode */}
-      {mode === 'match' && (
-        <div className="space-y-4">
-          {/* Progress bar */}
-          <div className="flex items-center justify-between mb-1">
-            <span className="text-xs font-medium text-gray-500 dark:text-gray-400">{progress}/{total} matched</span>
-            {allCorrect && progress === total && (
-              <span className="text-xs font-semibold text-green-600 dark:text-green-400">✓ Perfect!</span>
-            )}
-          </div>
-          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
-            <div
-              className={`h-1.5 rounded-full transition-all ${allCorrect && progress === total ? 'bg-green-500' : 'bg-brand-primary'}`}
-              style={{ width: `${total > 0 ? (progress / total) * 100 : 0}%` }}
-            />
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
-            {/* Phrases column */}
-            <div className="lg:col-span-2 space-y-2">
-              {expressions.map((expr, phraseIdx) => {
-                const matched = getMatchedDef(phraseIdx)
-                const isCorrect = feedback[phraseIdx] === 'correct'
-                const isIncorrect = feedback[phraseIdx] === 'incorrect'
-                return (
-                  <div
-                    key={phraseIdx}
-                    onDragOver={e => e.preventDefault()}
-                    onDrop={() => draggedDef !== null && handleDrop(phraseIdx, draggedDef)}
-                    className={`flex items-start gap-3 p-3 rounded-lg border-2 transition-colors ${
-                      isCorrect ? 'bg-green-50 dark:bg-green-900/20 border-green-300 dark:border-green-700'
-                      : isIncorrect ? 'bg-red-50 dark:bg-red-900/20 border-red-300 dark:border-red-700'
-                      : draggedDef !== null ? 'bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-gray-600'
-                      : 'border-gray-200 dark:border-gray-600'
-                    }`}
-                  >
-                    <div className="flex-shrink-0 min-w-[110px]">
-                      <p className="font-semibold text-gray-900 dark:text-white text-sm">{expr.phrase}</p>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+        {/* Phrases column */}
+        <div className="lg:col-span-2 space-y-2">
+          {expressions.map((expr, phraseIdx) => {
+            const matched = getMatchedDef(phraseIdx)
+            const isCorrect = feedback[phraseIdx] === 'correct'
+            const isIncorrect = feedback[phraseIdx] === 'incorrect'
+            return (
+              <div
+                key={phraseIdx}
+                onDragOver={e => e.preventDefault()}
+                onDrop={() => draggedDef !== null && handleDrop(phraseIdx, draggedDef)}
+                className={`flex items-start gap-3 p-3 rounded-lg border-2 transition-colors ${
+                  isCorrect ? 'bg-green-50 dark:bg-green-900/20 border-green-300 dark:border-green-700'
+                  : isIncorrect ? 'bg-red-50 dark:bg-red-900/20 border-red-300 dark:border-red-700'
+                  : draggedDef !== null ? 'bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-gray-600'
+                  : 'border-gray-200 dark:border-gray-600'
+                }`}
+              >
+                <div className="flex-shrink-0 min-w-[110px]">
+                  <p className="font-semibold text-gray-900 dark:text-white text-sm">{expr.phrase}</p>
+                </div>
+                <div className="flex-1">
+                  {matched ? (
+                    <div className={`p-2 rounded-lg text-sm transition-colors ${
+                      isCorrect ? 'bg-green-200 dark:bg-green-800 text-green-900 dark:text-green-100 border border-green-400'
+                      : isIncorrect ? 'bg-red-200 dark:bg-red-800 text-red-900 dark:text-red-100 border border-red-400'
+                      : 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-900 dark:text-yellow-100 border border-yellow-300'
+                    }`}>
+                      <div className="flex items-start justify-between gap-2">
+                        <span>{matched}</span>
+                        {!isCorrect && (
+                          <button onClick={() => clearMatch(phraseIdx)} className="text-base hover:opacity-70 flex-shrink-0 leading-none">✕</button>
+                        )}
+                      </div>
                     </div>
-                    <div className="flex-1">
-                      {matched ? (
-                        <div className={`p-2 rounded-lg text-sm transition-colors ${
-                          isCorrect ? 'bg-green-200 dark:bg-green-800 text-green-900 dark:text-green-100 border border-green-400'
-                          : isIncorrect ? 'bg-red-200 dark:bg-red-800 text-red-900 dark:text-red-100 border border-red-400'
-                          : 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-900 dark:text-yellow-100 border border-yellow-300'
-                        }`}>
-                          <div className="flex items-start justify-between gap-2">
-                            <span>{matched}</span>
-                            {!isCorrect && (
-                              <button onClick={() => clearMatch(phraseIdx)} className="text-base hover:opacity-70 flex-shrink-0 leading-none">✕</button>
-                            )}
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="p-2 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600 text-center text-gray-400 dark:text-gray-500 text-xs">
-                          Drop meaning here
-                        </div>
-                      )}
+                  ) : (
+                    <div className="p-2 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600 text-center text-gray-400 dark:text-gray-500 text-xs">
+                      Drop meaning here
                     </div>
-                  </div>
-                )
-              })}
-            </div>
-
-            {/* Meanings column */}
-            <div className="rounded-lg p-3 h-fit border border-gray-200 dark:border-gray-600">
-              <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">Meanings</p>
-              <div className="space-y-2">
-                {shuffledMeanings.map((meaning, defIdx) => {
-                  const matched = isDefMatched(defIdx)
-                  const isDragging = draggedDef === defIdx
-                  return (
-                    <div
-                      key={defIdx}
-                      draggable={!matched}
-                      onDragStart={() => !matched && setDraggedDef(defIdx)}
-                      onDragEnd={() => setDraggedDef(null)}
-                      onClick={() => {
-                        if (matched) return
-                        if (draggedDef === defIdx) setDraggedDef(null)
-                        else setDraggedDef(defIdx)
-                      }}
-                      className={`p-2 rounded-lg text-xs leading-relaxed transition-all border-2 select-none ${
-                        isDragging ? 'border-brand-primary bg-brand-primary/10 text-gray-900 dark:text-white scale-105 shadow-lg cursor-grabbing'
-                        : matched ? 'border-gray-200 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed opacity-50'
-                        : 'border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:border-brand-primary/50 hover:shadow cursor-grab'
-                      }`}
-                    >
-                      {meaning}
-                    </div>
-                  )
-                })}
+                  )}
+                </div>
               </div>
-            </div>
-          </div>
+            )
+          })}
+        </div>
 
-          <div className="flex gap-2">
-            <button
-              onClick={checkAnswers}
-              disabled={progress === 0}
-              className="flex-1 py-2 px-4 bg-brand-primary text-white rounded-lg hover:bg-brand-accent disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm font-medium"
-            >
-              Check Answers
-            </button>
-            <button
-              onClick={resetGame}
-              className="flex-1 py-2 px-4 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors text-sm font-medium"
-            >
-              Reset
-            </button>
+        {/* Meanings column */}
+        <div className="rounded-lg p-3 h-fit border border-gray-200 dark:border-gray-600">
+          <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">Meanings</p>
+          <div className="space-y-2">
+            {shuffledMeanings.map((meaning, defIdx) => {
+              const matched = isDefMatched(defIdx)
+              const isDragging = draggedDef === defIdx
+              return (
+                <div
+                  key={defIdx}
+                  draggable={!matched}
+                  onDragStart={() => !matched && setDraggedDef(defIdx)}
+                  onDragEnd={() => setDraggedDef(null)}
+                  onClick={() => {
+                    if (matched) return
+                    if (draggedDef === defIdx) setDraggedDef(null)
+                    else setDraggedDef(defIdx)
+                  }}
+                  className={`p-2 rounded-lg text-xs leading-relaxed transition-all border-2 select-none ${
+                    isDragging ? 'border-brand-primary bg-brand-primary/10 text-gray-900 dark:text-white scale-105 shadow-lg cursor-grabbing'
+                    : matched ? 'border-gray-200 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed opacity-50'
+                    : 'border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:border-brand-primary/50 hover:shadow cursor-grab'
+                  }`}
+                >
+                  {meaning}
+                </div>
+              )
+            })}
           </div>
         </div>
-      )}
+      </div>
+
+      <div className="flex gap-2">
+        <button
+          onClick={checkAnswers}
+          disabled={progress === 0}
+          className="flex-1 py-2 px-4 bg-brand-primary text-white rounded-lg hover:bg-brand-accent disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm font-medium"
+        >
+          Check Answers
+        </button>
+        <button
+          onClick={resetGame}
+          className="flex-1 py-2 px-4 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors text-sm font-medium"
+        >
+          Reset
+        </button>
+      </div>
     </div>
   )
 }
