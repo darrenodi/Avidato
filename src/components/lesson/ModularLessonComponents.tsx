@@ -186,31 +186,34 @@ export function UsefulExpressionsModule({ content, isStudentView, tutorNotes }: 
 // ─── Useful Language ──────────────────────────────────────────────────────────
 
 export function UsefulLanguageModule({ content, isStudentView, tutorNotes }: { content: UsefulLanguageContent; isStudentView?: boolean; tutorNotes?: string }) {
+  const sentences = content.practice?.sentences || []
   return (
     <div className="space-y-5">
       <div className="space-y-2">
         <SectionLabel text="Phrases" />
-        {content.phrases.map((p, i) => (
+        {(content.phrases || []).map((p, i) => (
           <div key={i} className="border-l-2 border-brand-primary pl-3">
             <p className="font-medium text-gray-900 dark:text-white">{p.phrase}</p>
             <p className="text-xs text-gray-400 dark:text-gray-500 italic mt-0.5">&ldquo;{p.example}&rdquo;</p>
           </div>
         ))}
       </div>
-      <div className="space-y-2">
-        <SectionLabel text="Practice — fill in the blanks" />
-        {(content.practice?.sentences || []).map((s, i) => (
-          <div key={i} className="flex gap-2 text-sm">
-            <span className="text-brand-primary font-medium flex-shrink-0">{i + 1}.</span>
-            <div>
-              <span className="text-gray-900 dark:text-white">{s.prompt} </span>
-              {!isStudentView
-                ? <span className="text-green-600 dark:text-green-400 font-medium">{s.answer}</span>
-                : <span className="inline-block w-24 border-b border-gray-400 dark:border-gray-500" />}
+      {sentences.length > 0 && (
+        <div className="space-y-2">
+          <SectionLabel text="Practice — fill in the blanks" />
+          {sentences.map((s, i) => (
+            <div key={i} className="flex gap-2 text-sm">
+              <span className="text-brand-primary font-medium flex-shrink-0">{i + 1}.</span>
+              <div>
+                <span className="text-gray-900 dark:text-white">{s.prompt} </span>
+                {!isStudentView
+                  ? <span className="text-green-600 dark:text-green-400 font-medium">{s.answer}</span>
+                  : <span className="inline-block w-24 border-b border-gray-400 dark:border-gray-500" />}
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
       {!isStudentView && tutorNotes && <TutorNote note={tutorNotes} />}
     </div>
   )
