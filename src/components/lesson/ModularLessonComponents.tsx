@@ -225,7 +225,7 @@ export function LanguageInContextModule({ content, isStudentView, tutorNotes }: 
   return (
     <div className="space-y-3">
       {content.instructions && <p className="text-sm text-gray-500 dark:text-gray-400 italic">{content.instructions}</p>}
-      {content.phrases.map((p, i) => (
+      {(content.phrases || []).map((p, i) => (
         <div key={i} className="border-l-2 border-brand-primary pl-3 py-0.5 space-y-0.5">
           <p className="font-medium text-gray-900 dark:text-white">&ldquo;{p.phrase}&rdquo;</p>
           <p className="text-xs font-medium text-teal-600 dark:text-teal-400">{p.function}</p>
@@ -241,7 +241,7 @@ export function LanguageInContextModule({ content, isStudentView, tutorNotes }: 
 
 export function PhrasalVerbsModule({ content, isStudentView, tutorNotes }: { content: PhrasalVerbsContent; isStudentView?: boolean; tutorNotes?: string }) {
   const shuffled = React.useMemo(() => {
-    return [...content.pairs.map((p, i) => ({ meaning: p.meaning, idx: i }))].sort(() => Math.random() - 0.5)
+    return [...(content.pairs || []).map((p, i) => ({ meaning: p.meaning, idx: i }))].sort(() => Math.random() - 0.5)
   }, [content.pairs])
 
   return (

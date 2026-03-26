@@ -720,17 +720,12 @@ export default function StudentProfilePage() {
                         </h3>
                         <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">
                           {currentBlockPlan
-                            ? `${currentBlockPlan.blocks.length} topic blocks · mixed methodologies`
+                            ? `${currentBlockPlan.blocks.length} topic blocks · modular lessons`
                             : currentLearningPlan
-                            ? `AI-generated using ${currentLearningPlan.selectedMethodology} methodology`
+                            ? `Personalized lesson plan`
                             : `Structured topic blocks tailored to ${student.name}'s goals`
                           }
                         </p>
-                        {(currentBlockPlan?.methodologyReasoning || currentLearningPlan?.methodologyReasoning) && (
-                          <p className="text-xs text-blue-600 dark:text-blue-400 mt-1 line-clamp-2">
-                            {currentBlockPlan?.methodologyReasoning || currentLearningPlan?.methodologyReasoning}
-                          </p>
-                        )}
                       </div>
                       <button 
                         onClick={handleGenerateLearningPlan}
@@ -862,15 +857,6 @@ export default function StudentProfilePage() {
                                                       {f.split(':')[0]}
                                                     </span>
                                                   ))}
-                                                  {lesson.methodology && (
-                                                    <span className={`px-1.5 py-0.5 rounded text-xs font-medium ${
-                                                      lesson.methodology === 'PPP' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400' :
-                                                      lesson.methodology === 'CLT' ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400' :
-                                                      'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400'
-                                                    }`}>
-                                                      {lesson.methodology}
-                                                    </span>
-                                                  )}
                                                 </div>
                                               )}
                                             </div>
