@@ -532,7 +532,30 @@ export default function LessonPage() {
                   }}
                   isStudentView={false}
                   studentName={lesson.student.name}
+                  onEditExercise={(i) => setEditingExerciseIndex(i)}
                 />
+
+                {/* Edit Exercise Modal */}
+                {editingExerciseIndex !== null && lesson && lesson.content.exercises[editingExerciseIndex] && (
+                  <EditSectionModal
+                    title={`Edit: ${lesson.content.exercises[editingExerciseIndex].title}`}
+                    data={lesson.content.exercises[editingExerciseIndex]}
+                    onSave={async (updated) => {
+                      const updatedExercises = [...lesson.content.exercises]
+                      updatedExercises[editingExerciseIndex] = updated as typeof updatedExercises[number]
+                      const newContent = { ...lesson.content, exercises: updatedExercises }
+                      const result = await updateLessonContent(lesson.id, newContent as unknown as Record<string, unknown>)
+                      if (result.success) {
+                        setLesson({ ...lesson, content: newContent })
+                        setEditingExerciseIndex(null)
+                      } else {
+                        alert(result.error || 'Failed to save changes')
+                      }
+                    }}
+                    onCancel={() => setEditingExerciseIndex(null)}
+                    hiddenFields={['timeMinutes']}
+                  />
+                )}
               </div>
             ) : (
           <div className="space-y-4 sm:space-y-6">

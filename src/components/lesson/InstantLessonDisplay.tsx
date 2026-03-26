@@ -8,6 +8,7 @@ import {
   HomeworkExercise,
 } from './TBLTLessonComponents'
 import { VocabularyExercise, WarmupExercise, DialogueExercise, ComprehensionExercise, RolePlayExercise, DiscussionExercise } from './EngooLessonComponents'
+import { EditButton } from './EditSectionModal'
 
 const TBLT_TYPES = new Set(['lead-in', 'task-prep', 'task-performance', 'post-task', 'homework'])
 
@@ -35,6 +36,7 @@ interface Exercise {
 }
 
 interface InstantLessonDisplayProps {
+  onEditExercise?: (index: number) => void
   lesson: {
     title: string
     lessonType: string
@@ -112,11 +114,13 @@ function StageCard({
   index,
   isStudentView,
   studentName,
+  onEdit,
 }: {
   exercise: Exercise
   index: number
   isStudentView: boolean
   studentName?: string
+  onEdit?: () => void
 }) {
   const meta = STAGE_META[exercise.type] ?? { label: exercise.title || exercise.type, color: 'bg-gray-100 text-gray-600 border-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600' }
   const isTBLT = TBLT_TYPES.has(exercise.type)
@@ -167,7 +171,10 @@ function StageCard({
             )}
           </div>
         </div>
-        <span className="text-xs text-gray-400 dark:text-gray-500 flex-shrink-0">{exercise.timeMinutes} min</span>
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <span className="text-xs text-gray-400 dark:text-gray-500">{exercise.timeMinutes} min</span>
+          {!isStudentView && onEdit && <EditButton onClick={onEdit} label="Edit" />}
+        </div>
       </div>
       <div className="p-4">
         {renderContent()}
@@ -176,7 +183,7 @@ function StageCard({
   )
 }
 
-export default function InstantLessonDisplay({ lesson, isStudentView = false, studentName }: InstantLessonDisplayProps) {
+export default function InstantLessonDisplay({ lesson, isStudentView = false, studentName, onEditExercise }: InstantLessonDisplayProps) {
   const exercises = (lesson.exercises || []) as Exercise[]
 
   return (
@@ -215,6 +222,7 @@ export default function InstantLessonDisplay({ lesson, isStudentView = false, st
           index={index}
           isStudentView={isStudentView}
           studentName={studentName}
+          onEdit={onEditExercise ? () => onEditExercise(index) : undefined}
         />
       ))}
 

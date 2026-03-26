@@ -76,6 +76,7 @@ RULES:
 - Only vocabulary "translation" field uses ${nativeLanguage}
 - NO em dashes (—). BANNED: "resonate","navigate","landscape","leverage","dynamics","paradigm"
 - Adapt complexity to ${level}
+- Model dialogue characters MUST have real first names (e.g. Emma, Carlos, Yuki, Amira). NEVER use placeholder text like [Name], [Student's Name], [Phone Number], [Number], [Address], or any bracket placeholders anywhere in dialogue lines or character names. If a character needs to say a name, number, or address, invent a realistic one.
 
 STRUCTURE (${duration} min):
 1. lead-in (5min): 3 questions to activate prior knowledge on "${topic}". Personal/story-based, NOT analytical.
