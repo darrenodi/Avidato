@@ -5,6 +5,7 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { getLessonAIService } from '@/lib/ai/lesson-service';
+import { generateImage } from '@/lib/ai/imagen';
 import { StudentProfile, LearningPlan, GeneratedLesson, LearningTopic, BlockLearningPlan, BlockLesson, TopicBlock } from '@/types/lesson-template';
 import { revalidatePath } from 'next/cache';
 import type { Session } from 'next-auth';
@@ -593,6 +594,17 @@ export async function generateModularLesson(
 
     const lessonAIService = await getLessonAIService(await resolveProvider(session.user.id));
     const generatedLesson = await lessonAIService.generateModularLesson(studentProfile, lessonData, duration);
+
+    // Generate images for any image-discussion modules
+    const modules = (generatedLesson as unknown as { modules?: { type: string; content: { imagePlaceholders?: { label: string; description: string }[]; imageData?: string } }[] }).modules;
+    if (modules) {
+      for (const mod of modules) {
+        if (mod.type === 'image-discussion' && mod.content.imagePlaceholders?.[0]?.description) {
+          const imageData = await generateImage(mod.content.imagePlaceholders[0].description);
+          if (imageData) mod.content.imageData = imageData;
+        }
+      }
+    }
 
     const savedLesson = await prisma.lesson.create({
       data: {

@@ -51,6 +51,7 @@ export interface WarmUpContent {
 export interface ImageDiscussionContent {
   imagePlaceholders: { label: string; description: string }[]
   questions: string[]
+  imageData?: string // base64 data URL populated after Imagen generation
 }
 
 export interface VocabularyCardsContent {

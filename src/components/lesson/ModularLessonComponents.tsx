@@ -62,14 +62,18 @@ export function WarmUpModule({ content, isStudentView, tutorNotes }: { content: 
 export function ImageDiscussionModule({ content, isStudentView, tutorNotes }: { content: ImageDiscussionContent; isStudentView?: boolean; tutorNotes?: string }) {
   return (
     <div className="space-y-4">
-      {content.imagePlaceholders.length > 0 && (
-        <div className="grid grid-cols-2 gap-2">
-          {content.imagePlaceholders.map((img, i) => (
-            <div key={i} className="border-2 border-dashed border-gray-200 dark:border-gray-600 rounded-lg p-4 text-center">
-              <p className="text-xs font-medium text-gray-400 dark:text-gray-500 mb-1">{img.label}</p>
-              {!isStudentView && <p className="text-xs text-gray-300 dark:text-gray-600 italic">{img.description}</p>}
-            </div>
-          ))}
+      {content.imageData ? (
+        <img
+          src={content.imageData}
+          alt={content.imagePlaceholders[0]?.label || 'Discussion image'}
+          className="w-full rounded-xl object-cover max-h-72"
+        />
+      ) : content.imagePlaceholders.length > 0 && (
+        <div className="border-2 border-dashed border-gray-200 dark:border-gray-600 rounded-xl p-6 text-center">
+          <p className="text-sm font-medium text-gray-400 dark:text-gray-500">{content.imagePlaceholders[0]?.label}</p>
+          {!isStudentView && content.imagePlaceholders[0]?.description && (
+            <p className="text-xs text-gray-300 dark:text-gray-600 italic mt-1">{content.imagePlaceholders[0].description}</p>
+          )}
         </div>
       )}
       <div className="space-y-3">
