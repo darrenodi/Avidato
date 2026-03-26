@@ -187,14 +187,18 @@ export function UsefulExpressionsModule({ content, isStudentView, tutorNotes }: 
 
 export function UsefulLanguageModule({ content, isStudentView, tutorNotes }: { content: UsefulLanguageContent; isStudentView?: boolean; tutorNotes?: string }) {
   const sentences = content.practice?.sentences || []
+  // Normalize: AI sometimes generates phrases as plain strings instead of {phrase, example} objects
+  const phrases = (content.phrases || []).map(p =>
+    typeof p === 'string' ? { phrase: p as string, example: '' } : p
+  )
   return (
     <div className="space-y-5">
       <div className="space-y-2">
         <SectionLabel text="Phrases" />
-        {(content.phrases || []).map((p, i) => (
+        {phrases.map((p, i) => (
           <div key={i} className="border-l-2 border-brand-primary pl-3">
             <p className="font-medium text-gray-900 dark:text-white">{p.phrase}</p>
-            <p className="text-xs text-gray-400 dark:text-gray-500 italic mt-0.5">&ldquo;{p.example}&rdquo;</p>
+            {p.example && <p className="text-xs text-gray-400 dark:text-gray-500 italic mt-0.5">&ldquo;{p.example}&rdquo;</p>}
           </div>
         ))}
       </div>
@@ -222,13 +226,18 @@ export function UsefulLanguageModule({ content, isStudentView, tutorNotes }: { c
 // ─── Language in Context ──────────────────────────────────────────────────────
 
 export function LanguageInContextModule({ content, isStudentView, tutorNotes }: { content: LanguageInContextContent; isStudentView?: boolean; tutorNotes?: string }) {
+  // Normalize: AI sometimes generates an 'analysis' string array instead of phrases objects
+  const rawContent = content as unknown as { analysis?: string[] }
+  const phrases = content.phrases?.length
+    ? content.phrases
+    : (rawContent.analysis || []).map(a => ({ phrase: a, function: '', example: undefined }))
   return (
     <div className="space-y-3">
       {content.instructions && <p className="text-sm text-gray-500 dark:text-gray-400 italic">{content.instructions}</p>}
-      {(content.phrases || []).map((p, i) => (
+      {phrases.map((p, i) => (
         <div key={i} className="border-l-2 border-brand-primary pl-3 py-0.5 space-y-0.5">
           <p className="font-medium text-gray-900 dark:text-white">&ldquo;{p.phrase}&rdquo;</p>
-          <p className="text-xs font-medium text-teal-600 dark:text-teal-400">{p.function}</p>
+          {p.function && <p className="text-xs font-medium text-teal-600 dark:text-teal-400">{p.function}</p>}
           {p.example && <p className="text-xs text-gray-400 dark:text-gray-500 italic">{p.example}</p>}
         </div>
       ))}
@@ -605,13 +614,24 @@ export function DialogueModule({ content, isStudentView, tutorNotes }: { content
   const charMap: Record<string, number> = {}
   ;(content.characters || []).forEach((c, i) => { charMap[c.name] = i })
 
+  // Normalize: AI sometimes generates a 'text' string blob instead of dialogue array
+  const rawContent = content as unknown as { text?: string }
+  const dialogueLines: { character: string; text: string }[] = content.dialogue?.length
+    ? content.dialogue
+    : (rawContent.text || '').split('\n').filter(Boolean).map(line => {
+        const colon = line.indexOf(':')
+        return colon > -1
+          ? { character: line.slice(0, colon).trim(), text: line.slice(colon + 1).trim() }
+          : { character: '', text: line.trim() }
+      })
+
   return (
     <div className="space-y-4">
       {content.setting && (
         <p className="text-sm text-gray-500 dark:text-gray-400 italic border-l-2 border-gray-200 dark:border-gray-600 pl-3">{content.setting}</p>
       )}
       <div className="space-y-3">
-        {(content.dialogue || []).map((line, i) => (
+        {dialogueLines.map((line, i) => (
           <div key={i} className="flex gap-3">
             <span className={`font-semibold flex-shrink-0 w-24 text-sm ${colors[charMap[line.character] ?? 0]}`}>{line.character}</span>
             <p className="text-sm text-gray-900 dark:text-white flex-1">{line.text}</p>
@@ -1010,18 +1030,26 @@ export function ListeningComprehensionModule({ content, isStudentView, tutorNote
 // ─── Roleplay ─────────────────────────────────────────────────────────────────
 
 export function RoleplayModule({ content, isStudentView, tutorNotes }: { content: RoleplayContent; isStudentView?: boolean; tutorNotes?: string }) {
-  const visibleRoles = isStudentView ? content.roles.slice(0, 1) : content.roles
+  // Normalize: AI sometimes generates roles as string[] and situation as 'scenario'
+  const rawContent = content as unknown as { scenario?: string; roles?: (string | { name: string; description: string; keyPoints?: string[] })[] }
+  const situation = content.situation || rawContent.scenario || ''
+  const normalizedRoles = (rawContent.roles || []).map(r =>
+    typeof r === 'string' ? { name: r, description: '', keyPoints: [] } : r
+  )
+  const visibleRoles = isStudentView ? normalizedRoles.slice(0, 1) : normalizedRoles
   return (
     <div className="space-y-4">
-      <div>
-        <SectionLabel text="Situation" />
-        <p className="text-sm text-gray-700 dark:text-gray-300">{content.situation}</p>
-      </div>
+      {situation && (
+        <div>
+          <SectionLabel text="Situation" />
+          <p className="text-sm text-gray-700 dark:text-gray-300">{situation}</p>
+        </div>
+      )}
       <div className="space-y-3">
         {visibleRoles.map((role, i) => (
           <div key={i} className="border-l-2 border-gray-200 dark:border-gray-600 pl-3">
             <p className="font-medium text-gray-900 dark:text-white text-sm">{role.name}</p>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">{role.description}</p>
+            {role.description && <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">{role.description}</p>}
             {role.keyPoints && role.keyPoints.length > 0 && (
               <ul className="mt-1 space-y-0.5">
                 {role.keyPoints.map((pt, j) => (
@@ -1177,6 +1205,9 @@ export function YourTurnAnswerModule({ content, isStudentView, tutorNotes }: { c
 }
 
 export function YourTurnTellModule({ content, isStudentView, tutorNotes }: { content: YourTurnTellContent; isStudentView?: boolean; tutorNotes?: string }) {
+  // Normalize: AI sometimes generates a single 'prompt' string instead of 'prompts' array
+  const rawContent = content as unknown as { prompt?: string }
+  const prompts = content.prompts?.length ? content.prompts : (rawContent.prompt ? [rawContent.prompt] : [])
   return (
     <div className="space-y-3">
       <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Talk about yourself. Use as much of the lesson language as you can.</p>
@@ -1184,7 +1215,7 @@ export function YourTurnTellModule({ content, isStudentView, tutorNotes }: { con
         <p className="text-xs text-gray-400 dark:text-gray-500 italic border-l-2 border-gray-200 dark:border-gray-600 pl-3">Example: &ldquo;{content.example}&rdquo;</p>
       )}
       <div className="space-y-2">
-        {(content.prompts || []).map((p, i) => (
+        {prompts.map((p, i) => (
           <div key={i} className="flex gap-3 items-start">
             <span className="font-bold text-brand-primary flex-shrink-0">{i + 1}.</span>
             <p className="text-gray-900 dark:text-white">{p}</p>

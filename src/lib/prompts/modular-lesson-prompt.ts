@@ -72,6 +72,14 @@ TIMING:
 
 IMAGE-DISCUSSION module (Blueprint 7 only): include ONE imagePlaceholder with a detailed, realistic visual description so an AI image generator can produce it (e.g. "A heated town hall debate in a modern city council chamber, with two speakers at opposite podiums facing a diverse audience").
 
+CRITICAL SCHEMA RULES — the following fields have EXACT required shapes. Using any other shape will break the UI:
+- useful-language → phrases MUST be an array of objects: [{phrase: "...", example: "..."}]. NEVER a string array.
+- useful-language → practice MUST be: {sentences: [{prompt: "...", answer: "..."}]}
+- language-in-context → phrases MUST be an array of objects: [{phrase: "...", function: "...", example?: "..."}]. NEVER use an 'analysis' key.
+- dialogue → content MUST have: setting (string), characters: [{name, role?}], dialogue: [{character, text}]. NEVER use a 'text' blob.
+- roleplay → roles MUST be an array of objects: [{name: "...", description: "...", keyPoints?: [...]}]. NEVER a string array. Use 'situation' not 'scenario'.
+- your-turn-tell → MUST use 'prompts' (array of strings). NEVER use a singular 'prompt' string.
+
 JSON OUTPUT:
 {
   "title": "${lesson.title}",
