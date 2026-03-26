@@ -199,7 +199,7 @@ export function UsefulLanguageModule({ content, isStudentView, tutorNotes }: { c
       </div>
       <div className="space-y-2">
         <SectionLabel text="Practice — fill in the blanks" />
-        {content.practice.sentences.map((s, i) => (
+        {(content.practice?.sentences || []).map((s, i) => (
           <div key={i} className="flex gap-2 text-sm">
             <span className="text-brand-primary font-medium flex-shrink-0">{i + 1}.</span>
             <div>
@@ -449,9 +449,9 @@ export function FillInBlanksDialogueModule({ content, isStudentView, tutorNotes 
   return (
     <div className="space-y-4">
       {content.context && <p className="text-sm text-gray-500 dark:text-gray-400 italic">{content.context}</p>}
-      {content.characters.length > 0 && (
+      {(content.characters?.length ?? 0) > 0 && (
         <div className="flex flex-wrap gap-2">
-          {content.characters.map((c, i) => (
+          {(content.characters || []).map((c, i) => (
             <span key={i} className="text-xs px-2 py-1 rounded-full border border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400">
               {c.name}{c.role ? ` — ${c.role}` : ''}
             </span>
@@ -459,7 +459,7 @@ export function FillInBlanksDialogueModule({ content, isStudentView, tutorNotes 
         </div>
       )}
       <div className="space-y-3">
-        {content.dialogue.map((line, i) => {
+        {(content.dialogue || []).map((line, i) => {
           const answer = line.blankIndex !== undefined ? content.answers[String(line.blankIndex)] : undefined
           const text = line.blankIndex !== undefined
             ? line.text.replace('___', isStudentView ? '___' : `(${answer})`)
@@ -475,7 +475,7 @@ export function FillInBlanksDialogueModule({ content, isStudentView, tutorNotes 
       <div>
         <SectionLabel text="Answer pool" />
         <div className="flex flex-wrap gap-2">
-          {content.answerPool.map((w, i) => (
+          {(content.answerPool || []).map((w, i) => (
             <span key={i} className="px-2 py-1 text-sm border border-gray-200 dark:border-gray-600 rounded text-gray-700 dark:text-gray-300">{w}</span>
           ))}
         </div>
@@ -541,7 +541,7 @@ export function GrammarFocusModule({ content, isStudentView, tutorNotes }: { con
           </table>
         </div>
       )}
-      {content.examples.length > 0 && (
+      {(content.examples?.length ?? 0) > 0 && (
         <div className="space-y-1">
           <SectionLabel text="Examples" />
           {content.examples.map((ex, i) => (
@@ -552,10 +552,10 @@ export function GrammarFocusModule({ content, isStudentView, tutorNotes }: { con
           ))}
         </div>
       )}
-      {content.practice.questions.length > 0 && (
+      {(content.practice?.questions?.length ?? 0) > 0 && (
         <div className="space-y-3 border-t border-gray-100 dark:border-gray-700 pt-3">
           <SectionLabel text="Practice" />
-          {content.practice.questions.map((q, i) => (
+          {(content.practice?.questions || []).map((q, i) => (
             <div key={i} className="space-y-2">
               <div className="flex gap-2 text-sm font-medium text-gray-900 dark:text-white">
                 <span className="text-brand-primary flex-shrink-0">{i + 1}.</span>
@@ -600,7 +600,7 @@ export function GrammarFocusModule({ content, isStudentView, tutorNotes }: { con
 export function DialogueModule({ content, isStudentView, tutorNotes }: { content: DialogueContent; isStudentView?: boolean; tutorNotes?: string }) {
   const colors = ['text-brand-primary', 'text-teal-600 dark:text-teal-400', 'text-purple-600 dark:text-purple-400']
   const charMap: Record<string, number> = {}
-  content.characters.forEach((c, i) => { charMap[c.name] = i })
+  ;(content.characters || []).forEach((c, i) => { charMap[c.name] = i })
 
   return (
     <div className="space-y-4">
@@ -608,7 +608,7 @@ export function DialogueModule({ content, isStudentView, tutorNotes }: { content
         <p className="text-sm text-gray-500 dark:text-gray-400 italic border-l-2 border-gray-200 dark:border-gray-600 pl-3">{content.setting}</p>
       )}
       <div className="space-y-3">
-        {content.dialogue.map((line, i) => (
+        {(content.dialogue || []).map((line, i) => (
           <div key={i} className="flex gap-3">
             <span className={`font-semibold flex-shrink-0 w-24 text-sm ${colors[charMap[line.character] ?? 0]}`}>{line.character}</span>
             <p className="text-sm text-gray-900 dark:text-white flex-1">{line.text}</p>
