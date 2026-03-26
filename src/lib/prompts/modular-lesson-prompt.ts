@@ -29,14 +29,20 @@ ASSEMBLY RULES (${duration} min total):
 - Pick 5-7 modules for 25 min, 7-9 modules for 50 min
 - FIRST module: always warm-up or image-discussion
 - LAST module: always homework-writing
-- Second-to-last: always discussion or further-discussion
-- Every lesson MUST include: one vocabulary module (vocabulary-cards OR vocabulary-match) + one production module (roleplay OR talking-point OR your-turn-tell OR your-turn-ask)
-- For speaking focus: include dialogue + roleplay
-- For reading focus: include reading-article + reading-scan or vocabulary-in-text
-- For grammar/accuracy focus: include grammar-focus + find-the-mistake or complete-the-sentence
-- Do NOT include listening-* modules (no audio available)
 - Do NOT repeat module types
+- Do NOT include listening-* modules (no audio available)
 - timeMinutes across all modules must sum to approximately ${duration}
+- Every lesson must include at least one vocabulary module and at least one production module (roleplay, talking-point, your-turn-tell, your-turn-ask, debate)
+- VARY the middle modules based on what actually serves the lesson goal. Do NOT default to dialogue + roleplay + discussion every time.
+  Use dialogue only when the lesson is about conversational scenarios.
+  Use grammar-focus or find-the-mistake when accuracy is the goal.
+  Use reading-article when the lesson involves written texts or reports.
+  Use gap-fill, complete-the-sentence, or ordering for language practice variety.
+  Use useful-expressions or language-in-context to introduce functional phrases.
+  Use noticing to draw attention to a specific pattern from a text or dialogue.
+  Use talking-point or debate instead of discussion for opinion-based topics.
+  Use your-turn-ask or your-turn-tell for low-pressure personalised speaking.
+- Each lesson should feel structurally different from a generic speaking lesson. Mix skills: speaking + writing, reading + speaking, grammar + production, etc.
 
 ${levelGuide}
 ${cefrVocabGuide}
