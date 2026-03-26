@@ -50,7 +50,7 @@ ${cefrVocabGuide}
 TUTOR NOTES: Each module must have a tutorNotes field — a short, specific instruction for what the tutor should DO (e.g. "Read aloud with student. Pause after each line and ask 'What does X mean?'" or "Give student 2 minutes to read alone, then close the text"). Not a description of the module — an action.
 
 MODULE LIBRARY (pick from these types only):
-warm-up               → { questions: string[3-4], instructions? }
+warm-up               → { questions: string[3-4], instructions? }  // ALL questions must relate directly to the lesson topic — NEVER generic "How has your week been" openers
 image-discussion      → { imagePlaceholders: [{label, description}], questions: string[] }
 vocabulary-cards      → { vocabulary: [{word, partOfSpeech, phonetics, definition, example, synonym?}×6] }
 vocabulary-match      → { pairs: [{term, definition}×6-10], instructions? }
