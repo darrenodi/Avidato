@@ -91,32 +91,39 @@ export default function ModularLessonDisplay({
   onEditModule,
 }: ModularLessonDisplayProps) {
   return (
-    <div className="space-y-4">
-      {/* Objective banner */}
-      <div className="border-l-4 border-brand-primary pl-4 py-0.5">
-        <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-0.5">Lesson objective</p>
-        <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed">{lesson.objective}</p>
+    <div className="space-y-6">
+
+      {/* Lesson title */}
+      <div className="space-y-2">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white leading-tight">
+          {lesson.title}
+        </h1>
+        <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">{lesson.objective}</p>
       </div>
 
       {/* Modules */}
-      <div className="space-y-4">
-        {lesson.modules.map((module, i) => (
-          <div key={i} className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+      <div className="space-y-6">
+        {(lesson.modules || []).map((module, i) => (
+          <div key={i} className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm">
             {/* Module header */}
-            <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-gray-700">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-gray-700">
               <div className="flex items-center gap-3">
-                <span className="text-xs font-medium text-gray-400 dark:text-gray-500 w-5 text-center">{i + 1}</span>
-                <h3 className="font-medium text-gray-900 dark:text-white text-sm">{module.title}</h3>
+                <span className="flex items-center justify-center w-7 h-7 rounded-full bg-brand-primary/10 text-brand-primary text-xs font-bold flex-shrink-0">
+                  {i + 1}
+                </span>
+                <h2 className="font-semibold text-gray-900 dark:text-white text-base">{module.title}</h2>
               </div>
               <div className="flex items-center gap-2 flex-shrink-0">
-                <span className="text-xs text-gray-400 dark:text-gray-500">{module.timeMinutes} min</span>
+                {(module.timeMinutes ?? 0) > 0 && (
+                  <span className="text-xs text-gray-400 dark:text-gray-500 tabular-nums">{module.timeMinutes} min</span>
+                )}
                 {!isStudentView && onEditModule && (
                   <EditButton onClick={() => onEditModule(i)} label="Edit" />
                 )}
               </div>
             </div>
             {/* Module content */}
-            <div className="p-4">
+            <div className="px-5 py-5">
               <ModuleRenderer module={module} isStudentView={isStudentView} />
             </div>
           </div>
@@ -125,9 +132,9 @@ export default function ModularLessonDisplay({
 
       {/* Teaching notes (tutor only) */}
       {!isStudentView && lesson.teachingNotes && (
-        <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4">
+        <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-2xl p-5">
           <p className="text-xs font-semibold text-amber-700 dark:text-amber-400 uppercase tracking-wide mb-1">Teaching notes</p>
-          <p className="text-sm text-amber-800 dark:text-amber-300">{lesson.teachingNotes}</p>
+          <p className="text-sm text-amber-800 dark:text-amber-300 leading-relaxed">{lesson.teachingNotes}</p>
         </div>
       )}
     </div>
