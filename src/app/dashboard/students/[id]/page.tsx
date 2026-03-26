@@ -6,7 +6,7 @@ import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import DashboardLayout from '@/components/layout/DashboardLayout'
 import { getStudent } from '../../../actions/students'
-import { generateLesson, getGenerationStats, getStudentLearningPlan, shareLesson, generateMoreLessons, generateBlockLearningPlan, generateTBLTLesson } from '../../../actions/ai-generation'
+import { generateLesson, getGenerationStats, getStudentLearningPlan, shareLesson, generateMoreLessons, generateBlockLearningPlan, generateModularLesson } from '../../../actions/ai-generation'
 import { nativeLanguages, levels, ageGroups } from '@/lib/form-data-mappings'
 import type { LearningPlan, BlockLearningPlan, BlockLesson } from '@/types/lesson-template'
 
@@ -328,7 +328,7 @@ export default function StudentProfilePage() {
     setIsGeneratingLesson(true)
     setGeneratingLessonKey(`${lesson.lessonNumber}`)
     try {
-      const result = await generateTBLTLesson(student.id, lesson, 50)
+      const result = await generateModularLesson(student.id, lesson, 50)
       if (result.success && result.data) {
         await fetchLessons()
         const stats = await getGenerationStats()

@@ -32,6 +32,7 @@ import { PresentationExercise, PracticeExercise, ProductionExercise } from '@/co
 import { WarmerExercise, LanguageInputExercise, CommunicativeActivityExercise, WrapUpExercise } from '@/components/lesson/CLTLessonComponents'
 import { SentenceCorrectionRenderer } from '@/lib/lesson-displays'
 import EditSectionModal, { EditButton } from '@/components/lesson/EditSectionModal'
+import ModularLessonDisplay from '@/components/lesson/ModularLessonDisplay'
 
 /**
  * Individual Lesson View Page
@@ -554,6 +555,60 @@ export default function LessonPage() {
                     }}
                     onCancel={() => setEditingExerciseIndex(null)}
                     hiddenFields={['timeMinutes']}
+                  />
+                )}
+              </div>
+            ) : lesson.content?.lessonType === 'modular' ? (
+              <div className="space-y-4 sm:space-y-6">
+                {/* Header */}
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                  <Link href={`/dashboard/students/${lesson.student.id}`} className="inline-flex items-center text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 text-sm sm:text-base">
+                    <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                    </svg>
+                    Back to {lesson.student.name}
+                  </Link>
+                  <button onClick={copyShareLink} disabled={isMarking} className="inline-flex items-center justify-center px-3 sm:px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-sm sm:text-base w-full sm:w-auto disabled:opacity-50">
+                    {isTaught ? <><svg className="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg><span className="text-green-500">Taught</span></> : <><svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" /></svg>Copy Student Link</>}
+                  </button>
+                </div>
+                {/* Title */}
+                <div className="pb-5 border-b border-gray-200 dark:border-gray-700">
+                  <div className="flex flex-wrap items-center gap-2 mb-3">
+                    <span className="px-2.5 py-0.5 rounded-full text-xs border border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400">{lesson.student.name}</span>
+                    <span className="px-2.5 py-0.5 rounded-full text-xs border border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400">{lesson.student.level}</span>
+                    <span className="px-2.5 py-0.5 rounded-full text-xs border border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400">{lesson.content.duration} min</span>
+                    <span className="px-2.5 py-0.5 rounded-full text-xs bg-brand-primary/10 text-brand-primary border border-brand-primary/20 font-medium">modular</span>
+                  </div>
+                  <h1 className="font-fraunces text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-4 leading-tight">{lesson.content.title}</h1>
+                </div>
+                {/* Modular display */}
+                <ModularLessonDisplay
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  lesson={lesson.content as any}
+                  isStudentView={false}
+                  studentName={lesson.student.name}
+                  onEditModule={(i) => setEditingExerciseIndex(i)}
+                />
+                {/* Edit module modal */}
+                {editingExerciseIndex !== null && lesson && !!(lesson.content as unknown as { modules: unknown[] }).modules?.[editingExerciseIndex] && (
+                  <EditSectionModal
+                    title={`Edit module`}
+                    data={(lesson.content as unknown as { modules: unknown[] }).modules[editingExerciseIndex] as Record<string, unknown>}
+                    onSave={async (updated) => {
+                      const modules = [...(lesson.content as unknown as { modules: unknown[] }).modules]
+                      modules[editingExerciseIndex] = updated
+                      const newContent = { ...lesson.content, modules }
+                      const result = await updateLessonContent(lesson.id, newContent as unknown as Record<string, unknown>)
+                      if (result.success) {
+                        setLesson({ ...lesson, content: newContent as typeof lesson.content })
+                        setEditingExerciseIndex(null)
+                      } else {
+                        alert(result.error || 'Failed to save changes')
+                      }
+                    }}
+                    onCancel={() => setEditingExerciseIndex(null)}
+                    hiddenFields={['timeMinutes', 'tutorNotes']}
                   />
                 )}
               </div>

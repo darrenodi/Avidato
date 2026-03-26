@@ -13,6 +13,7 @@ import { enforceSynonymConstraints } from '../utils/vocabulary-validator';
 import { enforceDialogueStructure } from '../utils/dialogue-validator';
 import { buildLessonGenerationPrompt, buildBlockPlanPrompt, buildTBLTLessonPrompt } from '../prompts/lesson-generation-prompts';
 import { buildPPPLessonPrompt, buildCLTLessonPrompt } from '../prompts/ppp-clt-prompts';
+import { buildModularLessonPrompt } from '../prompts/modular-lesson-prompt';
 
 if (!process.env.GOOGLE_API_KEY) {
   throw new Error('GOOGLE_API_KEY is not set');
@@ -491,6 +492,34 @@ CRITICAL: This exercise must appear as Exercise 5 in the exercises array. ALL se
       return parsedResponse;
     } catch (error) {
       console.error('Error generating CLT lesson:', error);
+      throw new Error('Failed to generate lesson. Please try again.');
+    }
+  }
+
+  // Generate a modular lesson from a BlockLesson
+  async generateModularLesson(
+    student: StudentProfile,
+    lesson: BlockLesson,
+    duration: 25 | 50 = 50
+  ): Promise<GeneratedLesson> {
+    const { roles } = getSuggestedRolesAndScenarios(student.occupation);
+    const prompt = buildModularLessonPrompt(
+      student,
+      lesson,
+      duration,
+      roles,
+      this.getLevelVocabularyGuide(student.level),
+      this.getCEFRModule(student.level).getVocabularyGuide(),
+      ''
+    );
+    try {
+      const { rawText: text } = await generateWithFailover({
+        prompt,
+        generationConfig: { temperature: 0.1, topK: 40, topP: 0.95, maxOutputTokens: 16384 },
+      });
+      return cleanAndParseJSON<GeneratedLesson>(extractJSONFromText(text));
+    } catch (error) {
+      console.error('Error generating modular lesson:', error);
       throw new Error('Failed to generate lesson. Please try again.');
     }
   }

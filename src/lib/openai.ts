@@ -13,6 +13,7 @@ import { enforceSynonymConstraints } from './utils/vocabulary-validator';
 import { enforceDialogueStructure } from './utils/dialogue-validator';
 import { buildLessonGenerationPrompt, buildBlockPlanPrompt, buildTBLTLessonPrompt } from './prompts/lesson-generation-prompts';
 import { buildPPPLessonPrompt, buildCLTLessonPrompt } from './prompts/ppp-clt-prompts';
+import { buildModularLessonPrompt } from './prompts/modular-lesson-prompt';
 
 if (!process.env.OPENAI_API_KEY) {
   throw new Error('OPENAI_API_KEY is not set');
@@ -469,6 +470,32 @@ CRITICAL: This exercise must appear as Exercise 5 in the exercises array. ALL se
       return cleanAndParseJSON<GeneratedLesson>(extractJSONFromText(response.choices[0]?.message?.content || ''));
     } catch (error) {
       console.error('Error generating CLT lesson:', error);
+      throw new Error('Failed to generate lesson. Please try again.');
+    }
+  }
+
+  async generateModularLesson(
+    student: StudentProfile,
+    lesson: BlockLesson,
+    duration: 25 | 50 = 50
+  ): Promise<GeneratedLesson> {
+    const { roles } = getSuggestedRolesAndScenarios(student.occupation);
+    const prompt = buildModularLessonPrompt(
+      student, lesson, duration, roles,
+      this.getLevelVocabularyGuide(student.level),
+      this.getCEFRModule(student.level).getVocabularyGuide(),
+      ''
+    );
+    try {
+      const response = await openai.chat.completions.create({
+        model: this.model,
+        messages: [{ role: 'user', content: prompt }],
+        temperature: 0.1,
+        max_tokens: 16384,
+      });
+      return cleanAndParseJSON<GeneratedLesson>(extractJSONFromText(response.choices[0]?.message?.content || ''));
+    } catch (error) {
+      console.error('Error generating modular lesson:', error);
       throw new Error('Failed to generate lesson. Please try again.');
     }
   }

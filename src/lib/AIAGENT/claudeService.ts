@@ -11,6 +11,7 @@ import { enforceSynonymConstraints } from '../utils/vocabulary-validator';
 import { enforceDialogueStructure } from '../utils/dialogue-validator';
 import { buildLessonGenerationPrompt, buildBlockPlanPrompt, buildTBLTLessonPrompt } from '../prompts/lesson-generation-prompts';
 import { buildPPPLessonPrompt, buildCLTLessonPrompt } from '../prompts/ppp-clt-prompts';
+import { buildModularLessonPrompt } from '../prompts/modular-lesson-prompt';
 import { generateWithProviderFailover } from '../ai/generate-with-provider-failover';
 
 import {
@@ -330,6 +331,24 @@ Format: { "type": "grammar", "title": "Exercise 5: Find the Mistake", "content":
       return cleanAndParseJSON<GeneratedLesson>(extractJSONFromText(text));
     } catch (error) {
       console.error('Claude: Error generating CLT lesson:', error);
+      throw new Error('Failed to generate lesson. Please try again.');
+    }
+  }
+
+  async generateModularLesson(student: StudentProfile, lesson: BlockLesson, duration: 25 | 50 = 50): Promise<GeneratedLesson> {
+    const { roles } = getSuggestedRolesAndScenarios(student.occupation);
+    const prompt = buildModularLessonPrompt(
+      student, lesson, duration, roles,
+      this.getLevelVocabularyGuide(student.level),
+      this.getCEFRModule(student.level).getVocabularyGuide(),
+      ''
+    );
+
+    try {
+      const text = await this.generate(prompt);
+      return cleanAndParseJSON<GeneratedLesson>(extractJSONFromText(text));
+    } catch (error) {
+      console.error('Claude: Error generating modular lesson:', error);
       throw new Error('Failed to generate lesson. Please try again.');
     }
   }

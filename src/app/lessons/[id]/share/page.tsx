@@ -7,6 +7,7 @@ import Image from 'next/image'
 import ClientThemeProvider from '@/components/ClientThemeProvider'
 import { Under18LessonDisplay } from '@/lib/lesson-displays/under-18-display'
 import InstantLessonDisplay from '@/components/lesson/InstantLessonDisplay'
+import ModularLessonDisplay from '@/components/lesson/ModularLessonDisplay'
 import {
   VocabularyExercise,
   WarmupExercise,
@@ -767,6 +768,13 @@ export default function SharedLessonPage() {
                     materials: lesson.content.materials,
                     teachingNotes: lesson.content.teachingNotes
                   }}
+                  isStudentView={true}
+                  studentName={lesson.student?.name}
+                />
+              ) : lesson.content?.lessonType === 'modular' ? (
+                <ModularLessonDisplay
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  lesson={lesson.content as any}
                   isStudentView={true}
                   studentName={lesson.student?.name}
                 />

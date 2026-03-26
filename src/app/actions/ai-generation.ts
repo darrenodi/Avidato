@@ -544,6 +544,76 @@ export async function generateTBLTLesson(
   }
 }
 
+// Generate a modular lesson from a BlockLesson
+export async function generateModularLesson(
+  studentId: string,
+  lessonData: BlockLesson,
+  duration: 25 | 50 = 50
+): Promise<{
+  success: boolean;
+  data?: { lesson: GeneratedLesson; lessonId: string };
+  error?: string;
+}> {
+  try {
+    const session = await getServerSession(authOptions) as Session | null;
+    if (!session?.user?.id) return { success: false, error: 'Unauthorized' };
+
+    const canGenerate = await checkGenerationLimit(session.user.id);
+    if (!canGenerate) return { success: false, error: 'Daily generation limit reached. Try again tomorrow.' };
+
+    const student = await prisma.student.findUnique({
+      where: { id: studentId, tutorId: session.user.id },
+    });
+    if (!student) return { success: false, error: 'Student not found' };
+
+    const existingLesson = await prisma.lesson.findFirst({
+      where: {
+        studentId,
+        OR: [
+          { title: { contains: lessonData.title, mode: 'insensitive' } },
+          { title: { contains: lessonData.title.split(':')[0], mode: 'insensitive' } },
+        ],
+      },
+    });
+    if (existingLesson) {
+      return { success: false, error: `A lesson about "${lessonData.title}" has already been generated for this student.` };
+    }
+
+    const studentProfile: StudentProfile = {
+      name: student.name,
+      targetLanguage: student.targetLanguage,
+      nativeLanguage: student.nativeLanguage,
+      ageGroup: student.ageGroup,
+      level: student.level,
+      endGoals: student.endGoals,
+      occupation: student.occupation || undefined,
+      weaknesses: student.weaknesses || undefined,
+      interests: student.interests || undefined,
+    };
+
+    const lessonAIService = await getLessonAIService(await resolveProvider(session.user.id));
+    const generatedLesson = await lessonAIService.generateModularLesson(studentProfile, lessonData, duration);
+
+    const savedLesson = await prisma.lesson.create({
+      data: {
+        title: generatedLesson.title,
+        overview: `${generatedLesson.objective} | Skills: ${(generatedLesson.skills || []).join(', ')}`,
+        content: JSON.parse(JSON.stringify(generatedLesson)),
+        studentId,
+        isRefined: true,
+      },
+    });
+
+    await recordSuccessfulGeneration(session.user.id);
+    revalidatePath(`/dashboard/students/${studentId}`);
+
+    return { success: true, data: { lesson: generatedLesson, lessonId: savedLesson.id } };
+  } catch (error) {
+    console.error('Error generating modular lesson:', error);
+    return { success: false, error: error instanceof Error ? error.message : 'Failed to generate lesson' };
+  }
+}
+
 // Generate 10 more lessons and append to existing plan
 export async function generateMoreLessons(studentId: string): Promise<{
   success: boolean;
