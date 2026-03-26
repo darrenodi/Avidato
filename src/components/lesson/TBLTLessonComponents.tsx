@@ -34,6 +34,7 @@ export function LeadInExercise({ content }: { content: LeadInContent }) {
 
 interface KeyPhrase {
   phrase: string
+  function?: string
   usage: string
   example: string
 }
@@ -53,6 +54,8 @@ interface TaskPrepContent {
     setting: string
     characters: { name: string; role?: string; avatar?: string }[]
     dialogue: { character: string; text: string }[]
+    comprehensionQuestions?: { gist: string[]; detail: string[] }
+    noticingTask?: string
   }
 }
 
@@ -93,6 +96,7 @@ export function TaskPrepExercise({ content }: { content: TaskPrepContent }) {
           {content.keyPhrases.map((kp, i) => (
             <div key={i} className="border-l-2 border-brand-primary pl-3">
               <p className="font-medium text-gray-900 dark:text-white">&ldquo;{kp.phrase}&rdquo;</p>
+              {kp.function && <p className="text-xs font-medium text-teal-600 dark:text-teal-400 mt-0.5">{kp.function}</p>}
               {kp.usage && <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">{kp.usage}</p>}
               {kp.example && <p className="text-xs text-gray-400 dark:text-gray-500 italic mt-0.5">{kp.example}</p>}
             </div>
@@ -101,11 +105,51 @@ export function TaskPrepExercise({ content }: { content: TaskPrepContent }) {
       )}
 
       {section === 'dialogue' && hasDialogue && (
-        <DialogueExercise
-          context={content.modelDialogue.setting}
-          characters={content.modelDialogue.characters}
-          dialogue={content.modelDialogue.dialogue}
-        />
+        <div className="space-y-4">
+          <DialogueExercise
+            context={content.modelDialogue.setting}
+            characters={content.modelDialogue.characters}
+            dialogue={content.modelDialogue.dialogue}
+          />
+
+          {content.modelDialogue.noticingTask && (
+            <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3">
+              <p className="text-xs font-semibold text-amber-700 dark:text-amber-400 uppercase tracking-wide mb-1">Noticing Task</p>
+              <p className="text-sm text-amber-800 dark:text-amber-300">{content.modelDialogue.noticingTask}</p>
+            </div>
+          )}
+
+          {content.modelDialogue.comprehensionQuestions && (
+            <div className="space-y-4">
+              {(content.modelDialogue.comprehensionQuestions.gist?.length ?? 0) > 0 && (
+                <div>
+                  <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-2">Gist Questions</p>
+                  <div className="space-y-2">
+                    {content.modelDialogue.comprehensionQuestions.gist.map((q, i) => (
+                      <div key={i} className="flex gap-2 text-sm text-gray-700 dark:text-gray-300">
+                        <span className="font-bold text-brand-primary flex-shrink-0">{i + 1}.</span>
+                        <p>{q}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {(content.modelDialogue.comprehensionQuestions.detail?.length ?? 0) > 0 && (
+                <div>
+                  <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-2">Detail Questions</p>
+                  <div className="space-y-2">
+                    {content.modelDialogue.comprehensionQuestions.detail.map((q, i) => (
+                      <div key={i} className="flex gap-2 text-sm text-gray-700 dark:text-gray-300">
+                        <span className="font-bold text-brand-primary flex-shrink-0">{i + 1}.</span>
+                        <p>{q}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       )}
     </div>
   )

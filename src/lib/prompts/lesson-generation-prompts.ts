@@ -191,11 +191,16 @@ Format:
   "title": "[Task Preparation in ${student.targetLanguage}]",
   "content": {
     "vocabulary": [{ "word": "word", "partOfSpeech": "[in ${student.targetLanguage}]", "phonetics": "/ipa/", "definition": "[in ${student.targetLanguage}]", "example": "[in ${student.targetLanguage}]", "synonym": "[or empty]", "expressions": [] }],
-    "keyPhrases": [{ "phrase": "[in ${student.targetLanguage}]", "usage": "[when to use, in ${student.targetLanguage}]", "example": "[in context, in ${student.targetLanguage}]" }],
+    "keyPhrases": [{ "phrase": "[in ${student.targetLanguage}]", "function": "[what this phrase communicates/signals — 5-10 words in ${student.targetLanguage}]", "usage": "[when to use, in ${student.targetLanguage}]", "example": "[in context, in ${student.targetLanguage}]" }],
     "modelDialogue": {
       "setting": "[max 150 chars in ${student.targetLanguage}]",
       "characters": [{ "name": "${student.name}", "role": "[role]" }, { "name": "[Other]", "role": "[role]" }],
-      "dialogue": [{ "character": "${student.name}", "text": "[in ${student.targetLanguage}]" }]
+      "dialogue": [{ "character": "${student.name}", "text": "[in ${student.targetLanguage}]" }],
+      "comprehensionQuestions": {
+        "gist": ["[big-picture Q1 in ${student.targetLanguage}]", "[big-picture Q2]", "[big-picture Q3]"],
+        "detail": ["[specific Q1 in ${student.targetLanguage}]", "[specific Q2]", "[specific Q3]", "[specific Q4]"]
+      },
+      "noticingTask": "[one instruction: find a specific language pattern in the dialogue, e.g. 'Find all the phrases that soften a request', in ${student.targetLanguage}]"
     }
   },
   "timeMinutes": ${is50min ? 15 : 10}
