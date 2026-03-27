@@ -66,7 +66,8 @@ export interface VocabularyCardsContent {
 }
 
 export interface VocabularyMatchContent {
-  pairs: { term: string; definition: string }[]
+  groups?: { label: string; pairs: { term: string; definition: string }[] }[]
+  pairs?: { term: string; definition: string }[]  // backward compat - flat list
   instructions?: string
 }
 

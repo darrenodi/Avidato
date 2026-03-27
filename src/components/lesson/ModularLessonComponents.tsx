@@ -115,50 +115,148 @@ export function VocabularyCardsModule({ content, isStudentView, tutorNotes }: { 
 
 // ─── Vocabulary Match ─────────────────────────────────────────────────────────
 
-export function VocabularyMatchModule({ content, isStudentView, tutorNotes }: { content: VocabularyMatchContent; isStudentView?: boolean; tutorNotes?: string }) {
-  const shuffled = React.useMemo(() => {
-    const defs = (content.pairs || []).map((p, i) => ({ def: p.definition, idx: i }))
-    return [...defs].sort(() => Math.random() - 0.5)
-  }, [content.pairs])
+interface MatchGroup {
+  label: string
+  pairs: { term: string; definition: string }[]
+}
+
+function VocabMatchGroup({ group, isStudentView }: { group: MatchGroup; isStudentView?: boolean; groupIndex: number }) {
+  const [answers, setAnswers] = React.useState<Record<number, string>>({})
+  const [selected, setSelected] = React.useState<string | null>(null)
+  const [checked, setChecked] = React.useState(false)
+
+  const pairs = group.pairs || []
+  const usedTerms = React.useMemo(() => new Set(Object.values(answers)), [answers])
+
+  const handleTermClick = (term: string) => {
+    if (usedTerms.has(term) || checked) return
+    setSelected(prev => prev === term ? null : term)
+  }
+
+  const handleBlankClick = (idx: number) => {
+    if (checked) return
+    if (answers[idx]) {
+      setAnswers(prev => { const n = { ...prev }; delete n[idx]; return n })
+      return
+    }
+    if (!selected) return
+    setAnswers(prev => ({ ...prev, [idx]: selected }))
+    setSelected(null)
+  }
+
+  const allAnswered = pairs.every((_, i) => answers[i])
+  const score = pairs.filter((p, i) => answers[i] === p.term).length
+
+  if (!isStudentView) {
+    return (
+      <div className="space-y-2">
+        {group.label && <p className="font-bold text-gray-700 dark:text-gray-300 text-sm mb-3">{group.label}</p>}
+        {pairs.map((pair, i) => (
+          <div key={i} className="flex items-baseline gap-2 text-sm">
+            <span className="text-gray-400 w-5 flex-shrink-0">{i + 1}.</span>
+            <span className="text-brand-primary font-semibold w-36 flex-shrink-0">{pair.term}</span>
+            <span className="text-gray-700 dark:text-gray-300">{pair.definition}</span>
+          </div>
+        ))}
+      </div>
+    )
+  }
 
   return (
-    <div className="space-y-4">
-      {content.instructions && <p className="text-sm text-gray-500 dark:text-gray-400 italic">{content.instructions}</p>}
-      <div className="grid grid-cols-2 gap-x-6 gap-y-2">
-        <div className="space-y-2">
-          <SectionLabel text="Column A" />
-          {(content.pairs || []).map((p, i) => (
-            <div key={i} className="flex gap-2 text-sm text-gray-900 dark:text-white">
-              <span className="text-brand-primary font-medium w-5 flex-shrink-0">{i + 1}.</span>
-              <span>{p.term}</span>
-            </div>
-          ))}
-        </div>
-        <div className="space-y-2">
-          <SectionLabel text="Column B" />
-          {shuffled.map((item, i) => (
-            <div key={i} className="flex gap-2 text-sm text-gray-700 dark:text-gray-300">
-              <span className="text-gray-400 font-medium w-5 flex-shrink-0">{String.fromCharCode(97 + i)}.</span>
-              <span>{item.def}</span>
-            </div>
-          ))}
-        </div>
+    <div className="space-y-5">
+      {group.label && <p className="font-bold text-gray-800 dark:text-gray-200 text-sm">{group.label}</p>}
+
+      {/* Word bank */}
+      <div className="flex flex-wrap gap-2 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+        {pairs.map((pair, i) => {
+          const isUsed = usedTerms.has(pair.term)
+          const isSel = selected === pair.term
+          return (
+            <button
+              key={i}
+              onClick={() => handleTermClick(pair.term)}
+              className={`px-3 py-1 text-sm font-semibold rounded border-2 transition-all select-none ${
+                isSel
+                  ? 'bg-brand-primary text-white border-brand-primary shadow-sm'
+                  : isUsed
+                  ? 'text-gray-300 dark:text-gray-600 border-gray-200 dark:border-gray-700 line-through cursor-default'
+                  : 'text-brand-primary border-brand-primary/50 hover:border-brand-primary hover:bg-brand-primary/5 cursor-pointer'
+              }`}
+            >
+              {pair.term}
+            </button>
+          )
+        })}
       </div>
-      {!isStudentView && (
-        <div className="border-t border-gray-100 dark:border-gray-700 pt-3">
-          <SectionLabel text="Answer key" />
-          <div className="flex flex-wrap gap-2">
-            {(content.pairs || []).map((p, i) => {
-              const letter = String.fromCharCode(97 + shuffled.findIndex(s => s.idx === i))
-              return (
-                <span key={i} className="text-xs px-2 py-1 rounded bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-800">
-                  {i + 1} → {letter}
-                </span>
-              )
-            })}
-          </div>
+
+      {/* Definitions with blanks */}
+      <div className="space-y-3">
+        {pairs.map((pair, i) => {
+          const answer = answers[i]
+          const isCorrect = checked && answer === pair.term
+          const isWrong = checked && answer && answer !== pair.term
+          return (
+            <div key={i} className="flex items-baseline gap-2 text-sm">
+              <span className="text-gray-400 dark:text-gray-500 w-6 flex-shrink-0 font-medium">{i + 1}.</span>
+              <button
+                onClick={() => handleBlankClick(i)}
+                className={`min-w-[8rem] text-left px-2 py-0.5 border-b-2 font-semibold mr-2 transition-colors ${
+                  isCorrect ? 'border-green-500 text-green-600 dark:text-green-400' :
+                  isWrong ? 'border-red-400 text-red-500 line-through' :
+                  answer ? 'border-brand-primary text-brand-primary cursor-pointer' :
+                  selected ? 'border-brand-primary/50 text-transparent cursor-pointer hover:border-brand-primary' :
+                  'border-gray-300 dark:border-gray-600 text-transparent cursor-default'
+                }`}
+              >
+                {answer || '\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0'}
+              </button>
+              <span className="text-gray-800 dark:text-gray-200 flex-1">{pair.definition}</span>
+              {isWrong && <span className="text-green-600 dark:text-green-400 text-xs ml-1 flex-shrink-0">✓ {pair.term}</span>}
+            </div>
+          )
+        })}
+      </div>
+
+      {/* Actions */}
+      {!checked ? (
+        <button
+          onClick={() => allAnswered && setChecked(true)}
+          disabled={!allAnswered}
+          className="px-5 py-2 text-sm font-semibold rounded-lg bg-brand-primary text-white hover:bg-brand-accent disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+        >
+          Check answers
+        </button>
+      ) : (
+        <div className="flex items-center gap-4">
+          <span className={`text-sm font-medium ${score === pairs.length ? 'text-green-600 dark:text-green-400' : 'text-gray-600 dark:text-gray-400'}`}>
+            {score === pairs.length ? '✓ All correct!' : `${score} / ${pairs.length} correct`}
+          </span>
+          <button
+            onClick={() => { setAnswers({}); setSelected(null); setChecked(false) }}
+            className="px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+          >
+            Try again
+          </button>
         </div>
       )}
+    </div>
+  )
+}
+
+export function VocabularyMatchModule({ content, isStudentView, tutorNotes }: { content: VocabularyMatchContent; isStudentView?: boolean; tutorNotes?: string }) {
+  // Normalize: support both groups and flat pairs (backward compat)
+  const groups: MatchGroup[] = content.groups?.length
+    ? content.groups
+    : [{ label: '', pairs: content.pairs || [] }]
+
+  return (
+    <div className="space-y-6">
+      {content.instructions && (
+        <p className="font-bold text-gray-800 dark:text-gray-200 text-sm">{content.instructions}</p>
+      )}
+      {groups.map((group, gi) => (
+        <VocabMatchGroup key={gi} group={group} isStudentView={isStudentView} groupIndex={gi} />
+      ))}
       {!isStudentView && tutorNotes && <TutorNote note={tutorNotes} />}
     </div>
   )
@@ -317,37 +415,98 @@ export function PhrasalVerbsModule({ content, isStudentView, tutorNotes }: { con
 // ─── Gap Fill ─────────────────────────────────────────────────────────────────
 
 export function GapFillModule({ content, isStudentView, tutorNotes }: { content: GapFillContent; isStudentView?: boolean; tutorNotes?: string }) {
-  return (
-    <div className="space-y-4">
-      <p className="text-sm text-gray-600 dark:text-gray-300">{content.instructions}</p>
-      {content.wordBank && content.wordBank.length > 0 && (
-        <div>
-          <SectionLabel text="Word bank" />
+  const [inputs, setInputs] = React.useState<Record<number, string>>({})
+  const [checked, setChecked] = React.useState(false)
+  const sentences = content.sentences || []
+  const allFilled = sentences.every((_, i) => inputs[i]?.trim())
+  const score = sentences.filter((s, i) => inputs[i]?.trim().toLowerCase() === (s.answer || '').toLowerCase()).length
+
+  if (!isStudentView) {
+    return (
+      <div className="space-y-4">
+        {content.instructions && <p className="font-bold text-sm text-gray-800 dark:text-gray-200">{content.instructions}</p>}
+        {(content.wordBank || []).length > 0 && (
           <div className="flex flex-wrap gap-2">
             {(content.wordBank || []).map((w, i) => (
-              <span key={i} className="px-2 py-1 text-sm border border-gray-200 dark:border-gray-600 rounded text-gray-700 dark:text-gray-300">{w}</span>
+              <span key={i} className="px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded text-gray-600 dark:text-gray-400">{w}</span>
             ))}
           </div>
+        )}
+        <div className="space-y-3">
+          {sentences.map((s, i) => {
+            const parts = s.sentence.split('___')
+            return (
+              <div key={i} className="flex items-baseline gap-1 text-sm flex-wrap">
+                <span className="text-gray-400 w-6 flex-shrink-0 font-medium">{i + 1}.</span>
+                <span className="text-gray-800 dark:text-gray-200">{parts[0]}</span>
+                <span className="px-2 font-semibold text-green-600 dark:text-green-400 border-b-2 border-green-400">{s.answer}</span>
+                {parts[1] && <span className="text-gray-800 dark:text-gray-200">{parts[1]}</span>}
+              </div>
+            )
+          })}
+        </div>
+        {tutorNotes && <TutorNote note={tutorNotes} />}
+      </div>
+    )
+  }
+
+  return (
+    <div className="space-y-4">
+      {content.instructions && <p className="font-bold text-sm text-gray-800 dark:text-gray-200">{content.instructions}</p>}
+      {(content.wordBank || []).length > 0 && (
+        <div className="flex flex-wrap gap-2 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+          {(content.wordBank || []).map((w, i) => (
+            <span key={i} className="px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded text-gray-700 dark:text-gray-300 font-medium">{w}</span>
+          ))}
         </div>
       )}
-      <div className="space-y-2">
-        {(content.sentences || []).map((s, i) => (
-          <div key={i} className="flex gap-2 text-sm">
-            <span className="text-brand-primary font-medium flex-shrink-0 w-5">{i + 1}.</span>
-            <div className="flex-1">
-              {isStudentView ? (
-                <span className="text-gray-900 dark:text-white">{s.sentence}</span>
-              ) : (
-                <span className="text-gray-900 dark:text-white">
-                  {s.sentence.replace('___', '')}
-                  <span className="font-medium text-green-600 dark:text-green-400"> [{s.answer}]</span>
-                </span>
-              )}
+      <div className="space-y-4">
+        {sentences.map((s, i) => {
+          const val = inputs[i] || ''
+          const isCorrect = checked && val.trim().toLowerCase() === (s.answer || '').toLowerCase()
+          const isWrong = checked && val.trim() && !isCorrect
+          const parts = s.sentence.split('___')
+          return (
+            <div key={i} className="flex items-center gap-1 text-sm flex-wrap">
+              <span className="text-gray-400 w-6 flex-shrink-0 font-medium">{i + 1}.</span>
+              <span className="text-gray-800 dark:text-gray-200">{parts[0]}</span>
+              <input
+                type="text"
+                value={val}
+                onChange={e => !checked && setInputs(prev => ({ ...prev, [i]: e.target.value }))}
+                className={`w-28 border-b-2 bg-transparent text-sm font-semibold text-center focus:outline-none transition-colors ${
+                  isCorrect ? 'border-green-500 text-green-600 dark:text-green-400' :
+                  isWrong ? 'border-red-400 text-red-500' :
+                  'border-gray-400 dark:border-gray-500 text-gray-800 dark:text-gray-200'
+                }`}
+              />
+              {parts[1] && <span className="text-gray-800 dark:text-gray-200">{parts[1]}</span>}
+              {isWrong && <span className="text-green-600 dark:text-green-400 text-xs ml-1">(✓ {s.answer})</span>}
             </div>
-          </div>
-        ))}
+          )
+        })}
       </div>
-      {!isStudentView && tutorNotes && <TutorNote note={tutorNotes} />}
+      {!checked ? (
+        <button
+          onClick={() => allFilled && setChecked(true)}
+          disabled={!allFilled}
+          className="px-5 py-2 text-sm font-semibold rounded-lg bg-brand-primary text-white hover:bg-brand-accent disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+        >
+          Check answers
+        </button>
+      ) : (
+        <div className="flex items-center gap-4">
+          <span className={`text-sm font-medium ${score === sentences.length ? 'text-green-600 dark:text-green-400' : 'text-gray-600 dark:text-gray-400'}`}>
+            {score === sentences.length ? '✓ All correct!' : `${score} / ${sentences.length} correct`}
+          </span>
+          <button
+            onClick={() => { setInputs({}); setChecked(false) }}
+            className="px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+          >
+            Try again
+          </button>
+        </div>
+      )}
     </div>
   )
 }
@@ -411,26 +570,59 @@ export function CompleteTheSentenceModule({ content, isStudentView, tutorNotes }
 // ─── Find the Mistake ─────────────────────────────────────────────────────────
 
 export function FindTheMistakeModule({ content, isStudentView, tutorNotes }: { content: FindTheMistakeContent; isStudentView?: boolean; tutorNotes?: string }) {
+  const [revealed, setRevealed] = React.useState<Set<number>>(new Set())
+  const sentences = content.sentences || []
+
+  const toggleReveal = (i: number) => {
+    setRevealed(prev => {
+      const n = new Set(prev)
+      n.has(i) ? n.delete(i) : n.add(i)
+      return n
+    })
+  }
+
+  if (!isStudentView) {
+    return (
+      <div className="space-y-3">
+        {content.instructions && <p className="font-bold text-sm text-gray-800 dark:text-gray-200">{content.instructions}</p>}
+        {sentences.map((s, i) => (
+          <div key={i} className="border-l-2 border-red-200 dark:border-red-800 pl-3 space-y-0.5">
+            <p className="text-sm text-red-500 dark:text-red-400 line-through">{s.incorrect}</p>
+            <p className="text-sm text-green-600 dark:text-green-400 font-medium">{s.correct}</p>
+            {s.explanation && <p className="text-xs text-gray-400 dark:text-gray-500 italic">{s.explanation}</p>}
+          </div>
+        ))}
+        {tutorNotes && <TutorNote note={tutorNotes} />}
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-3">
-      <p className="text-sm text-gray-600 dark:text-gray-300">{content.instructions}</p>
-      {(content.sentences || []).map((s, i) => (
-        <div key={i} className="flex gap-2 text-sm">
-          <span className="text-brand-primary font-medium flex-shrink-0 w-5">{i + 1}.</span>
-          <div className="flex-1 space-y-0.5">
-            {isStudentView ? (
-              <p className="text-gray-900 dark:text-white">{s.incorrect}</p>
-            ) : (
-              <>
-                <p className="text-red-500 dark:text-red-400 line-through">{s.incorrect}</p>
-                <p className="text-green-600 dark:text-green-400">{s.correct}</p>
-                {s.explanation && <p className="text-xs text-gray-400 dark:text-gray-500 italic">{s.explanation}</p>}
-              </>
-            )}
+      {content.instructions && <p className="font-bold text-sm text-gray-800 dark:text-gray-200">{content.instructions}</p>}
+      {sentences.map((s, i) => {
+        const isRevealed = revealed.has(i)
+        return (
+          <div key={i} className="flex items-start gap-3 py-2 border-b border-gray-100 dark:border-gray-700 last:border-0">
+            <span className="text-gray-400 text-sm w-5 flex-shrink-0 mt-0.5">{i + 1}.</span>
+            <div className="flex-1 space-y-1">
+              <p className={`text-sm ${isRevealed ? 'text-red-500 dark:text-red-400 line-through' : 'text-gray-800 dark:text-gray-200'}`}>{s.incorrect}</p>
+              {isRevealed && (
+                <p className="text-sm text-green-600 dark:text-green-400 font-medium">{s.correct}</p>
+              )}
+              {isRevealed && s.explanation && (
+                <p className="text-xs text-gray-400 dark:text-gray-500 italic">{s.explanation}</p>
+              )}
+            </div>
+            <button
+              onClick={() => toggleReveal(i)}
+              className="flex-shrink-0 px-2.5 py-1 text-xs font-medium rounded border border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            >
+              {isRevealed ? 'Hide' : 'Show'}
+            </button>
           </div>
-        </div>
-      ))}
-      {!isStudentView && tutorNotes && <TutorNote note={tutorNotes} />}
+        )
+      })}
     </div>
   )
 }
@@ -527,9 +719,9 @@ export function GrammarFocusModule({ content, isStudentView, tutorNotes }: { con
 
   return (
     <div className="space-y-4">
-      <div className="border-l-4 border-brand-primary pl-4">
-        <p className="font-semibold text-gray-900 dark:text-white">{content.topic}</p>
-        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{content.explanation}</p>
+      <div className="bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-lg p-4">
+        <p className="font-bold text-gray-900 dark:text-white text-sm mb-1">{content.topic}</p>
+        <p className="text-sm text-gray-600 dark:text-gray-400">{content.explanation}</p>
       </div>
       {content.table && (
         <div className="overflow-x-auto">

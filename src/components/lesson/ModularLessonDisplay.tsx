@@ -17,8 +17,6 @@ import {
   YourTurnAskModule, YourTurnAnswerModule, YourTurnTellModule, HomeworkWritingModule,
 } from './ModularLessonComponents'
 
-// ─── Module renderer map ───────────────────────────────────────────────────────
-
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const MODULE_MAP: Record<ModuleType, React.ComponentType<{ content: any; isStudentView?: boolean; tutorNotes?: string }>> = {
   'warm-up': WarmUpModule,
@@ -64,19 +62,9 @@ const MODULE_MAP: Record<ModuleType, React.ComponentType<{ content: any; isStude
 
 function ModuleRenderer({ module, isStudentView }: { module: LessonModule; isStudentView?: boolean }) {
   const Component = MODULE_MAP[module.type]
-  if (!Component) {
-    return <p className="text-sm text-gray-400 italic">Unknown module type: {module.type}</p>
-  }
-  return (
-    <Component
-      content={module.content}
-      isStudentView={isStudentView}
-      tutorNotes={isStudentView ? undefined : module.tutorNotes}
-    />
-  )
+  if (!Component) return <p className="text-sm text-gray-400 italic">Unknown module: {module.type}</p>
+  return <Component content={module.content} isStudentView={isStudentView} tutorNotes={isStudentView ? undefined : module.tutorNotes} />
 }
-
-// ─── Main display ─────────────────────────────────────────────────────────────
 
 interface ModularLessonDisplayProps {
   lesson: ModularLessonContent
@@ -85,16 +73,12 @@ interface ModularLessonDisplayProps {
   onEditModule?: (index: number) => void
 }
 
-export default function ModularLessonDisplay({
-  lesson,
-  isStudentView = false,
-  onEditModule,
-}: ModularLessonDisplayProps) {
+export default function ModularLessonDisplay({ lesson, isStudentView = false, onEditModule }: ModularLessonDisplayProps) {
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 max-w-3xl mx-auto">
 
-      {/* Lesson title */}
-      <div className="space-y-2">
+      {/* Lesson header */}
+      <div className="space-y-1">
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white leading-tight">
           {lesson.title}
         </h1>
@@ -102,28 +86,28 @@ export default function ModularLessonDisplay({
       </div>
 
       {/* Modules */}
-      <div className="space-y-6">
+      <div className="space-y-8">
         {(lesson.modules || []).map((module, i) => (
-          <div key={i} className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm">
-            {/* Module header */}
-            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-gray-700">
-              <div className="flex items-center gap-3">
-                <span className="flex items-center justify-center w-7 h-7 rounded-full bg-brand-primary/10 text-brand-primary text-xs font-bold flex-shrink-0">
-                  {i + 1}
-                </span>
-                <h2 className="font-semibold text-gray-900 dark:text-white text-base">{module.title}</h2>
+          <div key={i} className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
+            {/* Linguahouse-style header: dark blue numbered box + title */}
+            <div className="flex items-stretch border-b border-gray-200 dark:border-gray-700">
+              <div className="flex items-center justify-center w-12 bg-[#1a3a5c] dark:bg-[#1a3a5c] flex-shrink-0">
+                <span className="text-white font-bold text-base">{i + 1}</span>
               </div>
-              <div className="flex items-center gap-2 flex-shrink-0">
-                {(module.timeMinutes ?? 0) > 0 && (
-                  <span className="text-xs text-gray-400 dark:text-gray-500 tabular-nums">{module.timeMinutes} min</span>
-                )}
-                {!isStudentView && onEditModule && (
-                  <EditButton onClick={() => onEditModule(i)} label="Edit" />
-                )}
+              <div className="flex-1 flex items-center justify-between px-5 py-3">
+                <h2 className="font-bold text-[#1a3a5c] dark:text-blue-300 text-lg leading-snug">{module.title}</h2>
+                <div className="flex items-center gap-2 flex-shrink-0 ml-2">
+                  {(module.timeMinutes ?? 0) > 0 && (
+                    <span className="text-xs text-gray-400 dark:text-gray-500 tabular-nums whitespace-nowrap">{module.timeMinutes} min</span>
+                  )}
+                  {!isStudentView && onEditModule && (
+                    <EditButton onClick={() => onEditModule(i)} label="Edit" />
+                  )}
+                </div>
               </div>
             </div>
-            {/* Module content */}
-            <div className="px-5 py-5">
+            {/* Content */}
+            <div className="px-6 py-5">
               <ModuleRenderer module={module} isStudentView={isStudentView} />
             </div>
           </div>
@@ -132,7 +116,7 @@ export default function ModularLessonDisplay({
 
       {/* Teaching notes (tutor only) */}
       {!isStudentView && lesson.teachingNotes && (
-        <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-2xl p-5">
+        <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-5">
           <p className="text-xs font-semibold text-amber-700 dark:text-amber-400 uppercase tracking-wide mb-1">Teaching notes</p>
           <p className="text-sm text-amber-800 dark:text-amber-300 leading-relaxed">{lesson.teachingNotes}</p>
         </div>
