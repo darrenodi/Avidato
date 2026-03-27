@@ -988,42 +988,30 @@ export function MatchingQAModule({ content, isStudentView, tutorNotes }: { conte
   const [answers, setAnswers] = React.useState<Record<number, string>>({})
   const [selected, setSelected] = React.useState<string | null>(null)
   const [checked, setChecked] = React.useState(false)
+  const [showAnswers, setShowAnswers] = React.useState(false)
 
   const usedAnswers = React.useMemo(() => new Set(Object.values(answers)), [answers])
   const allAnswered = pairs.every((_, i) => answers[i])
   const score = pairs.filter((p, i) => answers[i] === p.answer).length
 
-  // Tutor view: simple paired list
-  if (!isStudentView) {
-    return (
-      <div className="space-y-3">
-        {pairs.map((p, i) => (
-          <div key={i} className="flex gap-3 text-sm">
-            <span className="text-brand-primary font-bold flex-shrink-0 w-5">{i + 1}.</span>
-            <div>
-              <p className="text-gray-900 dark:text-white font-medium">{p.question}</p>
-              <p className="text-green-700 dark:text-green-400 mt-0.5">{p.answer}</p>
-            </div>
-          </div>
-        ))}
-        {tutorNotes && <TutorNote note={tutorNotes} />}
-      </div>
-    )
-  }
+  const displayAnswers = showAnswers
+    ? pairs.reduce<Record<number, string>>((acc, p, i) => ({ ...acc, [i]: p.answer }), {})
+    : answers
 
-  // Student view: interactive click-to-match
   return (
     <div className="space-y-5">
+      <p className="text-sm text-gray-500 dark:text-gray-400">Match each question to the correct answer.</p>
+
       {/* Answer bank */}
       <div className="flex flex-wrap gap-2 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
         {shuffledAnswers.map((item, i) => {
-          const isUsed = usedAnswers.has(item.ans)
-          const isSel = selected === item.ans
+          const isUsed = showAnswers ? true : usedAnswers.has(item.ans)
+          const isSel = !showAnswers && selected === item.ans
           return (
             <button
               key={i}
               onClick={() => {
-                if (checked || isUsed) return
+                if (checked || isUsed || showAnswers) return
                 setSelected(prev => prev === item.ans ? null : item.ans)
               }}
               className={`px-3 py-1.5 text-sm rounded border-2 transition-all select-none text-left ${
@@ -1043,9 +1031,9 @@ export function MatchingQAModule({ content, isStudentView, tutorNotes }: { conte
       {/* Questions with blank slots */}
       <div className="space-y-3">
         {pairs.map((p, i) => {
-          const ans = answers[i]
-          const isCorrect = checked && ans === p.answer
-          const isWrong = checked && ans && ans !== p.answer
+          const ans = displayAnswers[i]
+          const isCorrect = (checked || showAnswers) && ans === p.answer
+          const isWrong = checked && !showAnswers && ans && ans !== p.answer
           return (
             <div key={i} className="flex gap-3 text-sm items-start">
               <span className="text-brand-primary font-bold flex-shrink-0 w-5 mt-0.5">{i + 1}.</span>
@@ -1053,7 +1041,7 @@ export function MatchingQAModule({ content, isStudentView, tutorNotes }: { conte
                 <p className="text-gray-900 dark:text-white mb-1">{p.question}</p>
                 <button
                   onClick={() => {
-                    if (checked) return
+                    if (checked || showAnswers) return
                     if (ans) { setAnswers(prev => { const n = { ...prev }; delete n[i]; return n }); return }
                     if (!selected) return
                     setAnswers(prev => ({ ...prev, [i]: selected }))
@@ -1077,27 +1065,39 @@ export function MatchingQAModule({ content, isStudentView, tutorNotes }: { conte
       </div>
 
       {/* Actions */}
-      {!checked ? (
-        <button
-          onClick={() => allAnswered && setChecked(true)}
-          disabled={!allAnswered}
-          className="px-5 py-2 text-sm font-semibold rounded-lg bg-brand-primary text-white hover:bg-brand-accent disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-        >
-          Check answers
-        </button>
-      ) : (
-        <div className="flex items-center gap-4">
-          <span className={`text-sm font-medium ${score === pairs.length ? 'text-green-600 dark:text-green-400' : 'text-gray-600 dark:text-gray-400'}`}>
-            {score === pairs.length ? '✓ All correct!' : `${score} / ${pairs.length} correct`}
-          </span>
+      <div className="flex items-center gap-3 flex-wrap">
+        {!showAnswers && !checked && (
           <button
-            onClick={() => { setAnswers({}); setSelected(null); setChecked(false) }}
-            className="px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            onClick={() => allAnswered && setChecked(true)}
+            disabled={!allAnswered}
+            className="px-5 py-2 text-sm font-semibold rounded-lg bg-brand-primary text-white hover:bg-brand-accent disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           >
-            Try again
+            Check answers
           </button>
-        </div>
-      )}
+        )}
+        {checked && (
+          <div className="flex items-center gap-3">
+            <span className={`text-sm font-medium ${score === pairs.length ? 'text-green-600 dark:text-green-400' : 'text-gray-600 dark:text-gray-400'}`}>
+              {score === pairs.length ? '✓ All correct!' : `${score} / ${pairs.length} correct`}
+            </span>
+            <button
+              onClick={() => { setAnswers({}); setSelected(null); setChecked(false); setShowAnswers(false) }}
+              className="px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            >
+              Try again
+            </button>
+          </div>
+        )}
+        {!isStudentView && !checked && (
+          <button
+            onClick={() => { setShowAnswers(prev => !prev); setAnswers({}); setSelected(null) }}
+            className="px-4 py-2 text-sm font-medium rounded-lg border border-green-300 dark:border-green-700 text-green-700 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors"
+          >
+            {showAnswers ? 'Hide answers' : 'Show answers'}
+          </button>
+        )}
+      </div>
+      {!isStudentView && tutorNotes && <TutorNote note={tutorNotes} />}
     </div>
   )
 }
