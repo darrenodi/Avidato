@@ -79,12 +79,12 @@ export interface VocabularyMatchContent {
 
 export interface UsefulExpressionsContent {
   context?: string
-  expressions: string[]
+  expressions: (string | { full: string; stem: string })[]
   instructions?: string
 }
 
 export interface UsefulLanguageContent {
-  phrases: { phrase: string; example: string }[]
+  phrases: { phrase: string; stem?: string; example: string }[]
   practice: {
     sentences: { prompt: string; answer: string }[]
   }

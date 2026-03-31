@@ -127,8 +127,11 @@ warm-up               → { questions: string[3-4] }
 image-discussion      → { imagePlaceholders: [{label, description}], questions: string[] }
 vocabulary-cards      → { vocabulary: [{word, partOfSpeech, phonetics, definition, example, synonym?}×6] }
 vocabulary-match      → { instructions, groups: [{label, pairs:[{sentence,term,definition}×5-7]}×2] }
-useful-expressions    → { context?, expressions: string[6-10] }
-useful-language       → { phrases: [{phrase:string, example:string}×4-6], practice: {sentences:[{prompt,answer}×4-6]} }
+useful-expressions    → { context?, expressions: [{full: string, stem: string}×6-10] }
+  stem = the phrase up to and including the key idiom/verb phrase, ending with "....." — student completes it
+  Example: { full: "We need to iron out a few issues with the supplier.", stem: "We need to iron out ....." }
+useful-language       → { phrases: [{phrase:string, stem:string, example:string}×4-6], practice: {sentences:[{prompt,answer}×4-6]} }
+  stem = phrase shown to student with content words hidden: e.g. phrase "touch base on the schedule" → stem "touch base on ....."
 language-in-context   → { phrases: [{phrase:string, function:string, example?:string}×4-6] }
 phrasal-verbs         → { pairs: [{verb, meaning, example?}×6-8], discussionQuestions?:string[] }
 gap-fill              → { instructions, sentences: [{sentence(use ___ for blank), answer}×6-10] }

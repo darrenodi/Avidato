@@ -339,13 +339,25 @@ export function UsefulExpressionsModule({ content, isStudentView, tutorNotes }: 
   return (
     <div className="space-y-3">
       {content.context && <p className="text-sm text-gray-500 dark:text-gray-400 italic">{content.context}</p>}
-      {content.instructions && <p className="text-sm text-gray-600 dark:text-gray-300">{content.instructions}</p>}
+      {isStudentView
+        ? <p className="text-sm text-gray-500 dark:text-gray-400">Complete each expression.</p>
+        : content.instructions && <p className="text-sm text-gray-600 dark:text-gray-300">{content.instructions}</p>
+      }
       <div className="space-y-2">
-        {(content.expressions || []).map((expr, i) => (
-          <div key={i} className="border-l-2 border-brand-primary pl-3 py-0.5">
-            <p className="text-gray-900 dark:text-white">&ldquo;{expr}&rdquo;</p>
-          </div>
-        ))}
+        {(content.expressions || []).map((expr, i) => {
+          const full = typeof expr === 'string' ? expr : expr.full
+          const stem = typeof expr === 'string'
+            ? full.trim().split(/\s+/).slice(0, 4).join(' ') + ' .....'
+            : expr.stem
+          return (
+            <div key={i} className="border-l-2 border-brand-primary pl-3 py-0.5">
+              {isStudentView
+                ? <p className="text-gray-900 dark:text-white font-medium">{stem}</p>
+                : <p className="text-gray-900 dark:text-white">&ldquo;{full}&rdquo;</p>
+              }
+            </div>
+          )
+        })}
       </div>
       {!isStudentView && tutorNotes && <TutorNote note={tutorNotes} />}
     </div>
@@ -358,18 +370,26 @@ export function UsefulLanguageModule({ content, isStudentView, tutorNotes }: { c
   const sentences = content.practice?.sentences || []
   // Normalize: AI sometimes generates phrases as plain strings instead of {phrase, example} objects
   const phrases = (content.phrases || []).map(p =>
-    typeof p === 'string' ? { phrase: p as string, example: '' } : p
+    typeof p === 'string' ? { phrase: p as string, stem: undefined as string | undefined, example: '' } : p
   )
   return (
     <div className="space-y-5">
       <div className="space-y-2">
-        <SectionLabel text="Phrases" />
-        {phrases.map((p, i) => (
-          <div key={i} className="border-l-2 border-brand-primary pl-3">
-            <p className="font-medium text-gray-900 dark:text-white">{p.phrase}</p>
-            {p.example && <p className="text-xs text-gray-400 dark:text-gray-500 italic mt-0.5">&ldquo;{p.example}&rdquo;</p>}
-          </div>
-        ))}
+        <SectionLabel text={isStudentView ? 'Complete the phrases' : 'Phrases'} />
+        {phrases.map((p, i) => {
+          const stem = p.stem || p.phrase.trim().split(/\s+/).slice(0, 4).join(' ') + ' .....'
+          return (
+            <div key={i} className="border-l-2 border-brand-primary pl-3">
+              {isStudentView
+                ? <p className="font-medium text-gray-900 dark:text-white">{stem}</p>
+                : <>
+                    <p className="font-medium text-gray-900 dark:text-white">{p.phrase}</p>
+                    {p.example && <p className="text-xs text-gray-400 dark:text-gray-500 italic mt-0.5">&ldquo;{p.example}&rdquo;</p>}
+                  </>
+              }
+            </div>
+          )
+        })}
       </div>
       {sentences.length > 0 && (
         <div className="space-y-2">
@@ -1051,123 +1071,54 @@ export function SkimMainIdeaModule({ content, isStudentView, tutorNotes }: { con
 
 export function MatchingQAModule({ content, isStudentView, tutorNotes }: { content: MatchingQAContent; isStudentView?: boolean; tutorNotes?: string }) {
   const pairs = content.pairs || []
-  const shuffledAnswers = React.useMemo(() => {
-    return [...pairs.map((p, i) => ({ ans: p.answer, idx: i }))].sort(() => Math.random() - 0.5)
-  }, [pairs])
+  const [revealed, setRevealed] = React.useState(false)
 
-  const [answers, setAnswers] = React.useState<Record<number, string>>({})
-  const [selected, setSelected] = React.useState<string | null>(null)
-  const [checked, setChecked] = React.useState(false)
-  const [showAnswers, setShowAnswers] = React.useState(false)
-
-  const usedAnswers = React.useMemo(() => new Set(Object.values(answers)), [answers])
-  const allAnswered = pairs.every((_, i) => answers[i])
-  const score = pairs.filter((p, i) => answers[i] === p.answer).length
-
-  const displayAnswers = showAnswers
-    ? pairs.reduce<Record<number, string>>((acc, p, i) => ({ ...acc, [i]: p.answer }), {})
-    : answers
-
-  return (
-    <div className="space-y-5">
-      <p className="text-sm text-gray-500 dark:text-gray-400">Match each question to the correct answer.</p>
-
-      {/* Answer bank */}
-      <div className="flex flex-wrap gap-2 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-        {shuffledAnswers.map((item, i) => {
-          const isUsed = showAnswers ? true : usedAnswers.has(item.ans)
-          const isSel = !showAnswers && selected === item.ans
-          return (
-            <button
-              key={i}
-              onClick={() => {
-                if (checked || isUsed || showAnswers) return
-                setSelected(prev => prev === item.ans ? null : item.ans)
-              }}
-              className={`px-3 py-1.5 text-sm rounded border-2 transition-all select-none text-left ${
-                isSel
-                  ? 'bg-brand-primary text-white border-brand-primary shadow-sm'
-                  : isUsed
-                  ? 'text-gray-300 dark:text-gray-600 border-gray-200 dark:border-gray-700 line-through cursor-default'
-                  : 'text-brand-primary border-brand-primary/50 hover:border-brand-primary hover:bg-brand-primary/5 cursor-pointer'
-              }`}
-            >
-              {String.fromCharCode(97 + i)}. {item.ans}
-            </button>
-          )
-        })}
-      </div>
-
-      {/* Questions with blank slots */}
-      <div className="space-y-3">
-        {pairs.map((p, i) => {
-          const ans = displayAnswers[i]
-          const isCorrect = (checked || showAnswers) && ans === p.answer
-          const isWrong = checked && !showAnswers && ans && ans !== p.answer
-          return (
-            <div key={i} className="flex gap-3 text-sm items-start">
+  // Student view: just questions — no answers visible, discuss then reveal
+  if (isStudentView) {
+    return (
+      <div className="space-y-4">
+        <div className="space-y-3">
+          {pairs.map((p, i) => (
+            <div key={i} className="flex gap-3 text-sm">
               <span className="text-brand-primary font-bold flex-shrink-0 w-5 mt-0.5">{i + 1}.</span>
               <div className="flex-1">
-                <p className="text-gray-900 dark:text-white mb-1">{p.question}</p>
-                <button
-                  onClick={() => {
-                    if (checked || showAnswers) return
-                    if (ans) { setAnswers(prev => { const n = { ...prev }; delete n[i]; return n }); return }
-                    if (!selected) return
-                    setAnswers(prev => ({ ...prev, [i]: selected }))
-                    setSelected(null)
-                  }}
-                  className={`w-full text-left px-3 py-1.5 rounded border-2 transition-colors text-sm font-medium ${
-                    isCorrect ? 'border-green-500 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400' :
-                    isWrong ? 'border-red-400 bg-red-50 dark:bg-red-900/20 text-red-500 line-through' :
-                    ans ? 'border-brand-primary bg-brand-primary/5 text-brand-primary cursor-pointer' :
-                    selected ? 'border-dashed border-brand-primary/50 text-gray-400 cursor-pointer hover:border-brand-primary' :
-                    'border-dashed border-gray-300 dark:border-gray-600 text-gray-300 dark:text-gray-600 cursor-default'
-                  }`}
-                >
-                  {ans || 'Select an answer above'}
-                </button>
-                {isWrong && <p className="text-green-600 dark:text-green-400 text-xs mt-1">✓ {p.answer}</p>}
+                <p className="text-gray-900 dark:text-white">{p.question}</p>
+                {revealed && (
+                  <p className="mt-1 text-green-700 dark:text-green-400 text-sm border-l-2 border-green-400 pl-2">{p.answer}</p>
+                )}
               </div>
             </div>
-          )
-        })}
+          ))}
+        </div>
+        <button
+          onClick={() => setRevealed(prev => !prev)}
+          className="px-5 py-2 text-sm font-semibold rounded-lg bg-brand-primary text-white hover:bg-brand-accent transition-colors"
+        >
+          {revealed ? 'Hide answers' : 'Show answers'}
+        </button>
       </div>
+    )
+  }
 
-      {/* Actions */}
-      <div className="flex items-center gap-3 flex-wrap">
-        {!showAnswers && !checked && (
-          <button
-            onClick={() => allAnswered && setChecked(true)}
-            disabled={!allAnswered}
-            className="px-5 py-2 text-sm font-semibold rounded-lg bg-brand-primary text-white hover:bg-brand-accent disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-          >
-            Check answers
-          </button>
-        )}
-        {checked && (
-          <div className="flex items-center gap-3">
-            <span className={`text-sm font-medium ${score === pairs.length ? 'text-green-600 dark:text-green-400' : 'text-gray-600 dark:text-gray-400'}`}>
-              {score === pairs.length ? '✓ All correct!' : `${score} / ${pairs.length} correct`}
-            </span>
-            <button
-              onClick={() => { setAnswers({}); setSelected(null); setChecked(false); setShowAnswers(false) }}
-              className="px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-            >
-              Try again
-            </button>
+  // Tutor view: questions + answers paired, show answers toggle
+  return (
+    <div className="space-y-3">
+      {pairs.map((p, i) => (
+        <div key={i} className="flex gap-3 text-sm">
+          <span className="text-brand-primary font-bold flex-shrink-0 w-5 mt-0.5">{i + 1}.</span>
+          <div>
+            <p className="text-gray-900 dark:text-white font-medium">{p.question}</p>
+            {revealed && <p className="text-green-700 dark:text-green-400 mt-0.5">{p.answer}</p>}
           </div>
-        )}
-        {!isStudentView && !checked && (
-          <button
-            onClick={() => { setShowAnswers(prev => !prev); setAnswers({}); setSelected(null) }}
-            className="px-4 py-2 text-sm font-medium rounded-lg border border-green-300 dark:border-green-700 text-green-700 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors"
-          >
-            {showAnswers ? 'Hide answers' : 'Show answers'}
-          </button>
-        )}
-      </div>
-      {!isStudentView && tutorNotes && <TutorNote note={tutorNotes} />}
+        </div>
+      ))}
+      <button
+        onClick={() => setRevealed(prev => !prev)}
+        className="px-4 py-2 text-sm font-medium rounded-lg border border-green-300 dark:border-green-700 text-green-700 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors"
+      >
+        {revealed ? 'Hide answers' : 'Show answers'}
+      </button>
+      {tutorNotes && <TutorNote note={tutorNotes} />}
     </div>
   )
 }
