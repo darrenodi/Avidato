@@ -93,9 +93,7 @@ CONTENT RULES:
 - NO em dashes (—). BANNED words: "resonate","navigate","landscape","leverage","dynamics","paradigm"
 - Real names only in dialogues — NEVER bracket placeholders
 - Dialogue: 8-12 turns, small talk opener, one imperfect moment, one pushback, contractions + natural fillers
-- Warm-up questions: Must be creative, scenario-based, and specific to the student's exact job and lesson topic.
-  BANNED question openers: "How do you typically...", "What is the most challenging...", "What is your first step...", "Have you ever...", "Do you think...", "How do you feel..."
-  GOOD warm-up questions put the student in a concrete situation: "Your client just rejected the proposal 30 minutes before the meeting — what is your opening line?", "A new team member misunderstands a key spec and sends it to the client. You see the email. What do you do first?"
+- Warm-up questions: Write 3-4 questions that make the student think and speak immediately. Questions must be rooted in the student's real job (${student.occupation}) and the specific lesson topic. They should provoke an opinion, recall a real moment, or spark a reaction — not describe a process or list steps. Vary the angle of each question so they do not feel like a survey.
 - Debate module: always include a clear 'topic' field summarising the dilemma in one sentence, and 'sideA'/'sideB' labels that are direct opposites. The student must pick one side and argue it.
 
 ${levelGuide}
