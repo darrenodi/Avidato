@@ -14,6 +14,17 @@ import {
   YourTurnAskContent, YourTurnAnswerContent, YourTurnTellContent, HomeworkWritingContent,
 } from '@/types/module-lesson'
 
+// ─── Utilities ────────────────────────────────────────────────────────────────
+
+function fisherYates<T>(arr: T[]): T[] {
+  const a = [...arr]
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[a[i], a[j]] = [a[j], a[i]]
+  }
+  return a
+}
+
 // ─── Shared helpers ────────────────────────────────────────────────────────────
 
 function TutorNote({ note }: { note: string }) {
@@ -158,9 +169,12 @@ function VocabMatchGroup({ group, isStudentView }: { group: MatchGroup; isStuden
     }
   })
 
-  const shuffledDefs = React.useMemo(() =>
-    [...pairs.map((p, i) => ({ def: p.definition, originalIdx: i }))].sort(() => Math.random() - 0.5),
-  [pairs])  // eslint-disable-line react-hooks/exhaustive-deps
+  // Shuffle once on mount — useRef ensures it never re-shuffles on re-render
+  const shuffledDefsRef = React.useRef<Array<{ def: string; originalIdx: number }> | null>(null)
+  if (shuffledDefsRef.current === null) {
+    shuffledDefsRef.current = fisherYates(pairs.map((p, i) => ({ def: p.definition, originalIdx: i })))
+  }
+  const shuffledDefs = shuffledDefsRef.current
 
   const usedDefIndices = React.useMemo(() => new Set(Object.values(assignments)), [assignments])
   const allAssigned = pairs.every((_, i) => assignments[i] !== undefined)
@@ -340,8 +354,8 @@ export function UsefulExpressionsModule({ content, isStudentView, tutorNotes }: 
     <div className="space-y-3">
       {content.context && <p className="text-sm text-gray-500 dark:text-gray-400 italic">{content.context}</p>}
       {isStudentView
-        ? <p className="text-sm text-gray-500 dark:text-gray-400">Complete each expression.</p>
-        : content.instructions && <p className="text-sm text-gray-600 dark:text-gray-300">{content.instructions}</p>
+        ? <p className="text-sm text-gray-500 dark:text-gray-400 italic">Complete each expression.</p>
+        : <p className="text-sm text-blue-700 dark:text-blue-400 font-medium">Read the stem aloud. Ask your student to complete the expression, then use it in their own sentence.</p>
       }
       <div className="space-y-2">
         {(content.expressions || []).map((expr, i) => {
@@ -353,7 +367,10 @@ export function UsefulExpressionsModule({ content, isStudentView, tutorNotes }: 
             <div key={i} className="border-l-2 border-brand-primary pl-3 py-0.5">
               {isStudentView
                 ? <p className="text-gray-900 dark:text-white font-medium">{stem}</p>
-                : <p className="text-gray-900 dark:text-white">&ldquo;{full}&rdquo;</p>
+                : <>
+                    <p className="text-gray-900 dark:text-white font-medium">{stem}</p>
+                    <p className="text-xs text-green-700 dark:text-green-400 italic mt-0.5">{full}</p>
+                  </>
               }
             </div>
           )
@@ -374,6 +391,9 @@ export function UsefulLanguageModule({ content, isStudentView, tutorNotes }: { c
   )
   return (
     <div className="space-y-5">
+      {!isStudentView && (
+        <p className="text-sm text-blue-700 dark:text-blue-400 font-medium">Say the stem and ask your student to complete the phrase from memory. Drill each one in a realistic sentence before moving on.</p>
+      )}
       <div className="space-y-2">
         <SectionLabel text={isStudentView ? 'Complete the phrases' : 'Phrases'} />
         {phrases.map((p, i) => {
@@ -383,7 +403,8 @@ export function UsefulLanguageModule({ content, isStudentView, tutorNotes }: { c
               {isStudentView
                 ? <p className="font-medium text-gray-900 dark:text-white">{stem}</p>
                 : <>
-                    <p className="font-medium text-gray-900 dark:text-white">{p.phrase}</p>
+                    <p className="font-medium text-gray-500 dark:text-gray-400">{stem}</p>
+                    <p className="text-sm font-medium text-green-700 dark:text-green-400 mt-0.5">{p.phrase}</p>
                     {p.example && <p className="text-xs text-gray-400 dark:text-gray-500 italic mt-0.5">&ldquo;{p.example}&rdquo;</p>}
                   </>
               }
@@ -414,6 +435,33 @@ export function UsefulLanguageModule({ content, isStudentView, tutorNotes }: { c
 
 // ─── Language in Context ──────────────────────────────────────────────────────
 
+function LanguageInContextItem({ phrase, fn, example, isStudentView }: { phrase: string; fn: string; example?: string; isStudentView?: boolean }) {
+  const [revealed, setRevealed] = React.useState(false)
+  const stem = phrase.trim().split(/\s+/).slice(0, 4).join(' ') + ' .....'
+  if (isStudentView) {
+    return (
+      <div className="border-l-2 border-brand-primary pl-3 py-0.5">
+        <p className="font-medium text-gray-900 dark:text-white">
+          {revealed ? <>&ldquo;{phrase}&rdquo;</> : stem}
+        </p>
+        {!revealed && (
+          <button onClick={() => setRevealed(true)} className="text-xs text-brand-primary hover:underline mt-0.5">
+            Reveal
+          </button>
+        )}
+      </div>
+    )
+  }
+  return (
+    <div className="border-l-2 border-brand-primary pl-3 py-0.5 space-y-0.5">
+      <p className="font-medium text-gray-500 dark:text-gray-400">{stem}</p>
+      <p className="text-sm font-medium text-green-700 dark:text-green-400">&ldquo;{phrase}&rdquo;</p>
+      {fn && <p className="text-xs font-medium text-teal-600 dark:text-teal-400">{fn}</p>}
+      {example && <p className="text-xs text-gray-400 dark:text-gray-500 italic">{example}</p>}
+    </div>
+  )
+}
+
 export function LanguageInContextModule({ content, isStudentView, tutorNotes }: { content: LanguageInContextContent; isStudentView?: boolean; tutorNotes?: string }) {
   // Normalize: AI sometimes generates an 'analysis' string array instead of phrases objects
   const rawContent = content as unknown as { analysis?: string[] }
@@ -423,12 +471,12 @@ export function LanguageInContextModule({ content, isStudentView, tutorNotes }: 
   return (
     <div className="space-y-3">
       {content.instructions && <p className="text-sm text-gray-500 dark:text-gray-400 italic">{content.instructions}</p>}
+      {isStudentView
+        ? <p className="text-sm text-gray-500 dark:text-gray-400 italic">Complete each phrase, then reveal to check.</p>
+        : <p className="text-sm text-blue-700 dark:text-blue-400 font-medium">Say the stem aloud. Ask your student to complete the phrase, then discuss its function together.</p>
+      }
       {phrases.map((p, i) => (
-        <div key={i} className="border-l-2 border-brand-primary pl-3 py-0.5 space-y-0.5">
-          <p className="font-medium text-gray-900 dark:text-white">&ldquo;{p.phrase}&rdquo;</p>
-          {p.function && <p className="text-xs font-medium text-teal-600 dark:text-teal-400">{p.function}</p>}
-          {p.example && <p className="text-xs text-gray-400 dark:text-gray-500 italic">{p.example}</p>}
-        </div>
+        <LanguageInContextItem key={i} phrase={p.phrase} fn={p.function} example={p.example} isStudentView={isStudentView} />
       ))}
       {!isStudentView && tutorNotes && <TutorNote note={tutorNotes} />}
     </div>
