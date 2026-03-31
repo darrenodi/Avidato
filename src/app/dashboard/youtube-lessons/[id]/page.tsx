@@ -426,6 +426,14 @@ export default function YouTubeLessonDetailPage() {
           Back to YouTube Lessons
         </Link>
 
+        {/* AI notice */}
+        <div className="mb-6 flex items-start gap-3 px-4 py-3 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 text-sm text-amber-800 dark:text-amber-300">
+          <svg className="w-4 h-4 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+          </svg>
+          AI can make mistakes. Please review the lesson before teaching it and use the <strong className="mx-1">Edit</strong> buttons to correct any issues.
+        </div>
+
         <div className="space-y-6">
           {/* ---- Lesson Header ---- */}
           <Card>

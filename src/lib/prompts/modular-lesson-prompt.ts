@@ -10,7 +10,7 @@ const STRUCTURES = {
     ['warm-up', 'useful-language', 'dialogue', 'language-in-context', 'roleplay', 'talking-point', 'homework-writing'],
     ['image-discussion', 'vocabulary-match', 'dialogue', 'roleplay', 'your-turn-tell', 'discussion', 'homework-writing'],
     ['warm-up', 'vocabulary-cards', 'dialogue', 'matching-qa', 'roleplay', 'your-turn-ask', 'homework-writing'],
-    ['warm-up', 'useful-expressions', 'dialogue', 'language-in-context', 'roleplay', 'debate', 'homework-writing'],
+    ['warm-up', 'vocabulary-cards', 'dialogue', 'language-in-context', 'roleplay', 'debate', 'homework-writing'],
   ],
   reading: [
     ['warm-up', 'vocabulary-match', 'reading-article', 'reading-scan', 'skim-main-idea', 'discussion', 'homework-writing'],
@@ -21,7 +21,7 @@ const STRUCTURES = {
   ],
   vocabulary: [
     ['warm-up', 'vocabulary-cards', 'gap-fill', 'find-the-mistake', 'language-in-context', 'your-turn-tell', 'homework-writing'],
-    ['warm-up', 'vocabulary-match', 'useful-expressions', 'ordering', 'gap-fill', 'discussion', 'homework-writing'],
+    ['warm-up', 'vocabulary-match', 'ordering', 'gap-fill', 'discussion', 'homework-writing'],
     ['warm-up', 'vocabulary-cards', 'vocabulary-match', 'gap-fill', 'sentence-correction', 'your-turn-ask', 'homework-writing'],
     ['warm-up', 'phrasal-verbs', 'gap-fill', 'find-the-mistake', 'useful-language', 'discussion', 'homework-writing'],
     ['warm-up', 'vocabulary-cards', 'language-in-context', 'gap-fill', 'talking-point', 'homework-writing'],
@@ -35,9 +35,9 @@ const STRUCTURES = {
   ],
   professional: [
     ['warm-up', 'useful-language', 'vocabulary-match', 'dialogue', 'roleplay', 'discussion', 'homework-writing'],
-    ['warm-up', 'useful-expressions', 'dialogue', 'matching-qa', 'language-in-context', 'roleplay', 'homework-writing'],
+    ['warm-up', 'useful-language', 'dialogue', 'matching-qa', 'roleplay', 'homework-writing'],
     ['image-discussion', 'useful-language', 'dialogue', 'roleplay', 'your-turn-tell', 'homework-writing'],
-    ['warm-up', 'vocabulary-match', 'useful-expressions', 'dialogue', 'roleplay', 'debate', 'homework-writing'],
+    ['warm-up', 'vocabulary-match', 'dialogue', 'language-in-context', 'roleplay', 'debate', 'homework-writing'],
     ['warm-up', 'language-in-context', 'dialogue', 'matching-qa', 'roleplay', 'discussion', 'homework-writing'],
   ],
 } as const
@@ -93,7 +93,10 @@ CONTENT RULES:
 - NO em dashes (—). BANNED words: "resonate","navigate","landscape","leverage","dynamics","paradigm"
 - Real names only in dialogues — NEVER bracket placeholders
 - Dialogue: 8-12 turns, small talk opener, one imperfect moment, one pushback, contractions + natural fillers
-- Warm-up questions: ALL must relate directly to the lesson topic — NEVER generic openers
+- Warm-up questions: Must be creative, scenario-based, and specific to the student's exact job and lesson topic.
+  BANNED question openers: "How do you typically...", "What is the most challenging...", "What is your first step...", "Have you ever...", "Do you think...", "How do you feel..."
+  GOOD warm-up questions put the student in a concrete situation: "Your client just rejected the proposal 30 minutes before the meeting — what is your opening line?", "A new team member misunderstands a key spec and sends it to the client. You see the email. What do you do first?"
+- Debate module: always include a clear 'topic' field summarising the dilemma in one sentence, and 'sideA'/'sideB' labels that are direct opposites. The student must pick one side and argue it.
 
 ${levelGuide}
 ${cefrVocabGuide}

@@ -1439,7 +1439,7 @@ export function DebateModule({ content, isStudentView, tutorNotes }: { content: 
       <div className="border-l-4 border-brand-primary pl-4">
         <p className="font-semibold text-gray-900 dark:text-white">{content.topic}</p>
       </div>
-      {content.instructions && <p className="text-sm text-gray-500 dark:text-gray-400 italic">{content.instructions}</p>}
+      <p className="text-sm text-gray-500 dark:text-gray-400">Choose one side. Prepare your arguments and defend your position with your tutor.</p>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="border border-blue-200 dark:border-blue-800 rounded-lg p-4 bg-blue-50/50 dark:bg-blue-900/10">
           <p className="text-xs font-semibold text-blue-700 dark:text-blue-400 uppercase tracking-wide mb-2">{content.sideA.label}</p>
