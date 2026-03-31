@@ -125,7 +125,14 @@ function VocabMatchGroup({ group, isStudentView }: { group: MatchGroup; isStuden
   const [selected, setSelected] = React.useState<string | null>(null)
   const [checked, setChecked] = React.useState(false)
 
-  const pairs = group.pairs || []
+  // Normalize: AI sometimes uses 'word', 'phrase', or 'key' instead of 'term'
+  const pairs = (group.pairs || []).map(p => {
+    const raw = p as unknown as Record<string, string>
+    return {
+      term: raw.term || raw.word || raw.phrase || raw.key || '',
+      definition: raw.definition || raw.meaning || raw.desc || '',
+    }
+  })
   const usedTerms = React.useMemo(() => new Set(Object.values(answers)), [answers])
 
   const handleTermClick = (term: string) => {
@@ -377,7 +384,7 @@ export function PhrasalVerbsModule({ content, isStudentView, tutorNotes }: { con
         <div className="border-t border-gray-100 dark:border-gray-700 pt-3">
           <SectionLabel text="Answer key" />
           <div className="flex flex-wrap gap-2">
-            {(content.pairs || []).map((p, i) => {
+            {(content.pairs || []).map((_p, i) => {
               const letter = String.fromCharCode(97 + shuffled.findIndex(s => s.idx === i))
               return (
                 <span key={i} className="text-xs px-2 py-1 rounded bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-800">
@@ -529,7 +536,6 @@ export function CompleteTheSentenceModule({ content, isStudentView, tutorNotes }
             {q.options.map((opt, j) => {
               const isCorrect = j === q.answer
               const isChosen = selected[i] === j
-              const revealed = !isStudentView || isChosen
               let cls = 'px-3 py-1.5 text-sm rounded-lg border transition-colors '
               if (!isStudentView) {
                 cls += isCorrect
