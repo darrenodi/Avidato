@@ -616,7 +616,7 @@ export function CompleteTheSentenceModule({ content, isStudentView, tutorNotes }
                 <button
                   key={j}
                   className={cls}
-                  onClick={() => isStudentView && !selected[i] !== undefined && setSelected(prev => ({ ...prev, [i]: j }))}
+                  onClick={() => isStudentView && selected[i] === undefined && setSelected(prev => ({ ...prev, [i]: j }))}
                   disabled={!isStudentView || selected[i] !== undefined}
                 >
                   {String.fromCharCode(97 + j)}. {opt}
