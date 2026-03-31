@@ -65,9 +65,15 @@ export interface VocabularyCardsContent {
   }[]
 }
 
+export interface VocabularyMatchPair {
+  sentence: string       // full example sentence with the term used naturally in context
+  term: string           // the key word/phrase appearing in the sentence (will be bolded)
+  definition: string     // what the term means
+}
+
 export interface VocabularyMatchContent {
-  groups?: { label: string; pairs: { term: string; definition: string }[] }[]
-  pairs?: { term: string; definition: string }[]  // backward compat - flat list
+  groups?: { label: string; pairs: VocabularyMatchPair[] }[]
+  pairs?: VocabularyMatchPair[]  // backward compat - flat list
   instructions?: string
 }
 

@@ -115,151 +115,215 @@ export function VocabularyCardsModule({ content, isStudentView, tutorNotes }: { 
 
 // ─── Vocabulary Match ─────────────────────────────────────────────────────────
 
+interface NormalizedPair {
+  sentence: string
+  term: string
+  definition: string
+}
+
 interface MatchGroup {
   label: string
-  pairs: { term: string; definition: string }[]
+  pairs: NormalizedPair[]
+}
+
+function HighlightedSentence({ sentence, term }: { sentence: string; term: string }) {
+  if (!term || !sentence) return <span>{sentence}</span>
+  const idx = sentence.toLowerCase().indexOf(term.toLowerCase())
+  if (idx === -1) return <span>{sentence}</span>
+  return (
+    <span>
+      {sentence.slice(0, idx)}
+      <strong className="font-semibold underline decoration-brand-primary decoration-2 underline-offset-2">
+        {sentence.slice(idx, idx + term.length)}
+      </strong>
+      {sentence.slice(idx + term.length)}
+    </span>
+  )
 }
 
 function VocabMatchGroup({ group, isStudentView }: { group: MatchGroup; isStudentView?: boolean; groupIndex: number }) {
-  const [answers, setAnswers] = React.useState<Record<number, string>>({})
-  const [selected, setSelected] = React.useState<string | null>(null)
+  // assignments[sentenceIdx] = shuffledDefIdx
+  const [assignments, setAssignments] = React.useState<Record<number, number>>({})
+  const [selectedDef, setSelectedDef] = React.useState<number | null>(null)
   const [checked, setChecked] = React.useState(false)
+  const [showAnswers, setShowAnswers] = React.useState(false)
 
-  // Normalize: AI sometimes uses 'word', 'phrase', or 'key' instead of 'term'
-  const pairs = (group.pairs || []).map(p => {
+  // Normalize: handle AI field name variants
+  const pairs: NormalizedPair[] = (group.pairs || []).map(p => {
     const raw = p as unknown as Record<string, string>
     return {
+      sentence: raw.sentence || raw.example || '',
       term: raw.term || raw.word || raw.phrase || raw.key || '',
       definition: raw.definition || raw.meaning || raw.desc || '',
     }
   })
-  const usedTerms = React.useMemo(() => new Set(Object.values(answers)), [answers])
 
-  const handleTermClick = (term: string) => {
-    if (usedTerms.has(term) || checked) return
-    setSelected(prev => prev === term ? null : term)
+  const shuffledDefs = React.useMemo(() =>
+    [...pairs.map((p, i) => ({ def: p.definition, originalIdx: i }))].sort(() => Math.random() - 0.5),
+  [pairs])  // eslint-disable-line react-hooks/exhaustive-deps
+
+  const usedDefIndices = React.useMemo(() => new Set(Object.values(assignments)), [assignments])
+  const allAssigned = pairs.every((_, i) => assignments[i] !== undefined)
+  const score = pairs.filter((_, i) => shuffledDefs[assignments[i]]?.originalIdx === i).length
+
+  function handleDefClick(defIdx: number) {
+    if (checked || showAnswers) return
+    if (usedDefIndices.has(defIdx)) return
+    setSelectedDef(prev => prev === defIdx ? null : defIdx)
   }
 
-  const handleBlankClick = (idx: number) => {
-    if (checked) return
-    if (answers[idx]) {
-      setAnswers(prev => { const n = { ...prev }; delete n[idx]; return n })
+  function handleSentenceClick(sentIdx: number) {
+    if (checked || showAnswers) return
+    if (assignments[sentIdx] !== undefined) {
+      setAssignments(prev => { const n = { ...prev }; delete n[sentIdx]; return n })
       return
     }
-    if (!selected) return
-    setAnswers(prev => ({ ...prev, [idx]: selected }))
-    setSelected(null)
+    if (selectedDef === null) return
+    setAssignments(prev => ({ ...prev, [sentIdx]: selectedDef }))
+    setSelectedDef(null)
   }
 
-  const allAnswered = pairs.every((_, i) => answers[i])
-  const score = pairs.filter((p, i) => answers[i] === p.term).length
-
+  // Tutor view: sentences with answers directly beneath
   if (!isStudentView) {
     return (
-      <div className="space-y-2">
-        {group.label && <p className="font-bold text-gray-700 dark:text-gray-300 text-sm mb-3">{group.label}</p>}
+      <div className="space-y-3">
+        {group.label && <p className="font-bold text-gray-700 dark:text-gray-300 text-sm mb-2">{group.label}</p>}
         {pairs.map((pair, i) => (
-          <div key={i} className="flex items-baseline gap-2 text-sm">
-            <span className="text-gray-400 w-5 flex-shrink-0">{i + 1}.</span>
-            <span className="text-brand-primary font-semibold w-36 flex-shrink-0">{pair.term}</span>
-            <span className="text-gray-700 dark:text-gray-300">{pair.definition}</span>
+          <div key={i} className="flex gap-3 text-sm">
+            <span className="text-brand-primary font-bold w-5 flex-shrink-0 mt-0.5">{i + 1}.</span>
+            <div>
+              <p className="text-gray-900 dark:text-white"><HighlightedSentence sentence={pair.sentence} term={pair.term} /></p>
+              <p className="text-green-700 dark:text-green-400 text-xs mt-0.5 italic">{pair.definition}</p>
+            </div>
           </div>
         ))}
+        {!showAnswers && (
+          <button
+            onClick={() => setShowAnswers(true)}
+            className="mt-2 px-4 py-1.5 text-xs font-medium rounded-lg border border-green-300 dark:border-green-700 text-green-700 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors"
+          >
+            Show answers
+          </button>
+        )}
       </div>
     )
   }
 
+  // Student view: two-column — sentences left, lettered definitions right
+  const effectiveAssignments = showAnswers
+    ? pairs.reduce<Record<number, number>>((acc, _, i) => {
+        const correctShuffledIdx = shuffledDefs.findIndex(s => s.originalIdx === i)
+        return { ...acc, [i]: correctShuffledIdx }
+      }, {})
+    : assignments
+
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       {group.label && <p className="font-bold text-gray-800 dark:text-gray-200 text-sm">{group.label}</p>}
 
-      {/* Word bank */}
-      <div className="flex flex-wrap gap-2 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-        {pairs.map((pair, i) => {
-          const isUsed = usedTerms.has(pair.term)
-          const isSel = selected === pair.term
-          return (
-            <button
-              key={i}
-              onClick={() => handleTermClick(pair.term)}
-              className={`px-3 py-1 text-sm font-semibold rounded border-2 transition-all select-none ${
-                isSel
-                  ? 'bg-brand-primary text-white border-brand-primary shadow-sm'
-                  : isUsed
-                  ? 'text-gray-300 dark:text-gray-600 border-gray-200 dark:border-gray-700 line-through cursor-default'
-                  : 'text-brand-primary border-brand-primary/50 hover:border-brand-primary hover:bg-brand-primary/5 cursor-pointer'
-              }`}
-            >
-              {pair.term}
-            </button>
-          )
-        })}
-      </div>
+      <div className="grid grid-cols-2 gap-x-8 gap-y-1">
+        {/* Left column: numbered sentences */}
+        <div className="space-y-3">
+          {pairs.map((pair, i) => {
+            const assignedDefIdx = effectiveAssignments[i]
+            const assignedLetter = assignedDefIdx !== undefined ? String.fromCharCode(97 + assignedDefIdx) : null
+            const isCorrect = checked && shuffledDefs[assignedDefIdx]?.originalIdx === i
+            const isWrong = checked && assignedDefIdx !== undefined && !isCorrect
+            return (
+              <div key={i} className="flex gap-2 items-start text-sm">
+                <span className="text-brand-primary font-bold w-5 flex-shrink-0 mt-0.5">{i + 1}.</span>
+                <div className="flex-1">
+                  <p className="text-gray-900 dark:text-white leading-snug">
+                    <HighlightedSentence sentence={pair.sentence} term={pair.term} />
+                  </p>
+                  <button
+                    onClick={() => handleSentenceClick(i)}
+                    className={`mt-1 px-2.5 py-0.5 text-sm font-bold rounded border-2 min-w-[2.5rem] text-center transition-colors ${
+                      showAnswers ? 'border-green-500 text-green-600 dark:text-green-400' :
+                      isCorrect ? 'border-green-500 text-green-600 dark:text-green-400' :
+                      isWrong ? 'border-red-400 text-red-500' :
+                      assignedLetter ? 'border-brand-primary text-brand-primary cursor-pointer' :
+                      selectedDef !== null ? 'border-dashed border-brand-primary/60 text-gray-400 cursor-pointer hover:border-brand-primary' :
+                      'border-dashed border-gray-300 dark:border-gray-600 text-gray-300 dark:text-gray-600'
+                    }`}
+                  >
+                    {assignedLetter ?? '—'}
+                  </button>
+                  {isWrong && (
+                    <span className="text-green-600 dark:text-green-400 text-xs ml-2">
+                      ✓ {String.fromCharCode(97 + shuffledDefs.findIndex(s => s.originalIdx === i))}
+                    </span>
+                  )}
+                </div>
+              </div>
+            )
+          })}
+        </div>
 
-      {/* Definitions with blanks */}
-      <div className="space-y-3">
-        {pairs.map((pair, i) => {
-          const answer = answers[i]
-          const isCorrect = checked && answer === pair.term
-          const isWrong = checked && answer && answer !== pair.term
-          return (
-            <div key={i} className="flex items-baseline gap-2 text-sm">
-              <span className="text-gray-400 dark:text-gray-500 w-6 flex-shrink-0 font-medium">{i + 1}.</span>
-              <button
-                onClick={() => handleBlankClick(i)}
-                className={`min-w-[8rem] text-left px-2 py-0.5 border-b-2 font-semibold mr-2 transition-colors ${
-                  isCorrect ? 'border-green-500 text-green-600 dark:text-green-400' :
-                  isWrong ? 'border-red-400 text-red-500 line-through' :
-                  answer ? 'border-brand-primary text-brand-primary cursor-pointer' :
-                  selected ? 'border-brand-primary/50 text-transparent cursor-pointer hover:border-brand-primary' :
-                  'border-gray-300 dark:border-gray-600 text-transparent cursor-default'
-                }`}
-              >
-                {answer || '\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0'}
-              </button>
-              <span className="text-gray-800 dark:text-gray-200 flex-1">{pair.definition}</span>
-              {isWrong && <span className="text-green-600 dark:text-green-400 text-xs ml-1 flex-shrink-0">✓ {pair.term}</span>}
-            </div>
-          )
-        })}
+        {/* Right column: lettered definitions */}
+        <div className="space-y-3">
+          {shuffledDefs.map((item, i) => {
+            const isUsed = usedDefIndices.has(i) || showAnswers
+            const isSel = selectedDef === i
+            return (
+              <div key={i} className="flex gap-2 text-sm">
+                <span className="text-gray-500 dark:text-gray-400 font-medium w-5 flex-shrink-0 mt-0.5">{String.fromCharCode(97 + i)}.</span>
+                <button
+                  onClick={() => handleDefClick(i)}
+                  disabled={isUsed && !isSel}
+                  className={`text-left leading-snug transition-colors ${
+                    showAnswers ? 'text-gray-500 dark:text-gray-500 cursor-default' :
+                    isSel ? 'text-brand-primary font-semibold cursor-pointer' :
+                    isUsed ? 'text-gray-300 dark:text-gray-600 line-through cursor-default' :
+                    'text-gray-700 dark:text-gray-300 hover:text-brand-primary cursor-pointer'
+                  }`}
+                >
+                  {item.def}
+                </button>
+              </div>
+            )
+          })}
+        </div>
       </div>
 
       {/* Actions */}
-      {!checked ? (
-        <button
-          onClick={() => allAnswered && setChecked(true)}
-          disabled={!allAnswered}
-          className="px-5 py-2 text-sm font-semibold rounded-lg bg-brand-primary text-white hover:bg-brand-accent disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-        >
-          Check answers
-        </button>
-      ) : (
-        <div className="flex items-center gap-4">
-          <span className={`text-sm font-medium ${score === pairs.length ? 'text-green-600 dark:text-green-400' : 'text-gray-600 dark:text-gray-400'}`}>
-            {score === pairs.length ? '✓ All correct!' : `${score} / ${pairs.length} correct`}
-          </span>
+      <div className="flex items-center gap-3 flex-wrap pt-1">
+        {!checked && !showAnswers && (
           <button
-            onClick={() => { setAnswers({}); setSelected(null); setChecked(false) }}
-            className="px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            onClick={() => allAssigned && setChecked(true)}
+            disabled={!allAssigned}
+            className="px-5 py-2 text-sm font-semibold rounded-lg bg-brand-primary text-white hover:bg-brand-accent disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           >
-            Try again
+            Check answers
           </button>
-        </div>
-      )}
+        )}
+        {checked && (
+          <div className="flex items-center gap-3">
+            <span className={`text-sm font-medium ${score === pairs.length ? 'text-green-600 dark:text-green-400' : 'text-gray-600 dark:text-gray-400'}`}>
+              {score === pairs.length ? '✓ All correct!' : `${score} / ${pairs.length} correct`}
+            </span>
+            <button
+              onClick={() => { setAssignments({}); setSelectedDef(null); setChecked(false) }}
+              className="px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            >
+              Try again
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   )
 }
 
 export function VocabularyMatchModule({ content, isStudentView, tutorNotes }: { content: VocabularyMatchContent; isStudentView?: boolean; tutorNotes?: string }) {
-  // Normalize: support both groups and flat pairs (backward compat)
   const groups: MatchGroup[] = content.groups?.length
-    ? content.groups
-    : [{ label: '', pairs: content.pairs || [] }]
+    ? (content.groups as MatchGroup[])
+    : [{ label: '', pairs: (content.pairs || []) as NormalizedPair[] }]
 
   return (
     <div className="space-y-6">
       {content.instructions && (
-        <p className="font-bold text-gray-800 dark:text-gray-200 text-sm">{content.instructions}</p>
+        <p className="text-sm text-gray-500 dark:text-gray-400 italic">{content.instructions}</p>
       )}
       {groups.map((group, gi) => (
         <VocabMatchGroup key={gi} group={group} isStudentView={isStudentView} groupIndex={gi} />
