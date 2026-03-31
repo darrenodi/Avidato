@@ -74,3 +74,32 @@ export async function GET(
     )
   }
 }
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const protection = await protectApiRoute(request, 'lesson-delete')
+    if (!protection.allowed) {
+      return NextResponse.json({ error: protection.error }, { status: 401 })
+    }
+    const userId = protection.userId!
+    const { id: lessonId } = await params
+
+    // Verify the lesson belongs to this tutor
+    const lesson = await prisma.lesson.findFirst({
+      where: { id: lessonId, student: { tutorId: userId } },
+      select: { id: true },
+    })
+    if (!lesson) {
+      return NextResponse.json({ error: 'Lesson not found' }, { status: 404 })
+    }
+
+    await prisma.lesson.delete({ where: { id: lessonId } })
+    return NextResponse.json({ success: true })
+  } catch (error) {
+    console.error('Error deleting lesson:', error)
+    return NextResponse.json({ error: 'Failed to delete lesson' }, { status: 500 })
+  }
+}

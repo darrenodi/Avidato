@@ -500,6 +500,21 @@ CRITICAL: This exercise must appear as Exercise 5 in the exercises array. ALL se
     }
   }
 
+  async generateRaw(prompt: string): Promise<string | null> {
+    try {
+      const response = await openai.chat.completions.create({
+        model: this.model,
+        messages: [{ role: 'user', content: prompt }],
+        temperature: 0.1,
+        max_tokens: 16384,
+      });
+      return response.choices[0]?.message?.content || null;
+    } catch (error) {
+      console.error('Error in generateRaw:', error);
+      return null;
+    }
+  }
+
   /**
    * Get the appropriate CEFR module instance for the given level
    */

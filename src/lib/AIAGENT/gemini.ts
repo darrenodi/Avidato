@@ -538,6 +538,19 @@ CRITICAL: This exercise must appear as Exercise 5 in the exercises array. ALL se
     return new B1LessonModule(); // Default
   }
 
+  async generateRaw(prompt: string): Promise<string | null> {
+    try {
+      const { rawText } = await generateWithFailover({
+        prompt,
+        generationConfig: { temperature: 0.1, topK: 40, topP: 0.95, maxOutputTokens: 16384 },
+      });
+      return rawText;
+    } catch (error) {
+      console.error('Error in generateRaw:', error);
+      return null;
+    }
+  }
+
 }
 
 const geminiService = new GeminiService();

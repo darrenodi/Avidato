@@ -80,6 +80,8 @@ export default function StudentProfilePage() {
   const [isGeneratingMoreLessons, setIsGeneratingMoreLessons] = useState(false)
   // Issue #37: Track which lesson is currently being marked as taught
   const [markingTaughtId, setMarkingTaughtId] = useState<string | null>(null)
+  const [selectedLessons, setSelectedLessons] = useState<Set<string>>(new Set())
+  const [isDeletingLessons, setIsDeletingLessons] = useState(false)
   
   // Instant Lesson Generator State
   const [instantGrammarTopic, setInstantGrammarTopic] = useState('')
@@ -135,6 +137,37 @@ export default function StudentProfilePage() {
       setMarkingTaughtId(null)
     }
   }, [studentId, fetchLessons])
+
+  const handleDeleteLesson = async (lessonId: string) => {
+    if (!confirm('Delete this lesson? This cannot be undone.')) return
+    try {
+      const res = await fetch(`/api/lessons/${lessonId}`, { method: 'DELETE' })
+      if (res.ok) setLessons(prev => prev.filter(l => l.id !== lessonId))
+    } catch (err) {
+      console.error('Error deleting lesson:', err)
+    }
+  }
+
+  const handleDeleteSelected = async () => {
+    if (selectedLessons.size === 0) return
+    if (!confirm(`Delete ${selectedLessons.size} lesson(s)? This cannot be undone.`)) return
+    setIsDeletingLessons(true)
+    try {
+      const res = await fetch('/api/lessons/bulk-delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids: Array.from(selectedLessons) }),
+      })
+      if (res.ok) {
+        setLessons(prev => prev.filter(l => !selectedLessons.has(l.id)))
+        setSelectedLessons(new Set())
+      }
+    } catch (err) {
+      console.error('Error deleting lessons:', err)
+    } finally {
+      setIsDeletingLessons(false)
+    }
+  }
 
   // Fetch existing learning plan
   const fetchExistingLearningPlan = useCallback(async () => {
@@ -1040,72 +1073,112 @@ export default function StudentProfilePage() {
                     )}
 
                     {!loadingLessons && lessons.length > 0 && (
-                      <div className="grid grid-cols-1 gap-4">
-                        {lessons.map((lesson, index) => (
-                          <div key={lesson.id} className="rounded-lg p-6 border border-gray-200 dark:border-gray-600">
-                            <div className="flex items-center justify-between">
-                              <div className="flex-1">
-                                <div className="flex items-center space-x-4">
-                                  <span className="w-10 h-10 bg-brand-primary text-white rounded-full flex items-center justify-center text-sm font-bold">
-                                    {index + 1}
-                                  </span>
-                                  <div>
-                                    <div className="flex items-center gap-2">
-                                      <h4 className="text-lg font-semibold text-gray-900 dark:text-white">
-                                        {lesson.title}
-                                      </h4>
-                                    </div>
-                                    {lesson.overview && (
-                                      <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
-                                        {lesson.overview}
+                      <div className="space-y-3">
+                        {/* Bulk action bar */}
+                        <div className="flex items-center gap-3 pb-2">
+                          <label className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 cursor-pointer select-none">
+                            <input
+                              type="checkbox"
+                              checked={selectedLessons.size === lessons.length && lessons.length > 0}
+                              onChange={e => setSelectedLessons(e.target.checked ? new Set(lessons.map(l => l.id)) : new Set())}
+                              className="rounded border-gray-300 dark:border-gray-600 text-brand-primary"
+                            />
+                            Select all
+                          </label>
+                          {selectedLessons.size > 0 && (
+                            <button
+                              onClick={handleDeleteSelected}
+                              disabled={isDeletingLessons}
+                              className="px-3 py-1.5 text-xs font-medium rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 hover:bg-red-100 dark:hover:bg-red-900/40 disabled:opacity-50 transition-colors"
+                            >
+                              {isDeletingLessons ? 'Deleting...' : `Delete ${selectedLessons.size} selected`}
+                            </button>
+                          )}
+                        </div>
+                        <div className="grid grid-cols-1 gap-4">
+                          {lessons.map((lesson, index) => (
+                            <div key={lesson.id} className={`rounded-lg p-6 border transition-colors ${selectedLessons.has(lesson.id) ? 'border-brand-primary bg-brand-primary/5 dark:bg-brand-primary/10' : 'border-gray-200 dark:border-gray-600'}`}>
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-3 flex-1">
+                                  <input
+                                    type="checkbox"
+                                    checked={selectedLessons.has(lesson.id)}
+                                    onChange={e => {
+                                      setSelectedLessons(prev => {
+                                        const next = new Set(prev)
+                                        if (e.target.checked) { next.add(lesson.id) } else { next.delete(lesson.id) }
+                                        return next
+                                      })
+                                    }}
+                                    className="rounded border-gray-300 dark:border-gray-600 text-brand-primary flex-shrink-0"
+                                  />
+                                  <div className="flex items-center space-x-4 flex-1">
+                                    <span className="w-10 h-10 bg-brand-primary text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">
+                                      {index + 1}
+                                    </span>
+                                    <div>
+                                      <div className="flex items-center gap-2">
+                                        <h4 className="text-lg font-semibold text-gray-900 dark:text-white">
+                                          {lesson.title}
+                                        </h4>
+                                      </div>
+                                      {lesson.overview && (
+                                        <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
+                                          {lesson.overview}
+                                        </p>
+                                      )}
+                                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                                        Created {new Date(lesson.createdAt).toLocaleDateString()} at {new Date(lesson.createdAt).toLocaleTimeString()}
                                       </p>
-                                    )}
-                                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                                      Created {new Date(lesson.createdAt).toLocaleDateString()} at {new Date(lesson.createdAt).toLocaleTimeString()}
-                                    </p>
+                                    </div>
                                   </div>
                                 </div>
-                              </div>
-                              <div className="flex items-center space-x-3">
-                                <Link
-                                  href={`/lessons/${lesson.id}`}
-                                  className="bg-brand-primary text-white px-4 py-2 rounded-lg hover:bg-brand-accent transition-colors text-sm font-medium"
-                                >
-                                  View Lesson
-                                </Link>
-                                {/* Merge behaviour: clicking Share will also mark as taught */}
-                                <button
-                                  onClick={async (e) => {
-                                    e.preventDefault();
-                                    try {
-                                      // If not already marked as taught, mark it first
-                                      if (!lesson.sharedAt && markingTaughtId !== lesson.id) {
-                                        await handleMarkLessonAsTaught(lesson.id);
+                                <div className="flex items-center space-x-2 flex-shrink-0">
+                                  <Link
+                                    href={`/lessons/${lesson.id}`}
+                                    className="bg-brand-primary text-white px-4 py-2 rounded-lg hover:bg-brand-accent transition-colors text-sm font-medium"
+                                  >
+                                    View Lesson
+                                  </Link>
+                                  <button
+                                    onClick={async (e) => {
+                                      e.preventDefault();
+                                      try {
+                                        if (!lesson.sharedAt && markingTaughtId !== lesson.id) {
+                                          await handleMarkLessonAsTaught(lesson.id);
+                                        }
+                                      } catch (err) {
+                                        console.error('Error marking lesson as taught before sharing:', err);
                                       }
-                                    } catch (err) {
-                                      // swallow errors so share still works
-                                      console.error('Error marking lesson as taught before sharing:', err);
-                                    }
-
-                                    // Open the public share page in a new tab
-                                    const shareUrl = `${window.location.origin}/lessons/${lesson.id}/share`;
-                                    window.open(shareUrl, '_blank', 'noopener');
-                                  }}
-                                  disabled={markingTaughtId === lesson.id}
-                                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                                    markingTaughtId === lesson.id
-                                      ? 'bg-gray-200 dark:bg-gray-600 text-gray-600 dark:text-gray-400 cursor-not-allowed'
-                                      : lesson.sharedAt
-                                      ? 'bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400 hover:bg-green-100'
-                                      : 'bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-500'
-                                  }`}
-                                  title="Share this lesson with the student (this will also mark it as taught)">
-                                  {markingTaughtId === lesson.id ? 'Sharing...' : lesson.sharedAt ? 'Taught' : 'Share'}
-                                </button>
+                                      const shareUrl = `${window.location.origin}/lessons/${lesson.id}/share`;
+                                      window.open(shareUrl, '_blank', 'noopener');
+                                    }}
+                                    disabled={markingTaughtId === lesson.id}
+                                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                                      markingTaughtId === lesson.id
+                                        ? 'bg-gray-200 dark:bg-gray-600 text-gray-600 dark:text-gray-400 cursor-not-allowed'
+                                        : lesson.sharedAt
+                                        ? 'bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400 hover:bg-green-100'
+                                        : 'bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-500'
+                                    }`}
+                                    title="Share this lesson with the student"
+                                  >
+                                    {markingTaughtId === lesson.id ? 'Sharing...' : lesson.sharedAt ? 'Taught' : 'Share'}
+                                  </button>
+                                  <button
+                                    onClick={() => handleDeleteLesson(lesson.id)}
+                                    className="p-2 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                                    title="Delete lesson"
+                                  >
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                  </button>
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        ))}
+                          ))}
+                        </div>
                       </div>
                     )}
                   </div>

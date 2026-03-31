@@ -17,6 +17,7 @@ export interface LessonAIService {
   generatePPPLesson(student: StudentProfile, lesson: BlockLesson, duration?: 25 | 50): Promise<GeneratedLesson>
   generateCLTLesson(student: StudentProfile, lesson: BlockLesson, duration?: 25 | 50): Promise<GeneratedLesson>
   generateModularLesson(student: StudentProfile, lesson: BlockLesson, duration?: 25 | 50): Promise<GeneratedLesson>
+  generateRaw(prompt: string): Promise<string | null>
 }
 
 export async function getLessonAIService(provider: AIProvider = getAIProvider()): Promise<LessonAIService> {

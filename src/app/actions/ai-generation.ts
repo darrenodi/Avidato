@@ -979,9 +979,52 @@ export async function shareLesson(lessonId: string, studentId: string): Promise<
     return { success: true };
   } catch (error) {
     console.error('Error sharing lesson:', error);
-    return { 
-      success: false, 
-      error: error instanceof Error ? error.message : 'Failed to share lesson' 
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to share lesson'
     };
+  }
+}
+
+export async function refineLesson(lessonId: string, changeRequest: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const session = await getServerSession(authOptions)
+    if (!session?.user?.id) return { success: false, error: 'Unauthorized' }
+
+    const lesson = await prisma.lesson.findFirst({
+      where: { id: lessonId, student: { tutorId: session.user.id } },
+      include: { student: true },
+    })
+    if (!lesson) return { success: false, error: 'Lesson not found' }
+
+    const aiService = await getLessonAIService()
+    const prompt = `You are refining an existing language lesson. Apply ONLY the requested change. Keep everything else identical.
+
+CURRENT LESSON (JSON):
+${JSON.stringify(lesson.content, null, 2)}
+
+REQUESTED CHANGE:
+${changeRequest}
+
+Return the complete updated lesson as valid JSON with exactly the same structure and fields. Change only what was requested. RETURN ONLY VALID JSON, NO EXPLANATION.`
+
+    const result = await aiService.generateRaw(prompt)
+    if (!result) return { success: false, error: 'AI generation failed' }
+
+    // Parse the JSON response
+    const jsonMatch = result.match(/\{[\s\S]*\}/)
+    if (!jsonMatch) return { success: false, error: 'Invalid AI response' }
+    const updatedContent = JSON.parse(jsonMatch[0])
+
+    await prisma.lesson.update({
+      where: { id: lessonId },
+      data: { content: updatedContent, isRefined: true },
+    })
+
+    revalidatePath(`/lessons/${lessonId}`)
+    return { success: true }
+  } catch (error) {
+    console.error('Error refining lesson:', error)
+    return { success: false, error: 'Failed to refine lesson' }
   }
 }

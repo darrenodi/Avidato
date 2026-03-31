@@ -352,6 +352,15 @@ Format: { "type": "grammar", "title": "Exercise 5: Find the Mistake", "content":
       throw new Error('Failed to generate lesson. Please try again.');
     }
   }
+
+  async generateRaw(prompt: string): Promise<string | null> {
+    try {
+      return await this.generate(prompt);
+    } catch (error) {
+      console.error('Claude: Error in generateRaw:', error);
+      return null;
+    }
+  }
 }
 
 const claudeService = new ClaudeService();
