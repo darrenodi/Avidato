@@ -556,7 +556,11 @@ export function PhrasalVerbsModule({ content, isStudentView, tutorNotes }: { con
 export function GapFillModule({ content, isStudentView, tutorNotes }: { content: GapFillContent; isStudentView?: boolean; tutorNotes?: string }) {
   const [inputs, setInputs] = React.useState<Record<number, string>>({})
   const [checked, setChecked] = React.useState(false)
-  const sentences = content.sentences || []
+  // Normalize: strip any "Answer: X" the AI embeds in the sentence text
+  const sentences = (content.sentences || []).map(s => ({
+    ...s,
+    sentence: s.sentence.replace(/\s*[\n\r]*\s*Answer\s*:\s*.+$/i, '').trim(),
+  }))
   const allFilled = sentences.every((_, i) => inputs[i]?.trim())
   const score = sentences.filter((s, i) => inputs[i]?.trim().toLowerCase() === (s.answer || '').toLowerCase()).length
 
