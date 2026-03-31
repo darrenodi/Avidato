@@ -349,31 +349,38 @@ export function VocabularyMatchModule({ content, isStudentView, tutorNotes }: { 
 
 // ─── Useful Expressions ───────────────────────────────────────────────────────
 
+function PhraseRevealItem({ stem, full, isStudentView }: { stem: string; full: string; isStudentView?: boolean }) {
+  const [revealed, setRevealed] = React.useState(false)
+  return (
+    <div className="border-l-2 border-brand-primary pl-3 py-0.5">
+      {revealed
+        ? <p className="font-medium text-green-700 dark:text-green-400">&ldquo;{full}&rdquo;</p>
+        : <>
+            <p className="font-medium text-gray-900 dark:text-white">{stem}</p>
+            <button onClick={() => setRevealed(true)} className="text-xs text-brand-primary hover:underline mt-0.5">
+              {isStudentView ? 'Reveal' : 'Show answer'}
+            </button>
+          </>
+      }
+    </div>
+  )
+}
+
 export function UsefulExpressionsModule({ content, isStudentView, tutorNotes }: { content: UsefulExpressionsContent; isStudentView?: boolean; tutorNotes?: string }) {
   return (
     <div className="space-y-3">
       {content.context && <p className="text-sm text-gray-500 dark:text-gray-400 italic">{content.context}</p>}
       {isStudentView
         ? <p className="text-sm text-gray-500 dark:text-gray-400 italic">Complete each expression.</p>
-        : <p className="text-sm text-blue-700 dark:text-blue-400 font-medium">Read the stem aloud. Ask your student to complete the expression, then use it in their own sentence.</p>
+        : <p className="text-sm text-blue-700 dark:text-blue-400 font-medium">Read the stem aloud. Ask your student to complete the expression, then show the answer to check.</p>
       }
       <div className="space-y-2">
         {(content.expressions || []).map((expr, i) => {
           const full = typeof expr === 'string' ? expr : expr.full
           const stem = typeof expr === 'string'
             ? full.trim().split(/\s+/).slice(0, 4).join(' ') + ' .....'
-            : expr.stem
-          return (
-            <div key={i} className="border-l-2 border-brand-primary pl-3 py-0.5">
-              {isStudentView
-                ? <p className="text-gray-900 dark:text-white font-medium">{stem}</p>
-                : <>
-                    <p className="text-gray-900 dark:text-white font-medium">{stem}</p>
-                    <p className="text-xs text-green-700 dark:text-green-400 italic mt-0.5">{full}</p>
-                  </>
-              }
-            </div>
-          )
+            : (expr.stem || full.trim().split(/\s+/).slice(0, 4).join(' ') + ' .....')
+          return <PhraseRevealItem key={i} stem={stem} full={full} isStudentView={isStudentView} />
         })}
       </div>
       {!isStudentView && tutorNotes && <TutorNote note={tutorNotes} />}
@@ -398,18 +405,7 @@ export function UsefulLanguageModule({ content, isStudentView, tutorNotes }: { c
         <SectionLabel text={isStudentView ? 'Complete the phrases' : 'Phrases'} />
         {phrases.map((p, i) => {
           const stem = p.stem || p.phrase.trim().split(/\s+/).slice(0, 4).join(' ') + ' .....'
-          return (
-            <div key={i} className="border-l-2 border-brand-primary pl-3">
-              {isStudentView
-                ? <p className="font-medium text-gray-900 dark:text-white">{stem}</p>
-                : <>
-                    <p className="font-medium text-gray-500 dark:text-gray-400">{stem}</p>
-                    <p className="text-sm font-medium text-green-700 dark:text-green-400 mt-0.5">{p.phrase}</p>
-                    {p.example && <p className="text-xs text-gray-400 dark:text-gray-500 italic mt-0.5">&ldquo;{p.example}&rdquo;</p>}
-                  </>
-              }
-            </div>
-          )
+          return <PhraseRevealItem key={i} stem={stem} full={p.phrase} isStudentView={isStudentView} />
         })}
       </div>
       {sentences.length > 0 && (
@@ -438,26 +434,21 @@ export function UsefulLanguageModule({ content, isStudentView, tutorNotes }: { c
 function LanguageInContextItem({ phrase, fn, example, isStudentView }: { phrase: string; fn: string; example?: string; isStudentView?: boolean }) {
   const [revealed, setRevealed] = React.useState(false)
   const stem = phrase.trim().split(/\s+/).slice(0, 4).join(' ') + ' .....'
-  if (isStudentView) {
-    return (
-      <div className="border-l-2 border-brand-primary pl-3 py-0.5">
-        <p className="font-medium text-gray-900 dark:text-white">
-          {revealed ? <>&ldquo;{phrase}&rdquo;</> : stem}
-        </p>
-        {!revealed && (
-          <button onClick={() => setRevealed(true)} className="text-xs text-brand-primary hover:underline mt-0.5">
-            Reveal
-          </button>
-        )}
-      </div>
-    )
-  }
   return (
-    <div className="border-l-2 border-brand-primary pl-3 py-0.5 space-y-0.5">
-      <p className="font-medium text-gray-500 dark:text-gray-400">{stem}</p>
-      <p className="text-sm font-medium text-green-700 dark:text-green-400">&ldquo;{phrase}&rdquo;</p>
-      {fn && <p className="text-xs font-medium text-teal-600 dark:text-teal-400">{fn}</p>}
-      {example && <p className="text-xs text-gray-400 dark:text-gray-500 italic">{example}</p>}
+    <div className="border-l-2 border-brand-primary pl-3 py-0.5">
+      {revealed
+        ? <div className="space-y-0.5">
+            <p className="font-medium text-green-700 dark:text-green-400">&ldquo;{phrase}&rdquo;</p>
+            {!isStudentView && fn && <p className="text-xs font-medium text-teal-600 dark:text-teal-400">{fn}</p>}
+            {!isStudentView && example && <p className="text-xs text-gray-400 dark:text-gray-500 italic">{example}</p>}
+          </div>
+        : <>
+            <p className="font-medium text-gray-900 dark:text-white">{stem}</p>
+            <button onClick={() => setRevealed(true)} className="text-xs text-brand-primary hover:underline mt-0.5">
+              {isStudentView ? 'Reveal' : 'Show answer'}
+            </button>
+          </>
+      }
     </div>
   )
 }
