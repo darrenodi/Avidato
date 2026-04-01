@@ -154,7 +154,7 @@ export default function AdminUserDetailPage() {
         const data = await res.json();
         setSaveMessage(`Error: ${data.error || 'Failed to save'}`);
       }
-    } catch (err) {
+    } catch {
       setSaveMessage('Failed to save changes.');
     } finally {
       setSaving(false);
@@ -438,6 +438,7 @@ function LessonsTab({ lessons, totalLessons }: { lessons: LessonInfo[]; totalLes
               <th className="px-6 py-4 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">Student</th>
               <th className="px-6 py-4 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">Refined</th>
               <th className="px-6 py-4 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">Created</th>
+              <th className="px-6 py-4" />
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
@@ -460,6 +461,11 @@ function LessonsTab({ lessons, totalLessons }: { lessons: LessonInfo[]; totalLes
                 </td>
                 <td className="px-6 py-4 text-sm text-slate-500">
                   {new Date(lesson.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                </td>
+                <td className="px-6 py-4 text-right">
+                  <Link href={`/lessons/${lesson.id}`} target="_blank" className="text-xs font-medium text-indigo-600 hover:text-indigo-800">
+                    View
+                  </Link>
                 </td>
               </tr>
             ))}

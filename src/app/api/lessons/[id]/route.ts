@@ -20,13 +20,17 @@ export async function GET(
     const userId = protection.userId!
     const { id: lessonId } = await params
 
-    // Optimized single query with proper indexing hints
+    // Check if requester is admin — admins can view any lesson
+    const requestingUser = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { isAdmin: true },
+    })
+    const isAdmin = requestingUser?.isAdmin ?? false
+
     const lesson = await prisma.lesson.findFirst({
       where: {
         id: lessonId,
-        student: {
-          tutorId: userId, // This uses the studentId -> tutorId index path
-        },
+        ...(isAdmin ? {} : { student: { tutorId: userId } }),
       },
       select: {
         id: true,
