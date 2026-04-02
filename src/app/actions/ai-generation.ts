@@ -1021,12 +1021,41 @@ export async function shareLesson(lessonId: string, studentId: string): Promise<
       return { success: false, error: 'Lesson not found or does not belong to this student' };
     }
 
-    // Update lesson with sharedAt timestamp
-    await (prisma.lesson.update as unknown as typeof prisma.lesson.update)({
-      where: { id: lessonId },
-      data: {
-        sharedAt: new Date(),
-      },
+    // Already marked — idempotent
+    if (lesson.sharedAt) {
+      return { success: true };
+    }
+
+    // Get tutor's lesson rate
+    const tutor = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { lessonRate: true, currency: true },
+    });
+
+    await prisma.$transaction(async (tx) => {
+      // Mark lesson as taught
+      await tx.lesson.update({ where: { id: lessonId }, data: { sharedAt: new Date() } });
+
+      // Deduct 1 credit if student has credits
+      if (student.creditBalance > 0) {
+        await tx.student.update({
+          where: { id: studentId },
+          data: { creditBalance: { decrement: 1 } },
+        });
+      }
+
+      // Record earning if tutor has a rate set
+      if (tutor?.lessonRate) {
+        await tx.tutorEarning.create({
+          data: {
+            tutorId: session.user.id,
+            studentId,
+            lessonId,
+            amount: tutor.lessonRate,
+            currency: tutor.currency ?? 'USD',
+          },
+        });
+      }
     });
 
     revalidatePath(`/dashboard/students/${studentId}`);

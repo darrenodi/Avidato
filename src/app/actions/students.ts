@@ -332,6 +332,7 @@ interface StudentData {
   updatedAt: Date
   lessonCount?: number
   lastLessonAt?: Date | null
+  creditBalance?: number
 }
 
 /**
@@ -684,7 +685,7 @@ export async function getStudent(studentId: string): Promise<{
             lessons: true
           }
         }
-      }
+      },
     })
 
     if (!student) {
@@ -709,7 +710,8 @@ export async function getStudent(studentId: string): Promise<{
       archived: student.archived,
       createdAt: student.createdAt,
       updatedAt: student.updatedAt,
-      lessonCount: student._count.lessons
+      lessonCount: student._count.lessons,
+      creditBalance: student.creditBalance,
     }
 
     return {

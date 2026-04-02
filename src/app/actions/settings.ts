@@ -464,3 +464,44 @@ export async function uploadProfilePicture(formData: FormData): Promise<{
     }
   }
 }
+// ─── Lesson Pricing ───────────────────────────────────────────────────────────
+
+export async function getLessonPricing(): Promise<{ lessonRate: number | null; currency: string }> {
+  try {
+    const session = await getServerSession(authOptions) as AuthSession
+    if (!session?.user?.email) return { lessonRate: null, currency: 'USD' }
+
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email },
+      select: { lessonRate: true, currency: true },
+    })
+    return {
+      lessonRate: user?.lessonRate ? Number(user.lessonRate) : null,
+      currency: user?.currency ?? 'USD',
+    }
+  } catch {
+    return { lessonRate: null, currency: 'USD' }
+  }
+}
+
+export async function updateLessonPricing(
+  lessonRate: number | null,
+  currency: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const session = await getServerSession(authOptions) as AuthSession
+    if (!session?.user?.email) return { success: false, error: 'Unauthorized' }
+
+    await prisma.user.update({
+      where: { email: session.user.email },
+      data: {
+        lessonRate: lessonRate !== null ? lessonRate : null,
+        currency,
+      },
+    })
+    revalidatePath('/dashboard/settings')
+    return { success: true }
+  } catch {
+    return { success: false, error: 'Failed to update pricing' }
+  }
+}

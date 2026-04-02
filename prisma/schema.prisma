@@ -60,6 +60,10 @@ model User {
   subscriptionCurrentPeriodEnd  DateTime?
   subscriptionCancelAt          DateTime?
 
+  // Lesson pricing (for student billing)
+  lessonRate           Decimal?  @db.Decimal(10, 2)
+  currency             String    @default("USD")
+
   accounts             Account[]
   sessions             Session[]
   students             Student[]
@@ -68,6 +72,7 @@ model User {
   notifications        Notification[]
   youtubeLessons       YouTubeLesson[]
   placementAssignments PlacementTestAssignment[]
+  earnings             TutorEarning[]
 }
 
 model Student {
@@ -85,10 +90,29 @@ model Student {
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
   tutorId        String
+  creditBalance  Int            @default(0)
   learningPlans  LearningPlan[]
   lessons        Lesson[]
   tutor          User           @relation(fields: [tutorId], references: [id], onDelete: Cascade)
-  placementTests  PlacementTestAssignment[]
+  placementTests PlacementTestAssignment[]
+  earnings       TutorEarning[]
+}
+
+// Records tutor earnings per taught lesson — no real payment yet, just tracking
+model TutorEarning {
+  id        String   @id @default(cuid())
+  tutorId   String
+  studentId String
+  lessonId  String   @unique
+  amount    Decimal  @db.Decimal(10, 2)
+  currency  String   @default("USD")
+  createdAt DateTime @default(now())
+
+  tutor   User    @relation(fields: [tutorId], references: [id], onDelete: Cascade)
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([tutorId])
+  @@index([studentId])
 }
 
 model LearningPlan {

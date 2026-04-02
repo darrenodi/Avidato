@@ -5,10 +5,11 @@ import React, { useState, useEffect } from 'react'
 import Image from 'next/image'
 import DashboardLayout from '@/components/layout/DashboardLayout'
 import PersonIcon from '@/components/icons/PersonIcon'
-import { updateProfile, getUserProfile, checkUsernameAvailability, changePassword, getSecurityInfo, uploadProfilePicture } from '@/app/actions/settings'
+import { updateProfile, getUserProfile, checkUsernameAvailability, changePassword, getSecurityInfo, uploadProfilePicture, getLessonPricing, updateLessonPricing } from '@/app/actions/settings'
+import { getTutorEarnings } from '@/app/actions/credits'
 import type { UpdateProfileData } from '@/app/actions/settings'
 
-type SettingsTab = 'profile' | 'password' | 'billing' | 'email' | 'notifications'
+type SettingsTab = 'profile' | 'password' | 'billing' | 'email' | 'notifications' | 'pricing'
 
 const tabs: { id: SettingsTab; label: string; icon: React.ReactNode }[] = [
   {
@@ -53,6 +54,15 @@ const tabs: { id: SettingsTab; label: string; icon: React.ReactNode }[] = [
     icon: (
       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+      </svg>
+    ),
+  },
+  {
+    id: 'pricing',
+    label: 'Pricing',
+    icon: (
+      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
       </svg>
     ),
   },
@@ -195,6 +205,7 @@ export default function SettingsPage() {
             <div className={activeTab === 'billing' ? '' : 'hidden'}><BillingTab /></div>
             <div className={activeTab === 'email' ? '' : 'hidden'}><EmailTab /></div>
             <div className={activeTab === 'notifications' ? '' : 'hidden'}><NotificationsTab /></div>
+            <div className={activeTab === 'pricing' ? '' : 'hidden'}><PricingTab /></div>
           </main>
         </div>
       </div>
@@ -785,6 +796,118 @@ function NotificationsTab() {
       <h2 className="text-base font-semibold text-gray-900 dark:text-white mb-6">Notifications</h2>
       <SectionDivider title="Preferences" />
       <p className="text-sm text-gray-500 dark:text-gray-400">Notification settings coming soon.</p>
+    </div>
+  )
+}
+function PricingTab() {
+  const [lessonRate, setLessonRate] = useState<string>('')
+  const [currency, setCurrency] = useState('USD')
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+  const [earnings, setEarnings] = useState<Array<{ id: string; amount: number; currency: string; createdAt: Date; studentName: string; lessonId: string }>>([])
+  const [earningsTotal, setEarningsTotal] = useState(0)
+
+  useEffect(() => {
+    async function load() {
+      const [pricing, earningsResult] = await Promise.all([getLessonPricing(), getTutorEarnings()])
+      if (pricing.lessonRate !== null) setLessonRate(String(pricing.lessonRate))
+      setCurrency(pricing.currency)
+      if (earningsResult.success && earningsResult.earnings) {
+        setEarnings(earningsResult.earnings)
+        setEarningsTotal(earningsResult.total ?? 0)
+      }
+      setLoading(false)
+    }
+    load()
+  }, [])
+
+  async function handleSave(e: React.FormEvent) {
+    e.preventDefault()
+    setSaving(true)
+    setMessage(null)
+    const rate = lessonRate.trim() === '' ? null : parseFloat(lessonRate)
+    if (rate !== null && (isNaN(rate) || rate < 0)) {
+      setMessage({ type: 'error', text: 'Enter a valid amount or leave blank for no rate.' })
+      setSaving(false)
+      return
+    }
+    const result = await updateLessonPricing(rate, currency)
+    setMessage(result.success ? { type: 'success', text: 'Pricing saved.' } : { type: 'error', text: result.error ?? 'Failed to save.' })
+    setSaving(false)
+  }
+
+  if (loading) return <div className="text-sm text-gray-400 dark:text-gray-500">Loading...</div>
+
+  return (
+    <div>
+      <h2 className="text-base font-semibold text-gray-900 dark:text-white mb-6">Pricing</h2>
+
+      <SectionDivider title="Lesson Rate" />
+      <p className="text-sm text-gray-500 dark:text-gray-400 mb-5">
+        Set how much you charge per lesson. When you mark a lesson as taught, this amount is recorded as a pending earning. No payment is processed automatically.
+      </p>
+
+      <form onSubmit={handleSave} className="space-y-4 max-w-sm">
+        <StatusMessage message={message} />
+        <div className="flex gap-3">
+          <div className="flex-1">
+            <FieldLabel>Rate per lesson</FieldLabel>
+            <Input
+              type="number"
+              min="0"
+              step="0.01"
+              placeholder="e.g. 25.00"
+              value={lessonRate}
+              onChange={e => setLessonRate(e.target.value)}
+            />
+          </div>
+          <div className="w-24">
+            <FieldLabel>Currency</FieldLabel>
+            <select
+              value={currency}
+              onChange={e => setCurrency(e.target.value)}
+              className="w-full px-3 py-2 text-sm bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white outline-none focus:border-primary focus:ring-1 focus:ring-primary/20"
+            >
+              {['USD','EUR','GBP','AED','SAR','CAD','AUD','CHF'].map(c => (
+                <option key={c} value={c}>{c}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+        <PrimaryButton type="submit" loading={saving} loadingText="Saving...">Save rate</PrimaryButton>
+      </form>
+
+      <SectionDivider title="Earnings Log" />
+      {earnings.length === 0 ? (
+        <p className="text-sm text-gray-400 dark:text-gray-500">No lessons marked as taught yet. Earnings will appear here.</p>
+      ) : (
+        <div className="space-y-4">
+          <p className="text-sm text-gray-600 dark:text-gray-300 font-medium">
+            Total earned: <span className="text-green-600 dark:text-green-400 font-bold">{currency} {earningsTotal.toFixed(2)}</span>
+          </p>
+          <div className="border border-gray-100 dark:border-gray-700 rounded-xl overflow-hidden">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
+                  <th className="px-4 py-2.5 text-left text-xs font-semibold text-gray-400 uppercase tracking-wide">Student</th>
+                  <th className="px-4 py-2.5 text-left text-xs font-semibold text-gray-400 uppercase tracking-wide">Date</th>
+                  <th className="px-4 py-2.5 text-right text-xs font-semibold text-gray-400 uppercase tracking-wide">Amount</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
+                {earnings.map(e => (
+                  <tr key={e.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/30">
+                    <td className="px-4 py-2.5 text-gray-900 dark:text-white">{e.studentName}</td>
+                    <td className="px-4 py-2.5 text-gray-500 dark:text-gray-400">{new Date(e.createdAt).toLocaleDateString()}</td>
+                    <td className="px-4 py-2.5 text-right font-medium text-green-600 dark:text-green-400">{e.currency} {e.amount.toFixed(2)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
