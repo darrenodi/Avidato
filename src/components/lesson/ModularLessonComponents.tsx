@@ -197,33 +197,7 @@ function VocabMatchGroup({ group, isStudentView }: { group: MatchGroup; isStuden
     setSelectedDef(null)
   }
 
-  // Tutor view: sentences with answers directly beneath
-  if (!isStudentView) {
-    return (
-      <div className="space-y-3">
-        {group.label && <p className="font-bold text-gray-700 dark:text-gray-300 text-sm mb-2">{group.label}</p>}
-        {pairs.map((pair, i) => (
-          <div key={i} className="flex gap-3 text-sm">
-            <span className="text-brand-primary font-bold w-5 flex-shrink-0 mt-0.5">{i + 1}.</span>
-            <div>
-              <p className="text-gray-900 dark:text-white"><HighlightedSentence sentence={pair.sentence} term={pair.term} /></p>
-              <p className="text-green-700 dark:text-green-400 text-xs mt-0.5 italic">{pair.definition}</p>
-            </div>
-          </div>
-        ))}
-        {!showAnswers && (
-          <button
-            onClick={() => setShowAnswers(true)}
-            className="mt-2 px-4 py-1.5 text-xs font-medium rounded-lg border border-green-300 dark:border-green-700 text-green-700 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors"
-          >
-            Show answers
-          </button>
-        )}
-      </div>
-    )
-  }
-
-  // Student view: two-column — sentences left, lettered definitions right
+  // Two-column layout for both views — tutor gets answer key below
   const effectiveAssignments = showAnswers
     ? pairs.reduce<Record<number, number>>((acc, _, i) => {
         const correctShuffledIdx = shuffledDefs.findIndex(s => s.originalIdx === i)
@@ -300,31 +274,60 @@ function VocabMatchGroup({ group, isStudentView }: { group: MatchGroup; isStuden
         </div>
       </div>
 
-      {/* Actions */}
-      <div className="flex items-center gap-3 flex-wrap pt-1">
-        {!checked && !showAnswers && (
-          <button
-            onClick={() => allAssigned && setChecked(true)}
-            disabled={!allAssigned}
-            className="px-5 py-2 text-sm font-semibold rounded-lg bg-brand-primary text-white hover:bg-brand-accent disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-          >
-            Check answers
-          </button>
-        )}
-        {checked && (
-          <div className="flex items-center gap-3">
-            <span className={`text-sm font-medium ${score === pairs.length ? 'text-green-600 dark:text-green-400' : 'text-gray-600 dark:text-gray-400'}`}>
-              {score === pairs.length ? '✓ All correct!' : `${score} / ${pairs.length} correct`}
-            </span>
+      {/* Actions — student only */}
+      {isStudentView && (
+        <div className="flex items-center gap-3 flex-wrap pt-1">
+          {!checked && !showAnswers && (
             <button
-              onClick={() => { setAssignments({}); setSelectedDef(null); setChecked(false) }}
-              className="px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              onClick={() => allAssigned && setChecked(true)}
+              disabled={!allAssigned}
+              className="px-5 py-2 text-sm font-semibold rounded-lg bg-brand-primary text-white hover:bg-brand-accent disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
-              Try again
+              Check answers
             </button>
-          </div>
-        )}
-      </div>
+          )}
+          {checked && (
+            <div className="flex items-center gap-3">
+              <span className={`text-sm font-medium ${score === pairs.length ? 'text-green-600 dark:text-green-400' : 'text-gray-600 dark:text-gray-400'}`}>
+                {score === pairs.length ? '✓ All correct!' : `${score} / ${pairs.length} correct`}
+              </span>
+              <button
+                onClick={() => { setAssignments({}); setSelectedDef(null); setChecked(false) }}
+                className="px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              >
+                Try again
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Answer key — tutor only */}
+      {!isStudentView && (
+        <div className="pt-1">
+          {!showAnswers ? (
+            <button
+              onClick={() => setShowAnswers(true)}
+              className="px-4 py-1.5 text-xs font-medium rounded-lg border border-green-300 dark:border-green-700 text-green-700 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors"
+            >
+              Show answer key
+            </button>
+          ) : (
+            <div className="space-y-1 border-t border-gray-100 dark:border-gray-700 pt-3">
+              <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-2">Answer key</p>
+              {pairs.map((pair, i) => {
+                const correctShuffledIdx = shuffledDefs.findIndex(s => s.originalIdx === i)
+                const letter = String.fromCharCode(97 + correctShuffledIdx)
+                return (
+                  <p key={i} className="text-xs text-gray-600 dark:text-gray-400">
+                    <span className="font-semibold text-brand-primary">{i + 1}</span> → <span className="font-semibold">{letter}</span> &nbsp;{pair.definition}
+                  </p>
+                )
+              })}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   )
 }
