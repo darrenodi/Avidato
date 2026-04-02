@@ -923,6 +923,60 @@ export async function updateLessonContent(
 }
 
 /**
+ * Generate an image for a specific image-discussion module and save it to the lesson.
+ */
+export async function generateModuleImage(
+  lessonId: string,
+  moduleIndex: number
+): Promise<{ success: boolean; imageData?: string; error?: string }> {
+  try {
+    const session = await getServerSession(authOptions) as Session | null;
+    if (!session?.user?.id) return { success: false, error: 'Unauthorized' };
+
+    const lesson = await prisma.lesson.findUnique({
+      where: { id: lessonId },
+      include: { student: { select: { tutorId: true, id: true } } },
+    });
+    if (!lesson || lesson.student.tutorId !== session.user.id) {
+      return { success: false, error: 'Lesson not found or unauthorized' };
+    }
+
+    const content = lesson.content as Record<string, unknown>;
+    const modules = (content.modules || []) as Array<Record<string, unknown>>;
+    const mod = modules[moduleIndex] as Record<string, unknown> | undefined;
+    if (!mod || mod.type !== 'image-discussion') {
+      return { success: false, error: 'Module is not an image-discussion' };
+    }
+
+    const moduleContent = mod.content as Record<string, unknown>;
+    const placeholders = (moduleContent.imagePlaceholders || []) as Array<{ description?: string; label?: string }>;
+    const prompt = placeholders[0]?.description || placeholders[0]?.label || 'Educational illustration';
+
+    const imageData = await generateImage(prompt);
+    if (!imageData) return { success: false, error: 'Image generation failed' };
+
+    // Patch the module content in-place
+    const updatedModules = modules.map((m, i) =>
+      i === moduleIndex ? { ...m, content: { ...(m.content as object), imageData } } : m
+    );
+    const updatedContent = { ...content, modules: updatedModules };
+
+    await prisma.lesson.update({
+      where: { id: lessonId },
+      data: { content: JSON.parse(JSON.stringify(updatedContent)) },
+    });
+
+    revalidatePath(`/lessons/${lessonId}`);
+    revalidatePath(`/lessons/${lessonId}/share`);
+    revalidatePath(`/dashboard/students/${lesson.student.id}`);
+    return { success: true, imageData };
+  } catch (error) {
+    console.error('Error generating module image:', error);
+    return { success: false, error: error instanceof Error ? error.message : 'Failed to generate image' };
+  }
+}
+
+/**
  * Issue #37: Mark a lesson as shared with the student
  * 
  * Sets the sharedAt timestamp to track when a lesson was taught/shared.

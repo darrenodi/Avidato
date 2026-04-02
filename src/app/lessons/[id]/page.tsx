@@ -5,7 +5,7 @@ import { useSession } from 'next-auth/react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import DashboardLayout from '@/components/layout/DashboardLayout'
-import { shareLesson, updateLessonContent, refineLesson } from '@/app/actions/ai-generation'
+import { shareLesson, updateLessonContent, refineLesson, generateModuleImage } from '@/app/actions/ai-generation'
 import { Under18LessonDisplay } from '@/lib/lesson-displays'
 import GrammarLessonDisplay from '@/components/lesson/GrammarLessonDisplay'
 import InstantLessonDisplay from '@/components/lesson/InstantLessonDisplay'
@@ -636,6 +636,15 @@ export default function LessonPage() {
                   isStudentView={false}
                   studentName={lesson.student.name}
                   onEditModule={(i) => setEditingExerciseIndex(i)}
+                  onGenerateImage={async (moduleIndex) => {
+                    const result = await generateModuleImage(lesson.id, moduleIndex)
+                    if (result.success && result.imageData) {
+                      const modules = [...(lesson.content as unknown as { modules: unknown[] }).modules]
+                      const mod = modules[moduleIndex] as Record<string, unknown>
+                      modules[moduleIndex] = { ...mod, content: { ...(mod.content as object), imageData: result.imageData } }
+                      setLesson({ ...lesson, content: { ...lesson.content, modules } as typeof lesson.content })
+                    }
+                  }}
                 />
                 {/* Edit module modal */}
                 {editingExerciseIndex !== null && lesson && !!(lesson.content as unknown as { modules: unknown[] }).modules?.[editingExerciseIndex] && (

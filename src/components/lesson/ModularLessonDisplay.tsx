@@ -60,9 +60,12 @@ const MODULE_MAP: Record<ModuleType, React.ComponentType<{ content: any; isStude
   'homework-writing': HomeworkWritingModule,
 }
 
-function ModuleRenderer({ module, isStudentView }: { module: LessonModule; isStudentView?: boolean }) {
+function ModuleRenderer({ module, isStudentView, onGenerateImage }: { module: LessonModule; isStudentView?: boolean; onGenerateImage?: () => Promise<void> }) {
   const Component = MODULE_MAP[module.type]
   if (!Component) return <p className="text-sm text-gray-400 italic">Unknown module: {module.type}</p>
+  if (module.type === 'image-discussion') {
+    return <Component content={module.content} isStudentView={isStudentView} tutorNotes={isStudentView ? undefined : module.tutorNotes} onGenerateImage={onGenerateImage} />
+  }
   return <Component content={module.content} isStudentView={isStudentView} tutorNotes={isStudentView ? undefined : module.tutorNotes} />
 }
 
@@ -71,9 +74,10 @@ interface ModularLessonDisplayProps {
   isStudentView?: boolean
   studentName?: string
   onEditModule?: (index: number) => void
+  onGenerateImage?: (moduleIndex: number) => Promise<void>
 }
 
-export default function ModularLessonDisplay({ lesson, isStudentView = false, onEditModule }: ModularLessonDisplayProps) {
+export default function ModularLessonDisplay({ lesson, isStudentView = false, onEditModule, onGenerateImage }: ModularLessonDisplayProps) {
   return (
     <div className="space-y-8 max-w-3xl mx-auto">
 
@@ -108,7 +112,7 @@ export default function ModularLessonDisplay({ lesson, isStudentView = false, on
             </div>
             {/* Content */}
             <div className="px-6 py-5">
-              <ModuleRenderer module={module} isStudentView={isStudentView} />
+              <ModuleRenderer module={module} isStudentView={isStudentView} onGenerateImage={onGenerateImage ? () => onGenerateImage(i) : undefined} />
             </div>
           </div>
         ))}
