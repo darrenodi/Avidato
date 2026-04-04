@@ -67,7 +67,7 @@ ALL 10 error types must be different. Explanation states the rule (not just "cha
 Format: { "type": "sentence-correction", "title": "[Sentence Correction in ${student.targetLanguage}]", "content": { "sentences": [ { "incorrect": "[sentence WITH error in ${student.targetLanguage}]", "correct": "[FIXED sentence]", "errorType": "[rule in ${student.targetLanguage}]", "explanation": "[rule max 12 words in ${student.targetLanguage}]" }, ...10 total ] }, "timeMinutes": 10 }
 
 **Exercise 7: Discussion** (12 min)
-EXACTLY 5 questions. MAX 15 words each. Connect to the dialogue. Mix: personal experience, practical, personal reflection. NOT academic. Never use student name. Q5 invites a personal story. Never open with yes/no structure.
+EXACTLY 5 questions. MAX 15 words each. Connect to the dialogue. Mix: personal experience, practical, personal reflection. NOT academic. Never use student name. Q5 invites a personal story. Never open with yes/no structure. NEVER ask questions about explaining something to a non-technical person or stakeholder (e.g. "How would you explain this to someone without a technical background?").
 Format: { "type": "discussion", "title": "[Discussion in ${student.targetLanguage}]", "description": "[in ${student.targetLanguage}]", "content": { "questions": ["Q1","Q2","Q3","Q4","Q5"], "instructions": "[single instruction in ${student.targetLanguage}]" }, "timeMinutes": 12 }
 
 ${under18Section}
