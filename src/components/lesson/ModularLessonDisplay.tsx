@@ -61,11 +61,11 @@ const MODULE_MAP: Record<ModuleType, React.ComponentType<{ content: any; isStude
 }
 
 function ModuleRenderer({ module, isStudentView, onGenerateImage }: { module: LessonModule; isStudentView?: boolean; onGenerateImage?: () => Promise<void> }) {
+  if (module.type === 'image-discussion') {
+    return <ImageDiscussionModule content={module.content as never} isStudentView={isStudentView} tutorNotes={isStudentView ? undefined : module.tutorNotes} onGenerateImage={onGenerateImage} />
+  }
   const Component = MODULE_MAP[module.type]
   if (!Component) return <p className="text-sm text-gray-400 italic">Unknown module: {module.type}</p>
-  if (module.type === 'image-discussion') {
-    return <Component content={module.content} isStudentView={isStudentView} tutorNotes={isStudentView ? undefined : module.tutorNotes} onGenerateImage={onGenerateImage} />
-  }
   return <Component content={module.content} isStudentView={isStudentView} tutorNotes={isStudentView ? undefined : module.tutorNotes} />
 }
 
