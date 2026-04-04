@@ -235,6 +235,35 @@ export default function LessonPage() {
     fetchLesson()
   }, [session, lessonId, lesson?.id])
 
+  // Auto-generate images for image-discussion modules that are missing imageData (tutor view only)
+  useEffect(() => {
+    if (!lesson || !session?.user) return
+    const content = lesson.content as unknown as { modules?: Array<{ type: string; content: { imagePlaceholders?: unknown[]; imageData?: string } }> }
+    if (!content?.modules) return
+
+    const missingIndexes = content.modules
+      .map((m, i) => ({ m, i }))
+      .filter(({ m }) => m.type === 'image-discussion' && !m.content.imageData && (m.content.imagePlaceholders?.length ?? 0) > 0)
+      .map(({ i }) => i)
+
+    if (missingIndexes.length === 0) return
+
+    ;(async () => {
+      for (const idx of missingIndexes) {
+        const result = await generateModuleImage(lesson.id, idx)
+        if (result.success && result.imageData) {
+          setLesson(prev => {
+            if (!prev) return prev
+            const modules = [...(prev.content as unknown as { modules: unknown[] }).modules]
+            const mod = modules[idx] as Record<string, unknown>
+            modules[idx] = { ...mod, content: { ...(mod.content as object), imageData: result.imageData } }
+            return { ...prev, content: { ...prev.content, modules } as typeof prev.content }
+          })
+        }
+      }
+    })()
+  }, [lesson?.id]) // eslint-disable-line react-hooks/exhaustive-deps
+
   // Redirect if not authenticated
   useEffect(() => {
     if (status === 'loading') return
