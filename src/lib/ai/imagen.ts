@@ -1,34 +1,28 @@
-// Google Imagen image generation via REST API
+// Image generation via OpenAI DALL-E 3
+
+import OpenAI from 'openai';
 
 export async function generateImage(prompt: string): Promise<string | null> {
-  const apiKey = process.env.GOOGLE_API_KEY;
+  const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) return null;
 
   try {
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${apiKey}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          instances: [{ prompt }],
-          parameters: { sampleCount: 1, aspectRatio: '16:9' },
-        }),
-      }
-    );
+    const openai = new OpenAI({ apiKey });
 
-    if (!response.ok) {
-      console.error('Imagen API error:', response.status, await response.text());
-      return null;
-    }
+    const response = await openai.images.generate({
+      model: 'dall-e-3',
+      prompt,
+      n: 1,
+      size: '1792x1024',
+      response_format: 'b64_json',
+    });
 
-    const data = await response.json();
-    const b64 = data.predictions?.[0]?.bytesBase64Encoded;
+    const b64 = response.data?.[0]?.b64_json;
     if (!b64) return null;
 
     return `data:image/png;base64,${b64}`;
   } catch (err) {
-    console.error('Imagen generation failed:', err);
+    console.error('Image generation failed:', err);
     return null;
   }
 }
