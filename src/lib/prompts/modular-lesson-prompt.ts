@@ -90,7 +90,8 @@ ${vocabularyContextSection}
 
 CONTENT RULES:
 - ALL content in ${student.targetLanguage} (JSON keys and type values stay in English)
-- NO em dashes (—). BANNED words: "resonate","navigate","landscape","leverage","dynamics","paradigm"
+- NO em dashes (—). BANNED words: "resonate","navigate","landscape","leverage","dynamics","paradigm","mitigate","jeopardize","escalate","bottleneck","trade-off","iron out","flag","stakeholder","circle back"
+- PHRASE AND VOCABULARY QUALITY: Every phrase, expression, and vocabulary item must be real, natural English that a learner would find in a standard dictionary (Cambridge, Oxford). NEVER generate bureaucratic or corporate jargon that sounds formal but isn't actually used in real speech. Complexity must match the student's CEFR level (${student.level}). Do NOT reuse the same phrases across modules or from lesson to lesson — each lesson must feel fresh and distinct. Phrases must be chosen specifically for this lesson's topic and context, not pulled from a fixed internal list.
 - Real names only in dialogues — NEVER bracket placeholders
 - Dialogue: 8-12 turns, small talk opener, one imperfect moment, one pushback, contractions + natural fillers
 - Warm-up questions: Write 3-4 questions that make the student think and speak immediately. Questions must be rooted in the student's real job (${student.occupation}) and the specific lesson topic. They should provoke an opinion, recall a real moment, or spark a reaction — not describe a process or list steps. Vary the angle of each question so they do not feel like a survey.
@@ -137,7 +138,11 @@ timeMinutes must sum to exactly ${duration}
 ─────────────────────────────────────────────────
 
 CRITICAL SCHEMA RULES — exact shapes required or UI breaks:
-- vocabulary-match → generate 8-10 pairs total. Use 1 group if ≤8 pairs total; use 2 groups if 9-10 pairs total. Each group must have at least 4 pairs — never put fewer than 4 pairs in a single group.
+- vocabulary-match → generate 7-10 pairs total. Grouping rules (STRICT):
+  • 7 or fewer pairs → 1 group
+  • 8 pairs → 2 groups of 4
+  • 9 pairs → 2 groups: first 4, second 5
+  • 10 pairs → 2 groups of 5
   EVERY term MUST appear naturally in the lesson dialogue or reading passage — do NOT invent terms absent from other modules.
   Each pair: { sentence, term, definition }
   sentence = a complete, natural sentence where the term is used in realistic context
