@@ -136,9 +136,11 @@ vocabulary-match      → { instructions, groups: [{label, pairs:[{sentence,term
   (1 group for ≤8 pairs total, 2 groups for 9-10 pairs total; minimum 4 pairs per group)
 useful-expressions    → { context?, expressions: [{full: string, stem: string}×6-10] }
   stem = the phrase up to and including the key idiom/verb phrase, ending with "....." — student completes it
-  Example: { full: "We need to iron out a few issues with the supplier.", stem: "We need to iron out ....." }
+  Example (format only — NEVER use this phrase): { full: "She handed over the project files.", stem: "She handed over ....." }
+  Phrases MUST be chosen dynamically to match the specific lesson topic. NEVER reuse example phrases from this prompt. Each lesson must have a completely different set of expressions suited to its context.
 useful-language       → { phrases: [{phrase:string, stem:string, example:string}×4-6], practice: {sentences:[{prompt,answer}×4-6]} }
   stem = phrase shown to student with content words hidden: e.g. phrase "touch base on the schedule" → stem "touch base on ....."
+  Phrases MUST be chosen dynamically to match the specific lesson topic. NEVER reuse example phrases from this prompt.
 language-in-context   → { phrases: [{phrase:string, function:string, example?:string}×4-6] }
 phrasal-verbs         → { pairs: [{verb, meaning, example?}×6-8], discussionQuestions?:string[] }
 gap-fill              → { instructions, sentences: [{sentence(use ___ for blank), answer}×6-10] }
