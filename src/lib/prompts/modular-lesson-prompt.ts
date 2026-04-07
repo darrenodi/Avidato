@@ -104,6 +104,33 @@ ${cefrVocabGuide}
 
 TUTOR NOTES: Each module must have a tutorNotes field — a short specific action for the tutor (not a description).
 
+MODULE TITLES: Use these exact title formats — no creative variations:
+- warm-up → "Warm-up"
+- vocabulary-cards → "Vocabulary"
+- vocabulary-match → "Vocabulary Match"
+- useful-language → "Key Phrases"
+- useful-expressions → "Useful Expressions"
+- language-in-context → "Language in Context"
+- dialogue → "Dialogue - [descriptive title of the specific scenario, e.g. 'Dialogue - The Budget Review']"
+- matching-qa → "Comprehension"
+- reading-article → "Reading - [descriptive title of the article]"
+- reading-scan → "Reading Comprehension"
+- skim-main-idea → "Main Idea"
+- roleplay → "Roleplay"
+- discussion → "Discussion"
+- debate → "Debate"
+- your-turn-ask → "Your Turn"
+- your-turn-tell → "Your Turn"
+- talking-point → "Talking Point"
+- gap-fill → "Gap Fill"
+- find-the-mistake → "Find the Mistake"
+- sentence-correction → "Sentence Correction"
+- ordering → "Ordering"
+- grammar-focus → "Grammar Focus"
+- phrasal-verbs → "Phrasal Verbs"
+- image-discussion → "Image Discussion"
+- homework-writing → "Homework"
+
 ─────────────────────────────────────────────────
 LESSON STRUCTURE (pre-selected — do not change)
 Category: ${category}
