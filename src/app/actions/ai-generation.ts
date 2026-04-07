@@ -1026,37 +1026,7 @@ export async function shareLesson(lessonId: string, studentId: string): Promise<
       return { success: true };
     }
 
-    // Get tutor's lesson rate
-    const tutor = await prisma.user.findUnique({
-      where: { id: session.user.id },
-      select: { lessonRate: true, currency: true },
-    });
-
-    await prisma.$transaction(async (tx) => {
-      // Mark lesson as taught
-      await tx.lesson.update({ where: { id: lessonId }, data: { sharedAt: new Date() } });
-
-      // Deduct 1 credit if student has credits
-      if (student.creditBalance > 0) {
-        await tx.student.update({
-          where: { id: studentId },
-          data: { creditBalance: { decrement: 1 } },
-        });
-      }
-
-      // Record earning if tutor has a rate set
-      if (tutor?.lessonRate) {
-        await tx.tutorEarning.create({
-          data: {
-            tutorId: session.user.id,
-            studentId,
-            lessonId,
-            amount: tutor.lessonRate,
-            currency: tutor.currency ?? 'USD',
-          },
-        });
-      }
-    });
+    await prisma.lesson.update({ where: { id: lessonId }, data: { sharedAt: new Date() } });
 
     revalidatePath(`/dashboard/students/${studentId}`);
     return { success: true };

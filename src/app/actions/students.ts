@@ -332,7 +332,6 @@ interface StudentData {
   updatedAt: Date
   lessonCount?: number
   lastLessonAt?: Date | null
-  creditBalance?: number
 }
 
 /**
@@ -711,7 +710,6 @@ export async function getStudent(studentId: string): Promise<{
       createdAt: student.createdAt,
       updatedAt: student.updatedAt,
       lessonCount: student._count.lessons,
-      creditBalance: student.creditBalance,
     }
 
     return {

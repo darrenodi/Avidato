@@ -7,7 +7,6 @@ import Link from 'next/link'
 import DashboardLayout from '@/components/layout/DashboardLayout'
 import { getStudent } from '../../../actions/students'
 import { generateLesson, getGenerationStats, getStudentLearningPlan, shareLesson, generateMoreLessons, generateBlockLearningPlan, generateModularLesson } from '../../../actions/ai-generation'
-import { adjustStudentCredits } from '../../../actions/credits'
 import { nativeLanguages, levels, ageGroups } from '@/lib/form-data-mappings'
 import type { LearningPlan, BlockLearningPlan, BlockLesson } from '@/types/lesson-template'
 
@@ -35,7 +34,6 @@ interface StudentData {
   createdAt: Date
   updatedAt: Date
   lessonCount?: number
-  creditBalance?: number
 }
 
 interface LearningTopic {
@@ -80,9 +78,6 @@ export default function StudentProfilePage() {
   const [lessons, setLessons] = useState<StudentLesson[]>([])
   const [loadingLessons, setLoadingLessons] = useState(false)
   const [isGeneratingMoreLessons, setIsGeneratingMoreLessons] = useState(false)
-  const [creditBalance, setCreditBalance] = useState<number>(0)
-  const [creditInput, setCreditInput] = useState('')
-  const [adjustingCredits, setAdjustingCredits] = useState(false)
   // Issue #37: Track which lesson is currently being marked as taught
   const [markingTaughtId, setMarkingTaughtId] = useState<string | null>(null)
   const [selectedLessons, setSelectedLessons] = useState<Set<string>>(new Set())
@@ -132,9 +127,6 @@ export default function StudentProfilePage() {
       const result = await shareLesson(lessonId, studentId)
       if (result.success) {
         await fetchLessons()
-        // Refresh student to get updated credit balance
-        const refreshed = await getStudent(studentId)
-        if (refreshed.success && refreshed.data) setCreditBalance(refreshed.data.creditBalance ?? 0)
       } else {
         console.error('Failed to mark lesson as taught:', result.error)
       }
@@ -144,15 +136,6 @@ export default function StudentProfilePage() {
       setMarkingTaughtId(null)
     }
   }, [studentId, fetchLessons])
-
-  const handleAdjustCredits = async (delta: number) => {
-    setAdjustingCredits(true)
-    const result = await adjustStudentCredits(studentId, delta)
-    if (result.success && result.newBalance !== undefined) {
-      setCreditBalance(result.newBalance)
-    }
-    setAdjustingCredits(false)
-  }
 
   const handleDeleteLesson = async (lessonId: string) => {
     if (!confirm('Delete this lesson? This cannot be undone.')) return
@@ -243,7 +226,6 @@ export default function StudentProfilePage() {
           const response = await getStudent(studentId)
           if (response.success && response.data) {
             setStudent(response.data)
-            setCreditBalance(response.data.creditBalance ?? 0)
             // Generate learning topics based on student data
             generateLearningTopics()
             // Fetch lessons for this student
@@ -680,43 +662,6 @@ export default function StudentProfilePage() {
                             <span className="text-xl sm:text-2xl font-bold text-green-600 dark:text-green-400">
                               {lessons.filter(lesson => lesson.sharedAt !== null).length}
                             </span>
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <span className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">Credits</span>
-                            <div className="flex items-center gap-2">
-                              <button
-                                onClick={() => handleAdjustCredits(-1)}
-                                disabled={adjustingCredits || creditBalance === 0}
-                                className="w-6 h-6 flex items-center justify-center rounded-full border border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-30 disabled:cursor-not-allowed text-base leading-none"
-                              >−</button>
-                              <span className={`text-xl font-bold w-8 text-center ${creditBalance === 0 ? 'text-red-500 dark:text-red-400' : 'text-brand-primary'}`}>
-                                {creditBalance}
-                              </span>
-                              <button
-                                onClick={() => {
-                                  const n = parseInt(creditInput) || 1
-                                  handleAdjustCredits(n)
-                                }}
-                                disabled={adjustingCredits}
-                                className="w-6 h-6 flex items-center justify-center rounded-full border border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-30 text-base leading-none"
-                              >+</button>
-                              <input
-                                type="number"
-                                min="1"
-                                value={creditInput}
-                                onChange={e => setCreditInput(e.target.value)}
-                                placeholder="qty"
-                                className="w-12 px-1.5 py-0.5 text-xs border border-gray-200 dark:border-gray-700 rounded bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 outline-none focus:border-brand-primary"
-                              />
-                              <button
-                                onClick={() => {
-                                  const n = parseInt(creditInput)
-                                  if (n > 0) { handleAdjustCredits(n); setCreditInput('') }
-                                }}
-                                disabled={adjustingCredits || !creditInput}
-                                className="px-2 py-0.5 text-xs rounded bg-brand-primary text-white hover:bg-brand-accent disabled:opacity-30 disabled:cursor-not-allowed"
-                              >Add</button>
-                            </div>
                           </div>
                           <div className="flex items-center justify-between">
                             <span className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">Profile Created</span>
