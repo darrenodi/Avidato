@@ -7,10 +7,10 @@ import { StudentProfile, BlockLesson } from '../../types/lesson-template';
 const STRUCTURES = {
   speaking: [
     ['warm-up', 'vocabulary-match', 'dialogue', 'matching-qa', 'roleplay', 'discussion', 'homework-writing'],
-    ['warm-up', 'useful-language', 'dialogue', 'language-in-context', 'roleplay', 'talking-point', 'homework-writing'],
-    ['image-discussion', 'vocabulary-match', 'dialogue', 'roleplay', 'your-turn-tell', 'discussion', 'homework-writing'],
+    ['warm-up', 'useful-language', 'dialogue', 'matching-qa', 'roleplay', 'talking-point', 'homework-writing'],
+    ['image-discussion', 'vocabulary-match', 'dialogue', 'matching-qa', 'your-turn-tell', 'discussion', 'homework-writing'],
     ['warm-up', 'vocabulary-cards', 'dialogue', 'matching-qa', 'roleplay', 'your-turn-ask', 'homework-writing'],
-    ['warm-up', 'vocabulary-cards', 'dialogue', 'language-in-context', 'roleplay', 'debate', 'homework-writing'],
+    ['warm-up', 'vocabulary-cards', 'dialogue', 'matching-qa', 'roleplay', 'debate', 'homework-writing'],
   ],
   reading: [
     ['warm-up', 'vocabulary-match', 'reading-article', 'reading-scan', 'skim-main-idea', 'discussion', 'homework-writing'],
@@ -34,10 +34,10 @@ const STRUCTURES = {
     ['warm-up', 'language-in-context', 'grammar-focus', 'find-the-mistake', 'gap-fill', 'talking-point', 'homework-writing'],
   ],
   professional: [
-    ['warm-up', 'useful-language', 'vocabulary-match', 'dialogue', 'roleplay', 'discussion', 'homework-writing'],
+    ['warm-up', 'useful-language', 'vocabulary-match', 'dialogue', 'matching-qa', 'discussion', 'homework-writing'],
     ['warm-up', 'useful-language', 'dialogue', 'matching-qa', 'roleplay', 'homework-writing'],
-    ['image-discussion', 'useful-language', 'dialogue', 'roleplay', 'your-turn-tell', 'homework-writing'],
-    ['warm-up', 'vocabulary-match', 'dialogue', 'language-in-context', 'roleplay', 'debate', 'homework-writing'],
+    ['image-discussion', 'useful-language', 'dialogue', 'matching-qa', 'your-turn-tell', 'homework-writing'],
+    ['warm-up', 'vocabulary-match', 'dialogue', 'matching-qa', 'roleplay', 'debate', 'homework-writing'],
     ['warm-up', 'language-in-context', 'dialogue', 'matching-qa', 'roleplay', 'discussion', 'homework-writing'],
   ],
 } as const
@@ -153,6 +153,7 @@ reading-scan          → { instructions, questions:[{question,answer}×4-8] }
 vocabulary-in-text    → { instructions, items:[{definition,answer,paragraph?}×6-10] }
 skim-main-idea        → { options:string[4], answer:number(0-indexed), explanation? }
 matching-qa           → { pairs:[{question,answer}×4-6] }
+  When matching-qa immediately follows a dialogue or reading-article: write 4-6 comprehension questions about that content. Questions must probe character decisions, reasoning, implications, and language choices — NOT trivial recall ("Who said X?"). The answer must be a complete, specific response the tutor can give. Good example: Q: "Why did Marcus push back on the supplier's first offer?" A: "He felt the discount didn't reflect the volume they were committing to and wanted to anchor a better rate."
 roleplay              → { situation, roles:[{name,description,keyPoints?:string[]}×2], phrasesToUse?:string[] }
 talking-point         → { studentA:{title,questions:string[3-4]}, studentB:{title,questions:string[3-4]} }
 discussion            → { questions:string[4-6] }
