@@ -123,7 +123,7 @@ Context: ${isKid ? 'Young learner — prefer CLT. Age-appropriate, engaging topi
 
 REQUIREMENTS:
 - 4-5 topic blocks, each a major communication area for this student
-- Each block: 5-8 lessons PLUS 1 review lesson at the end
+- Each block: MINIMUM 5 lessons (never fewer) PLUS 1 review lesson at the end — aim for 6-8 lessons per block
 - Each lesson: methodology (TBLT/PPP/CLT), communicativeNeed (action verb, MAX 120 chars), 4-6 keyLanguageFeatures
 - TBLT/CLT features: functional phrases (e.g. "Let me take you through..."). PPP features: grammar structures.
 - Lesson titles: real interactions, not abstract skills

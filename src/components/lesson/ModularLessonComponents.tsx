@@ -404,7 +404,6 @@ export function UsefulExpressionsModule({ content, isStudentView, tutorNotes }: 
 // ─── Useful Language ──────────────────────────────────────────────────────────
 
 export function UsefulLanguageModule({ content, isStudentView, tutorNotes }: { content: UsefulLanguageContent; isStudentView?: boolean; tutorNotes?: string }) {
-  const sentences = content.practice?.sentences || []
   // Normalize: AI sometimes generates phrases as plain strings instead of {phrase, example} objects
   const phrases = (content.phrases || []).map(p =>
     typeof p === 'string' ? { phrase: p as string, stem: undefined as string | undefined, example: '' } : p
@@ -421,22 +420,6 @@ export function UsefulLanguageModule({ content, isStudentView, tutorNotes }: { c
           return <PhraseRevealItem key={i} stem={stem} full={p.phrase} isStudentView={isStudentView} />
         })}
       </div>
-      {sentences.length > 0 && (
-        <div className="space-y-2">
-          <SectionLabel text="Practice — fill in the blanks" />
-          {sentences.map((s, i) => (
-            <div key={i} className="flex gap-2 text-sm">
-              <span className="text-brand-primary font-medium flex-shrink-0">{i + 1}.</span>
-              <div>
-                <span className="text-gray-900 dark:text-white">{s.prompt} </span>
-                {!isStudentView
-                  ? <span className="text-green-600 dark:text-green-400 font-medium">{s.answer}</span>
-                  : <span className="inline-block w-24 border-b border-gray-400 dark:border-gray-500" />}
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
       {!isStudentView && tutorNotes && <TutorNote note={tutorNotes} />}
     </div>
   )
