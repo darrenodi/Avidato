@@ -8,35 +8,35 @@ const STRUCTURES = {
   speaking: [
     ['warm-up', 'vocabulary-match', 'dialogue', 'matching-qa', 'roleplay', 'discussion', 'homework-writing'],
     ['warm-up', 'useful-language', 'dialogue', 'matching-qa', 'roleplay', 'talking-point', 'homework-writing'],
-    ['image-discussion', 'vocabulary-match', 'dialogue', 'matching-qa', 'your-turn-tell', 'discussion', 'homework-writing'],
-    ['warm-up', 'vocabulary-cards', 'dialogue', 'matching-qa', 'roleplay', 'your-turn-ask', 'homework-writing'],
+    ['image-discussion', 'vocabulary-match', 'dialogue', 'matching-qa', 'discussion', 'homework-writing'],
+    ['warm-up', 'vocabulary-cards', 'dialogue', 'matching-qa', 'roleplay', 'discussion', 'homework-writing'],
     ['warm-up', 'vocabulary-cards', 'dialogue', 'matching-qa', 'roleplay', 'debate', 'homework-writing'],
   ],
   reading: [
     ['warm-up', 'vocabulary-match', 'reading-article', 'reading-scan', 'skim-main-idea', 'discussion', 'homework-writing'],
     ['warm-up', 'vocabulary-cards', 'reading-article', 'matching-qa', 'vocabulary-in-text', 'debate', 'homework-writing'],
-    ['warm-up', 'vocabulary-match', 'reading-article', 'reading-scan', 'discussion', 'your-turn-tell', 'homework-writing'],
+    ['warm-up', 'vocabulary-match', 'reading-article', 'reading-scan', 'discussion', 'homework-writing'],
     ['image-discussion', 'vocabulary-match', 'reading-article', 'skim-main-idea', 'reading-scan', 'debate', 'homework-writing'],
     ['warm-up', 'vocabulary-cards', 'reading-article', 'matching-qa', 'discussion', 'homework-writing'],
   ],
   vocabulary: [
-    ['warm-up', 'vocabulary-cards', 'gap-fill', 'find-the-mistake', 'language-in-context', 'your-turn-tell', 'homework-writing'],
+    ['warm-up', 'vocabulary-cards', 'gap-fill', 'find-the-mistake', 'language-in-context', 'discussion', 'homework-writing'],
     ['warm-up', 'vocabulary-match', 'ordering', 'gap-fill', 'discussion', 'homework-writing'],
-    ['warm-up', 'vocabulary-cards', 'vocabulary-match', 'gap-fill', 'sentence-correction', 'your-turn-ask', 'homework-writing'],
+    ['warm-up', 'vocabulary-cards', 'vocabulary-match', 'gap-fill', 'sentence-correction', 'discussion', 'homework-writing'],
     ['warm-up', 'phrasal-verbs', 'gap-fill', 'find-the-mistake', 'useful-language', 'discussion', 'homework-writing'],
     ['warm-up', 'vocabulary-cards', 'language-in-context', 'gap-fill', 'talking-point', 'homework-writing'],
   ],
   grammar: [
     ['warm-up', 'vocabulary-cards', 'grammar-focus', 'find-the-mistake', 'sentence-correction', 'discussion', 'homework-writing'],
-    ['warm-up', 'vocabulary-match', 'grammar-focus', 'gap-fill', 'find-the-mistake', 'your-turn-tell', 'homework-writing'],
+    ['warm-up', 'vocabulary-match', 'grammar-focus', 'gap-fill', 'find-the-mistake', 'discussion', 'homework-writing'],
     ['warm-up', 'grammar-focus', 'gap-fill', 'sentence-correction', 'roleplay', 'homework-writing'],
     ['warm-up', 'vocabulary-cards', 'grammar-focus', 'ordering', 'gap-fill', 'discussion', 'homework-writing'],
     ['warm-up', 'language-in-context', 'grammar-focus', 'find-the-mistake', 'gap-fill', 'talking-point', 'homework-writing'],
   ],
   professional: [
     ['warm-up', 'useful-language', 'vocabulary-match', 'dialogue', 'matching-qa', 'discussion', 'homework-writing'],
-    ['warm-up', 'useful-language', 'dialogue', 'matching-qa', 'roleplay', 'homework-writing'],
-    ['image-discussion', 'useful-language', 'dialogue', 'matching-qa', 'your-turn-tell', 'homework-writing'],
+    ['warm-up', 'useful-language', 'dialogue', 'matching-qa', 'roleplay', 'discussion', 'homework-writing'],
+    ['image-discussion', 'useful-language', 'dialogue', 'matching-qa', 'discussion', 'homework-writing'],
     ['warm-up', 'vocabulary-match', 'dialogue', 'matching-qa', 'roleplay', 'debate', 'homework-writing'],
     ['warm-up', 'language-in-context', 'dialogue', 'matching-qa', 'roleplay', 'discussion', 'homework-writing'],
   ],
@@ -119,8 +119,6 @@ MODULE TITLES: Use these exact title formats — no creative variations:
 - roleplay → "Roleplay"
 - discussion → "Discussion"
 - debate → "Debate"
-- your-turn-ask → "Your Turn"
-- your-turn-tell → "Your Turn"
 - talking-point → "Talking Point"
 - gap-fill → "Gap Fill"
 - find-the-mistake → "Find the Mistake"
