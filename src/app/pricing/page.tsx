@@ -105,7 +105,7 @@ const faqData = [
   },
   {
     question: 'What if I need more students on the Starter plan?',
-    answer: 'The free Starter plan supports up to 10 students. If you need more, upgrade to Pro or Premium for unlimited students.',
+    answer: 'The free Starter plan supports up to 20 students. If you need more, upgrade to Pro or Premium for unlimited students.',
   },
 ];
 

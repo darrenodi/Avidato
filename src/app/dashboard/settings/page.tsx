@@ -697,7 +697,7 @@ function BillingTab() {
     : null
 
   const planFeatures = [
-    { label: isPaid ? 'Unlimited students' : 'Up to 10 students' },
+    { label: isPaid ? 'Unlimited students' : 'Up to 20 students' },
     { label: 'Shareable lesson links' },
     { label: `${isPaid ? 'Unlimited' : subscription?.dailyLimit ?? 20} generations / day` },
     ...(planLabel === 'Pro' || planLabel === 'Premium' ? [

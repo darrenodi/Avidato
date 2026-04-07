@@ -67,17 +67,17 @@ export async function addStudent(formData: FormData): Promise<ActionResponse> {
 
     const userId = session.user.id
 
-    // Check student limit for free tier (10 max)
+    // Check student limit for free tier (20 max)
     const { getUserPlan } = await import('../../lib/feature-gates')
     const plan = await getUserPlan(userId)
     if (plan === 'Starter') {
       const studentCount = await prisma.student.count({
         where: { tutorId: userId, archived: false },
       })
-      if (studentCount >= 10) {
+      if (studentCount >= 20) {
         return {
           success: false,
-          error: 'Free accounts are limited to 10 students. Upgrade to Pro or Premium for unlimited students.',
+          error: 'Free accounts are limited to 20 students. Upgrade to Pro or Premium for unlimited students.',
         }
       }
     }
