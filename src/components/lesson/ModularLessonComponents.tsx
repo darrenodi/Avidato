@@ -1507,7 +1507,7 @@ export function DebateModule({ content, isStudentView, tutorNotes }: { content: 
 export function YourTurnAskModule({ content, isStudentView, tutorNotes }: { content: YourTurnAskContent; isStudentView?: boolean; tutorNotes?: string }) {
   return (
     <div className="space-y-3">
-      <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Now ask your tutor these questions. Don&apos;t forget to ask follow-up questions!</p>
+      <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Answer these questions. Use vocabulary and phrases from the lesson in your responses.</p>
       {(content.questions || []).map((q, i) => (
         <div key={i} className="flex gap-3 items-start">
           <span className="font-bold text-brand-primary flex-shrink-0">{i + 1}.</span>
