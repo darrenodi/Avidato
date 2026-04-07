@@ -112,7 +112,7 @@ timeMinutes must sum to exactly ${duration}
 ─────────────────────────────────────────────────
 
 CRITICAL SCHEMA RULES — exact shapes required or UI breaks:
-- vocabulary-match → generate 8-10 pairs total. Use 1 group if ≤8 pairs total; use 2 groups if 9-10 pairs total.
+- vocabulary-match → generate 8-10 pairs total. Use 1 group if ≤8 pairs total; use 2 groups if 9-10 pairs total. Each group must have at least 4 pairs — never put fewer than 4 pairs in a single group.
   EVERY term MUST appear naturally in the lesson dialogue or reading passage — do NOT invent terms absent from other modules.
   Each pair: { sentence, term, definition }
   sentence = a complete, natural sentence where the term is used in realistic context
@@ -133,7 +133,7 @@ warm-up               → { questions: string[3-4] }
 image-discussion      → { imagePlaceholders: [{label, description}], questions: string[] }
 vocabulary-cards      → { vocabulary: [{word, partOfSpeech, phonetics, definition, example, synonym?}×6] }
 vocabulary-match      → { instructions, groups: [{label, pairs:[{sentence,term,definition}×4-5]}×1-2] }
-  (1 group for ≤8 pairs total, 2 groups for 9-10 pairs total)
+  (1 group for ≤8 pairs total, 2 groups for 9-10 pairs total; minimum 4 pairs per group)
 useful-expressions    → { context?, expressions: [{full: string, stem: string}×6-10] }
   stem = the phrase up to and including the key idiom/verb phrase, ending with "....." — student completes it
   Example: { full: "We need to iron out a few issues with the supplier.", stem: "We need to iron out ....." }
