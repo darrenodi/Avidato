@@ -545,6 +545,15 @@ export default function LessonPage() {
                         </>
                       )}
                     </button>
+                    <button
+                      onClick={() => window.open(`/lessons/${lessonId}/share?print=1`, '_blank')}
+                      className="inline-flex items-center justify-center px-3 sm:px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-sm sm:text-base flex-shrink-0"
+                    >
+                      <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                      </svg>
+                      Download PDF
+                    </button>
                   </div>
                 </div>
 
@@ -708,6 +717,15 @@ export default function LessonPage() {
                       Copy Student Link
                     </>
                   )}
+                </button>
+                <button
+                  onClick={() => window.open(`/lessons/${lessonId}/share?print=1`, '_blank')}
+                  className="inline-flex items-center justify-center px-3 sm:px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-sm sm:text-base flex-shrink-0"
+                >
+                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                  </svg>
+                  Download PDF
                 </button>
               </div>
             </div>

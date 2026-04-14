@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useEffect, useState } from 'react'
-import { useParams } from 'next/navigation'
+import { useParams, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import ClientThemeProvider from '@/components/ClientThemeProvider'
@@ -669,10 +669,19 @@ const renderExerciseContent = (exercise: { type: string; content: BaseExerciseCo
 
 export default function SharedLessonPage() {
   const params = useParams()
+  const searchParams = useSearchParams()
   const lessonId = params?.id as string
+  const printMode = searchParams?.get('print') === '1'
   const [lesson, setLesson] = useState<SharedLessonData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+
+  // Auto-trigger print dialog when ?print=1 and lesson is loaded
+  useEffect(() => {
+    if (printMode && !loading && lesson) {
+      setTimeout(() => window.print(), 500)
+    }
+  }, [printMode, loading, lesson])
 
   useEffect(() => {
     const fetchLesson = async () => {
@@ -709,8 +718,17 @@ export default function SharedLessonPage() {
 
   return (
     <ClientThemeProvider>
+      <style>{`
+        @media print {
+          header, footer, button, .no-print { display: none !important; }
+          body, .min-h-screen { background: white !important; }
+          .max-w-5xl { max-width: 100% !important; padding: 0 !important; }
+          * { color: black !important; border-color: #ccc !important; box-shadow: none !important; }
+          .bg-white, [class*="bg-gray"], [class*="bg-brand"], [class*="dark\\:"] { background: white !important; }
+        }
+      `}</style>
       <div className="min-h-screen bg-[#f7f4ef]">
-        <header className="bg-white border-b border-gray-200/60">
+        <header className="bg-white border-b border-gray-200/60 no-print">
           <div className="max-w-5xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
             <Link href="/" className="flex items-center space-x-2">
               <Image src="/logo.svg" alt="Avidato Logo" width={28} height={28} className="w-6 h-6 sm:w-7 sm:h-7" />
