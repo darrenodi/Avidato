@@ -148,16 +148,18 @@ interface MatchGroup {
 }
 
 function HighlightedSentence({ sentence, term }: { sentence: string; term: string }) {
-  if (!term || !sentence) return <span>{sentence}</span>
-  const idx = sentence.toLowerCase().indexOf(term.toLowerCase())
-  if (idx === -1) return <span>{sentence}</span>
+  // Strip **...** markdown that AI sometimes injects into sentences
+  const clean = (sentence || '').replace(/\*\*/g, '')
+  if (!term || !clean) return <span>{clean}</span>
+  const idx = clean.toLowerCase().indexOf(term.toLowerCase())
+  if (idx === -1) return <span>{clean}</span>
   return (
     <span>
-      {sentence.slice(0, idx)}
+      {clean.slice(0, idx)}
       <strong className="font-semibold underline decoration-brand-primary decoration-2 underline-offset-2">
-        {sentence.slice(idx, idx + term.length)}
+        {clean.slice(idx, idx + term.length)}
       </strong>
-      {sentence.slice(idx + term.length)}
+      {clean.slice(idx + term.length)}
     </span>
   )
 }
@@ -219,7 +221,7 @@ function VocabMatchGroup({ group, isStudentView }: { group: MatchGroup; isStuden
     <div className="space-y-4">
       {group.label && <p className="font-bold text-gray-800 dark:text-gray-200 text-sm">{group.label}</p>}
 
-      <div className="grid grid-cols-2 gap-x-8 gap-y-1">
+      <div className="print:hidden grid grid-cols-2 gap-x-8 gap-y-1">
         {/* Left column: numbered sentences */}
         <div className="space-y-3">
           {pairs.map((pair, i) => {
@@ -286,7 +288,7 @@ function VocabMatchGroup({ group, isStudentView }: { group: MatchGroup; isStuden
 
       {/* Actions — student only */}
       {isStudentView && (
-        <div className="flex items-center gap-3 flex-wrap pt-1">
+        <div className="print:hidden flex items-center gap-3 flex-wrap pt-1">
           {!checked && !showAnswers && (
             <button
               onClick={() => allAssigned && setChecked(true)}
@@ -314,7 +316,7 @@ function VocabMatchGroup({ group, isStudentView }: { group: MatchGroup; isStuden
 
       {/* Answer key — tutor only */}
       {!isStudentView && (
-        <div className="pt-1">
+        <div className="print:hidden pt-1">
           {!showAnswers ? (
             <button
               onClick={() => setShowAnswers(true)}
@@ -338,6 +340,31 @@ function VocabMatchGroup({ group, isStudentView }: { group: MatchGroup; isStuden
           )}
         </div>
       )}
+
+      {/* Static print-only layout */}
+      <div className="hidden print:block">
+        <div className="grid grid-cols-2 gap-x-8 gap-y-2">
+          <div className="space-y-2">
+            {pairs.map((pair, i) => (
+              <div key={i} className="flex gap-2 items-start text-sm">
+                <span className="font-bold w-5 flex-shrink-0">{i + 1}.</span>
+                <div className="flex-1">
+                  <HighlightedSentence sentence={pair.sentence} term={pair.term} />
+                  {' '}<span className="inline-block w-6 border-b border-gray-500 align-bottom">&nbsp;&nbsp;&nbsp;</span>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="space-y-2">
+            {shuffledDefs.map((item, i) => (
+              <div key={i} className="flex gap-2 text-sm">
+                <span className="font-medium w-5 flex-shrink-0">{String.fromCharCode(97 + i)}.</span>
+                <span>{item.def}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
     </div>
   )
 }
