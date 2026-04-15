@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react'
 import { useTheme } from 'next-themes'
-import { useParams } from 'next/navigation'
+import { useParams, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import ClientThemeProvider from '@/components/ClientThemeProvider'
@@ -309,12 +309,21 @@ function PhraseMatchingGame({ phrases }: { phrases: PhraseItem[] }) {
 function SharedYouTubeLessonContent() {
   const { theme, setTheme } = useTheme()
   const params = useParams()
+  const searchParams = useSearchParams()
+  const printMode = searchParams?.get('print') === '1'
   const [mounted, setMounted] = useState(false)
   const [lesson, setLesson] = useState<StudentLesson | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => setMounted(true), [])
+
+  useEffect(() => {
+    if (printMode && !loading && lesson) {
+      const t = setTimeout(() => window.print(), 500)
+      return () => clearTimeout(t)
+    }
+  }, [printMode, loading, lesson])
 
   useEffect(() => {
     const id = params?.id as string | undefined
@@ -342,8 +351,9 @@ function SharedYouTubeLessonContent() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <style>{`@media print { .no-print { display: none !important; } body { background: white !important; } }`}</style>
       {/* ---- Header ---- */}
-      <header className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
+      <header className="no-print bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center space-x-2 sm:space-x-3">
             <Image src={logoSrc} alt="Avidato Logo" width={32} height={32} className="w-6 h-6 sm:w-8 sm:h-8" />
