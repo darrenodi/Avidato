@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   WarmUpContent, ImageDiscussionContent, VocabularyCardsContent, VocabularyMatchContent,
   UsefulExpressionsContent, UsefulLanguageContent, LanguageInContextContent, PhrasalVerbsContent,
@@ -71,15 +71,54 @@ export function WarmUpModule({ content, isStudentView, tutorNotes }: { content: 
 // ─── Image Discussion ─────────────────────────────────────────────────────────
 
 export function ImageDiscussionModule({ content, isStudentView, tutorNotes }: { content: ImageDiscussionContent; isStudentView?: boolean; tutorNotes?: string }) {
+  const [pexelsImage, setPexelsImage] = useState<{ url: string; photographer: string; pexelsUrl: string } | null>(null)
+  const [imgLoading, setImgLoading] = useState(false)
+
+  const placeholder = content.imagePlaceholders?.[0]
+
+  useEffect(() => {
+    if (content.imageData || !placeholder?.label) return
+    // Convert hyphenated label to search query, fall back to description keywords
+    const query = placeholder.label.replace(/-/g, ' ')
+    setImgLoading(true)
+    fetch(`/api/pexels?q=${encodeURIComponent(query)}`)
+      .then(r => r.ok ? r.json() : null)
+      .then(data => { if (data?.url) setPexelsImage(data) })
+      .catch(() => null)
+      .finally(() => setImgLoading(false))
+  }, [placeholder?.label, content.imageData])
+
+  const imageUrl = content.imageData || pexelsImage?.url
+
   return (
     <div className="space-y-4">
-      {content.imageData ? (
-        <img
-          src={content.imageData}
-          alt={content.imagePlaceholders[0]?.label || 'Discussion image'}
-          className="w-full rounded-xl object-cover max-h-72"
-        />
-      ) : content.imagePlaceholders.length > 0 && (
+      {imgLoading && (
+        <div className="w-full h-56 rounded-xl bg-gray-100 dark:bg-gray-800 animate-pulse flex items-center justify-center">
+          <svg className="w-8 h-8 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+        </div>
+      )}
+      {!imgLoading && imageUrl && (
+        <div className="relative">
+          <img
+            src={imageUrl}
+            alt={placeholder?.label || 'Discussion image'}
+            className="w-full rounded-xl object-cover max-h-72"
+          />
+          {pexelsImage && (
+            <a
+              href={pexelsImage.pexelsUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="absolute bottom-2 right-2 text-[10px] text-white/70 hover:text-white bg-black/40 hover:bg-black/60 px-2 py-0.5 rounded transition-colors"
+            >
+              Photo by {pexelsImage.photographer} on Pexels
+            </a>
+          )}
+        </div>
+      )}
+      {!imgLoading && !imageUrl && placeholder && (
         <div className="border-2 border-dashed border-amber-200 dark:border-amber-700 rounded-xl p-5 bg-amber-50 dark:bg-amber-900/10">
           <div className="flex items-start gap-3">
             <svg className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -89,9 +128,9 @@ export function ImageDiscussionModule({ content, isStudentView, tutorNotes }: { 
               <p className="text-xs font-semibold text-amber-700 dark:text-amber-400 uppercase tracking-wide mb-1">
                 {isStudentView ? 'Image' : 'Tutor: source an image before the lesson'}
               </p>
-              <p className="text-sm font-medium text-amber-800 dark:text-amber-300">{content.imagePlaceholders[0]?.label}</p>
-              {content.imagePlaceholders[0]?.description && (
-                <p className="text-xs text-amber-600 dark:text-amber-500 italic mt-1">{content.imagePlaceholders[0].description}</p>
+              <p className="text-sm font-medium text-amber-800 dark:text-amber-300">{placeholder.label}</p>
+              {placeholder.description && (
+                <p className="text-xs text-amber-600 dark:text-amber-500 italic mt-1">{placeholder.description}</p>
               )}
             </div>
           </div>
