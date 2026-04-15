@@ -146,6 +146,14 @@ CRITICAL SCHEMA RULES — exact shapes required or UI breaks:
   definition = what the term means — written as a short phrase, NOT a sentence
   NEVER generate bare term→definition without a sentence. NEVER include the term itself in the definition.
   Example: { "sentence": "She really blew it during the presentation by arriving unprepared.", "term": "blew it", "definition": "failed to take advantage of an opportunity" }
+  ACCURACY RULES (apply before outputting every pair):
+  - The term must be used correctly per its actual definition — not just topically associated. Mentally substitute the definition into the sentence and confirm it still makes sense.
+  - Technical terms must reflect real-world professional usage. Do not apply a term to objects or contexts it does not govern.
+  - Each definition must match the specific term, not the sentence's broader meaning or social function.
+  - Definitions must be distinct enough that only one answer is clearly correct. If two definitions are near-synonyms, replace one.
+  - Each sentence must contain exactly one plausible target term — avoid sentences where multiple listed terms could be underlined.
+  - After drafting all five pairs in a group, cross-check every term against every definition to confirm there is exactly one correct match per item. If any pair is ambiguous, replace it before outputting.
+  - Prioritise accuracy over fluency — a precise but plain sentence is better than a polished but technically wrong one.
 - useful-language → phrases MUST be objects [{phrase, example}] NEVER strings
 - language-in-context → phrases MUST be objects [{phrase, function, example?}] NEVER 'analysis' key
 - dialogue → MUST have: setting, characters:[{name,role?}], dialogue:[{character,text}]. NEVER a 'text' blob
