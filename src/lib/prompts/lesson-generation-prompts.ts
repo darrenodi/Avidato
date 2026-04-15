@@ -30,10 +30,10 @@ Grammar errors to avoid: ${topic.recentGrammarErrors?.slice(0, 10).join(', ') ||
 Discussion angles to avoid: ${topic.recentDiscussionQuestions?.slice(0, 5).join(' | ') || 'none'}
 ` : ''}
 VOCABULARY RULES (Exercise 1):
-- EXACTLY 6 single words (no compounds like "purchase order")
-- Domain-specific, level-appropriate, all appear in dialogue
+- EXACTLY 6 SINGLE WORDS — no phrases, no compound nouns, no collocations. One word per entry.
+- Domain-specific, level-appropriate, all appear in the dialogue in Exercise 4.
 - No generic business words. Banned at B2+: emergency, celebrate, networking, impact
-- Expressions: 2-3 non-literal collocations per word (empty for A1). Banned: "take care of", "come back", "look for", "work on", "find out"
+- No expressions array — this is a single-word vocabulary module. Synonym field only.
 
 ---
 
@@ -45,14 +45,17 @@ EXACTLY 3 questions. Q1: personal experience ("Have you ever...?"). Q2: personal
 Format: { "type": "warmup", "title": "[Warm-up in ${student.targetLanguage}]", "description": "[in ${student.targetLanguage}]", "content": { "questions": ["Q1","Q2","Q3"], "instructions": "[Discuss the questions in ${student.targetLanguage}]" }, "timeMinutes": 8 }
 
 **Exercise 3: Useful Phrases** (5 min)
-6-8 phrases specific to this scenario. Every phrase must be usable in real life tomorrow.
-IMPORTANT: Design these phrases FIRST — the dialogue in Ex 4 will be built around them. Every phrase must appear naturally in Ex 4.
+6-8 MULTI-WORD PHRASES only — minimum 2 words each. NEVER single words. These must be functional chunks a speaker uses as a unit in the exact scenario of this lesson.
+NEVER include generic phrases that could appear in any professional lesson (e.g. "Can I ask you something?", "I'd like to discuss...", "Let's move forward" — all banned as too generic).
+Every phrase must be specific enough to this lesson's topic that it would sound odd in a completely different scenario.
+Design these phrases FIRST — the dialogue in Ex 4 will be built around them. Every phrase must appear naturally in Ex 4.
 Format: { "type": "useful-phrases", "title": "[Useful Phrases in ${student.targetLanguage}]", "content": { "context": "[one sentence on when to use these, in ${student.targetLanguage}]", "phrases": [{ "phrase": "[in ${student.targetLanguage}]", "usage": "[when/why, in ${student.targetLanguage}]" }] }, "timeMinutes": 5 }
 
 **Exercise 4: Dialogue** (12 min)
 8-12 turns. ${student.name} speaks first. Characters from: ${roles.join(', ')}.
-LANGUAGE REQUIREMENT: Every vocabulary word from Ex 1 AND every phrase from Ex 3 must appear. Do not insert them into the story — design a situation that REQUIRES them to come up naturally.
-REALISM (mandatory): Start with small talk — never jump to the main topic. Include one imperfect moment (misunderstanding, correction, forgotten detail). Other person pushes back at least once. At least one genuine emotional reaction (surprise, disagreement, relief). Use contractions + natural fillers ("actually","to be honest","by the way"). Vary line lengths. End at a natural pause, not a tidy resolution. No info dumps.
+LANGUAGE REQUIREMENT: Every vocabulary word from Ex 1 AND every phrase from Ex 3 must appear. Design a situation that REQUIRES them — do not insert them into an unrelated story.
+SMALL TALK (mandatory, minimum 2 turns): The dialogue MUST open with genuine off-topic chat — commute, weather, something they noticed, a minor personal detail. This must come BEFORE any mention of the main topic. Small talk must feel like two real people who know each other. "By the way, how's the project?" is NOT small talk — it is the topic. Only after at least 2 turns of real small talk does one character naturally transition to business.
+REALISM (beyond small talk): One imperfect moment (misunderstanding, forgotten detail, correction). Other person pushes back at least once. One genuine emotional reaction (surprise, relief, mild frustration). Contractions and natural fillers throughout ("actually","to be honest","I mean","right?"). Vary turn length. End at a natural pause, not a tidy resolution. No information dumps.
 Format: { "type": "dialogue", "title": "[Dialogue in ${student.targetLanguage}]", "description": "[in ${student.targetLanguage}]", "content": { "setting": "[MAX 150 chars in ${student.targetLanguage}]", "characters": ["${student.name}", "[Role Name]"], "dialogue": [{"character": "${student.name}", "text": "[in ${student.targetLanguage}]"}, ...8-12 turns alternating] }, "timeMinutes": 12 }
 
 **Exercise 5: Comprehension** (8 min)
@@ -169,7 +172,10 @@ ${vocabularyContextSection}
 
 RULES:
 - ALL content in ${student.targetLanguage} (JSON keys and type values stay in English)
-- NO em dashes (—). BANNED: "resonate","navigate","landscape","leverage","dynamics","paradigm"
+- NO em dashes (—). BANNED: "resonate","navigate","landscape","leverage","dynamics","paradigm","mitigate","jeopardize","escalate","bottleneck","trade-off","iron out","flag","stakeholder","circle back"
+- VOCABULARY (Part A of Task Prep): SINGLE WORDS only. No phrases, no compounds. Each word must appear in the model dialogue.
+- KEY PHRASES (Part B of Task Prep): MULTI-WORD PHRASES only — minimum 2 words. These must be functional chunks specific to this lesson's exact scenario. NEVER generic phrases usable in any professional lesson ("Can you clarify that?", "Let's move on", "I'd like to discuss" — all banned as too generic). If a phrase would work in a completely different lesson, replace it.
+- SMALL TALK in model dialogue: The dialogue MUST open with at least 2 turns of genuine off-topic conversation (commute, weather, something noticed, a minor personal detail) BEFORE any mention of the main lesson topic. This is non-negotiable. "How's the project?" is NOT small talk.
 
 STRUCTURE (${duration} min):
 ${is50min ? `1. Lead-in (5 min)\n2. Task Prep — Vocab + Phrases + Dialogue (15 min)\n3. Task Performance — Roleplay (20 min)\n4. Post-task — Grammar focus (8 min)\n5. Homework (2 min)` : `1. Lead-in (5 min)\n2. Task Prep — Vocab + Phrases + Dialogue (10 min)\n3. Post-task — Grammar focus (8 min)\n4. Homework (2 min)`}
@@ -181,10 +187,10 @@ EXACTLY 3 questions. Q1: personal experience. Q2: personal familiarity with this
 Format: { "type": "lead-in", "title": "[Lead-in in ${student.targetLanguage}]", "content": { "questions": ["Q1","Q2","Q3"], "instructions": "[in ${student.targetLanguage}]" }, "timeMinutes": 5 }
 
 **Exercise 2: Task Prep** (${is50min ? 15 : 10} min)
-PART A — Vocabulary: EXACTLY 6 single words, domain-specific. No expressions array.
-PART B — Key Phrases: 4-6 phrases from lesson features (${lesson.keyLanguageFeatures.join('; ')}). Each: phrase + when to use + example.
+PART A — Vocabulary: EXACTLY 6 SINGLE WORDS, domain-specific. No phrases. No expressions array. Each word must appear in Part C.
+PART B — Key Phrases: 4-6 MULTI-WORD PHRASES from lesson features (${lesson.keyLanguageFeatures.join('; ')}). Minimum 2 words each. NEVER single words. Each phrase must be specific to this lesson's scenario — if it could appear unchanged in a completely different lesson, replace it. Each phrase: { phrase, function (what it communicates — 5-10 words), usage (when to use), example }.
 Write PART A and PART B first. Then write PART C around them.
-PART C — Model Dialogue: 8-12 turns, ${student.name} speaks first. Design a situation that REQUIRES every vocabulary word and every key phrase to arise naturally — do not insert them into an unrelated story. Start with small talk. Include one imperfect moment (misunderstanding, forgotten detail, correction). Other person pushes back once. At least one genuine emotional reaction (surprise, frustration, relief). Contractions + natural fillers. End at a natural pause, not a tidy resolution. No info dumps.
+PART C — Model Dialogue: 8-12 turns total, ${student.name} speaks first. Design a situation that REQUIRES every vocabulary word and every key phrase to arise naturally — do not insert them into an unrelated story. OPEN with at least 2 turns of genuine small talk (off-topic: commute, weather, personal detail) before any mention of the main topic. Include one imperfect moment (misunderstanding, forgotten detail, correction). Other person pushes back once. One genuine emotional reaction. Contractions + natural fillers throughout. End at a natural pause, not a tidy resolution. No info dumps.
 Format:
 {
   "type": "task-prep",

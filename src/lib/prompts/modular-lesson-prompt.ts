@@ -91,14 +91,28 @@ ${vocabularyContextSection}
 CONTENT RULES:
 - ALL content in ${student.targetLanguage} (JSON keys and type values stay in English)
 - NO em dashes (—). BANNED words: "resonate","navigate","landscape","leverage","dynamics","paradigm","mitigate","jeopardize","escalate","bottleneck","trade-off","iron out","flag","stakeholder","circle back"
-- PHRASE AND VOCABULARY QUALITY: Every phrase, expression, and vocabulary item must be real, natural English that a learner would find in a standard dictionary (Cambridge, Oxford). NEVER generate bureaucratic or corporate jargon that sounds formal but isn't actually used in real speech. Complexity must match the student's CEFR level (${student.level}). Do NOT reuse the same phrases across modules or from lesson to lesson — each lesson must feel fresh and distinct. Phrases must be chosen specifically for this lesson's topic and context, not pulled from a fixed internal list.
 - Real names only in dialogues — NEVER bracket placeholders
-- Dialogue: 8-12 turns, small talk opener, one imperfect moment, one pushback, contractions + natural fillers
-- Warm-up questions: Write 3-4 questions that make the student speak immediately. Each question must be direct and provoke a real reaction — a story, a strong opinion, or a specific memory from their professional life. NEVER ask how the student prepares, plans, or organises anything. NEVER frame the student as a learner ("what do you find helpful when learning X", "what improved YOUR understanding of X"). NEVER ask survey-style questions ("How do you typically...", "What kind of X do you find..."). Questions should feel like something a sharp colleague would ask over coffee — possibly slightly contrarian or challenging. Vary the angle sharply between questions: e.g. one about a professional failure or awkward moment, one demanding a strong opinion, one about a real observation or reaction. Make the first question the most direct and provocative.
-- gap-fill sentences: the 'sentence' field contains ONLY the sentence with ___ for the blank. NEVER append "Answer:", the answer, or any hint text inside the sentence field — the answer goes in the separate 'answer' field only. Before finalising each sentence, mentally substitute the answer into ___ and confirm the full sentence is grammatically and idiomatically correct — if it isn't, rewrite the sentence until it is.
-- Debate module: always include a clear 'topic' field summarising the dilemma in one sentence, and 'sideA'/'sideB' labels that are direct opposites. The student must pick one side and argue it.
-- Phrases in dialogue: if the lesson includes a useful-language or useful-expressions module, every phrase from that module MUST appear naturally in the dialogue — put each phrase in the mouth of one of the characters as a real utterance.
-- discussion / your-turn-ask / your-turn-tell: These are STUDENT SPEAKING PRACTICE modules — the student answers, the tutor listens and gives feedback. NEVER frame questions as "ask your tutor" or imply role reversal. Write questions the student answers from their own experience, opinion, or professional context. Questions must be about the lesson topic — genuine speaking prompts that require the student to produce language about the subject. NEVER ask meta questions about the lesson (e.g. "Which part felt difficult?", "What did you find challenging?", "How did the roleplay go?"). Write questions as if the lesson activity never happened — just the topic. NEVER ask questions about explaining something to a non-technical person or stakeholder (e.g. "How would you explain this to someone without a technical background?", "How would you simplify this for a non-expert?") — these are lazy, generic prompts that do not require the student to actually use the target language in context.
+
+MODULE TYPE DISCIPLINE — no mixing:
+- vocabulary-cards = SINGLE WORDS only. No phrases, no compound nouns, no collocations. One word, one entry.
+- vocabulary-match = terms must be words OR multi-word collocations/phrases. CRITICAL: if vocabulary-cards also appears in this lesson, vocabulary-match terms must be PHRASES or COLLOCATIONS (2+ words) — never single words — so the two modules do not duplicate each other. A term from vocabulary-cards must never appear as a vocabulary-match term.
+- useful-language (Key Phrases) = MULTI-WORD PHRASES only. Minimum 2 words. These are functional chunks a speaker uses as a unit in real conversation. NEVER a single word. NEVER a generic phrase that could appear in any professional lesson ("Can you clarify that?", "I'd like to discuss...", "Let's move on"). Every phrase must be specific enough to this lesson's topic that it would sound odd in a completely different scenario.
+- useful-expressions = FIXED EXPRESSIONS or IDIOMS only. Non-literal, multi-word, fixed in form. Examples of the type: "get the ball rolling", "cut to the chase", "get cold feet". NEVER plain sentence phrases. NEVER single words. The student completes the expression from the stem.
+- language-in-context = PHRASES only. Never single words. Phrases that have a specific communicative function (softening, requesting, hedging, emphasising). Not generic vocabulary.
+- phrasal-verbs = PHRASAL VERBS only — verb + particle with NON-LITERAL meaning. "Turn off the light" is NOT a phrasal verb entry (literal). "Burn out", "put off", "fall through" are correct entries. Never include an entry whose meaning follows directly from the verb + preposition in a literal sense.
+
+DIALOGUE — small talk rules:
+Small talk is GENUINE off-topic conversation for at least 2 turns before any mention of the main lesson topic. Small talk topics: commute, weather, something they saw or heard, a minor personal detail, weekend plans. It must feel like two real people who know each other. NEVER use the main topic as the small talk hook ("By the way, how's the project?" is NOT small talk — it is the topic). After the small talk, one character naturally transitions to the main subject. Beyond small talk: 8-12 turns total, one imperfect moment (misunderstanding, forgotten detail, correction), one genuine pushback, one emotional reaction (relief, surprise, mild frustration). Contractions and natural fillers throughout ("actually", "to be honest", "I mean", "right"). Vary turn length. End at a natural pause, not a tidy resolution.
+
+WARM-UP questions: Write 3-4 questions. Each must provoke an immediate spoken reaction — a story, a strong opinion, or a specific professional memory. NEVER ask how the student prepares, plans, or organises anything. NEVER frame the student as a learner ("what do you find helpful when learning X"). NEVER write survey-style questions ("How do you typically...", "What kind of X do you find..."). Questions should feel like something a sharp colleague would ask over coffee — possibly slightly contrarian. Vary the angle sharply: one about a failure or awkward moment, one demanding a strong opinion, one about a real observation. First question must be the most direct and provocative.
+
+GAP-FILL: the 'sentence' field contains ONLY the sentence with ___ for the blank. NEVER append "Answer:", the answer, or any hint inside the sentence field. Before finalising, mentally substitute the answer into ___ and confirm the full sentence is grammatically and idiomatically correct — if it isn't, rewrite.
+
+DEBATE: always include a clear 'topic' field summarising the dilemma in one sentence, and 'sideA'/'sideB' labels that are direct opposites. The student must pick one side and argue it.
+
+PHRASES IN DIALOGUE: if the lesson includes a useful-language or useful-expressions module, every phrase from that module MUST appear naturally in the dialogue — put each phrase in the mouth of one of the characters as a real utterance.
+
+DISCUSSION / TALKING-POINT: Student speaking modules — the student answers, the tutor listens. NEVER frame questions as "ask your tutor". Write questions the student answers from their own experience or opinion. NEVER ask meta questions about the lesson. NEVER ask about explaining something to a non-technical person ("How would you explain this to someone without a technical background?" — banned).
 
 ${levelGuide}
 ${cefrVocabGuide}
@@ -166,17 +180,24 @@ MODULE LIBRARY (only generate the modules listed in your structure above):
 warm-up               → { questions: string[3-4] }
 image-discussion      → { imagePlaceholders: [{label, description}], questions: string[] }
 vocabulary-cards      → { vocabulary: [{word, partOfSpeech, phonetics, definition, example, synonym?}×6] }
+  SINGLE WORDS only. No phrases, no collocations. Word appears in the lesson dialogue.
 vocabulary-match      → { instructions, groups: [{label, pairs:[{sentence,term,definition}×5]}×2] }
   Always exactly 2 groups of 5 = 10 pairs total.
+  If vocabulary-cards is also in this lesson: all terms must be PHRASES or COLLOCATIONS (2+ words), never single words.
 useful-expressions    → { context?, expressions: [{full: string, stem: string}×6-10] }
-  stem = the phrase up to and including the key idiom/verb phrase, ending with "....." — student completes it
-  Example (format only — NEVER use this phrase): { full: "She handed over the project files.", stem: "She handed over ....." }
-  Phrases MUST be chosen dynamically to match the specific lesson topic. NEVER reuse example phrases from this prompt. Each lesson must have a completely different set of expressions suited to its context.
-useful-language       → { phrases: [{phrase:string, stem:string, example:string}×4-6], practice: {sentences:[{prompt,answer}×4-6]} }
-  stem = phrase shown to student with content words hidden: e.g. phrase "touch base on the schedule" → stem "touch base on ....."
-  Phrases MUST be chosen dynamically to match the specific lesson topic. NEVER reuse example phrases from this prompt.
+  FIXED EXPRESSIONS and IDIOMS only — non-literal, multi-word, specific to this lesson topic.
+  stem = the expression up to and including the key idiom, ending with "....." — student completes it.
+  Example format only (never reuse): { full: "She really blew it in that meeting.", stem: "She really blew it ....." }
+  Every expression must be topic-specific. NEVER reuse any phrase shown in this prompt.
+useful-language       → { phrases: [{phrase:string, stem:string, example:string}×4-6] }
+  MULTI-WORD PHRASES only — functional chunks specific to this lesson's scenario. Minimum 2 words per phrase.
+  NEVER generic phrases usable in any lesson. NEVER single words.
+  stem = phrase with content words hidden, e.g. phrase "push back on the timeline" → stem "push back on ....."
+  Every phrase must be specific enough that it would sound odd in a completely different lesson.
 language-in-context   → { phrases: [{phrase:string, function:string, example?:string}×4-6] }
+  PHRASES only — never single words. Each has a clear communicative function (softening, hedging, emphasising, etc.).
 phrasal-verbs         → { pairs: [{verb, meaning, example?}×6-8], discussionQuestions?:string[] }
+  PHRASAL VERBS only — verb + particle, NON-LITERAL meaning. Verify each entry is genuinely non-literal.
 gap-fill              → { instructions, sentences: [{sentence(use ___ for blank), answer}×6-10] }
 complete-the-sentence → { instructions, questions: [{stem, options:string[4], answer:number(0-indexed)}×4-6] }
 find-the-mistake      → { instructions, sentences: [{incorrect, correct, explanation?}×6-8] }
