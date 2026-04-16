@@ -20,6 +20,7 @@ export interface PreviousLessonContext {
   recentGrammarErrors: string[]
   recentDiscussionQuestions: string[]
   recentTopics: string[]
+  recentWarmUpQuestions: string[]
 }
 
 async function getPreviousLessonContext(studentId: string): Promise<PreviousLessonContext> {
@@ -35,27 +36,49 @@ async function getPreviousLessonContext(studentId: string): Promise<PreviousLess
     const recentGrammarErrors: string[] = []
     const recentDiscussionQuestions: string[] = []
     const recentTopics: string[] = []
+    const recentWarmUpQuestions: string[] = []
 
     for (const lesson of lessons) {
       recentTopics.push(lesson.title)
       const content = lesson.content as Record<string, unknown>
-      const exercises = (content?.exercises as Record<string, unknown>[]) ?? []
 
+      // Legacy format: content.exercises[]
+      const exercises = (content?.exercises as Record<string, unknown>[]) ?? []
       for (const ex of exercises) {
         const c = ex.content as Record<string, unknown>
         if (!c) continue
-
         if (ex.type === 'vocabulary') {
           const vocab = c.vocabulary as { word?: string }[] ?? []
           vocab.forEach(v => { if (v.word) recentVocabulary.push(v.word.toLowerCase()) })
         }
-
         if (ex.type === 'sentence-correction' || ex.type === 'sentenceCorrection' || ex.type === 'sentence_correction') {
           const sentences = c.sentences as { errorType?: string }[] ?? []
           sentences.forEach(s => { if (s.errorType) recentGrammarErrors.push(s.errorType) })
         }
-
         if (ex.type === 'discussion') {
+          const questions = c.questions as string[] ?? []
+          questions.forEach(q => recentDiscussionQuestions.push(q))
+        }
+        if (ex.type === 'warmup' || ex.type === 'warm-up' || ex.type === 'lead-in') {
+          const questions = c.questions as string[] ?? []
+          questions.forEach(q => recentWarmUpQuestions.push(q))
+        }
+      }
+
+      // Modular format: content.modules[]
+      const modules = (content?.modules as Record<string, unknown>[]) ?? []
+      for (const mod of modules) {
+        const c = mod.content as Record<string, unknown>
+        if (!c) continue
+        if (mod.type === 'warm-up') {
+          const questions = c.questions as string[] ?? []
+          questions.forEach(q => recentWarmUpQuestions.push(q))
+        }
+        if (mod.type === 'vocabulary-cards') {
+          const vocab = c.vocabulary as { word?: string }[] ?? []
+          vocab.forEach(v => { if (v.word) recentVocabulary.push(v.word.toLowerCase()) })
+        }
+        if (mod.type === 'discussion') {
           const questions = c.questions as string[] ?? []
           questions.forEach(q => recentDiscussionQuestions.push(q))
         }
@@ -67,9 +90,10 @@ async function getPreviousLessonContext(studentId: string): Promise<PreviousLess
       recentGrammarErrors: [...new Set(recentGrammarErrors)],
       recentDiscussionQuestions: recentDiscussionQuestions.slice(0, 10),
       recentTopics,
+      recentWarmUpQuestions: recentWarmUpQuestions.slice(0, 12),
     }
   } catch {
-    return { recentVocabulary: [], recentGrammarErrors: [], recentDiscussionQuestions: [], recentTopics: [] }
+    return { recentVocabulary: [], recentGrammarErrors: [], recentDiscussionQuestions: [], recentTopics: [], recentWarmUpQuestions: [] }
   }
 }
 
@@ -592,8 +616,21 @@ export async function generateModularLesson(
       interests: student.interests || undefined,
     };
 
+    const prevContext = await getPreviousLessonContext(studentId);
+    const modularContext = [
+      prevContext.recentTopics.length > 0
+        ? `Recent lesson topics (DO NOT repeat warm-up structure or opening angle from these): ${prevContext.recentTopics.join(' | ')}`
+        : '',
+      prevContext.recentWarmUpQuestions.length > 0
+        ? `Recent warm-up questions already used (NEVER repeat these or use the same structure/angle): ${prevContext.recentWarmUpQuestions.join(' | ')}`
+        : '',
+      prevContext.recentVocabulary.length > 0
+        ? `Recent vocabulary already taught (avoid repeating unless essential to this lesson): ${prevContext.recentVocabulary.slice(0, 20).join(', ')}`
+        : '',
+    ].filter(Boolean).join('\n')
+
     const lessonAIService = await getLessonAIService(await resolveProvider(session.user.id));
-    const generatedLesson = await lessonAIService.generateModularLesson(studentProfile, lessonData, duration);
+    const generatedLesson = await lessonAIService.generateModularLesson(studentProfile, lessonData, duration, modularContext);
 
     // Generate images for any image-discussion modules
     const modules = (generatedLesson as unknown as { modules?: { type: string; content: { imagePlaceholders?: { label: string; description: string }[]; imageData?: string } }[] }).modules;

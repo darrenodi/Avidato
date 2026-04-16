@@ -86,7 +86,7 @@ Goals: ${student.endGoals} | Occupation: ${student.occupation || 'Professional'}
 LESSON: ${lesson.title} | Need: ${lesson.communicativeNeed}
 Key language: ${lesson.keyLanguageFeatures.join(', ')}
 Roles available: ${roles.join(', ')}
-${vocabularyContextSection}
+${vocabularyContextSection ? vocabularyContextSection + '\n' : ''}
 
 CONTENT RULES:
 - ALL content in ${student.targetLanguage} (JSON keys and type values stay in English)
@@ -115,6 +115,16 @@ DEBATE: always include a clear 'topic' field summarising the dilemma in one sent
 PHRASES IN DIALOGUE: if the lesson includes a useful-language or useful-expressions module, every phrase from that module MUST appear naturally in the dialogue — put each phrase in the mouth of one of the characters as a real utterance.
 
 DISCUSSION / TALKING-POINT: Student speaking modules — the student answers, the tutor listens. NEVER frame questions as "ask your tutor". Write questions the student answers from their own experience or opinion. NEVER ask meta questions about the lesson. NEVER ask about explaining something to a non-technical person ("How would you explain this to someone without a technical background?" — banned).
+
+DIALOGUE — student drives the resolution: ${student.name} is the learner. In the dialogue, ${student.name} must be the character who proposes compromises, solutions, or key professional moves — NOT the other character. The other character creates pressure, obstacles, or pushback. ${student.name} navigates and resolves. If the other character proposes the solution before ${student.name} gets a chance, rewrite so ${student.name} gets there first.
+
+VOCABULARY TERM LEVEL CHECK: Before including any vocabulary term or phrase, verify it is genuinely at ${student.level} level. A term that a learner one level below would already know is unjustifiable. At B2+: never include terms like "delivery date", "meeting", "customer", "order" — these are A1/A2. Choose terms that are domain-specific, professionally precise, and unlikely to be in a lower-level learner's passive vocabulary.
+
+VOCABULARY MATCH — term field format: The 'term' field must contain the actual word or phrase as it appears in the sentence — never a description, function, or definition. Wrong: "acknowledging another person's perspective". Correct: "I understand your position" (the phrase that actually appears in the sentence).
+
+ROLEPLAY — specificity required: The situation must include concrete details — specific numbers, names, products, deadlines, constraints. Do not write a generic summary. The non-student role must have at least 3 specific behaviours listed in keyPoints (e.g. "insist the order must ship by Friday regardless", "dismiss the shortage as a logistics failure", "threaten to escalate to the regional manager"). The phrasesToUse field must explicitly list the target phrases from the dialogue — not a vague instruction like "observe if the student uses key phrases."
+
+HOMEWORK AND TUTOR NOTES — module references: NEVER reference a module that does not exist in this lesson's structure (${selectedModules.join(', ')}). If the homework says "use phrases from the Key Phrases module" but there is no useful-language module in this lesson, rewrite the homework to list the phrases explicitly instead.
 
 ${levelGuide}
 ${cefrVocabGuide}

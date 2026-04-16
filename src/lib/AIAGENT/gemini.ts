@@ -500,7 +500,8 @@ CRITICAL: This exercise must appear as Exercise 5 in the exercises array. ALL se
   async generateModularLesson(
     student: StudentProfile,
     lesson: BlockLesson,
-    duration: 25 | 50 = 50
+    duration: 25 | 50 = 50,
+    previousContext: string = ''
   ): Promise<GeneratedLesson> {
     const { roles } = getSuggestedRolesAndScenarios(student.occupation);
     const prompt = buildModularLessonPrompt(
@@ -510,7 +511,7 @@ CRITICAL: This exercise must appear as Exercise 5 in the exercises array. ALL se
       roles,
       this.getLevelVocabularyGuide(student.level),
       this.getCEFRModule(student.level).getVocabularyGuide(),
-      ''
+      previousContext
     );
     try {
       const { rawText: text } = await generateWithFailover({

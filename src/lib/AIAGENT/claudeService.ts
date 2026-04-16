@@ -335,13 +335,13 @@ Format: { "type": "grammar", "title": "Exercise 5: Find the Mistake", "content":
     }
   }
 
-  async generateModularLesson(student: StudentProfile, lesson: BlockLesson, duration: 25 | 50 = 50): Promise<GeneratedLesson> {
+  async generateModularLesson(student: StudentProfile, lesson: BlockLesson, duration: 25 | 50 = 50, previousContext: string = ''): Promise<GeneratedLesson> {
     const { roles } = getSuggestedRolesAndScenarios(student.occupation);
     const prompt = buildModularLessonPrompt(
       student, lesson, duration, roles,
       this.getLevelVocabularyGuide(student.level),
       this.getCEFRModule(student.level).getVocabularyGuide(),
-      ''
+      previousContext
     );
 
     try {
