@@ -545,6 +545,13 @@ function SharedYouTubeLessonContent() {
             {/* ---- STAGE 3: Watch & Comprehend ---- */}
             <Card>
               <StageHeader num={3} label="Watch & Comprehend" time="8-10 min" />
+              {/* Print-only: show clickable/scannable URL since iframe is hidden in PDF */}
+              {lesson.videoId && lesson.videoId !== 'manual' && (
+                <div className="hidden print:block mb-4 p-3 border border-gray-300 rounded">
+                  <p className="text-sm font-semibold text-gray-800 mb-1">Watch the video before answering the questions below:</p>
+                  <p className="text-sm text-blue-700 underline break-all">https://www.youtube.com/watch?v={lesson.videoId}</p>
+                </div>
+              )}
               <YouTubeEmbed videoId={lesson.videoId} instruction="Watch the video and answer the questions below." />
 
               {lesson.detailQuestions?.length > 0 && (

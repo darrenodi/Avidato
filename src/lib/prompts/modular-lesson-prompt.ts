@@ -8,7 +8,7 @@ const STRUCTURES = {
   speaking: [
     ['warm-up', 'vocabulary-match', 'dialogue', 'matching-qa', 'roleplay', 'discussion', 'homework-writing'],
     ['warm-up', 'useful-language', 'dialogue', 'matching-qa', 'roleplay', 'talking-point', 'homework-writing'],
-    ['image-discussion', 'vocabulary-match', 'dialogue', 'matching-qa', 'discussion', 'homework-writing'],
+    ['warm-up', 'vocabulary-match', 'dialogue', 'matching-qa', 'talking-point', 'homework-writing'],
     ['warm-up', 'vocabulary-cards', 'dialogue', 'matching-qa', 'roleplay', 'discussion', 'homework-writing'],
     ['warm-up', 'vocabulary-cards', 'dialogue', 'matching-qa', 'roleplay', 'debate', 'homework-writing'],
   ],
@@ -16,7 +16,7 @@ const STRUCTURES = {
     ['warm-up', 'vocabulary-match', 'reading-article', 'reading-scan', 'skim-main-idea', 'discussion', 'homework-writing'],
     ['warm-up', 'vocabulary-cards', 'reading-article', 'matching-qa', 'vocabulary-in-text', 'debate', 'homework-writing'],
     ['warm-up', 'vocabulary-match', 'reading-article', 'reading-scan', 'discussion', 'homework-writing'],
-    ['image-discussion', 'vocabulary-match', 'reading-article', 'skim-main-idea', 'reading-scan', 'debate', 'homework-writing'],
+    ['warm-up', 'vocabulary-match', 'reading-article', 'skim-main-idea', 'reading-scan', 'debate', 'homework-writing'],
     ['warm-up', 'vocabulary-cards', 'reading-article', 'matching-qa', 'discussion', 'homework-writing'],
   ],
   vocabulary: [
@@ -36,7 +36,7 @@ const STRUCTURES = {
   professional: [
     ['warm-up', 'useful-language', 'vocabulary-match', 'dialogue', 'matching-qa', 'discussion', 'homework-writing'],
     ['warm-up', 'useful-language', 'dialogue', 'matching-qa', 'roleplay', 'discussion', 'homework-writing'],
-    ['image-discussion', 'useful-language', 'dialogue', 'matching-qa', 'discussion', 'homework-writing'],
+    ['warm-up', 'useful-language', 'dialogue', 'matching-qa', 'debate', 'homework-writing'],
     ['warm-up', 'vocabulary-match', 'dialogue', 'matching-qa', 'roleplay', 'debate', 'homework-writing'],
     ['warm-up', 'language-in-context', 'dialogue', 'matching-qa', 'roleplay', 'discussion', 'homework-writing'],
   ],
