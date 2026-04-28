@@ -73,6 +73,30 @@ const FAILURE_SCENARIO_KEYWORDS = [
   'conflict',
 ]
 
+// Rapport/warmth phrases — inappropriate when the roleplay scenario is adversarial
+const RAPPORT_PHRASES = [
+  'great to collaborate',
+  'enjoy working with you',
+  'appreciate your perspective',
+  'it has been a pleasure',
+  'looking forward to working',
+  'great working with you',
+  'glad we could connect',
+]
+
+// Adversarial scenario keywords — a roleplay with these shouldn't use rapport phrases
+const ADVERSARIAL_SCENARIO_KEYWORDS = [
+  'threaten',
+  'report to',
+  'escalate',
+  'demand',
+  'ultimatum',
+  'angry',
+  'hostile',
+  'confront',
+  'accuse',
+]
+
 // ─── Useful-language fixes ──────────────────────────────────────────────────
 
 function fixUsefulLanguageModule(mod: LessonModule): void {
@@ -167,21 +191,39 @@ function warnDialogueModule(mod: LessonModule, lesson: ModularLessonContent): vo
 
 // ─── Roleplay phrase-fit warnings ──────────────────────────────────────────
 
-function warnRoleplayModule(mod: LessonModule): void {
+function warnRoleplayModule(mod: LessonModule, lesson: ModularLessonContent): void {
   const content = mod.content as RoleplayContent
-  if (!content?.situation || !content?.phrasesToUse) return
+  if (!content?.situation) return
 
   const situationLower = content.situation.toLowerCase()
-  const isFailureScenario = FAILURE_SCENARIO_KEYWORDS.some(kw => situationLower.includes(kw))
 
+  // Check 1: success phrases in failure scenarios
+  const isFailureScenario = FAILURE_SCENARIO_KEYWORDS.some(kw => situationLower.includes(kw))
   if (isFailureScenario && Array.isArray(content.phrasesToUse)) {
     for (const phrase of content.phrasesToUse) {
       const phraseLower = phrase.toLowerCase()
-      const isMismatch = SUCCESS_PHRASES.some(sp => phraseLower.includes(sp))
-      if (isMismatch) {
+      if (SUCCESS_PHRASES.some(sp => phraseLower.includes(sp))) {
         console.warn(`[validator] ROLEPLAY VIOLATION — success phrase "${phrase}" used in failure scenario: "${content.situation.slice(0, 80)}..."`)
       }
     }
+  }
+
+  // Check 2: rapport phrases in adversarial scenarios
+  const isAdversarialScenario = ADVERSARIAL_SCENARIO_KEYWORDS.some(kw => situationLower.includes(kw))
+  if (isAdversarialScenario && Array.isArray(content.phrasesToUse)) {
+    for (const phrase of content.phrasesToUse) {
+      const phraseLower = phrase.toLowerCase()
+      if (RAPPORT_PHRASES.some(rp => phraseLower.includes(rp))) {
+        console.warn(`[validator] ROLEPLAY VIOLATION — rapport phrase "${phrase}" used in adversarial scenario: "${content.situation.slice(0, 80)}..."`)
+      }
+    }
+  }
+
+  // Check 3: lesson title/goal vs roleplay tone
+  const lessonTitle = lesson.title?.toLowerCase() ?? ''
+  const isRapportLesson = /rapport|relationship|network|connect|build.*trust|trust.*build/i.test(lessonTitle)
+  if (isRapportLesson && isAdversarialScenario) {
+    console.warn(`[validator] LESSON COHERENCE — lesson titled "${lesson.title}" has an adversarial roleplay scenario. Roleplay should reinforce lesson goal, not contradict it.`)
   }
 }
 
@@ -209,7 +251,7 @@ export function enforceModularLessonConstraints(lesson: unknown): unknown {
         warnDiscussionModule(mod)
         break
       case 'roleplay':
-        warnRoleplayModule(mod)
+        warnRoleplayModule(mod, modularLesson)
         break
     }
   }

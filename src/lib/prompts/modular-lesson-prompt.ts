@@ -96,7 +96,7 @@ CONTENT RULES:
 MODULE TYPE DISCIPLINE — no mixing:
 - vocabulary-cards = SINGLE WORDS only. No phrases, no compound nouns, no collocations. One word, one entry.
 - vocabulary-match = terms must be words OR multi-word collocations/phrases. NEVER appears in the same lesson as vocabulary-cards — they would duplicate the same words. If the structure includes both, generate only vocabulary-match and omit vocabulary-cards entirely.
-- useful-language (Key Phrases) = MULTI-WORD PHRASES only. Minimum 2 words. These are functional chunks a speaker uses as a unit in real conversation. NEVER a single word. NEVER a generic phrase that could appear in any professional lesson ("Can you clarify that?", "I'd like to discuss...", "Let's move on"). Every phrase must be specific enough to this lesson's topic that it would sound odd in a completely different scenario.
+- useful-language (Key Phrases) = MULTI-WORD PHRASES only. Minimum 2 words. These are functional chunks a speaker uses as a unit in real conversation. NEVER a single word. NEVER a generic phrase that could appear in any professional lesson ("Can you clarify that?", "I'd like to discuss...", "Let's move on"). Every phrase must be specific enough to this lesson's topic that it would sound odd in a completely different scenario. CEFR FLOOR: Every phrase must be at the student's level or above — a phrase a student one level lower would already use naturally is unjustifiable. "How are things..." is pre-A2 and must NEVER appear in any lesson above A1. Before including any phrase, ask: "Would I need to teach this to a ${student.level} student?" If no, replace it.
 - useful-expressions = FIXED EXPRESSIONS or IDIOMS only. Non-literal, multi-word, fixed in form. Examples of the type: "get the ball rolling", "cut to the chase", "get cold feet". NEVER plain sentence phrases. NEVER single words. The student completes the expression from the stem.
 - language-in-context = PHRASES only. Never single words. Phrases that have a specific communicative function (softening, requesting, hedging, emphasising). Not generic vocabulary.
 - phrasal-verbs = PHRASAL VERBS only — verb + particle with NON-LITERAL meaning. "Turn off the light" is NOT a phrasal verb entry (literal). "Burn out", "put off", "fall through" are correct entries. Never include an entry whose meaning follows directly from the verb + preposition in a literal sense.
@@ -110,6 +110,7 @@ WARM-UP questions: Write 3-4 questions. Purpose: ACTIVATION, not assessment. A w
 CALIBRATION RULE: Every warm-up question must pass this test — "Can a tired ${student.level} student answer this in 20 seconds without thinking hard?" If the answer is no, the question is too complex and must be replaced. Questions must be answerable in 1-2 sentences without using any of the lesson's target language.
 BANNED question types (these are dead on arrival — replace with anything else):
 - Generic social filler: "How was your commute?", "How was your weekend?", "Did you get any time off?" — these belong in the dialogue's small talk section, not the warm-up. The dialogue already has a small talk opener; the warm-up must not duplicate it. Every warm-up question must connect to the lesson's topic or the student's job context.
+- Personalization theater: NEVER use workplace names, company names, facility names, or location names from the student profile in a warm-up question — "What did you notice near the Scintilla facility this week?" is narrow-funnel (requires being at a specific place at a specific time), presupposes facts the AI may have invented, and sounds like no human tutor would ask it. Warm-up questions must be answerable by any professional doing a similar job, not only by this exact student at this exact location this exact week.
 - Abstract synthesis: "Considering X's global nature, how do you ensure Y across different cultural interpretations of Z?" — this is a Harvard essay prompt, not a conversation starter. Never combine two abstract concepts into one question.
 - Procedural/audit framing: "How do you decide whether X is Y?", "What is your process for Z?", "What is the first thought that goes through your mind when X?"
 - Presupposing unlikely events: "When you present data showing a dip..." — what if they haven't? Dead end.
@@ -153,6 +154,12 @@ If a term cannot have a SHORT definition that would surprise the learner, replac
 
 ROLEPLAY — specificity required: The situation must include concrete details — specific numbers, names, products, deadlines, constraints. Do not write a generic summary. The non-student role must have at least 3 specific behaviours listed in keyPoints (e.g. "insist the order must ship by Friday regardless", "dismiss the shortage as a logistics failure", "threaten to escalate to the regional manager"). The phrasesToUse field must explicitly list the target phrases from the dialogue — not a vague instruction like "observe if the student uses key phrases."
 ROLEPLAY — pragmatic coherence: Before assigning each phrase to phrasesToUse, verify the roleplay situation creates natural conditions where a speaker would actually say that phrase. A scenario about a cost overrun or missed target CANNOT naturally use phrases like "hit the targets" or "on track" — the situation prevents it. Only include phrases whose speech act fits the scenario. Replace any phrase that cannot be used naturally given the situation.
+
+LESSON COHERENCE CHECK — CRITICAL: Before generating the dialogue and roleplay, read the lesson title and communicativeNeed. The dialogue and roleplay must demonstrate the target skill being exercised SUCCESSFULLY. Examples:
+- Lesson titled "Building Rapport in Global Teams" → dialogue must show rapport being BUILT or MAINTAINED — characters warm up to each other, find common ground, end on a positive or collaborative note. A dialogue where a manager angrily chews out a junior employee UNDERMINES the lesson goal and teaches the wrong model.
+- Lesson titled "Negotiating Deadlines" → student must successfully negotiate, not simply capitulate.
+- Lesson titled "Presenting Data Clearly" → student presents data; the other character responds to it, not ignores it.
+If your draft dialogue has a tone or outcome that CONTRADICTS the lesson title, rewrite it. Mismatch between lesson title and dialogue content is the deepest quality failure in a language lesson — the student practises the wrong communicative behaviour.
 
 STRUCTURE DISCIPLINE — CRITICAL: Generate ONLY the modules listed in the pre-selected structure: ${selectedModules.join(', ')}. Do NOT add, insert, or substitute any module not in this list. If the structure does not include vocabulary-cards, do NOT generate a vocabulary-cards module under any name. If the structure does not include vocabulary-match, do NOT generate a vocabulary-match module. NEVER include both vocabulary-cards AND vocabulary-match in the same lesson — they teach the same words twice. If both appear in the structure list below, it is a data error — default to vocabulary-match only and omit vocabulary-cards.
 
@@ -273,6 +280,7 @@ debate                → { topic, sideA:{label,points:string[3-5]}, sideB:{labe
 your-turn-ask         → { questions:string[4-6] }
 your-turn-tell        → { prompts:string[3-5], example? }
 homework-writing      → { task, prompts:string[3-5], wordCount?, instructions? }
+  wordCount must always include the unit: "approximately 150 words" or "150-200 words" — NEVER just "approximately 150" or "150-200" without "words".
 
 JSON OUTPUT:
 {
