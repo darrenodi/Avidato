@@ -85,16 +85,29 @@ export async function generateWithProviderFailover({
   }
 
   const { generateWithFailover } = await import('../AIAGENT/geminiFailover')
-  const result = await generateWithFailover({
-    prompt,
-    models,
-    signal,
-    generationConfig,
-  })
-
-  return {
-    providerUsed: resolvedProvider,
-    modelUsed: result.modelUsed,
-    rawText: result.rawText,
+  try {
+    const result = await generateWithFailover({
+      prompt,
+      models,
+      signal,
+      generationConfig,
+    })
+    return {
+      providerUsed: resolvedProvider,
+      modelUsed: result.modelUsed,
+      rawText: result.rawText,
+    }
+  } catch (geminiErr) {
+    // All Gemini models failed — try OpenAI as cross-provider emergency fallback
+    console.warn('⚠️ All Gemini models failed, falling back to OpenAI:', geminiErr instanceof Error ? geminiErr.message : String(geminiErr))
+    try {
+      const { generateWithFailover: openaiFailover } = await import('../openaiFailover')
+      const result = await openaiFailover({ prompt, signal, generationConfig: { maxOutputTokens: generationConfig?.maxOutputTokens, temperature: generationConfig?.temperature } })
+      console.log(`✅ OpenAI emergency fallback succeeded - Model: ${result.modelUsed}`)
+      return { providerUsed: 'openai', modelUsed: result.modelUsed, rawText: result.rawText }
+    } catch (openaiErr) {
+      console.error('❌ OpenAI emergency fallback also failed:', openaiErr instanceof Error ? openaiErr.message : String(openaiErr))
+      throw geminiErr // Re-throw original Gemini error
+    }
   }
 }

@@ -12,9 +12,13 @@ if (!process.env.GOOGLE_API_KEY) {
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY)
 
 // Ordered by preference / capability
-// gemini-2.5-flash-lite: 15 RPM, 1000 RPD — free tier, high quota
-// gemini-3.1-flash-lite-preview: free tier fallback, newer model
+// gemini-2.5-flash: paid tier, most stable under load
+// gemini-2.0-flash: reliable paid-tier fallback
+// gemini-3.1-flash-lite-preview: lite/free tier
+// gemini-2.5-flash-lite: lite/free tier last resort
 export const MODEL_FALLBACK_CHAIN: string[] = [
+  'gemini-2.5-flash',
+  'gemini-2.0-flash',
   'gemini-3.1-flash-lite-preview',
   'gemini-2.5-flash-lite',
 ]
