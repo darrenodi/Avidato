@@ -11,6 +11,7 @@ import { getSuggestedRolesAndScenarios, getOccupationExclusions } from './consta
 import { extractJSONFromText, cleanAndParseJSON } from './utils/json-parser';
 import { enforceSynonymConstraints } from './utils/vocabulary-validator';
 import { enforceDialogueStructure } from './utils/dialogue-validator';
+import { enforceModularLessonConstraints } from './utils/modular-lesson-validator';
 import { buildLessonGenerationPrompt, buildBlockPlanPrompt, buildTBLTLessonPrompt } from './prompts/lesson-generation-prompts';
 import { buildPPPLessonPrompt, buildCLTLessonPrompt } from './prompts/ppp-clt-prompts';
 import { buildModularLessonPrompt } from './prompts/modular-lesson-prompt';
@@ -494,7 +495,8 @@ CRITICAL: This exercise must appear as Exercise 5 in the exercises array. ALL se
         temperature: 0.1,
         max_tokens: 16384,
       });
-      return cleanAndParseJSON<GeneratedLesson>(extractJSONFromText(response.choices[0]?.message?.content || ''));
+      const parsed = cleanAndParseJSON<GeneratedLesson>(extractJSONFromText(response.choices[0]?.message?.content || ''));
+      return enforceModularLessonConstraints(parsed) as GeneratedLesson;
     } catch (error) {
       console.error('Error generating modular lesson:', error);
       throw new Error('Failed to generate lesson. Please try again.');
