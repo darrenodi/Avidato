@@ -106,25 +106,38 @@ The dialogue must sound like two real professionals talking — not a textbook e
 Small talk: GENUINE off-topic conversation for at least 2 turns before any mention of the main lesson topic. Topics: commute, weather, something they saw or heard, a minor personal detail, weekend plans. Must feel like two real people who know each other. NEVER use the main topic as the small talk hook ("By the way, how's the project?" is NOT small talk). After small talk, one character naturally transitions to the main subject.
 Beyond small talk: 8-12 turns total, one imperfect moment (misunderstanding, forgotten detail, correction), one genuine pushback, one emotional reaction (relief, surprise, mild frustration). Contractions throughout. Vary turn length. End at a natural pause, not a tidy resolution.
 
-WARM-UP questions: Write 3-4 questions. Each must provoke an immediate spoken reaction — a story, a strong opinion, or a specific professional memory.
+WARM-UP questions: Write 3-4 questions. Purpose: ACTIVATION, not assessment. A warm-up gets the student talking comfortably before the lesson begins — it is not a test of the lesson's ideas.
+CALIBRATION RULE: Every warm-up question must pass this test — "Can a tired ${student.level} student answer this in 20 seconds without thinking hard?" If the answer is no, the question is too complex and must be replaced. Questions must be answerable in 1-2 sentences without using any of the lesson's target language.
 BANNED question types (these are dead on arrival — replace with anything else):
-- Procedural/audit framing: "How do you decide whether X is Y?", "What is your process for Z?", "What is the first thought that goes through your mind when X?" — these are HR interview or management-framework questions, not conversation starters.
+- Abstract synthesis: "Considering X's global nature, how do you ensure Y across different cultural interpretations of Z?" — this is a Harvard essay prompt, not a conversation starter. Never combine two abstract concepts into one question.
+- Procedural/audit framing: "How do you decide whether X is Y?", "What is your process for Z?", "What is the first thought that goes through your mind when X?"
+- Presupposing unlikely events: "When you present data showing a dip..." — what if they haven't? Dead end.
 - Learner framing: "What do you find helpful when learning X?"
 - Survey style: "How do you typically...", "What kind of X do you find..."
-- Balance questions with two obvious sides: "How do you balance X with Y?" — only use if the tension is genuinely surprising or uncomfortable, not an obvious professional trade-off everyone knows.
-Questions should feel like something a sharp, slightly provocative colleague would ask over coffee. Vary the angle sharply: one question about a specific failure or moment of awkwardness, one demanding a strong opinion the student might disagree with, one based on a real observation about their industry or role. First question must land the hardest — most direct, most specific, most likely to produce an actual story.
+- Balance questions with two obvious sides: "How do you balance X with Y?" — only use if the tension is genuinely surprising, not an obvious professional trade-off everyone knows.
+Questions should feel like something a direct colleague asks over coffee. One question about a specific failure or awkward professional moment, one demanding a strong opinion the student might disagree with, one based on something concrete and observable about their role. First question must be the most direct and easiest to answer — not the most sophisticated.
 
 GAP-FILL: the 'sentence' field contains ONLY the sentence with ___ for the blank. NEVER append "Answer:", the answer, or any hint inside the sentence field. Before finalising, mentally substitute the answer into ___ and confirm the full sentence is grammatically and idiomatically correct — if it isn't, rewrite.
 
 DEBATE: always include a clear 'topic' field summarising the dilemma in one sentence, and 'sideA'/'sideB' labels that are direct opposites. The student must pick one side and argue it.
 
-PHRASES IN DIALOGUE: if the lesson includes a useful-language or useful-expressions module, every phrase from that module MUST appear naturally in the dialogue — put each phrase in the mouth of one of the characters as a real utterance.
+PHRASES IN DIALOGUE: if the lesson includes a useful-language or useful-expressions module, every phrase from that module MUST appear naturally in the dialogue — put each phrase in the mouth of one of the characters as a real utterance. CONSISTENCY CHECK: count the phrases listed in the useful-language module and confirm every one appears in both the dialogue AND (if a gap-fill module is in the structure) at least one gap-fill sentence. No phrase may appear in the list but be absent from any exercise. Run this check before outputting the JSON.
 
-DISCUSSION / TALKING-POINT: Student speaking modules — the student answers, the tutor listens. NEVER frame questions as "ask your tutor". Write questions the student answers from their own experience or opinion. NEVER ask meta questions about the lesson. NEVER ask about explaining something to a non-technical person ("How would you explain this to someone without a technical background?" — banned). NEVER ask procedural/process questions: "How do you decide when X is serious enough to Y?", "What steps do you take when Z?" — these are management-framework questions, not discussion triggers. Every question must demand a specific story, a strong opinion, or a real professional dilemma the student has faced — not a description of how they operate in general.
+DISCUSSION / TALKING-POINT: Student speaking modules — the student answers, the tutor listens.
+BANNED — these are McKinsey case interview questions, not discussion triggers:
+- Abstract synthesis: "How do you balance detailed data analysis with the risk of getting bogged down in the weeds when reporting to executives?" — requires vocabulary not taught in this lesson and demands 10 minutes to answer.
+- Cross-cultural/multi-variable abstract: "How do you ensure X is understood across different cultural interpretations of Y?" — C-suite essay prompt.
+- NEVER ask meta questions about the lesson. NEVER ask about explaining something to a non-technical person.
+- NEVER ask procedural/process questions: "How do you decide when X?", "What steps do you take when Z?"
+REQUIRED: Every discussion question must be personal, concrete, and experiential. "Tell me about a time you..." beats every abstract question. The question must be answerable by referencing a specific moment, event, or opinion the student holds — not by describing a general practice. Questions must be answerable using only language already in the lesson — do not introduce new idioms ("bogged down in the weeds", "systemic") in discussion questions that were never taught.
 
 DIALOGUE — multi-speaker turn order: If the dialogue has more than 2 characters, ${student.name} MUST speak immediately after every non-student turn. No two non-student characters may ever speak consecutively. The pattern must always be: [non-student] → [${student.name}] → [non-student] → [${student.name}]. Non-student speakers rotate among themselves but only when ${student.name} has spoken in between. This rule is absolute — in a 1-on-1 lesson the tutor reads all non-student roles, so back-to-back non-student lines mean the tutor is performing a monologue while the student waits. Non-student characters may speak MORE per turn (longer speech) to compensate — ${student.name} does not need to match them in length every turn.
 
 DIALOGUE — student drives the resolution: ${student.name} is the learner. In the dialogue, ${student.name} must be the character who proposes compromises, solutions, or key professional moves — NOT the other character. The other character creates pressure, obstacles, or pushback. ${student.name} navigates and resolves. If the other character proposes the solution before ${student.name} gets a chance, rewrite so ${student.name} gets there first.
+
+CEFR LEVEL FILTER — dialogue and all modules: Before including any idiom, expression, or domain-specific term anywhere in the lesson, check it is at or below ${student.level}. "Professional context" does NOT mean "high CEFR." A B2 student in a professional role needs functional clarity — not idiomatic flourish above their level. Idioms like "perfect storm", "blip", "systemic" (as metaphor), "recurring theme" (metaphorical), "in the weeds" are C1+. They MUST NOT appear in a ${student.level} lesson unless they are explicitly taught in a vocabulary module. If they appear in the dialogue unannounced, remove or replace them. This applies to discussion questions too — do not introduce vocabulary in a question that was never taught in the lesson.
+
+TIMING REALITY CHECK: timeMinutes must reflect actual classroom time, not aspirational estimates. Use these benchmarks: dialogue (1.5 min per 100 words to read aloud + 2 min setup) — a 350-word dialogue needs at least 7 min, not 12 min that includes other activities. Comprehension: 1 min per question. Gap-fill: 1 min per sentence. Roleplay: minimum 5 min. Warm-up: 1 min per question. If the timeMinutes sum doesn't match ${duration}, adjust module times to fit — do not round-number everything to 5 or 10 min.
 
 VOCABULARY TERM LEVEL CHECK: Before including any vocabulary term or phrase, verify it is genuinely at ${student.level} level. A term that a learner one level below would already know is unjustifiable. At B2+: never include terms like "delivery date", "meeting", "customer", "order" — these are A1/A2. Choose terms that are domain-specific, professionally precise, and unlikely to be in a lower-level learner's passive vocabulary.
 
@@ -137,6 +150,7 @@ VOCABULARY MATCH — term field format: The 'term' field must be a genuinely tea
 If a term cannot have a SHORT definition that would surprise the learner, replace it with a different sentence and term entirely. Every term in a vocabulary-match must earn its place by being genuinely non-obvious.
 
 ROLEPLAY — specificity required: The situation must include concrete details — specific numbers, names, products, deadlines, constraints. Do not write a generic summary. The non-student role must have at least 3 specific behaviours listed in keyPoints (e.g. "insist the order must ship by Friday regardless", "dismiss the shortage as a logistics failure", "threaten to escalate to the regional manager"). The phrasesToUse field must explicitly list the target phrases from the dialogue — not a vague instruction like "observe if the student uses key phrases."
+ROLEPLAY — pragmatic coherence: Before assigning each phrase to phrasesToUse, verify the roleplay situation creates natural conditions where a speaker would actually say that phrase. A scenario about a cost overrun or missed target CANNOT naturally use phrases like "hit the targets" or "on track" — the situation prevents it. Only include phrases whose speech act fits the scenario. Replace any phrase that cannot be used naturally given the situation.
 
 STRUCTURE DISCIPLINE — CRITICAL: Generate ONLY the modules listed in the pre-selected structure: ${selectedModules.join(', ')}. Do NOT add, insert, or substitute any module not in this list. If the structure does not include vocabulary-cards, do NOT generate a vocabulary-cards module under any name. If the structure does not include vocabulary-match, do NOT generate a vocabulary-match module. NEVER include both vocabulary-cards AND vocabulary-match in the same lesson — they teach the same words twice. If both appear in the structure list below, it is a data error — default to vocabulary-match only and omit vocabulary-cards.
 
@@ -145,7 +159,11 @@ HOMEWORK AND TUTOR NOTES — module references: NEVER reference a module that do
 ${levelGuide}
 ${cefrVocabGuide}
 
-TUTOR NOTES: Each module must have a tutorNotes field — a short specific action for the tutor (not a description).
+TUTOR NOTES: Each module must have a tutorNotes field. BANNED — these are filler and add zero teaching value: "Encourage ${student.name} to share personal anecdotes", "Facilitate the dialogue", "Ensure ${student.name} understands the context", "Encourage ${student.name} to reflect on his experiences." Any note containing only "encourage", "facilitate", or "ensure understanding" without specifics is filler — rewrite it.
+REQUIRED — tutor notes must be specific interventions tied to this student and this module:
+- Predict a likely error based on the student's native language (${student.nativeLanguage}): e.g., if Spanish L1 and present perfect is in the dialogue, note "Spanish L1 speakers often use simple past where present perfect is needed — recast and elicit self-correction if this happens."
+- Name the specific language point being tested in this module and what to watch for.
+- Give a concrete action: not "encourage use of vocabulary" but "if ${student.name} paraphrases instead of using the target phrase, point to it on screen and ask them to retry the turn."
 
 MODULE TITLES — CRITICAL: The title field of every module must be EXACTLY the string shown below for its type. No rewording, no descriptive additions, no creative variation. A warm-up titled "Professional Context Warm-up" or "Warm-up Discussion" is WRONG. A homework titled "Drafting a Formal Report" is WRONG. A vocabulary-match titled "Technical and Professional Vocabulary" is WRONG. Use the exact string.
 
@@ -227,6 +245,7 @@ useful-language       → { phrases: [{phrase:string, stem:string, example:strin
   NEVER generic phrases usable in any lesson. NEVER single words.
   stem = phrase with content words hidden, e.g. phrase "push back on the timeline" → stem "push back on ....."
   Every phrase must be specific enough that it would sound odd in a completely different lesson.
+  FRAMING: this module is a PRESENTATION and INTRODUCTION activity, not a memory drill. The student is encountering these phrases for the first time (or near-first time). The instructions field must frame it as "practise saying each phrase" or "study the phrase, then complete the stem" — NEVER "recall from memory" or "complete from memory." Every phrase listed MUST have its own stem entry — a phrase without a stem is a schema error.
 language-in-context   → { phrases: [{phrase:string, function:string, example?:string}×4-6] }
   PHRASES only — never single words. Each has a clear communicative function (softening, hedging, emphasising, etc.).
 phrasal-verbs         → { pairs: [{verb, meaning, example?}×6-8], discussionQuestions?:string[] }
