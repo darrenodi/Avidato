@@ -4,7 +4,7 @@
  * Fixes what can be fixed automatically; warns on semantic issues.
  */
 
-import type { ModularLessonContent, LessonModule, UsefulLanguageContent, WarmUpContent, DiscussionContent, FurtherDiscussionContent, RoleplayContent } from '../../types/module-lesson'
+import type { ModularLessonContent, LessonModule, UsefulLanguageContent, WarmUpContent, DiscussionContent, FurtherDiscussionContent, RoleplayContent, DialogueContent } from '../../types/module-lesson'
 
 // ─── Pattern lists ─────────────────────────────────────────────────────────
 
@@ -27,8 +27,14 @@ const BANNED_DISCUSSION_PATTERNS = [
   /how\s+would\s+you\s+(?:design|structure|build|implement)\s+a\s+(?:system|framework|strategy|process)\s+(?:to|that)/i,
   // Abstract multi-variable balancing
   /how\s+do\s+(?:you|we|companies)\s+balance\s+.{0,60}\s+with\s+.{0,60}\s+when/i,
-  // Cross-cultural abstract
+  // Cross-cultural abstract (various phrasings)
   /considering\s+(?:cross[-\s]cultural|cultural\s+differences|different\s+cultures)/i,
+  /especially\s+with\s+international\s+teams?/i,
+  /across\s+(?:different\s+)?(?:cultures?|countries|international\s+teams?)/i,
+  /in\s+(?:a\s+)?(?:global|multicultural|international)\s+(?:context|environment|setting)/i,
+  // "What's the most challenging part" — abstract synthesis
+  /what(?:'s|\s+is)\s+the\s+(?:most|biggest|hardest)\s+challenging\s+part\s+of/i,
+  /what(?:'s|\s+is)\s+the\s+(?:most|biggest|greatest)\s+challenge\s+(?:in|when|with)/i,
   // "In your opinion, what factors" — too abstract
   /in\s+your\s+opinion,?\s+what\s+(?:factors|aspects|elements)\s+(?:contribute|determine|influence)/i,
 ]
@@ -128,6 +134,32 @@ function warnDiscussionModule(mod: LessonModule): void {
   }
 }
 
+// ─── Dialogue phrase-stacking warning ──────────────────────────────────────
+
+function warnDialogueModule(mod: LessonModule, lesson: ModularLessonContent): void {
+  const content = mod.content as DialogueContent
+  if (!content?.dialogue || !Array.isArray(content.dialogue)) return
+
+  // Collect target phrases from the lesson's useful-language module
+  const usefulLangMod = lesson.modules.find(m => m.type === 'useful-language')
+  if (!usefulLangMod) return
+  const ulContent = usefulLangMod.content as UsefulLanguageContent
+  if (!ulContent?.phrases || !Array.isArray(ulContent.phrases)) return
+
+  const targetPhrases = ulContent.phrases.map(p => p.phrase.toLowerCase().replace(/\s+\.+$/, '').trim())
+  if (targetPhrases.length === 0) return
+
+  for (const line of content.dialogue) {
+    const lineLower = line.text.toLowerCase()
+    const matchedPhrases = targetPhrases.filter(tp => lineLower.includes(tp.replace(/\.+$/, '').trim()))
+    if (matchedPhrases.length >= 2) {
+      console.warn(
+        `[validator] DIALOGUE PHRASE-STACKING — ${line.character} uses ${matchedPhrases.length} target phrases in one turn: ${matchedPhrases.map(p => `"${p}"`).join(', ')}`
+      )
+    }
+  }
+}
+
 // ─── Roleplay phrase-fit warnings ──────────────────────────────────────────
 
 function warnRoleplayModule(mod: LessonModule): void {
@@ -160,6 +192,9 @@ export function enforceModularLessonConstraints(lesson: unknown): unknown {
     switch (mod.type) {
       case 'useful-language':
         fixUsefulLanguageModule(mod)
+        break
+      case 'dialogue':
+        warnDialogueModule(mod, modularLesson)
         break
       case 'warm-up':
         warnWarmUpModule(mod)

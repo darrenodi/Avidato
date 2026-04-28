@@ -477,7 +477,7 @@ export function UsefulLanguageModule({ content, isStudentView, tutorNotes }: { c
   return (
     <div className="space-y-5">
       {!isStudentView && (
-        <p className="text-sm text-blue-700 dark:text-blue-400 font-medium">Say the stem and ask your student to complete the phrase from memory. Drill each one in a realistic sentence before moving on.</p>
+        <p className="text-sm text-blue-700 dark:text-blue-400 font-medium">Present each phrase: read the full phrase together, then say the stem and let your student complete it. Practise each one in a natural sentence before moving on.</p>
       )}
       <div className="space-y-2">
         <SectionLabel text={isStudentView ? 'Complete the phrases' : 'Phrases'} />
