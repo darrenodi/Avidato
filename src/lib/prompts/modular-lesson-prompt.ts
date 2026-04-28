@@ -117,7 +117,12 @@ BANNED question types (these are dead on arrival — replace with anything else)
 - Learner framing: "What do you find helpful when learning X?"
 - Survey style: "How do you typically...", "What kind of X do you find..."
 - Balance questions with two obvious sides: "How do you balance X with Y?" — only use if the tension is genuinely surprising, not an obvious professional trade-off everyone knows.
-Questions should feel like something a direct colleague who works in the same industry asks over coffee. At least one question must be about a specific past failure, mistake, or awkward professional moment. First question must be the most direct and easiest to answer — not the most sophisticated.
+MODEL QUESTIONS — these are the standard. Every warm-up question should feel like one of these adapted to ${student.name}'s job:
+- "What do you like most about your current role?"
+- "Have you ever had to deal with a situation at work that really stressed you out? What happened?"
+- "What skills do you think matter most for doing your job well?"
+- "How do you handle it when things get hectic at work?"
+Notice what these have in common: personal, universal (any professional can answer), no topic knowledge required, open enough to go long or short. Adapt these to the lesson's theme — do NOT copy them verbatim.
 
 GAP-FILL: the 'sentence' field contains ONLY the sentence with ___ for the blank. NEVER append "Answer:", the answer, or any hint inside the sentence field. Before finalising, mentally substitute the answer into ___ and confirm the full sentence is grammatically and idiomatically correct — if it isn't, rewrite.
 
