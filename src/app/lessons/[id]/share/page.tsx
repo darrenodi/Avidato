@@ -720,11 +720,35 @@ export default function SharedLessonPage() {
     <ClientThemeProvider>
       <style>{`
         @media print {
+          /* Hide UI chrome */
           header, footer, button, .no-print { display: none !important; }
-          body, .min-h-screen { background: white !important; }
-          .max-w-5xl { max-width: 100% !important; padding: 0 !important; }
-          * { color: black !important; border-color: #ccc !important; box-shadow: none !important; }
-          .bg-white, [class*="bg-gray"], [class*="bg-brand"], [class*="dark\\:"] { background: white !important; }
+
+          /* White page */
+          body, html, .min-h-screen, .bg-\\[\\#f7f4ef\\] { background: white !important; }
+          * { color: black !important; box-shadow: none !important; -webkit-print-color-adjust: exact; }
+
+          /* Full-width, remove page padding */
+          .max-w-5xl, .max-w-3xl { max-width: 100% !important; padding: 0 !important; margin: 0 !important; }
+          main { padding: 0 !important; }
+
+          /* Strip card chrome: no rounded corners, no shadow */
+          [class*="rounded"] { border-radius: 0 !important; }
+          [class*="shadow"] { box-shadow: none !important; }
+
+          /* Flatten all backgrounds to white */
+          [class*="bg-"] { background: white !important; }
+
+          /* Module number box: print as white with black text + right border */
+          .bg-\\[\\#1a3a5c\\] { background: white !important; border-right: 2px solid #333 !important; }
+
+          /* Normalize all borders */
+          [class*="border-"] { border-color: #ddd !important; }
+
+          /* Module cards: clean section break between them */
+          .space-y-8 > div { page-break-inside: avoid; break-inside: avoid; margin-bottom: 1.5rem !important; }
+
+          /* Remove spacing overrides that look bad in print */
+          .px-6 { padding-left: 1rem !important; padding-right: 1rem !important; }
         }
       `}</style>
       <div className="min-h-screen bg-[#f7f4ef]">

@@ -109,26 +109,24 @@ function PhraseMatchingGame({ phrases }: { phrases: PhraseItem[] }) {
   return (
     <div className="mt-6 space-y-4">
       {/* Static print-only layout */}
-      <div className="hidden print:block space-y-3">
-        <p className="text-sm font-semibold text-gray-800">Match each phrase with its meaning:</p>
-        <div className="grid grid-cols-2 gap-x-8 gap-y-2">
-          <div className="space-y-2">
-            {phrases.map((item, i) => (
-              <div key={i} className="flex gap-2 items-center text-sm">
-                <span className="font-bold w-5 flex-shrink-0">{i + 1}.</span>
-                <span className="font-semibold">{item.term}</span>
-                <span className="inline-block w-8 border-b border-gray-500 ml-1">&nbsp;</span>
-              </div>
-            ))}
-          </div>
-          <div className="space-y-2">
-            {shuffledMeanings.map((meaning, i) => (
-              <div key={i} className="flex gap-2 text-sm">
-                <span className="font-medium w-5 flex-shrink-0">{String.fromCharCode(97 + i)}.</span>
-                <span>{meaning}</span>
-              </div>
-            ))}
-          </div>
+      <div className="hidden print:block space-y-4">
+        <p className="text-sm font-semibold text-gray-800">Match each phrase with its meaning. Write the correct letter next to each number.</p>
+        <div className="space-y-1">
+          {phrases.map((item, i) => (
+            <div key={i} className="flex gap-2 items-center text-sm">
+              <span className="font-bold w-5 flex-shrink-0">{i + 1}.</span>
+              <span className="font-semibold">{item.term}</span>
+              <span className="inline-block w-8 border-b border-gray-500 ml-2">&nbsp;</span>
+            </div>
+          ))}
+        </div>
+        <div className="space-y-1 mt-4">
+          {shuffledMeanings.map((meaning, i) => (
+            <div key={i} className="flex gap-2 text-sm">
+              <span className="font-medium w-5 flex-shrink-0">{String.fromCharCode(97 + i)}.</span>
+              <span>{meaning}</span>
+            </div>
+          ))}
         </div>
       </div>
 

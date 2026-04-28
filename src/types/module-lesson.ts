@@ -177,7 +177,7 @@ export interface ReadingScanContent {
 
 export interface VocabularyInTextContent {
   instructions: string
-  items: { definition: string; answer: string; paragraph?: number }[]
+  items: { definition: string; answer: string; paragraph?: number; partOfSpeech?: string }[]
 }
 
 export interface ReadingSectionPredictionContent {

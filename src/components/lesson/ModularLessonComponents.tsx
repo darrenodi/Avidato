@@ -1101,7 +1101,11 @@ export function VocabularyInTextModule({ content, isStudentView, tutorNotes }: {
         <div key={i} className="flex gap-2 text-sm">
           <span className="text-brand-primary font-medium flex-shrink-0">{i + 1}.</span>
           <div className="flex-1">
-            <p className="text-gray-900 dark:text-white">{item.definition}{item.paragraph ? ` (para. ${item.paragraph})` : ''}</p>
+            <p className="text-gray-900 dark:text-white">
+              {item.paragraph ? <span className="text-xs font-medium text-brand-primary mr-1.5">[Para. {item.paragraph}]</span> : null}
+              {item.definition}
+              {item.partOfSpeech ? <span className="ml-1.5 text-xs text-gray-400 italic">({item.partOfSpeech})</span> : null}
+            </p>
             {!isStudentView && <p className="text-green-600 dark:text-green-400 text-xs mt-0.5 font-medium">{item.answer}</p>}
           </div>
         </div>

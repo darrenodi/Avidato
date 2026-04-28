@@ -539,7 +539,7 @@ NORMALIZATION:
 EXERCISE 5a — MATCHING
 ──────────────────────────────────────────────
 Each phrase gets one clear meaning (max 12 words).
-Meanings must be clearly distinct — no near-synonyms across different items.
+JUXTAPOSITION RULE: After drafting all 8 meanings, read them as a list. No two meanings may share the same opening verb, overlap in semantic territory, or be near-synonyms. A student scanning the full list must be able to immediately tell each meaning apart from every other. Cross-check: for each meaning, confirm no other meaning on the list could plausibly describe the same phrase. If any two are too close, rewrite the weaker one to make the contrast sharp and obvious.
 
 ──────────────────────────────────────────────
 EXERCISE 5b — FILL-IN-THE-BLANKS

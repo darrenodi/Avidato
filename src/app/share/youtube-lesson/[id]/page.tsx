@@ -173,26 +173,24 @@ function PhraseMatchingGame({ phrases }: { phrases: PhraseItem[] }) {
   return (
     <div className="mt-6 space-y-4">
       {/* Static print-only layout */}
-      <div className="hidden print:block space-y-3">
-        <p className="text-sm font-semibold text-gray-800">Match each phrase with its meaning:</p>
-        <div className="grid grid-cols-2 gap-x-8 gap-y-2">
-          <div className="space-y-2">
-            {phrases.map((item, i) => (
-              <div key={i} className="flex gap-2 items-center text-sm">
-                <span className="font-bold w-5 flex-shrink-0">{i + 1}.</span>
-                <span className="font-semibold">{item.term}</span>
-                <span className="inline-block w-8 border-b border-gray-500 ml-1">&nbsp;</span>
-              </div>
-            ))}
-          </div>
-          <div className="space-y-2">
-            {shuffledMeanings.map((meaning, i) => (
-              <div key={i} className="flex gap-2 text-sm">
-                <span className="font-medium w-5 flex-shrink-0">{String.fromCharCode(97 + i)}.</span>
-                <span>{meaning}</span>
-              </div>
-            ))}
-          </div>
+      <div className="hidden print:block space-y-4">
+        <p className="text-sm font-semibold text-gray-800">Match each phrase with its meaning. Write the correct letter next to each number.</p>
+        <div className="space-y-1">
+          {phrases.map((item, i) => (
+            <div key={i} className="flex gap-2 items-center text-sm">
+              <span className="font-bold w-5 flex-shrink-0">{i + 1}.</span>
+              <span className="font-semibold">{item.term}</span>
+              <span className="inline-block w-8 border-b border-gray-500 ml-2">&nbsp;</span>
+            </div>
+          ))}
+        </div>
+        <div className="space-y-1 mt-4">
+          {shuffledMeanings.map((meaning, i) => (
+            <div key={i} className="flex gap-2 text-sm">
+              <span className="font-medium w-5 flex-shrink-0">{String.fromCharCode(97 + i)}.</span>
+              <span>{meaning}</span>
+            </div>
+          ))}
         </div>
       </div>
 
@@ -378,7 +376,44 @@ function SharedYouTubeLessonContent() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <style>{`@media print { .no-print { display: none !important; } body { background: white !important; } }`}</style>
+      <style>{`
+        @media print {
+          /* Hide UI chrome */
+          .no-print, header, footer, button, iframe { display: none !important; }
+
+          /* White page */
+          body, html, .min-h-screen, .bg-gray-50 { background: white !important; }
+          * { color: black !important; box-shadow: none !important; }
+
+          /* Full width, no outer padding */
+          .max-w-4xl { max-width: 100% !important; padding: 0 !important; margin: 0 !important; }
+          main { padding: 0 !important; }
+
+          /* Strip card chrome */
+          [class*="rounded"] { border-radius: 0 !important; }
+          [class*="shadow"] { box-shadow: none !important; }
+          [class*="bg-"] { background: white !important; }
+          [class*="border-"] { border-color: #ddd !important; }
+
+          /* Stage sections: clean separation, avoid page break mid-section */
+          .space-y-6 > div { page-break-inside: avoid; break-inside: avoid; margin-bottom: 1.5rem !important; border: none !important; border-bottom: 1px solid #ddd !important; padding-bottom: 1.5rem !important; }
+
+          /* StageHeader: strip the colored circle, keep bold label */
+          .rounded-full { border-radius: 0 !important; background: transparent !important; border: none !important; padding: 0 !important; }
+
+          /* Time badge: hide it — irrelevant in PDF */
+          .text-xs.font-medium.px-2\\.5 { display: none !important; }
+
+          /* Level/duration badges in title card: also hide */
+          .inline-flex.items-center.px-3 { display: none !important; }
+
+          /* Vocabulary cards: remove the colored phonetics/part-of-speech badges */
+          .bg-blue-50, .bg-brand-50, .bg-teal-50, .bg-gray-100 { background: white !important; }
+
+          /* Word box pills in fill-in-blanks: flatten */
+          .flex-wrap.gap-2 span { border: 1px solid #999 !important; padding: 1px 6px !important; background: white !important; display: inline-block !important; }
+        }
+      `}</style>
       {/* ---- Header ---- */}
       <header className="no-print bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">

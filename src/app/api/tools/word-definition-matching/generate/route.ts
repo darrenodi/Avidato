@@ -218,7 +218,7 @@ CRITICAL REQUIREMENTS:
 - NO circular definitions (don't use the word itself in the definition)
 - NO long explanations or examples
 - Just the essential meaning in plain, simple words
-- Make each definition distinct
+- JUXTAPOSITION: After drafting all definitions, read them as a list. No two definitions may share the same opening verb, overlap in meaning, or be near-synonyms. A student scanning the list must immediately tell each apart. If any two are too close, rewrite the weaker one so the contrast is obvious.
 
 Good example (for "table"): "A piece of furniture with a flat top and legs"
 Bad example (for "table"): "A furniture item that serves as a surface for placing items and is supported by legs, commonly found in dining areas and offices"
