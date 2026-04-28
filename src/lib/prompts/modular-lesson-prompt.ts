@@ -109,13 +109,14 @@ Beyond small talk: 8-12 turns total, one imperfect moment (misunderstanding, for
 WARM-UP questions: Write 3-4 questions. Purpose: ACTIVATION, not assessment. A warm-up gets the student talking comfortably before the lesson begins — it is not a test of the lesson's ideas.
 CALIBRATION RULE: Every warm-up question must pass this test — "Can a tired ${student.level} student answer this in 20 seconds without thinking hard?" If the answer is no, the question is too complex and must be replaced. Questions must be answerable in 1-2 sentences without using any of the lesson's target language.
 BANNED question types (these are dead on arrival — replace with anything else):
+- Generic social filler: "How was your commute?", "How was your weekend?", "Did you get any time off?" — these belong in the dialogue's small talk section, not the warm-up. The dialogue already has a small talk opener; the warm-up must not duplicate it. Every warm-up question must connect to the lesson's topic or the student's job context.
 - Abstract synthesis: "Considering X's global nature, how do you ensure Y across different cultural interpretations of Z?" — this is a Harvard essay prompt, not a conversation starter. Never combine two abstract concepts into one question.
 - Procedural/audit framing: "How do you decide whether X is Y?", "What is your process for Z?", "What is the first thought that goes through your mind when X?"
 - Presupposing unlikely events: "When you present data showing a dip..." — what if they haven't? Dead end.
 - Learner framing: "What do you find helpful when learning X?"
 - Survey style: "How do you typically...", "What kind of X do you find..."
 - Balance questions with two obvious sides: "How do you balance X with Y?" — only use if the tension is genuinely surprising, not an obvious professional trade-off everyone knows.
-Questions should feel like something a direct colleague asks over coffee. One question about a specific failure or awkward professional moment, one demanding a strong opinion the student might disagree with, one based on something concrete and observable about their role. First question must be the most direct and easiest to answer — not the most sophisticated.
+Questions should feel like something a direct colleague who works in the same industry asks over coffee. At least one question must be about a specific past failure, mistake, or awkward professional moment. First question must be the most direct and easiest to answer — not the most sophisticated.
 
 GAP-FILL: the 'sentence' field contains ONLY the sentence with ___ for the blank. NEVER append "Answer:", the answer, or any hint inside the sentence field. Before finalising, mentally substitute the answer into ___ and confirm the full sentence is grammatically and idiomatically correct — if it isn't, rewrite.
 

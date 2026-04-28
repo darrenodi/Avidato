@@ -9,6 +9,11 @@ import type { ModularLessonContent, LessonModule, UsefulLanguageContent, WarmUpC
 // ─── Pattern lists ─────────────────────────────────────────────────────────
 
 const BANNED_WARMUP_PATTERNS = [
+  // Generic social filler — belongs in dialogue small talk, not warm-up
+  /how\s+was\s+your\s+commute/i,
+  /how\s+was\s+(?:your\s+)?(?:the\s+)?(?:weekend|commute|journey|drive|trip\s+in)/i,
+  /did\s+you\s+(?:manage\s+to\s+get|get)\s+(?:any\s+)?(?:time\s+off|a\s+break|some\s+rest)/i,
+  /did\s+you\s+(?:catch|watch|see)\s+the\s+(?:game|match|show|episode)/i,
   // Abstract synthesis / "considering X's global nature"
   /considering\s+the\s+\w+(?:'s)?\s+(?:global|international|complex|dynamic)/i,
   /in\s+(?:today's|the\s+modern)\s+(?:globalized|interconnected|complex)/i,
