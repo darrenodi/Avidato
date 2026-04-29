@@ -84,9 +84,13 @@ const BANNED_WARMUP_PATTERNS = [
   /what\s+(?:steps|approach|process|method|procedure)\s+do\s+you\s+(?:take|use|follow)\s+(?:when|if|to)/i,
   /what\s+is\s+your\s+(?:process|approach|strategy|method)\s+for/i,
   /walk\s+(?:me|us)\s+through\s+the\s+(?:process|steps|procedure)/i,
-  // Survey style (spec: "How do you typically...", "What kind of X do you find...")
-  /how\s+do\s+you\s+typically/i,
+  // Survey / frequency framing
+  /how\s+do\s+you\s+(?:typically|usually)/i,
   /what\s+kind\s+of\s+.{0,30}\s+do\s+you\s+(?:find|prefer|enjoy)/i,
+  // "Most effective way to" — prescriptive advice-seeking
+  /(?:what(?:\s+is)?\s+the\s+)?most\s+effective\s+way\s+to/i,
+  // "What makes X feel/seem Y" — abstract quality judgment
+  /what\s+makes\s+.{0,40}\s+(?:feel|seem|sound|appear)\s+/i,
   // Learner framing (spec: "What do you find helpful when learning X?")
   /what\s+do\s+you\s+find\s+(?:helpful|useful|effective)\s+when\s+(?:learn|study|practis)/i,
 ]
@@ -100,17 +104,23 @@ const BANNED_DISCUSSION_PATTERNS = [
   /especially\s+with\s+international\s+teams?/i,
   /across\s+(?:different\s+)?(?:cultures?|countries|international\s+teams?)/i,
   /in\s+(?:a\s+)?(?:global|multicultural|international)\s+(?:context|environment|setting)/i,
-  // Superlative challenge framing
-  /what(?:'s|\s+is)\s+the\s+(?:most|biggest|hardest)\s+challenging\s+part\s+of/i,
+  // Superlative challenge framing — catches "most difficult part", "biggest challenge in", etc.
+  /what(?:'s|\s+is)\s+the\s+(?:most|biggest|greatest|hardest)\s+(?:difficult|challenging|hard|complex)\s+(?:part|aspect|element|challenge)\s+(?:of|about|in|when)/i,
   /what(?:'s|\s+is)\s+the\s+(?:most|biggest|greatest)\s+challenge\s+(?:in|when|with)/i,
   /in\s+your\s+opinion,?\s+what\s+(?:factors|aspects|elements)\s+(?:contribute|determine|influence)/i,
+  // "Most effective way to" — prescriptive, not experiential
+  /(?:what(?:\s+is)?\s+the\s+)?most\s+effective\s+way\s+to/i,
   // Procedural / process questions (spec: "How do you decide when X?", "What steps do you take when Z?")
   /how\s+do\s+you\s+decide\s+(?:when|whether|if|which|who|what)/i,
   /what\s+is\s+(?:the\s+)?first\s+thing\s+(?:you|that)\s+(?:check|do|think|consider|go)/i,
   /what\s+(?:steps|approach|process|method|procedure)\s+do\s+you\s+(?:take|use|follow)\s+(?:when|if|to)/i,
   /what\s+is\s+your\s+(?:process|approach|strategy|method)\s+for/i,
-  // Survey style
-  /how\s+do\s+you\s+typically/i,
+  // Maintenance / sustainability — "How do you maintain/ensure X?" is process not experience
+  /how\s+do\s+you\s+(?:maintain|ensure|sustain|preserve)\s+/i,
+  // Survey / frequency framing
+  /how\s+do\s+you\s+(?:typically|usually)/i,
+  // "What makes X feel/seem Y" — abstract quality judgment
+  /what\s+makes\s+.{0,40}\s+(?:feel|seem|sound|appear)\s+/i,
 ]
 
 const SUCCESS_PHRASES = ['hit the target', 'hit our target', 'meet the target', 'on track', 'ahead of schedule', 'under budget', 'exceeded expectations', 'delivered on time']
@@ -157,10 +167,20 @@ function fixUsefulLanguageModule(mod: LessonModule, warnings: string[]): void {
 function fixHomeworkModule(mod: LessonModule, warnings: string[]): void {
   const content = mod.content as HomeworkWritingContent
   if (!content?.wordCount) return
-  if (!/\d+\s*words/i.test(content.wordCount)) {
-    const fixed = content.wordCount.trim().replace(/[.…]+$/, '') + ' words'
-    warnings.push(`Auto-fixed wordCount: "${content.wordCount}" → "${fixed}"`)
-    content.wordCount = fixed
+  // The UI renders: "Write approximately {wordCount}." — strip any "approximately" or "write"
+  // prefix the AI may have added to prevent "Write approximately approximately N words."
+  const before = content.wordCount
+  let wc = before.trim()
+    .replace(/^write\s+/i, '')
+    .replace(/^approximately\s+/i, '')
+    .replace(/[.…]+$/, '')
+    .trim()
+  if (!/\d+\s*words/i.test(wc)) {
+    wc = wc + ' words'
+  }
+  if (wc !== before) {
+    warnings.push(`Auto-fixed wordCount: "${before}" → "${wc}"`)
+    content.wordCount = wc
   }
 }
 

@@ -500,7 +500,11 @@ export function UsefulLanguageModule({ content, isStudentView, tutorNotes }: { c
 
 function LanguageInContextItem({ phrase, fn, example, isStudentView }: { phrase: string; fn: string; example?: string; isStudentView?: boolean }) {
   const [revealed, setRevealed] = React.useState(false)
-  const stem = phrase.trim().split(/\s+/).slice(0, 4).join(' ') + ' .....'
+  // Hide only the last word so the visible portion uniquely identifies the phrase.
+  // Minimum 2 words visible; for very short phrases this means only 1 word is hidden.
+  const words = phrase.trim().split(/\s+/)
+  const showCount = Math.max(2, words.length - 1)
+  const stem = words.slice(0, showCount).join(' ') + ' .....'
   return (
     <div className="border-l-2 border-brand-primary pl-3 py-0.5">
       {revealed
@@ -531,7 +535,7 @@ export function LanguageInContextModule({ content, isStudentView, tutorNotes }: 
       {content.instructions && <p className="text-sm text-gray-500 dark:text-gray-400 italic">{content.instructions}</p>}
       {isStudentView
         ? <p className="text-sm text-gray-500 dark:text-gray-400 italic">Complete each phrase, then reveal to check.</p>
-        : <p className="text-sm text-blue-700 dark:text-blue-400 font-medium">Say the stem aloud. Ask your student to complete the phrase, then discuss its function together.</p>
+        : <p className="text-sm text-blue-700 dark:text-blue-400 font-medium">Read each phrase aloud with its function label. Cover the final word and ask your student to complete the stem. Model the full phrase if they struggle, then move on.</p>
       }
       {phrases.map((p, i) => (
         <LanguageInContextItem key={i} phrase={p.phrase} fn={p.function} example={p.example} isStudentView={isStudentView} />
