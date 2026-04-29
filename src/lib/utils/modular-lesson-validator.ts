@@ -14,6 +14,8 @@ import type {
   ModularLessonContent,
   LessonModule,
   UsefulLanguageContent,
+  VocabularyMatchContent,
+  MatchingQAContent,
   WarmUpContent,
   DiscussionContent,
   FurtherDiscussionContent,
@@ -65,28 +67,50 @@ function phraseAppearsInDialogue(phrase: string, dialogueText: string): boolean 
 // ─── Pattern lists ─────────────────────────────────────────────────────────
 
 const BANNED_WARMUP_PATTERNS = [
+  // Generic social filler
   /how\s+was\s+your\s+commute/i,
   /how\s+was\s+(?:your\s+)?(?:the\s+)?(?:weekend|commute|journey|drive|trip\s+in)/i,
   /did\s+you\s+(?:manage\s+to\s+get|get)\s+(?:any\s+)?(?:time\s+off|a\s+break|some\s+rest)/i,
   /did\s+you\s+(?:catch|watch|see)\s+the\s+(?:game|match|show|episode)/i,
+  // Abstract / complex synthesis
   /considering\s+the\s+\w+(?:'s)?\s+(?:global|international|complex|dynamic)/i,
   /in\s+(?:today's|the\s+modern)\s+(?:globalized|interconnected|complex)/i,
   /what(?:'s|\s+is)\s+one\s+key\s+(?:lesson|takeaway|insight)/i,
   /if\s+you\s+(?:had\s+to|were\s+to)\s+(?:negotiate|address|present\s+to)\s+(?:a\s+)?(?:foreign|international|global|world)/i,
-  /walk\s+(?:me|us)\s+through\s+the\s+(?:process|steps|procedure)/i,
   /how\s+do\s+(?:you|we|companies)\s+balance\s+.{0,60}\s+with\s+.{0,60}\s+when/i,
+  // Procedural / audit framing (spec: "How do you decide whether X?", "What is your process for Z?")
+  /how\s+do\s+you\s+decide\s+(?:when|whether|if|which|who|what)/i,
+  /what\s+is\s+(?:the\s+)?first\s+thing\s+(?:you|that)\s+(?:check|do|think|consider|go)/i,
+  /what\s+(?:steps|approach|process|method|procedure)\s+do\s+you\s+(?:take|use|follow)\s+(?:when|if|to)/i,
+  /what\s+is\s+your\s+(?:process|approach|strategy|method)\s+for/i,
+  /walk\s+(?:me|us)\s+through\s+the\s+(?:process|steps|procedure)/i,
+  // Survey style (spec: "How do you typically...", "What kind of X do you find...")
+  /how\s+do\s+you\s+typically/i,
+  /what\s+kind\s+of\s+.{0,30}\s+do\s+you\s+(?:find|prefer|enjoy)/i,
+  // Learner framing (spec: "What do you find helpful when learning X?")
+  /what\s+do\s+you\s+find\s+(?:helpful|useful|effective)\s+when\s+(?:learn|study|practis)/i,
 ]
 
 const BANNED_DISCUSSION_PATTERNS = [
+  // Abstract synthesis / design questions
   /how\s+would\s+you\s+(?:design|structure|build|implement)\s+a\s+(?:system|framework|strategy|process)\s+(?:to|that)/i,
   /how\s+do\s+(?:you|we|companies)\s+balance\s+.{0,60}\s+with\s+.{0,60}\s+when/i,
+  // Cross-cultural / international
   /considering\s+(?:cross[-\s]cultural|cultural\s+differences|different\s+cultures)/i,
   /especially\s+with\s+international\s+teams?/i,
   /across\s+(?:different\s+)?(?:cultures?|countries|international\s+teams?)/i,
   /in\s+(?:a\s+)?(?:global|multicultural|international)\s+(?:context|environment|setting)/i,
+  // Superlative challenge framing
   /what(?:'s|\s+is)\s+the\s+(?:most|biggest|hardest)\s+challenging\s+part\s+of/i,
   /what(?:'s|\s+is)\s+the\s+(?:most|biggest|greatest)\s+challenge\s+(?:in|when|with)/i,
   /in\s+your\s+opinion,?\s+what\s+(?:factors|aspects|elements)\s+(?:contribute|determine|influence)/i,
+  // Procedural / process questions (spec: "How do you decide when X?", "What steps do you take when Z?")
+  /how\s+do\s+you\s+decide\s+(?:when|whether|if|which|who|what)/i,
+  /what\s+is\s+(?:the\s+)?first\s+thing\s+(?:you|that)\s+(?:check|do|think|consider|go)/i,
+  /what\s+(?:steps|approach|process|method|procedure)\s+do\s+you\s+(?:take|use|follow)\s+(?:when|if|to)/i,
+  /what\s+is\s+your\s+(?:process|approach|strategy|method)\s+for/i,
+  // Survey style
+  /how\s+do\s+you\s+typically/i,
 ]
 
 const SUCCESS_PHRASES = ['hit the target', 'hit our target', 'meet the target', 'on track', 'ahead of schedule', 'under budget', 'exceeded expectations', 'delivered on time']
@@ -137,6 +161,76 @@ function fixHomeworkModule(mod: LessonModule, warnings: string[]): void {
     const fixed = content.wordCount.trim().replace(/[.…]+$/, '') + ' words'
     warnings.push(`Auto-fixed wordCount: "${content.wordCount}" → "${fixed}"`)
     content.wordCount = fixed
+  }
+}
+
+// ─── Structural count checks ─────────────────────────────────────────────────
+
+function checkVocabularyMatchStructure(mod: LessonModule, hardViolations: string[]): void {
+  const content = mod.content as VocabularyMatchContent
+  if (!content?.groups) return  // flat `pairs` format — skip (backward compat)
+  if (content.groups.length !== 2) {
+    hardViolations.push(
+      `vocabulary-match (module: vocabulary-match) must have exactly 2 groups, found ${content.groups.length}. ` +
+      `Restructure into exactly 2 groups of 5 pairs each.`
+    )
+    return
+  }
+  for (let i = 0; i < content.groups.length; i++) {
+    const g = content.groups[i]
+    const count = g.pairs?.length ?? 0
+    if (count !== 5) {
+      hardViolations.push(
+        `vocabulary-match group ${i + 1} ("${g.label}") must have exactly 5 pairs, found ${count}. ` +
+        `Add or remove pairs to reach exactly 5.`
+      )
+    }
+  }
+}
+
+function checkDialogueTurnCount(mod: LessonModule, hardViolations: string[]): void {
+  const content = mod.content as DialogueContent
+  if (!content?.dialogue) return
+  const count = content.dialogue.length
+  if (count < 8 || count > 12) {
+    hardViolations.push(
+      `dialogue (module: dialogue) has ${count} turns — spec requires 8-12. ` +
+      `${count < 8 ? `Add ${8 - count} more turns to reach the minimum.` : `Remove ${count - 12} turns to reach the maximum.`}`
+    )
+  }
+}
+
+function checkUsefulLanguagePhrases(mod: LessonModule, hardViolations: string[]): void {
+  const content = mod.content as UsefulLanguageContent
+  if (!content?.phrases) return
+  const count = content.phrases.length
+  if (count < 4 || count > 6) {
+    hardViolations.push(
+      `useful-language (module: "${mod.title}") has ${count} phrases — spec requires 4-6. ` +
+      `${count < 4 ? `Add ${4 - count} more phrases.` : `Remove ${count - 6} phrases.`}`
+    )
+  }
+  const singleWord = content.phrases.filter(p => p.phrase.trim().split(/\s+/).length < 2)
+  if (singleWord.length > 0) {
+    hardViolations.push(
+      `useful-language (module: "${mod.title}") contains single-word entries: ${singleWord.map(p => `"${p.phrase}"`).join(', ')}. ` +
+      `Every entry must be a multi-word functional phrase (minimum 2 words). Replace with phrase-length entries.`
+    )
+  }
+}
+
+function checkMatchingQACount(mod: LessonModule, hardViolations: string[]): void {
+  const content = mod.content as MatchingQAContent
+  if (!content?.pairs) {
+    hardViolations.push(`matching-qa (module: "${mod.title}") has no pairs array`)
+    return
+  }
+  const count = content.pairs.length
+  if (count < 4 || count > 6) {
+    hardViolations.push(
+      `matching-qa (module: "${mod.title}") has ${count} Q&A pairs — spec requires 4-6. ` +
+      `${count < 4 ? `Add ${4 - count} more comprehension questions.` : `Remove ${count - 6} pairs.`}`
+    )
   }
 }
 
@@ -342,14 +436,32 @@ export function validateModularLesson(lesson: unknown): ValidationResult {
   checkTemplatePlaceholders(modularLesson, hardViolations)
   checkPhraseCoverage(modularLesson, hardViolations)
 
-  // Soft warnings
+  // Per-module checks (hard violations + soft warnings)
   for (const mod of modularLesson.modules) {
     switch (mod.type) {
-      case 'warm-up': checkWarmUpQuestions(mod, hardViolations); break
+      case 'warm-up':
+        checkWarmUpQuestions(mod, hardViolations)
+        break
       case 'discussion':
-      case 'further-discussion': checkDiscussionQuestions(mod, hardViolations); break
-      case 'dialogue': warnDialoguePhraseStacking(mod, modularLesson, warnings); break
-      case 'roleplay': checkRoleplayPhraseFit(mod, modularLesson, hardViolations); break
+      case 'further-discussion':
+        checkDiscussionQuestions(mod, hardViolations)
+        break
+      case 'dialogue':
+        checkDialogueTurnCount(mod, hardViolations)
+        warnDialoguePhraseStacking(mod, modularLesson, warnings)
+        break
+      case 'roleplay':
+        checkRoleplayPhraseFit(mod, modularLesson, hardViolations)
+        break
+      case 'vocabulary-match':
+        checkVocabularyMatchStructure(mod, hardViolations)
+        break
+      case 'useful-language':
+        checkUsefulLanguagePhrases(mod, hardViolations)
+        break
+      case 'matching-qa':
+        checkMatchingQACount(mod, hardViolations)
+        break
     }
   }
 
