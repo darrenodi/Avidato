@@ -51,12 +51,15 @@ function extractContentWords(phrase: string): string[] {
 /**
  * Fuzzy: phrase is "covered" if all its content words appear in dialogueText.
  * Catches natural variants ("push the date back" covers "push back the date").
+ * Both phrase and dialogue are normalised the same way before comparison so
+ * contractions (we've → weve, we'll → well) match correctly.
  */
 function phraseAppearsInDialogue(phrase: string, dialogueText: string): boolean {
   const contentWords = extractContentWords(phrase)
   if (contentWords.length === 0) return true
-  const lower = dialogueText.toLowerCase()
-  return contentWords.every(w => lower.includes(w))
+  // Strip apostrophes before other non-alpha chars so "we've" → "weve" (not "we ve")
+  const normalised = dialogueText.toLowerCase().replace(/'/g, '').replace(/[^a-z\s]/g, ' ')
+  return contentWords.every(w => normalised.includes(w))
 }
 
 // ─── Pattern lists ─────────────────────────────────────────────────────────
@@ -99,14 +102,18 @@ function fixUsefulLanguageModule(mod: LessonModule, warnings: string[]): void {
 
   if (mod.tutorNotes) {
     const before = mod.tutorNotes
+    // Expanded pattern list — covers known paraphrases of recall/memory-drill framing.
+    // When a new variant surfaces in production, add it here.
     mod.tutorNotes = mod.tutorNotes
-      .replace(/complete\s+(?:the\s+)?(?:phrase|stem)\s+from\s+memory/gi, 'complete the stem')
-      .replace(/recall\s+(?:the\s+)?(?:phrase|stem)\s+from\s+memory/gi, 'complete the stem')
       .replace(/from\s+memory/gi, 'by completing the stem')
-      .replace(/ask\s+(?:your\s+)?student\s+to\s+complete\s+the\s+(?:phrase|stem)\s+from\s+memory/gi,
+      .replace(/recall\s+(?:the\s+)?(?:phrase|stem|expression)/gi, 'complete the stem')
+      .replace(/test\s+(?:their|his|her|student(?:'s)?)\s+recall/gi, 'practise with the stem')
+      .replace(/produce\s+(?:the\s+)?(?:phrase|expression)\s+(?:from|without)\s+(?:memory|looking|notes)/gi, 'complete the stem')
+      .replace(/without\s+looking\s+at\s+(?:the\s+)?(?:phrase|text|notes)/gi, 'using the stem as a prompt')
+      .replace(/ask\s+(?:your\s+)?student\s+to\s+(?:recall|remember)\s+(?:the\s+)?(?:phrase|expression)/gi,
         'say the stem aloud and ask your student to complete the phrase')
     if (mod.tutorNotes !== before) {
-      warnings.push(`Auto-fixed "from memory" in tutorNotes of "${mod.title}"`)
+      warnings.push(`Auto-fixed memory-drill framing in tutorNotes of "${mod.title}"`)
     }
   }
 
@@ -242,29 +249,44 @@ function checkRoleplayPhraseFit(mod: LessonModule, lesson: ModularLessonContent,
 
 // ─── Soft warnings ───────────────────────────────────────────────────────────
 
-function warnWarmUp(mod: LessonModule, warnings: string[]): void {
+function checkWarmUpQuestions(mod: LessonModule, hardViolations: string[]): void {
   const content = mod.content as WarmUpContent
   if (!content?.questions) return
+  const banned: string[] = []
   for (const q of content.questions) {
     for (const pattern of BANNED_WARMUP_PATTERNS) {
       if (pattern.test(q)) {
-        warnings.push(`Warm-up banned pattern: "${q.slice(0, 80)}"`)
+        banned.push(`"${q.slice(0, 100)}"`)
         break
       }
     }
   }
+  if (banned.length > 0) {
+    hardViolations.push(
+      `Warm-up (module: warm-up) contains ${banned.length} question(s) that violate the 20-second-answerability rule or fall into a banned pattern: ` +
+      `${banned.join('; ')}. ` +
+      `Rewrite each flagged question to be personal, concrete, and answerable in 20 seconds without lesson target language.`
+    )
+  }
 }
 
-function warnDiscussion(mod: LessonModule, warnings: string[]): void {
+function checkDiscussionQuestions(mod: LessonModule, hardViolations: string[]): void {
   const content = mod.content as DiscussionContent | FurtherDiscussionContent
   if (!content?.questions) return
+  const banned: string[] = []
   for (const q of content.questions) {
     for (const pattern of BANNED_DISCUSSION_PATTERNS) {
       if (pattern.test(q)) {
-        warnings.push(`Discussion abstract/McKinsey question: "${q.slice(0, 100)}"`)
+        banned.push(`"${q.slice(0, 100)}"`)
         break
       }
     }
+  }
+  if (banned.length > 0) {
+    hardViolations.push(
+      `Discussion (module: ${mod.type}) contains ${banned.length} question(s) violating the spec prohibition on abstract synthesis and cross-cultural questions: ` +
+      `${banned.join('; ')}. ` +
+      `Replace each with a personal-experience question: "Tell me about a time you..." or "Have you ever had to..."`)
   }
 }
 
@@ -323,9 +345,9 @@ export function validateModularLesson(lesson: unknown): ValidationResult {
   // Soft warnings
   for (const mod of modularLesson.modules) {
     switch (mod.type) {
-      case 'warm-up': warnWarmUp(mod, warnings); break
+      case 'warm-up': checkWarmUpQuestions(mod, hardViolations); break
       case 'discussion':
-      case 'further-discussion': warnDiscussion(mod, warnings); break
+      case 'further-discussion': checkDiscussionQuestions(mod, hardViolations); break
       case 'dialogue': warnDialoguePhraseStacking(mod, modularLesson, warnings); break
       case 'roleplay': checkRoleplayPhraseFit(mod, modularLesson, hardViolations); break
     }
