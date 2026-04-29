@@ -55,8 +55,9 @@ export async function generateModularLessonWithGuard(
 function buildViolationContext(violations: string[], attempt: number): string {
   return `
 
-VALIDATION FAILURES FROM ATTEMPT ${attempt - 1} — your previous output contained these errors. You MUST fix all of them:
+VALIDATION FAILURES FROM ATTEMPT ${attempt - 1} — these exact problems appeared in your output and MUST be fixed before this lesson can be used. Each violation names the module and what must change:
+
 ${violations.map(v => `• ${v}`).join('\n')}
 
-Rewrite the affected modules so none of these violations appear. Do not change modules that were not flagged.`
+Fix each violation above. Other modules that were not flagged should remain unchanged unless fixing a violation requires a related change (e.g., adding a missing phrase to the dialogue).`
 }

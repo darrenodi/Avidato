@@ -172,6 +172,74 @@ function checkPhraseCoverage(lesson: ModularLessonContent, hardViolations: strin
   }
 }
 
+/** Check required fields are present on each module */
+function checkRequiredModuleFields(lesson: ModularLessonContent, hardViolations: string[]): void {
+  for (const mod of lesson.modules) {
+    if (!mod.type) { hardViolations.push(`Module missing required field: type`); continue }
+    if (!mod.title) hardViolations.push(`Module "${mod.type}" missing required field: title`)
+    if (mod.timeMinutes == null) hardViolations.push(`Module "${mod.type}" missing required field: timeMinutes`)
+    if (!mod.content) { hardViolations.push(`Module "${mod.type}" has no content object`); continue }
+
+    // Per-type content checks
+    switch (mod.type) {
+      case 'useful-language': {
+        const c = mod.content as UsefulLanguageContent
+        if (!c.phrases || c.phrases.length === 0)
+          hardViolations.push(`useful-language module has no phrases`)
+        break
+      }
+      case 'dialogue': {
+        const c = mod.content as DialogueContent
+        if (!c.dialogue || c.dialogue.length === 0)
+          hardViolations.push(`dialogue module has no dialogue lines`)
+        break
+      }
+      case 'warm-up': {
+        const c = mod.content as WarmUpContent
+        if (!c.questions || c.questions.length === 0)
+          hardViolations.push(`warm-up module has no questions`)
+        break
+      }
+    }
+  }
+}
+
+/** Roleplay phrase-fit: deterministic pattern match — promoted to hard */
+function checkRoleplayPhraseFit(mod: LessonModule, lesson: ModularLessonContent, hardViolations: string[]): void {
+  const content = mod.content as RoleplayContent
+  if (!content?.situation) return
+  const situationLower = content.situation.toLowerCase()
+  const phrases = Array.isArray(content.phrasesToUse) ? content.phrasesToUse : []
+
+  const isFailure = FAILURE_SCENARIO_KEYWORDS.some(kw => situationLower.includes(kw))
+  for (const phrase of phrases) {
+    if (isFailure && SUCCESS_PHRASES.some(sp => phrase.toLowerCase().includes(sp))) {
+      hardViolations.push(
+        `Roleplay (module: roleplay): phrase "${phrase}" signals success/achievement but the scenario is about a failure/problem. ` +
+        `Remove this phrase from phrasesToUse and replace with one that fits a problem-resolution context.`
+      )
+    }
+  }
+
+  const isAdversarial = ADVERSARIAL_SCENARIO_KEYWORDS.some(kw => situationLower.includes(kw))
+  for (const phrase of phrases) {
+    if (isAdversarial && RAPPORT_PHRASES.some(rp => phrase.toLowerCase().includes(rp))) {
+      hardViolations.push(
+        `Roleplay (module: roleplay): phrase "${phrase}" expresses warmth/rapport but the scenario is adversarial/confrontational. ` +
+        `This phrase will sound sarcastic or inappropriate. Replace it with a phrase that fits a tense scenario.`
+      )
+    }
+  }
+
+  const isRapportLesson = /rapport|relationship|network|connect|build.*trust/i.test(lesson.title ?? '')
+  if (isRapportLesson && isAdversarial) {
+    hardViolations.push(
+      `Lesson coherence (module: roleplay): lesson is titled "${lesson.title}" (rapport-building) but the roleplay scenario is adversarial. ` +
+      `Rewrite the roleplay so the student practises building or maintaining rapport, not surviving a confrontation.`
+    )
+  }
+}
+
 // ─── Soft warnings ───────────────────────────────────────────────────────────
 
 function warnWarmUp(mod: LessonModule, warnings: string[]): void {
@@ -219,34 +287,7 @@ function warnDialoguePhraseStacking(mod: LessonModule, lesson: ModularLessonCont
   }
 }
 
-function warnRoleplay(mod: LessonModule, lesson: ModularLessonContent, warnings: string[]): void {
-  const content = mod.content as RoleplayContent
-  if (!content?.situation) return
-  const situationLower = content.situation.toLowerCase()
-
-  const isFailure = FAILURE_SCENARIO_KEYWORDS.some(kw => situationLower.includes(kw))
-  if (isFailure && Array.isArray(content.phrasesToUse)) {
-    for (const phrase of content.phrasesToUse) {
-      if (SUCCESS_PHRASES.some(sp => phrase.toLowerCase().includes(sp))) {
-        warnings.push(`Roleplay: success phrase "${phrase}" in failure scenario`)
-      }
-    }
-  }
-
-  const isAdversarial = ADVERSARIAL_SCENARIO_KEYWORDS.some(kw => situationLower.includes(kw))
-  if (isAdversarial && Array.isArray(content.phrasesToUse)) {
-    for (const phrase of content.phrasesToUse) {
-      if (RAPPORT_PHRASES.some(rp => phrase.toLowerCase().includes(rp))) {
-        warnings.push(`Roleplay: rapport phrase "${phrase}" in adversarial scenario`)
-      }
-    }
-  }
-
-  const isRapportLesson = /rapport|relationship|network|connect|build.*trust/i.test(lesson.title ?? '')
-  if (isRapportLesson && isAdversarial) {
-    warnings.push(`Lesson coherence: rapport-building lesson "${lesson.title}" has adversarial roleplay`)
-  }
-}
+// (roleplay checks promoted to hard — see checkRoleplayPhraseFit above)
 
 // ─── Main entry point ───────────────────────────────────────────────────────
 
@@ -275,6 +316,7 @@ export function validateModularLesson(lesson: unknown): ValidationResult {
   }
 
   // Hard checks
+  checkRequiredModuleFields(modularLesson, hardViolations)
   checkTemplatePlaceholders(modularLesson, hardViolations)
   checkPhraseCoverage(modularLesson, hardViolations)
 
@@ -285,7 +327,7 @@ export function validateModularLesson(lesson: unknown): ValidationResult {
       case 'discussion':
       case 'further-discussion': warnDiscussion(mod, warnings); break
       case 'dialogue': warnDialoguePhraseStacking(mod, modularLesson, warnings); break
-      case 'roleplay': warnRoleplay(mod, modularLesson, warnings); break
+      case 'roleplay': checkRoleplayPhraseFit(mod, modularLesson, hardViolations); break
     }
   }
 
