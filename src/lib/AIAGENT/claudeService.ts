@@ -9,7 +9,7 @@ import { getSuggestedRolesAndScenarios, getOccupationExclusions } from '../const
 import { extractJSONFromText, cleanAndParseJSON } from '../utils/json-parser';
 import { enforceSynonymConstraints } from '../utils/vocabulary-validator';
 import { enforceDialogueStructure } from '../utils/dialogue-validator';
-import { enforceModularLessonConstraints } from '../utils/modular-lesson-validator';
+import { generateModularLessonWithGuard } from '../utils/modular-lesson-generation-guard';
 import { buildLessonGenerationPrompt, buildBlockPlanPrompt, buildTBLTLessonPrompt } from '../prompts/lesson-generation-prompts';
 import { buildPPPLessonPrompt, buildCLTLessonPrompt } from '../prompts/ppp-clt-prompts';
 import { buildModularLessonPrompt } from '../prompts/modular-lesson-prompt';
@@ -346,9 +346,7 @@ Format: { "type": "grammar", "title": "Exercise 5: Find the Mistake", "content":
     );
 
     try {
-      const text = await this.generate(prompt);
-      const parsed = cleanAndParseJSON<GeneratedLesson>(extractJSONFromText(text));
-      return enforceModularLessonConstraints(parsed) as GeneratedLesson;
+      return await generateModularLessonWithGuard(prompt, (p) => this.generate(p));
     } catch (error) {
       console.error('Claude: Error generating modular lesson:', error);
       throw new Error('Failed to generate lesson. Please try again.');

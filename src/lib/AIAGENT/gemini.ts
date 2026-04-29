@@ -11,7 +11,7 @@ import { getSuggestedRolesAndScenarios, getOccupationExclusions } from '../const
 import { extractJSONFromText, cleanAndParseJSON } from '../utils/json-parser';
 import { enforceSynonymConstraints } from '../utils/vocabulary-validator';
 import { enforceDialogueStructure } from '../utils/dialogue-validator';
-import { enforceModularLessonConstraints } from '../utils/modular-lesson-validator';
+import { generateModularLessonWithGuard } from '../utils/modular-lesson-generation-guard';
 import { buildLessonGenerationPrompt, buildBlockPlanPrompt, buildTBLTLessonPrompt } from '../prompts/lesson-generation-prompts';
 import { buildPPPLessonPrompt, buildCLTLessonPrompt } from '../prompts/ppp-clt-prompts';
 import { buildModularLessonPrompt } from '../prompts/modular-lesson-prompt';
@@ -515,12 +515,16 @@ CRITICAL: This exercise must appear as Exercise 5 in the exercises array. ALL se
       previousContext
     );
     try {
-      const { rawText: text } = await generateWithFailover({
+      return await generateModularLessonWithGuard(
         prompt,
-        generationConfig: { temperature: 0.1, topK: 40, topP: 0.95, maxOutputTokens: 16384 },
-      });
-      const parsed = cleanAndParseJSON<GeneratedLesson>(extractJSONFromText(text));
-      return enforceModularLessonConstraints(parsed) as GeneratedLesson;
+        async (p) => {
+          const { rawText } = await generateWithFailover({
+            prompt: p,
+            generationConfig: { temperature: 0.1, topK: 40, topP: 0.95, maxOutputTokens: 16384 },
+          });
+          return rawText;
+        }
+      );
     } catch (error) {
       console.error('Error generating modular lesson:', error);
       throw new Error('Failed to generate lesson. Please try again.');
