@@ -257,7 +257,7 @@ useful-expressions    → { context?, expressions: [{full: string, stem: string}
 useful-language       → { phrases: [{phrase:string, stem:string, example:string}×4-6] }
   MULTI-WORD PHRASES only — functional chunks specific to this lesson's scenario. Minimum 2 words per phrase.
   NEVER generic phrases usable in any lesson. NEVER single words.
-  stem = phrase with content words hidden, e.g. phrase "push back on the timeline" → stem "push back on ....."
+  stem = phrase with the last 1-3 content words hidden; the stem must contain at least 3 visible words so the student can identify which phrase it is. MINIMUM VISIBLE = 3 words. Examples: "push back the meeting date" → "push back the ….." (3 visible) | "due to unforeseen delays" → "due to unforeseen ….." (3 visible) | "catch up on the backlog" → "catch up on the ….." (4 visible). WRONG: "push back ….." (only 2 visible — student cannot identify the phrase). WRONG: stem that shows fewer words than the rule allows.
   Every phrase must be specific enough that it would sound odd in a completely different lesson.
   FRAMING: this module is a PRESENTATION and INTRODUCTION activity, not a memory drill. The student is encountering these phrases for the first time (or near-first time). The instructions field must frame it as "practise saying each phrase" or "study the phrase, then complete the stem" — NEVER "recall from memory" or "complete from memory." Every phrase listed MUST have its own stem entry — a phrase without a stem is a schema error.
 language-in-context   → { phrases: [{phrase:string, function:string, example?:string}×4-6] }

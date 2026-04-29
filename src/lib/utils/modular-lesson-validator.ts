@@ -4,7 +4,7 @@
  * Fixes what can be fixed automatically; warns on semantic issues.
  */
 
-import type { ModularLessonContent, LessonModule, UsefulLanguageContent, WarmUpContent, DiscussionContent, FurtherDiscussionContent, RoleplayContent, DialogueContent } from '../../types/module-lesson'
+import type { ModularLessonContent, LessonModule, UsefulLanguageContent, WarmUpContent, DiscussionContent, FurtherDiscussionContent, RoleplayContent, DialogueContent, HomeworkWritingContent } from '../../types/module-lesson'
 
 // ─── Pattern lists ─────────────────────────────────────────────────────────
 
@@ -119,14 +119,51 @@ function fixUsefulLanguageModule(mod: LessonModule): void {
     }
   }
 
-  // Fix 2: ensure every phrase has a stem
+  // Fix 2: ensure every phrase has a valid stem (min 3 visible words, hides last 1-2 content words)
   for (const phraseItem of content.phrases) {
-    if (!phraseItem.stem || phraseItem.stem.trim() === '') {
-      // Generate a minimal stem: use up to first 3-4 words of phrase
-      const words = phraseItem.phrase.trim().split(/\s+/)
-      const stemLength = Math.min(Math.ceil(words.length * 0.6), 4)
-      phraseItem.stem = words.slice(0, stemLength).join(' ') + '...'
-      console.log(`[validator] Auto-generated stem for phrase "${phraseItem.phrase}": "${phraseItem.stem}"`)
+    const words = phraseItem.phrase.trim().split(/\s+/)
+    const needsNewStem = !phraseItem.stem || phraseItem.stem.trim() === '' ||
+      // Stem has fewer than 3 visible words (e.g. "push back ....." = 2 words — bad)
+      phraseItem.stem.replace(/\.+\s*$/, '').trim().split(/\s+/).length < 3
+
+    if (needsNewStem) {
+      const showCount = Math.max(3, words.length - 2)
+      phraseItem.stem = words.slice(0, showCount).join(' ') + ' .....'
+      console.log(`[validator] Fixed stem for phrase "${phraseItem.phrase}": "${phraseItem.stem}"`)
+    }
+  }
+}
+
+// ─── Homework wordCount format fix ─────────────────────────────────────────
+
+function fixHomeworkModule(mod: LessonModule): void {
+  const content = mod.content as HomeworkWritingContent
+  if (!content?.wordCount) return
+  // Append "words" if missing — catches "approximately 150" → "approximately 150 words"
+  if (!/\d+\s*words/i.test(content.wordCount)) {
+    const fixed = content.wordCount.trim().replace(/\.+$/, '') + ' words'
+    console.log(`[validator] Fixed wordCount: "${content.wordCount}" → "${fixed}"`)
+    content.wordCount = fixed
+  }
+}
+
+// ─── Target phrase coverage in dialogue ────────────────────────────────────
+
+function warnPhraseCoverageInDialogue(lesson: ModularLessonContent): void {
+  const usefulLangMod = lesson.modules.find(m => m.type === 'useful-language')
+  const dialogueMod = lesson.modules.find(m => m.type === 'dialogue')
+  if (!usefulLangMod || !dialogueMod) return
+
+  const ulContent = usefulLangMod.content as UsefulLanguageContent
+  const dlContent = dialogueMod.content as DialogueContent
+  if (!ulContent?.phrases || !dlContent?.dialogue) return
+
+  const dialogueText = dlContent.dialogue.map(l => l.text.toLowerCase()).join(' ')
+
+  for (const p of ulContent.phrases) {
+    const normalized = p.phrase.toLowerCase().replace(/\s*\.+$/, '').trim()
+    if (!dialogueText.includes(normalized)) {
+      console.warn(`[validator] PHRASE COVERAGE — target phrase "${p.phrase}" does not appear in the dialogue`)
     }
   }
 }
@@ -253,8 +290,14 @@ export function enforceModularLessonConstraints(lesson: unknown): unknown {
       case 'roleplay':
         warnRoleplayModule(mod, modularLesson)
         break
+      case 'homework-writing':
+        fixHomeworkModule(mod)
+        break
     }
   }
+
+  // Cross-module checks
+  warnPhraseCoverageInDialogue(modularLesson)
 
   return lesson
 }

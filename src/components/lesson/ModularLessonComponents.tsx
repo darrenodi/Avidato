@@ -477,12 +477,17 @@ export function UsefulLanguageModule({ content, isStudentView, tutorNotes }: { c
   return (
     <div className="space-y-5">
       {!isStudentView && (
-        <p className="text-sm text-blue-700 dark:text-blue-400 font-medium">Present each phrase: read the full phrase together, then say the stem and let your student complete it. Practise each one in a natural sentence before moving on.</p>
+        <p className="text-sm text-blue-700 dark:text-blue-400 font-medium">Introduce these phrases by reading each one with its example sentence. Then say the phrase with the content words removed and have the student complete it. Drill pronunciation and natural intonation. If the student struggles, model the phrase fully before asking them to attempt it again.</p>
       )}
       <div className="space-y-2">
         <SectionLabel text={isStudentView ? 'Complete the phrases' : 'Phrases'} />
         {phrases.map((p, i) => {
-          const stem = p.stem || p.phrase.trim().split(/\s+/).slice(0, 4).join(' ') + ' .....'
+          const stem = p.stem || (() => {
+            const words = p.phrase.trim().split(/\s+/)
+            // Show at least 3 words; hide the last 1-2 content words
+            const showCount = Math.max(3, words.length - 2)
+            return words.slice(0, showCount).join(' ') + ' .....'
+          })()
           return <PhraseRevealItem key={i} stem={stem} full={p.phrase} isStudentView={isStudentView} />
         })}
       </div>
