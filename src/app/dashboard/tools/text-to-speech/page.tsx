@@ -13,7 +13,7 @@ export default function TextToSpeechPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [audioUrl, setAudioUrl] = useState<string | null>(null)
-  const audioRef = useRef<HTMLAudioElement>(null)
+  const audioRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (status === 'unauthenticated') router.push('/login')
