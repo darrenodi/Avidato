@@ -108,22 +108,33 @@ Beyond small talk: 8-12 turns total, one imperfect moment (misunderstanding, for
 
 WARM-UP questions: Write 3-4 questions. Purpose: ACTIVATION, not assessment. A warm-up gets the student talking comfortably before the lesson begins — it is not a test of the lesson's ideas.
 CALIBRATION RULE: Every warm-up question must pass this test — "Can a tired ${student.level} student answer this in 20 seconds without thinking hard?" If the answer is no, the question is too complex and must be replaced. Questions must be answerable in 1-2 sentences without using any of the lesson's target language.
+
+TOPIC-SPECIFIC REQUIREMENT — CRITICAL: Every warm-up question MUST be anchored to the specific lesson title ("${lesson.title}") and communicative need ("${lesson.communicativeNeed}"). Before submitting each question, apply this test: "Could this exact question appear in a lesson on a completely different topic for the same student?" If yes, the question is too generic and MUST be rewritten. Generic questions that float free of the lesson topic are the single most common warm-up failure.
+
+PERMANENTLY BANNED QUESTIONS — these four questions (and any close paraphrase) are forbidden in every lesson, no exceptions:
+- "What do you enjoy/like most about working in [field/role]?" — topic-agnostic, banned
+- "Have you ever had a stressful situation at work? What happened?" — topic-agnostic, banned
+- "What skills do you think matter most for doing your job well?" — topic-agnostic, banned
+- "How do you handle it when things get hectic/busy at work?" — topic-agnostic, banned
+These four keep appearing because the AI treats them as safe defaults. They are not. They are noise. Every lesson about ${student.name} could use them — so none should.
+
+CORRECT APPROACH — anchor the personal question to this lesson's specific scenario:
+- Lesson "Managing Technical Vocabulary": "When you come across a technical term you haven't seen before, how do you figure out what it means quickly?" (topic-specific: vocabulary, unknown terms)
+- Lesson "Presenting Research Findings": "Have you ever presented results that surprised the audience? What was their reaction?" (topic-specific: presenting, surprising findings)
+- Lesson "Negotiating Deadlines": "Has a deadline ever been moved on you at short notice? How did you react?" (topic-specific: deadlines, sudden changes)
+- Lesson "Writing Lab Reports": "What part of writing a report do you usually find takes the longest?" (topic-specific: report writing, time)
+Notice: you cannot swap these questions across lessons without the question becoming meaningless. That is the standard every warm-up question must meet.
+
 BANNED question type — non-expert framing: NEVER ask the student to explain their work to a non-expert, layperson, or non-technical person in ANY form — not direct ("How would you explain X to a layperson?") and not as a story prompt ("Tell me about a time you had to explain X to a non-expert"). This ban applies to warm-up AND discussion questions.
 BANNED question types (these are dead on arrival — replace with anything else):
-- Generic social filler: "How was your commute?", "How was your weekend?", "Did you get any time off?" — these belong in the dialogue's small talk section, not the warm-up. The dialogue already has a small talk opener; the warm-up must not duplicate it. Every warm-up question must connect to the lesson's topic or the student's job context.
-- Personalization theater: NEVER use workplace names, company names, facility names, or location names from the student profile in a warm-up question — "What did you notice near the Scintilla facility this week?" is narrow-funnel (requires being at a specific place at a specific time), presupposes facts the AI may have invented, and sounds like no human tutor would ask it. Warm-up questions must be answerable by any professional doing a similar job, not only by this exact student at this exact location this exact week.
-- Abstract synthesis: "Considering X's global nature, how do you ensure Y across different cultural interpretations of Z?" — this is a Harvard essay prompt, not a conversation starter. Never combine two abstract concepts into one question.
+- Generic social filler: "How was your commute?", "How was your weekend?", "Did you get any time off?" — these belong in the dialogue's small talk section, not the warm-up. The dialogue already has a small talk opener; the warm-up must not duplicate it.
+- Personalization theater: NEVER use workplace names, company names, facility names, or location names from the student profile in a warm-up question — questions must be answerable by any professional doing a similar job, not only by this exact student at this exact location this exact week.
+- Abstract synthesis: "Considering X's global nature, how do you ensure Y across different cultural interpretations of Z?" — Harvard essay prompt, not a conversation starter.
 - Procedural/audit framing: "How do you decide whether X is Y?", "What is your process for Z?", "What is the first thought that goes through your mind when X?"
 - Presupposing unlikely events: "When you present data showing a dip..." — what if they haven't? Dead end.
 - Learner framing: "What do you find helpful when learning X?"
 - Survey style: "How do you typically...", "What kind of X do you find..."
 - Balance questions with two obvious sides: "How do you balance X with Y?" — only use if the tension is genuinely surprising, not an obvious professional trade-off everyone knows.
-MODEL QUESTIONS — these are the standard. Every warm-up question should feel like one of these adapted to ${student.name}'s job:
-- "What do you like most about your current role?"
-- "Have you ever had to deal with a situation at work that really stressed you out? What happened?"
-- "What skills do you think matter most for doing your job well?"
-- "How do you handle it when things get hectic at work?"
-Notice what these have in common: personal, universal (any professional can answer), no topic knowledge required, open enough to go long or short. Adapt these to the lesson's theme — do NOT copy them verbatim.
 
 GAP-FILL: the 'sentence' field contains ONLY the sentence with ___ for the blank. NEVER append "Answer:", the answer, or any hint inside the sentence field. Before finalising, mentally substitute the answer into ___ and confirm the full sentence is grammatically and idiomatically correct — if it isn't, rewrite.
 

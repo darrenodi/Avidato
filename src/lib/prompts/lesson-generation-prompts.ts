@@ -41,7 +41,15 @@ VOCABULARY RULES (Exercise 1):
 Format: { "type": "vocabulary", "title": "[Vocabulary in ${student.targetLanguage}]", "content": { "vocabulary": [{ "word": "word", "partOfSpeech": "[in ${student.targetLanguage}]", "phonetics": "/ipa/", "definition": "[in ${student.targetLanguage}]", "example": "[in ${student.targetLanguage}]", "synonym": "[or empty]", "expressions": ["[in ${student.targetLanguage}]"] }, ...6 items] }, "timeMinutes": 8 }
 
 **Exercise 2: Warm-up** (8 min)
-EXACTLY 3 questions. Q1: personal experience ("Have you ever...?"). Q2: personal familiarity — have they done/seen this? NEVER "What is important when X?" or "What are the key factors?". Q3: story/memory — "What's the most memorable/challenging...?" NEVER starts with "How can...", "Why is...", "What are the effects/implications...". WARM-UP = story or memory. DISCUSSION = analysis. MAX 15 words each. Never use student name. BANNED question type — non-expert framing: NEVER ask the student to explain their work to a non-expert, layperson, or non-technical person in ANY form — direct or storytelling reframe. This includes "Tell me about a time you had to explain X to a non-expert" as much as "How would you explain X to a layperson?".
+EXACTLY 3 questions. WARM-UP = personal story or memory. DISCUSSION = analysis. MAX 15 words each. Never use student name.
+TOPIC-SPECIFIC REQUIREMENT — CRITICAL: Every question MUST be anchored to the specific lesson topic ("${topic.title}"). Before submitting each question, apply this test: "Could this exact question appear in a lesson on a completely different topic for the same student?" If yes, it is too generic and MUST be rewritten to lock in this lesson's specific topic.
+PERMANENTLY BANNED questions — these four (and any close paraphrase) are forbidden in every lesson:
+- "What do you enjoy/like most about working in [field/role]?" — topic-agnostic, banned
+- "Have you ever had a stressful situation at work? What happened?" — topic-agnostic, banned
+- "What skills do you think matter most for doing your job well?" — topic-agnostic, banned
+- "How do you handle it when things get hectic/busy at work?" — topic-agnostic, banned
+Question frames to use: Q1 = personal experience tied to this topic ("Have you ever had to [specific action from this lesson]?"). Q2 = personal familiarity with the specific scenario. Q3 = story/memory — "What's the most memorable time you had to [lesson-specific task]?" NEVER "What is important when X?" or "What are the key factors?" NEVER starts with "How can...", "Why is...", "What are the effects/implications..."
+BANNED question type — non-expert framing: NEVER ask the student to explain their work to a non-expert, layperson, or non-technical person in ANY form — direct or storytelling reframe.
 Format: { "type": "warmup", "title": "[Warm-up in ${student.targetLanguage}]", "description": "[in ${student.targetLanguage}]", "content": { "questions": ["Q1","Q2","Q3"], "instructions": "[Discuss the questions in ${student.targetLanguage}]" }, "timeMinutes": 8 }
 
 **Exercise 3: Useful Phrases** (5 min)
@@ -188,7 +196,15 @@ ${is50min ? `1. Lead-in (5 min)\n2. Task Prep — Vocab + Phrases + Dialogue (15
 ---
 
 **Exercise 1: Lead-in** (5 min)
-EXACTLY 3 questions. Q1: personal experience. Q2: personal familiarity with this task (NEVER "What is important?"). Q3: story/memory (NEVER "How can...", "Why is...", analytical). WARM-UP = story/memory. MAX 15 words each. No student name. BANNED question type — non-expert framing: NEVER ask the student to explain their work to a non-expert, layperson, or non-technical person in ANY form — direct ("How would you explain X to a layperson?") OR storytelling reframe ("Tell me about a time you had to explain X to a non-expert").
+EXACTLY 3 questions. LEAD-IN = personal story or memory. MAX 15 words each. No student name.
+TOPIC-SPECIFIC REQUIREMENT — CRITICAL: Every question MUST be anchored to the specific lesson ("${lesson.title}" / "${lesson.communicativeNeed}"). Before submitting each question, apply this test: "Could this exact question appear in a lesson on a completely different topic for the same student?" If yes, it is too generic and MUST be rewritten.
+PERMANENTLY BANNED questions — these four (and any close paraphrase) are forbidden in every lesson:
+- "What do you enjoy/like most about working in [field/role]?" — topic-agnostic, banned
+- "Have you ever had a stressful situation at work? What happened?" — topic-agnostic, banned
+- "What skills do you think matter most for doing your job well?" — topic-agnostic, banned
+- "How do you handle it when things get hectic/busy at work?" — topic-agnostic, banned
+Q1: personal experience tied to this lesson's topic. Q2: personal familiarity with the specific scenario. Q3: story/memory about a time the student had to do the lesson's specific task. NEVER "What is important?" NEVER "How can...", "Why is...", analytical.
+BANNED question type — non-expert framing: NEVER ask the student to explain their work to a non-expert, layperson, or non-technical person in ANY form — direct ("How would you explain X to a layperson?") OR storytelling reframe ("Tell me about a time you had to explain X to a non-expert").
 Format: { "type": "lead-in", "title": "[Lead-in in ${student.targetLanguage}]", "content": { "questions": ["Q1","Q2","Q3"], "instructions": "[in ${student.targetLanguage}]" }, "timeMinutes": 5 }
 
 **Exercise 2: Task Prep** (${is50min ? 15 : 10} min)
