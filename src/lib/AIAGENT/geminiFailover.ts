@@ -49,9 +49,14 @@ export async function generateWithFailover({
 
   for (const modelName of models) {
     try {
+    // gemini-2.5-flash has thinking enabled by default (8k+ tokens), which dramatically
+    // increases latency. Disable it for structured JSON generation tasks.
+    const modelConfig = ['gemini-2.5-flash', 'gemini-2.5-flash-lite'].includes(modelName)
+      ? { ...generationConfig, thinkingConfig: { thinkingBudget: 0 } } as GenerationConfig
+      : generationConfig
     const model = genAI.getGenerativeModel({
       model: modelName,
-      generationConfig,
+      generationConfig: modelConfig,
     })
     // Note: current SDK generateContent signature doesn't accept AbortSignal directly; omit if unsupported
     const result = await model.generateContent({ contents: [{ role: 'user', parts: [{ text: prompt }] }], safetySettings: [] })
