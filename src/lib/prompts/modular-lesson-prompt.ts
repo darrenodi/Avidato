@@ -6,11 +6,11 @@ import { StudentProfile, BlockLesson } from '../../types/lesson-template';
 
 const STRUCTURES = {
   speaking: [
-    ['warm-up', 'vocabulary-match', 'dialogue', 'matching-qa', 'roleplay', 'discussion', 'homework-writing'],
-    ['warm-up', 'useful-language', 'dialogue', 'matching-qa', 'roleplay', 'talking-point', 'homework-writing'],
-    ['warm-up', 'vocabulary-match', 'dialogue', 'matching-qa', 'talking-point', 'homework-writing'],
-    ['warm-up', 'vocabulary-cards', 'dialogue', 'matching-qa', 'roleplay', 'discussion', 'homework-writing'],
-    ['warm-up', 'vocabulary-cards', 'dialogue', 'matching-qa', 'roleplay', 'debate', 'homework-writing'],
+    ['warm-up', 'vocabulary-match', 'dialogue', 'listening-true-false', 'matching-qa', 'roleplay', 'discussion', 'homework-writing'],
+    ['warm-up', 'useful-language', 'dialogue', 'listening-mcq', 'matching-qa', 'roleplay', 'talking-point', 'homework-writing'],
+    ['warm-up', 'vocabulary-match', 'dialogue', 'listening-true-false', 'matching-qa', 'talking-point', 'homework-writing'],
+    ['warm-up', 'vocabulary-cards', 'dialogue', 'listening-mcq', 'matching-qa', 'roleplay', 'discussion', 'homework-writing'],
+    ['warm-up', 'vocabulary-cards', 'dialogue', 'listening-true-false', 'matching-qa', 'roleplay', 'debate', 'homework-writing'],
   ],
   reading: [
     ['warm-up', 'vocabulary-match', 'reading-article', 'reading-scan', 'skim-main-idea', 'discussion', 'homework-writing'],
@@ -34,11 +34,11 @@ const STRUCTURES = {
     ['warm-up', 'language-in-context', 'grammar-focus', 'find-the-mistake', 'gap-fill', 'talking-point', 'homework-writing'],
   ],
   professional: [
-    ['warm-up', 'useful-language', 'vocabulary-match', 'dialogue', 'matching-qa', 'discussion', 'homework-writing'],
-    ['warm-up', 'useful-language', 'dialogue', 'matching-qa', 'roleplay', 'discussion', 'homework-writing'],
-    ['warm-up', 'useful-language', 'dialogue', 'matching-qa', 'debate', 'homework-writing'],
-    ['warm-up', 'vocabulary-match', 'dialogue', 'matching-qa', 'roleplay', 'debate', 'homework-writing'],
-    ['warm-up', 'language-in-context', 'dialogue', 'matching-qa', 'roleplay', 'discussion', 'homework-writing'],
+    ['warm-up', 'useful-language', 'vocabulary-match', 'dialogue', 'listening-true-false', 'matching-qa', 'discussion', 'homework-writing'],
+    ['warm-up', 'useful-language', 'dialogue', 'listening-mcq', 'matching-qa', 'roleplay', 'discussion', 'homework-writing'],
+    ['warm-up', 'useful-language', 'dialogue', 'listening-true-false', 'matching-qa', 'debate', 'homework-writing'],
+    ['warm-up', 'vocabulary-match', 'dialogue', 'listening-mcq', 'matching-qa', 'roleplay', 'debate', 'homework-writing'],
+    ['warm-up', 'language-in-context', 'dialogue', 'listening-true-false', 'matching-qa', 'roleplay', 'discussion', 'homework-writing'],
   ],
 } as const
 
@@ -83,8 +83,7 @@ export function buildModularLessonPrompt(
 
 STUDENT: ${student.name}, ${student.level}, ${student.ageGroup}
 Goals: ${student.endGoals} | Occupation: ${student.occupation || 'Professional'} | Weaknesses: ${student.weaknesses || 'General'}
-LESSON: ${lesson.title} | Need: ${lesson.communicativeNeed}
-Key language: ${lesson.keyLanguageFeatures.join(', ')}
+LESSON: ${lesson.title} | Objective: ${lesson.communicativeNeed} | Vocabulary seed: ${lesson.keyVocabulary.join(', ')} | Grammar: ${lesson.grammarFocus} | Activity: ${lesson.mainActivity}
 Roles available: ${roles.join(', ')}
 ${vocabularyContextSection ? vocabularyContextSection + '\n' : ''}
 
@@ -96,7 +95,7 @@ CONTENT RULES:
 MODULE TYPE DISCIPLINE — no mixing:
 - vocabulary-cards = SINGLE WORDS only. No phrases, no compound nouns, no collocations. One word, one entry.
 - vocabulary-match = LEXICAL ITEMS only — single words, collocations, idioms, or phrasal verbs. The item must be teachable as a unit of MEANING, not as a unit of discourse. NEVER discourse markers ("Firstly", "Moving on to", "In conclusion", "Furthermore"), sentence starters or frames ("A significant finding is", "This refers to", "By X I mean", "The data shows"), causal connectors ("leads to", "results in", "due to", "as a result"), or presentation signposting phrases of any kind. Those belong in useful-language. NEVER appears in the same lesson as vocabulary-cards — they would duplicate the same words. If the structure includes both, generate only vocabulary-match and omit vocabulary-cards entirely.
-- useful-language (Key Phrases) = MULTI-WORD PHRASES only. Minimum 2 words. These are functional chunks a speaker uses as a unit in real conversation. NEVER a single word. NEVER a generic phrase that could appear in any professional lesson ("Can you clarify that?", "I'd like to discuss...", "Let's move on"). Every phrase must be specific enough to this lesson's topic that it would sound odd in a completely different scenario. CEFR FLOOR: Every phrase must be at the student's level or above — a phrase a student one level lower would already use naturally is unjustifiable. "How are things..." is pre-A2 and must NEVER appear in any lesson above A1. Before including any phrase, ask: "Would I need to teach this to a ${student.level} student?" If no, replace it.
+- useful-language (Key Phrases) = MULTI-WORD PHRASES only. Minimum 2 words. These are functional chunks a speaker uses as a unit in real conversation. NEVER a single word. NEVER a generic phrase that could appear in any professional lesson ("Can you clarify that?", "I'd like to discuss...", "Let's move on"). Every phrase must be specific enough to this lesson's topic that it would sound odd in a completely different scenario. CEFR FLOOR: Every phrase must be at the student's level or above — a phrase a student one level lower would already use naturally is unjustifiable. "How are things..." is pre-A2 and must NEVER appear in any lesson above A1. Before including any phrase, ask: "Would I need to teach this to a ${student.level} student?" If no, replace it. PLACEHOLDER BAN: NEVER write "[name]", "[student]", or any bracket placeholder inside a phrase. If you want to address the student by name in a phrase, use the actual name "${student.name}" — or better, omit the direct address entirely so the phrase is reusable.
 - useful-expressions = FIXED EXPRESSIONS or IDIOMS only. Non-literal, multi-word, fixed in form. Examples of the type: "get the ball rolling", "cut to the chase", "get cold feet". NEVER plain sentence phrases. NEVER single words. The student completes the expression from the stem.
 - language-in-context = PHRASES only. Never single words. Phrases that have a specific communicative function (softening, requesting, hedging, emphasising). Not generic vocabulary.
 - phrasal-verbs = PHRASAL VERBS only — verb + particle with NON-LITERAL meaning. "Turn off the light" is NOT a phrasal verb entry (literal). "Burn out", "put off", "fall through" are correct entries. Never include an entry whose meaning follows directly from the verb + preposition in a literal sense.
@@ -130,14 +129,15 @@ GAP-FILL: the 'sentence' field contains ONLY the sentence with ___ for the blank
 
 DEBATE: always include a clear 'topic' field summarising the dilemma in one sentence, and 'sideA'/'sideB' labels that are direct opposites. The student must pick one side and argue it.
 
-PHRASES IN DIALOGUE: if the lesson includes a useful-language or useful-expressions module, every phrase from that module MUST appear naturally in the dialogue — put each phrase in the mouth of one of the characters as a real utterance. CONSISTENCY CHECK: count the phrases listed in the useful-language module and confirm every one appears in both the dialogue AND (if a gap-fill module is in the structure) at least one gap-fill sentence. No phrase may appear in the list but be absent from any exercise. Run this check before outputting the JSON.
+PHRASES IN DIALOGUE: if the lesson includes a useful-language or useful-expressions module, every phrase from that module MUST appear naturally in the dialogue — put each phrase in the mouth of one of the characters as a real utterance. CONSISTENCY CHECK: confirm every phrase appears in the dialogue. Do NOT force key phrases into the gap-fill — the gap-fill tests different language (vocabulary words, grammar structures, or phrases from the dialogue that were NOT listed in useful-language). If the structure has both useful-language and gap-fill, the gap-fill must test something other than the listed key phrases.
 PHRASE DISTRIBUTION — NO STACKING: Target phrases must be spread evenly across the dialogue. No single character turn may contain more than ONE target phrase. If a turn naturally wants two target phrases, split the turn into two separate exchanges. Phrases must also be distributed across different characters — non-student characters may and should use some of the target phrases; they do not all need to come from ${student.name}. A dialogue where ${student.name} uses five phrases in three consecutive turns and the other character uses none is a mechanical checklist, not a natural conversation.
 
 DISCUSSION / TALKING-POINT: Student speaking modules — the student answers, the tutor listens.
 BANNED — these are McKinsey case interview questions, not discussion triggers:
 - Abstract synthesis: "How do you balance detailed data analysis with the risk of getting bogged down in the weeds when reporting to executives?" — requires vocabulary not taught in this lesson and demands 10 minutes to answer.
 - Cross-cultural/multi-variable abstract: "How do you ensure X is understood across different cultural interpretations of Y?" — C-suite essay prompt.
-- NEVER ask meta questions about the lesson. BANNED question type — non-expert framing: NEVER ask the student to explain their work to a non-expert, layperson, or non-technical person in ANY form. This includes direct forms ("How would you explain X to someone without a technical background?") AND storytelling reframes ("Tell me about a time you had to explain X to a non-expert. What challenges did you face?"). The entire category is banned in both warm-up and discussion — any question that puts the student in the role of teacher or simplifier to a non-expert audience.
+- NEVER ask meta questions about language or the lesson itself. Banned examples: "How do you feel when a speaker uses signposting phrases?", "Which phrases from today's lesson will you use most?", "Why is it important to outline your main points?", "How does using these phrases help you communicate better?" — all banned. The student is here to use language, not to analyse it or reflect on the lesson. Discussion questions must be about the student's real life and experiences, not about the lesson content or language they just practised.
+- BANNED question type — non-expert framing: NEVER ask the student to explain their work to a non-expert, layperson, or non-technical person in ANY form. This includes direct forms ("How would you explain X to someone without a technical background?") AND storytelling reframes ("Tell me about a time you had to explain X to a non-expert. What challenges did you face?"). The entire category is banned in both warm-up and discussion — any question that puts the student in the role of teacher or simplifier to a non-expert audience.
 - NEVER ask procedural/process questions: "How do you decide when X?", "What steps do you take when Z?"
 REQUIRED: Every discussion question must be personal, concrete, and experiential. "Tell me about a time you..." beats every abstract question. The question must be answerable by referencing a specific moment, event, or opinion the student holds — not by describing a general practice. Questions must be answerable using only language already in the lesson — do not introduce new idioms ("bogged down in the weeds", "systemic") in discussion questions that were never taught.
 
@@ -211,6 +211,8 @@ grammar-focus → "Grammar Focus"
 phrasal-verbs → "Phrasal Verbs"
 vocabulary-in-text → "Contextual Vocabulary"
 homework-writing → "Homework"
+listening-true-false → "Listen and Decide: True or False?"
+listening-mcq → "Listening Comprehension"
 
 ─────────────────────────────────────────────────
 LESSON STRUCTURE (pre-selected — do not change)
@@ -270,12 +272,18 @@ language-in-context   → { phrases: [{phrase:string, function:string, example?:
 phrasal-verbs         → { pairs: [{verb, meaning, example?}×6-8], discussionQuestions?:string[] }
   PHRASAL VERBS only — verb + particle, NON-LITERAL meaning. Verify each entry is genuinely non-literal.
 gap-fill              → { instructions, sentences: [{sentence(use ___ for blank), answer}×6-10] }
+  GAP-FILL CONTENT: test vocabulary words or grammar structures from this lesson — NEVER the same phrases already listed in a useful-language or useful-expressions module. The blank should target a single word or short form (verb tense, preposition, collocation) — not a complete multi-word phrase the student just read in a phrase list.
 complete-the-sentence → { instructions, questions: [{stem, options:string[4], answer:number(0-indexed)}×4-6] }
-find-the-mistake      → { instructions, sentences: [{incorrect, correct, explanation?}×6-8] }
+find-the-mistake      → { instructions, sentences: [{incorrect, correct, explanation?}×10] }
+  EXACTLY 10 sentences — no fewer. Every sentence MUST have a real, visible error. Vary error types: tense, preposition, article, subject-verb agreement, word order, collocation, gerund/infinitive, countable/uncountable, conditional, relative clause. Each error type appears at most once. Label sentences 1-10.
 ordering              → { instructions, sentences: [{scrambled, correct}×5-8] }
 sentence-correction   → { sentences: [{incorrect, correct, errorType, explanation}×8-10] }
 grammar-focus         → { topic, explanation, table?:{headers,rows}, examples:[{label,sentence}×3-5], practice:{questions:[{stem,options:string[4],answer:number}×4-6]} }
 dialogue              → { setting, characters:[{name,role?}×2], dialogue:[{character,text}×8-12] }
+listening-true-false  → { questions:[{statement, answer:boolean, note?}×6-8] }
+  LISTENING T/F: always immediately follows the dialogue it tests. Statements must be about specific facts, decisions, or details from the dialogue — NOT paraphrases of obvious facts. Mix true and false roughly 50/50. The 'note' field (tutor only) explains why the answer is true or false with a brief quote or reference. Title: "Listen and decide: True or False?"
+listening-mcq         → { questions:[{question, options:string[4], answer:number(0-indexed)}×4-6] }
+  LISTENING MCQ: always immediately follows the dialogue it tests. Questions target implied meaning, speaker attitude, or specific detail — NOT surface recall. Distractors must be plausible (e.g. based on words that appeared in the dialogue). Title: "Listen and answer the questions."
 reading-article       → { title, text(min 300 words, paragraphs separated by \\n\\n), glossary?:[{term,definition}] }
 reading-scan          → { instructions, questions:[{question,answer}×4-8] }
 vocabulary-in-text    → { instructions, items:[{definition, partOfSpeech, paragraph, answer}×8-10] }

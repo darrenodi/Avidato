@@ -178,10 +178,12 @@ export type LessonMethodology = 'TBLT' | 'PPP' | 'CLT';
 export interface BlockLesson {
   lessonNumber: number; // global number across all blocks
   title: string;
-  communicativeNeed: string; // what the student will be able to DO
-  keyLanguageFeatures: string[]; // phrases, structures (not just words)
+  communicativeNeed: string; // Learning Objective: what the student will be able to DO
+  keyVocabulary: string[];   // 3-5 single words introduced in this lesson
+  grammarFocus: string;      // 1 grammar point, e.g. "Present Perfect"
+  mainActivity: string;      // short description of the core task, e.g. "Roleplay: project status update"
   isReview: boolean;
-  methodology: LessonMethodology; // teaching methodology for this specific lesson
+  methodology: LessonMethodology;
 }
 
 export interface TopicBlock {

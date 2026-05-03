@@ -71,7 +71,7 @@ ALL 10 error types must be different. Explanation states the rule (not just "cha
 Format: { "type": "sentence-correction", "title": "[Sentence Correction in ${student.targetLanguage}]", "content": { "sentences": [ { "incorrect": "[sentence WITH error in ${student.targetLanguage}]", "correct": "[FIXED sentence]", "errorType": "[rule in ${student.targetLanguage}]", "explanation": "[rule max 12 words in ${student.targetLanguage}]" }, ...10 total ] }, "timeMinutes": 10 }
 
 **Exercise 7: Discussion** (12 min)
-EXACTLY 5 questions. MAX 15 words each. Connect to the dialogue. Mix: personal experience, practical, personal reflection. NOT academic. Never use student name. Q5 invites a personal story. Never open with yes/no structure. BANNED question type — non-expert framing: NEVER ask the student to explain their work to a non-expert, layperson, or non-technical person in ANY form. This includes direct forms ("How would you explain X to someone without a technical background?") AND storytelling reframes ("Tell me about a time you had to explain X to a non-expert. What challenges did you face?"). The entire category is banned — any question that puts the student in the role of teacher or simplifier to a non-expert audience.
+EXACTLY 5 questions. MAX 15 words each. Connect to the dialogue. Mix: personal experience, practical, personal reflection. NOT academic. Never use student name. Q5 invites a personal story. Never open with yes/no structure. BANNED — meta-language questions: NEVER ask how the student feels about language, which phrases they will use, why language matters, or how techniques "help communication" — those are language-analysis questions, not discussion. BANNED — non-expert framing: NEVER ask the student to explain their work to a non-expert, layperson, or non-technical person in ANY form. This includes direct forms AND storytelling reframes. The entire category is banned.
 Format: { "type": "discussion", "title": "[Discussion in ${student.targetLanguage}]", "description": "[in ${student.targetLanguage}]", "content": { "questions": ["Q1","Q2","Q3","Q4","Q5"], "instructions": "[single instruction in ${student.targetLanguage}]" }, "timeMinutes": 12 }
 
 ${under18Section}
@@ -128,8 +128,12 @@ Context: ${isKid ? 'Young learner — prefer CLT. Age-appropriate, engaging topi
 REQUIREMENTS:
 - 4-5 topic blocks, each a major communication area for this student
 - Each block: MINIMUM 5 lessons (never fewer) PLUS 1 review lesson at the end — aim for 6-8 lessons per block
-- Each lesson: methodology (TBLT/PPP/CLT), communicativeNeed (action verb, MAX 120 chars), 4-6 keyLanguageFeatures
-- TBLT/CLT features: functional phrases (e.g. "Let me take you through..."). PPP features: grammar structures.
+- Each lesson fields:
+  - methodology: TBLT / PPP / CLT
+  - communicativeNeed: action verb + what they'll do, MAX 120 chars (Learning Objective)
+  - keyVocabulary: exactly 3-5 SINGLE WORDS introduced in this lesson — no phrases, no compounds
+  - grammarFocus: exactly 1 grammar point, e.g. "Present Perfect", "Conditional Type 2", "Passive Voice". For CLT/TBLT lessons choose the most relevant structure from the topic. For PPP lessons this is the drill target.
+  - mainActivity: short phrase describing the core task, e.g. "Roleplay: project status update", "Gap-fill: reported speech", "Information gap: scheduling"
 - Lesson titles: real interactions, not abstract skills
 - NO em dashes (—)
 
@@ -143,8 +147,8 @@ JSON OUTPUT:
       "title": "[communication area]",
       "rationale": "[1-2 sentences why this is a priority]",
       "lessons": [
-        { "lessonNumber": 1, "title": "[title]", "communicativeNeed": "[action verb + what they'll do]", "keyLanguageFeatures": ["phrase 1","phrase 2","phrase 3"], "methodology": "TBLT", "isReview": false },
-        { "lessonNumber": 7, "title": "Review", "communicativeNeed": "Demonstrate key skills from this block", "keyLanguageFeatures": ["Review of block phrases"], "methodology": "TBLT", "isReview": true }
+        { "lessonNumber": 1, "title": "[title]", "communicativeNeed": "[action verb + what they'll do]", "keyVocabulary": ["word1","word2","word3"], "grammarFocus": "[1 grammar point]", "mainActivity": "[core task description]", "methodology": "TBLT", "isReview": false },
+        { "lessonNumber": 7, "title": "Review", "communicativeNeed": "Review and consolidate key language from this block", "keyVocabulary": [], "grammarFocus": "Mixed review", "mainActivity": "Review: mixed practice", "methodology": "TBLT", "isReview": true }
       ]
     }
   ]
@@ -167,7 +171,7 @@ export function buildTBLTLessonPrompt(
   return `Expert ${student.targetLanguage} instructor. Generate a TBLT lesson as JSON.
 
 STUDENT: ${student.name}, ${student.level}, ${student.ageGroup}, Goals: ${student.endGoals}, Occupation: ${student.occupation || 'Professional'}
-LESSON: ${lesson.title} | Need: ${lesson.communicativeNeed} | Key language: ${lesson.keyLanguageFeatures.join(', ')}
+LESSON: ${lesson.title} | Objective: ${lesson.communicativeNeed} | Vocabulary seed: ${lesson.keyVocabulary.join(', ')} | Grammar: ${lesson.grammarFocus} | Activity: ${lesson.mainActivity}
 Roles: ${roles.join(', ')}
 ${vocabularyContextSection}
 
@@ -189,7 +193,7 @@ Format: { "type": "lead-in", "title": "[Lead-in in ${student.targetLanguage}]", 
 
 **Exercise 2: Task Prep** (${is50min ? 15 : 10} min)
 PART A — Vocabulary: EXACTLY 6 SINGLE WORDS, domain-specific. No phrases. No expressions array. Each word must appear in Part C.
-PART B — Key Phrases: 4-6 MULTI-WORD PHRASES from lesson features (${lesson.keyLanguageFeatures.join('; ')}). Minimum 2 words each. NEVER single words. Each phrase must be specific to this lesson's scenario — if it could appear unchanged in a completely different lesson, replace it. Each phrase: { phrase, function (what it communicates — 5-10 words), usage (when to use), example }.
+PART B — Key Phrases: 4-6 MULTI-WORD PHRASES relevant to this lesson's activity (${lesson.mainActivity}). Build on the vocabulary seed (${lesson.keyVocabulary.join(', ')}) and grammar focus (${lesson.grammarFocus}). Minimum 2 words each. NEVER single words. Each phrase must be specific to this lesson's scenario — if it could appear unchanged in a completely different lesson, replace it. NEVER write "[name]", "[student]", or any bracket placeholder in a phrase — use the real name ${student.name} or remove the direct address. Each phrase: { phrase, function (what it communicates — 5-10 words), usage (when to use), example }.
 Write PART A and PART B first. Then write PART C around them.
 PART C — Model Dialogue: 8-12 turns total, ${student.name} speaks first. Design a situation that REQUIRES every vocabulary word and every key phrase to arise naturally — do not insert them into an unrelated story. LANGUAGE QUALITY: Characters must use colloquial expressions, idioms, and phrasal verbs throughout — not just in small talk. Examples of the register: "that caught me off guard", "I'll be honest with you", "we're not quite there yet", "that's on me", "I'd push back on that", "it slipped through the cracks", "to be fair", "let's not get ahead of ourselves". This is how real professionals speak — not because the lesson is about these expressions, but because that is the natural register. OPEN with at least 2 turns of genuine small talk (off-topic: commute, weather, personal detail) before any mention of the main topic. Include one imperfect moment (misunderstanding, forgotten detail, correction). Other person pushes back once. One genuine emotional reaction. Contractions throughout. End at a natural pause, not a tidy resolution. No info dumps.
 Format:

@@ -166,9 +166,14 @@ function dialogueRow(speaker: string, text: string, isStudent: boolean): string 
 </div>`
 }
 
+// ── Write line ────────────────────────────────────────────────────────────────
+function writeLine(): string {
+  return `<div style="border-bottom:1px solid #D1D5DB;margin:4px 0 10px;height:18px"></div>`
+}
+
 // ── Module renderers ──────────────────────────────────────────────────────────
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function renderModule(mod: Record<string, any>, idx: number, studentName: string): string {
+function renderModule(mod: Record<string, any>, idx: number, studentName: string, tutorCopy: boolean): string {
   const type: string = mod.type || ''
   const title: string = mod.title || mod.type || ''
   const time: number = mod.timeMinutes || 0
@@ -282,20 +287,31 @@ function renderModule(mod: Record<string, any>, idx: number, studentName: string
       const text = typeof q === 'string' ? q : (qq.question || '')
       const answer = qq.answer || qq.correctAnswer || ''
       body += numberedQ(i + 1, text)
-      if (answer) body += `<div style="padding:1px 0 5px 23px;font-size:8.5pt;color:#9CA3AF">→ ${e(answer)}</div>`
+      if (tutorCopy && answer) body += `<div style="padding:1px 0 5px 23px;font-size:8.5pt;color:#9CA3AF">→ ${e(answer)}</div>`
+      else if (!tutorCopy) body += writeLine()
     })
   }
 
   // ── Sentence correction / find-the-mistake ──
   else if (['sentence-correction', 'find-the-mistake'].includes(type)) {
     const sentences: unknown[] = Array.isArray(c.sentences) ? c.sentences : []
-    body = `<table class="correction-table"><thead><tr><th>#</th><th>Incorrect</th><th>Correct</th><th>Error type</th></tr></thead><tbody>`
-    sentences.forEach((s, i) => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const ss = s as Record<string, any>
-      body += `<tr><td class="q-num">${i + 1}</td><td><span class="incorrect-text">${e(ss.incorrect || ss.sentence || '')}</span></td><td><span class="correct-text">${e(ss.correct || ss.correction || '')}</span></td><td class="error-type">${e(ss.errorType || ss.error_type || '')}</td></tr>`
-    })
-    body += '</tbody></table>'
+    if (tutorCopy) {
+      body = `<table class="correction-table"><thead><tr><th>#</th><th>Incorrect</th><th>Correct</th><th>Error type</th></tr></thead><tbody>`
+      sentences.forEach((s, i) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const ss = s as Record<string, any>
+        body += `<tr><td class="q-num">${i + 1}</td><td><span class="incorrect-text">${e(ss.incorrect || ss.sentence || '')}</span></td><td><span class="correct-text">${e(ss.correct || ss.correction || '')}</span></td><td class="error-type">${e(ss.errorType || ss.error_type || '')}</td></tr>`
+      })
+      body += '</tbody></table>'
+    } else {
+      body = `<table class="correction-table"><thead><tr><th>#</th><th>Find and correct the mistake</th><th>Your correction</th></tr></thead><tbody>`
+      sentences.forEach((s, i) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const ss = s as Record<string, any>
+        body += `<tr><td class="q-num">${i + 1}</td><td>${e(ss.incorrect || ss.sentence || '')}</td><td>&nbsp;</td></tr>`
+      })
+      body += '</tbody></table>'
+    }
   }
 
   // ── Grammar focus / post-task ──
@@ -306,13 +322,23 @@ function renderModule(mod: Record<string, any>, idx: number, studentName: string
     if (explanation) body += `<p class="italic">${e(explanation)}</p>`
     const corrections: unknown[] = Array.isArray(c.corrections) ? c.corrections : []
     if (corrections.length) {
-      body += `<table class="correction-table"><thead><tr><th>#</th><th>Error</th><th>Correction</th><th>Rule</th></tr></thead><tbody>`
-      corrections.forEach((cor, i) => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const cc = cor as Record<string, any>
-        body += `<tr><td class="q-num">${i + 1}</td><td><span class="incorrect-text">${e(cc.error || cc.incorrect || '')}</span></td><td><span class="correct-text">${e(cc.correction || cc.correct || '')}</span></td><td class="error-type">${e(cc.rule || '')}</td></tr>`
-      })
-      body += '</tbody></table>'
+      if (tutorCopy) {
+        body += `<table class="correction-table"><thead><tr><th>#</th><th>Error</th><th>Correction</th><th>Rule</th></tr></thead><tbody>`
+        corrections.forEach((cor, i) => {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const cc = cor as Record<string, any>
+          body += `<tr><td class="q-num">${i + 1}</td><td><span class="incorrect-text">${e(cc.error || cc.incorrect || '')}</span></td><td><span class="correct-text">${e(cc.correction || cc.correct || '')}</span></td><td class="error-type">${e(cc.rule || '')}</td></tr>`
+        })
+        body += '</tbody></table>'
+      } else {
+        body += `<table class="correction-table"><thead><tr><th>#</th><th>Correct this sentence</th><th>Your answer</th></tr></thead><tbody>`
+        corrections.forEach((cor, i) => {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const cc = cor as Record<string, any>
+          body += `<tr><td class="q-num">${i + 1}</td><td>${e(cc.error || cc.incorrect || '')}</td><td>&nbsp;</td></tr>`
+        })
+        body += '</tbody></table>'
+      }
     }
     const examples: string[] = Array.isArray(c.examples) ? c.examples : []
     if (examples.length) {
@@ -328,7 +354,9 @@ function renderModule(mod: Record<string, any>, idx: number, studentName: string
       const ss = s as Record<string, any>
       const sentence: string = ss.sentence || ss.incomplete || ''
       const answer: string = ss.answer || ss.word || ''
-      const display = sentence.replace('___', `<span class="gap-answer">[${e(answer)}]</span>`)
+      const display = tutorCopy
+        ? sentence.replace('___', `<span class="gap-answer">[${e(answer)}]</span>`)
+        : sentence.replace('___', `<span style="display:inline-block;min-width:80px;border-bottom:1px solid #9CA3AF">&nbsp;</span>`)
       body += `<div class="gap-sentence">${i + 1}. ${display}</div>`
     })
   }
@@ -419,7 +447,7 @@ function buildHTML(lesson: {
   content: Record<string, unknown>
   createdAt: Date
   student: { name: string; level: string; targetLanguage: string }
-}): string {
+}, tutorCopy: boolean): string {
   const { title, content, createdAt, student } = lesson
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const c = content as Record<string, any>
@@ -433,7 +461,7 @@ function buildHTML(lesson: {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const rawModules: Record<string, any>[] = Array.isArray(c.modules) ? c.modules : (Array.isArray(c.exercises) ? c.exercises : [])
 
-  const modulesHTML = rawModules.map((mod, idx) => renderModule(mod, idx, student.name)).join('')
+  const modulesHTML = rawModules.map((mod, idx) => renderModule(mod, idx, student.name, tutorCopy)).join('')
 
   // Standalone homework section if not already in a module
   const hasHomeworkModule = rawModules.some(m => ['homework-writing', 'homework'].includes(m.type || ''))
@@ -456,7 +484,7 @@ function buildHTML(lesson: {
   <!-- Cover -->
   <div class="cover avoid-break">
     <div class="cover-title">${e(title)}</div>
-    <div class="cover-meta">${e(student.name)} &nbsp;·&nbsp; ${e(student.level.toUpperCase())} &nbsp;·&nbsp; ${duration} min &nbsp;·&nbsp; Tutor Copy</div>
+    <div class="cover-meta">${e(student.name)} &nbsp;·&nbsp; ${e(student.level.toUpperCase())} &nbsp;·&nbsp; ${duration} min &nbsp;·&nbsp; ${tutorCopy ? 'Tutor Copy' : 'Student Worksheet'}</div>
   </div>
 
   ${objective ? `<div class="objective-box"><strong>Objective:</strong> ${e(objective)}</div>` : ''}
@@ -465,10 +493,10 @@ function buildHTML(lesson: {
   ${modulesHTML}
   ${homeworkSection}
 
-  ${teachingNotes ? `<div class="avoid-break" style="margin-top:8px">${noteBox('Teaching notes', teachingNotes)}</div>` : ''}
+  ${tutorCopy && teachingNotes ? `<div class="avoid-break" style="margin-top:8px">${noteBox('Teaching notes', teachingNotes)}</div>` : ''}
 
   <div class="page-footer">
-    Generated by Avidato &nbsp;·&nbsp; ${e(formattedDate)} &nbsp;·&nbsp; Tutor Copy
+    Generated by Avidato &nbsp;·&nbsp; ${e(formattedDate)} &nbsp;·&nbsp; ${tutorCopy ? 'Tutor Copy' : 'Student Worksheet'}
   </div>
 
   <script>window.onload = function(){ window.print(); }</script>
@@ -478,10 +506,11 @@ function buildHTML(lesson: {
 
 // ── Route handler ─────────────────────────────────────────────────────────────
 export async function GET(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params
+  const tutorCopy = req.nextUrl.searchParams.get('tutor') === '1'
 
   const lesson = await prisma.lesson.findUnique({
     where: { id },
@@ -503,7 +532,7 @@ export async function GET(
     content: lesson.content as Record<string, unknown>,
     createdAt: lesson.createdAt,
     student: lesson.student,
-  })
+  }, tutorCopy)
 
   return new Response(html, {
     headers: { 'Content-Type': 'text/html; charset=utf-8' },

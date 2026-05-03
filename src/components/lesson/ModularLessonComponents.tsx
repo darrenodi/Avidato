@@ -41,10 +41,20 @@ function SectionLabel({ text }: { text: string }) {
 }
 
 function AudioNote() {
+  const handlePlay = () => {
+    const el = document.querySelector<HTMLAudioElement>('#dialogue-audio')
+    if (el) { el.currentTime = 0; el.play() }
+  }
+  const hasAudio = typeof document !== 'undefined' && !!document.querySelector('#dialogue-audio')
   return (
-    <div className="mb-4 flex items-center gap-2 bg-gray-100 dark:bg-gray-700 rounded-lg px-3 py-2">
+    <div className="mb-4 flex items-center gap-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-lg px-3 py-2">
       <span className="text-lg">🎧</span>
-      <p className="text-sm text-gray-600 dark:text-gray-300">Audio required — play the recording while students complete this exercise.</p>
+      <p className="text-sm text-blue-700 dark:text-blue-300 flex-1">Listen to the dialogue, then answer the questions below.</p>
+      {hasAudio && (
+        <button onClick={handlePlay} className="text-xs font-medium text-blue-600 dark:text-blue-400 hover:underline whitespace-nowrap">
+          Play again
+        </button>
+      )}
     </div>
   )
 }
@@ -1010,6 +1020,10 @@ export function DialogueModule({ content, isStudentView, tutorNotes }: { content
   const charMap: Record<string, number> = {}
   ;(content.characters || []).forEach((c, i) => { charMap[c.name] = i })
 
+  const [audioUrl, setAudioUrl] = useState<string | null>(null)
+  const [loadingAudio, setLoadingAudio] = useState(false)
+  const [audioError, setAudioError] = useState<string | null>(null)
+
   // Normalize: AI sometimes generates a 'text' string blob instead of dialogue array
   const rawContent = content as unknown as { text?: string }
   const dialogueLines: { character: string; text: string }[] = content.dialogue?.length
@@ -1020,6 +1034,38 @@ export function DialogueModule({ content, isStudentView, tutorNotes }: { content
           ? { character: line.slice(0, colon).trim(), text: line.slice(colon + 1).trim() }
           : { character: '', text: line.trim() }
       })
+
+  const handlePlayAudio = async () => {
+    if (audioUrl) { document.querySelector<HTMLAudioElement>('#dialogue-audio')?.play(); return }
+    setLoadingAudio(true)
+    setAudioError(null)
+    try {
+      // Assign alternating genders by speaker index so voices are distinct
+      const speakerGenders: Record<string, 'male' | 'female'> = {}
+      let genderIdx = 0
+      dialogueLines.forEach(l => {
+        if (l.character && !(l.character in speakerGenders)) {
+          speakerGenders[l.character] = genderIdx % 2 === 0 ? 'female' : 'male'
+          genderIdx++
+        }
+      })
+      const lines = dialogueLines.map(l => ({ speaker: l.character, text: l.text, gender: speakerGenders[l.character] ?? 'female' }))
+      const res = await fetch('/api/audio/dialogue', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ lines }),
+      })
+      if (!res.ok) throw new Error('Audio generation failed')
+      const blob = await res.blob()
+      const url = URL.createObjectURL(blob)
+      setAudioUrl(url)
+      setTimeout(() => document.querySelector<HTMLAudioElement>('#dialogue-audio')?.play(), 100)
+    } catch {
+      setAudioError('Could not generate audio.')
+    } finally {
+      setLoadingAudio(false)
+    }
+  }
 
   return (
     <div className="space-y-4">
@@ -1033,6 +1079,22 @@ export function DialogueModule({ content, isStudentView, tutorNotes }: { content
             <p className="text-sm text-gray-900 dark:text-white flex-1">{line.text}</p>
           </div>
         ))}
+      </div>
+      <div className="flex items-center gap-3 pt-1">
+        <button
+          onClick={handlePlayAudio}
+          disabled={loadingAudio}
+          className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-brand-primary/10 hover:bg-brand-primary/20 text-brand-primary text-xs font-medium transition-colors disabled:opacity-50"
+        >
+          {loadingAudio ? (
+            <svg className="animate-spin w-3.5 h-3.5" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/></svg>
+          ) : (
+            <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          )}
+          {loadingAudio ? 'Generating...' : audioUrl ? 'Play Again' : 'Play Audio'}
+        </button>
+        {audioError && <span className="text-xs text-red-500">{audioError}</span>}
+        {audioUrl && <audio id="dialogue-audio" src={audioUrl} controls className="h-7 flex-1 min-w-0" />}
       </div>
       {content.comprehension && (
         <div className="border-t border-gray-100 dark:border-gray-700 pt-3 space-y-2">

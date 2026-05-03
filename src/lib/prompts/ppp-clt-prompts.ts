@@ -17,7 +17,7 @@ export function buildPPPLessonPrompt(
   return `Expert ${student.targetLanguage} instructor. Generate a PPP lesson as JSON.
 
 STUDENT: ${student.name}, ${student.level}, ${student.ageGroup}, Goals: ${student.endGoals}
-LESSON: ${lesson.title} | Need: ${lesson.communicativeNeed} | Key language: ${lesson.keyLanguageFeatures.join(', ')}
+LESSON: ${lesson.title} | Objective: ${lesson.communicativeNeed} | Vocabulary seed: ${lesson.keyVocabulary.join(', ')} | Grammar: ${lesson.grammarFocus} | Activity: ${lesson.mainActivity}
 ${vocabularyContextSection}
 
 RULES:
@@ -87,7 +87,7 @@ export function buildCLTLessonPrompt(
   return `Expert ${student.targetLanguage} instructor. Generate a CLT lesson as JSON.
 
 STUDENT: ${student.name}, ${student.level}, ${student.ageGroup}, Goals: ${student.endGoals}, Interests: ${student.interests || 'general topics'}
-LESSON: ${lesson.title} | Need: ${lesson.communicativeNeed} | Key language: ${lesson.keyLanguageFeatures.join(', ')}
+LESSON: ${lesson.title} | Objective: ${lesson.communicativeNeed} | Vocabulary seed: ${lesson.keyVocabulary.join(', ')} | Grammar: ${lesson.grammarFocus} | Activity: ${lesson.mainActivity}
 ${vocabularyContextSection}
 
 RULES:
@@ -164,7 +164,7 @@ function buildBusinessCLTPrompt(
   return `Expert ${student.targetLanguage} business English instructor. Generate a business CLT lesson as JSON.
 
 STUDENT: ${student.name}, ${student.level}, ${student.ageGroup}, Goals: ${student.endGoals}${student.occupation ? `, Occupation: ${student.occupation}` : ''}
-LESSON: ${lesson.title} | Need: ${lesson.communicativeNeed} | Key language: ${lesson.keyLanguageFeatures.join(', ')}
+LESSON: ${lesson.title} | Objective: ${lesson.communicativeNeed} | Vocabulary seed: ${lesson.keyVocabulary.join(', ')} | Grammar: ${lesson.grammarFocus} | Activity: ${lesson.mainActivity}
 ${vocabularyContextSection}
 
 RULES:

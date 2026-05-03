@@ -130,6 +130,28 @@ const ADVERSARIAL_SCENARIO_KEYWORDS = ['threaten', 'report to', 'escalate', 'dem
 
 // ─── Auto-fixes ─────────────────────────────────────────────────────────────
 
+/**
+ * Strip unfilled `[name]` / `[student]` placeholders from all string fields.
+ * The AI sometimes generates phrases like "What are your thoughts, [name]?"
+ * instead of using the actual student name. We strip the token rather than
+ * blocking regeneration, since removing it produces a valid phrase.
+ */
+function fixUnfilledNamePlaceholders(lesson: ModularLessonContent, warnings: string[]): void {
+  const PLACEHOLDER = /,?\s*\[name\]|\[student\]/gi
+  const raw = JSON.stringify(lesson)
+  if (!PLACEHOLDER.test(raw)) return
+  PLACEHOLDER.lastIndex = 0
+
+  const fixed = raw.replace(PLACEHOLDER, '')
+  try {
+    const parsed = JSON.parse(fixed) as ModularLessonContent
+    Object.assign(lesson, parsed)
+    warnings.push('Auto-fixed [name]/[student] placeholders — stripped from phrase text')
+  } catch {
+    // If re-parse fails somehow, leave the lesson as-is and let the hard check catch it
+  }
+}
+
 function fixUsefulLanguageModule(mod: LessonModule, warnings: string[]): void {
   const content = mod.content as UsefulLanguageContent
   if (!content?.phrases || !Array.isArray(content.phrases)) return
@@ -444,6 +466,7 @@ export function validateModularLesson(lesson: unknown): ValidationResult {
   }
 
   // Auto-fixes first
+  fixUnfilledNamePlaceholders(modularLesson, warnings)
   for (const mod of modularLesson.modules) {
     switch (mod.type) {
       case 'useful-language': fixUsefulLanguageModule(mod, warnings); break
