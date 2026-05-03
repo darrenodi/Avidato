@@ -41,7 +41,7 @@ VOCABULARY RULES (Exercise 1):
 Format: { "type": "vocabulary", "title": "[Vocabulary in ${student.targetLanguage}]", "content": { "vocabulary": [{ "word": "word", "partOfSpeech": "[in ${student.targetLanguage}]", "phonetics": "/ipa/", "definition": "[in ${student.targetLanguage}]", "example": "[in ${student.targetLanguage}]", "synonym": "[or empty]", "expressions": ["[in ${student.targetLanguage}]"] }, ...6 items] }, "timeMinutes": 8 }
 
 **Exercise 2: Warm-up** (8 min)
-EXACTLY 3 questions. Q1: personal experience ("Have you ever...?"). Q2: personal familiarity — have they done/seen this? NEVER "What is important when X?" or "What are the key factors?". Q3: story/memory — "What's the most memorable/challenging...?" NEVER starts with "How can...", "Why is...", "What are the effects/implications...". WARM-UP = story or memory. DISCUSSION = analysis. MAX 15 words each. Never use student name.
+EXACTLY 3 questions. Q1: personal experience ("Have you ever...?"). Q2: personal familiarity — have they done/seen this? NEVER "What is important when X?" or "What are the key factors?". Q3: story/memory — "What's the most memorable/challenging...?" NEVER starts with "How can...", "Why is...", "What are the effects/implications...". WARM-UP = story or memory. DISCUSSION = analysis. MAX 15 words each. Never use student name. BANNED question type — non-expert framing: NEVER ask the student to explain their work to a non-expert, layperson, or non-technical person in ANY form — direct or storytelling reframe. This includes "Tell me about a time you had to explain X to a non-expert" as much as "How would you explain X to a layperson?".
 Format: { "type": "warmup", "title": "[Warm-up in ${student.targetLanguage}]", "description": "[in ${student.targetLanguage}]", "content": { "questions": ["Q1","Q2","Q3"], "instructions": "[Discuss the questions in ${student.targetLanguage}]" }, "timeMinutes": 8 }
 
 **Exercise 3: Useful Phrases** (5 min)
@@ -71,7 +71,7 @@ ALL 10 error types must be different. Explanation states the rule (not just "cha
 Format: { "type": "sentence-correction", "title": "[Sentence Correction in ${student.targetLanguage}]", "content": { "sentences": [ { "incorrect": "[sentence WITH error in ${student.targetLanguage}]", "correct": "[FIXED sentence]", "errorType": "[rule in ${student.targetLanguage}]", "explanation": "[rule max 12 words in ${student.targetLanguage}]" }, ...10 total ] }, "timeMinutes": 10 }
 
 **Exercise 7: Discussion** (12 min)
-EXACTLY 5 questions. MAX 15 words each. Connect to the dialogue. Mix: personal experience, practical, personal reflection. NOT academic. Never use student name. Q5 invites a personal story. Never open with yes/no structure. NEVER ask questions about explaining something to a non-technical person or stakeholder (e.g. "How would you explain this to someone without a technical background?").
+EXACTLY 5 questions. MAX 15 words each. Connect to the dialogue. Mix: personal experience, practical, personal reflection. NOT academic. Never use student name. Q5 invites a personal story. Never open with yes/no structure. BANNED question type — non-expert framing: NEVER ask the student to explain their work to a non-expert, layperson, or non-technical person in ANY form. This includes direct forms ("How would you explain X to someone without a technical background?") AND storytelling reframes ("Tell me about a time you had to explain X to a non-expert. What challenges did you face?"). The entire category is banned — any question that puts the student in the role of teacher or simplifier to a non-expert audience.
 Format: { "type": "discussion", "title": "[Discussion in ${student.targetLanguage}]", "description": "[in ${student.targetLanguage}]", "content": { "questions": ["Q1","Q2","Q3","Q4","Q5"], "instructions": "[single instruction in ${student.targetLanguage}]" }, "timeMinutes": 12 }
 
 ${under18Section}
@@ -184,7 +184,7 @@ ${is50min ? `1. Lead-in (5 min)\n2. Task Prep — Vocab + Phrases + Dialogue (15
 ---
 
 **Exercise 1: Lead-in** (5 min)
-EXACTLY 3 questions. Q1: personal experience. Q2: personal familiarity with this task (NEVER "What is important?"). Q3: story/memory (NEVER "How can...", "Why is...", analytical). WARM-UP = story/memory. MAX 15 words each. No student name.
+EXACTLY 3 questions. Q1: personal experience. Q2: personal familiarity with this task (NEVER "What is important?"). Q3: story/memory (NEVER "How can...", "Why is...", analytical). WARM-UP = story/memory. MAX 15 words each. No student name. BANNED question type — non-expert framing: NEVER ask the student to explain their work to a non-expert, layperson, or non-technical person in ANY form — direct ("How would you explain X to a layperson?") OR storytelling reframe ("Tell me about a time you had to explain X to a non-expert").
 Format: { "type": "lead-in", "title": "[Lead-in in ${student.targetLanguage}]", "content": { "questions": ["Q1","Q2","Q3"], "instructions": "[in ${student.targetLanguage}]" }, "timeMinutes": 5 }
 
 **Exercise 2: Task Prep** (${is50min ? 15 : 10} min)
