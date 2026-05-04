@@ -199,48 +199,42 @@ function renderModule(mod: Record<string, any>, idx: number, studentName: string
   }
 
   // ── Vocabulary match ──
+  // Both copies use the same two-column matching layout.
+  // Tutor copy: answer letters filled in. Student copy: blank answer column.
   else if (type === 'vocabulary-match') {
     const groups: unknown[] = Array.isArray(c.groups) ? c.groups : []
-    if (tutorCopy) {
-      // Tutor copy: show term + definition side by side
-      body = groups.map((g) => {
+    body = groups.map((g) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const gg = g as Record<string, any>
+      const pairs: unknown[] = Array.isArray(gg.pairs) ? gg.pairs : []
+      const n = pairs.length
+      if (n === 0) return ''
+      const offset = 2
+      // scrambledDefs[j] = definition that appears at letter (A+j)
+      const scrambledDefs = pairs.map((_, j) => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const gg = g as Record<string, any>
-        const pairs: unknown[] = Array.isArray(gg.pairs) ? gg.pairs : []
-        const rows = pairs.map((p, i) => {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const pp = p as Record<string, any>
-          return `<tr><td class="match-num">${i + 1}</td><td class="match-term">${e(pp.term || pp.word || '')}</td><td class="match-def">${e(pp.definition || pp.match || '')}</td></tr>`
-        }).join('')
-        return `<div class="match-group-label">${e(gg.label || '')}</div><table class="match-table">${rows}</table>`
+        const pp = pairs[(j + offset) % n] as Record<string, any>
+        return pp.definition || pp.match || ''
+      })
+      // For each term i, the answer letter index is (i - offset + n) % n
+      const termRows = pairs.map((p, i) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const pp = p as Record<string, any>
+        const answerLetterIdx = (i - offset + n) % n
+        const answerLetter = String.fromCharCode(65 + answerLetterIdx)
+        const answerCell = tutorCopy
+          ? `<td style="width:28px;text-align:center;font-weight:700;color:#166534;border:0.5px solid #E5E7EB">${answerLetter}</td>`
+          : `<td style="width:28px;text-align:center;color:#9CA3AF;border:0.5px solid #E5E7EB">___</td>`
+        return `<tr><td class="match-num">${i + 1}</td><td class="match-term">${e(pp.term || pp.word || '')}</td>${answerCell}</tr>`
       }).join('')
-    } else {
-      // Student copy: terms numbered, definitions lettered and rotated — student writes matching letter
-      body = groups.map((g) => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const gg = g as Record<string, any>
-        const pairs: unknown[] = Array.isArray(gg.pairs) ? gg.pairs : []
-        const n = pairs.length
-        // Rotate definitions by 2 positions so term 1 ≠ definition A
-        const offset = 2
-        const scrambledDefs = pairs.map((_, i) => {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const pp = pairs[(i + offset) % n] as Record<string, any>
-          return pp.definition || pp.match || ''
-        })
-        const termRows = pairs.map((p, i) => {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const pp = p as Record<string, any>
-          return `<tr><td class="match-num">${i + 1}</td><td class="match-term">${e(pp.term || pp.word || '')}</td><td style="width:28px;text-align:center;color:#9CA3AF;border:0.5px solid #E5E7EB">___</td></tr>`
-        }).join('')
-        const defRows = scrambledDefs.map((def, i) => {
-          const letter = String.fromCharCode(65 + i)
-          return `<tr><td class="match-num" style="color:#92400E">${letter}</td><td class="match-def" colspan="2">${e(def)}</td></tr>`
-        }).join('')
-        return `<div class="match-group-label">${e(gg.label || '')}</div>
+      const defRows = scrambledDefs.map((def, j) => {
+        const letter = String.fromCharCode(65 + j)
+        return `<tr><td class="match-num" style="color:#92400E">${letter}</td><td class="match-def" colspan="2">${e(def)}</td></tr>`
+      }).join('')
+      return `<div class="match-group-label">${e(gg.label || '')}</div>
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px">
   <div>
-    <div style="font-size:8pt;color:#9CA3AF;margin-bottom:4px;text-transform:uppercase;letter-spacing:.04em">Terms — write the matching letter</div>
+    <div style="font-size:8pt;color:#9CA3AF;margin-bottom:4px;text-transform:uppercase;letter-spacing:.04em">Terms — ${tutorCopy ? 'answer key' : 'write the matching letter'}</div>
     <table class="match-table">${termRows}</table>
   </div>
   <div>
@@ -248,8 +242,7 @@ function renderModule(mod: Record<string, any>, idx: number, studentName: string
     <table class="match-table">${defRows}</table>
   </div>
 </div>`
-      }).join('')
-    }
+    }).join('')
   }
 
   // ── Useful phrases / useful language / useful expressions / language-in-context ──
