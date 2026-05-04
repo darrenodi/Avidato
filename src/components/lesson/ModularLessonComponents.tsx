@@ -11,7 +11,7 @@ import {
   ListeningPredictionsContent, ListeningMainIdeaContent, ListeningTrueFalseContent,
   ListeningMCQContent, ListeningSpecificInfoContent, ListeningTableContent, ListeningComprehensionContent,
   RoleplayContent, TalkingPointContent, DiscussionContent, DebateContent,
-  YourTurnAskContent, YourTurnAnswerContent, YourTurnTellContent, HomeworkWritingContent,
+  HomeworkWritingContent,
 } from '@/types/module-lesson'
 
 // ─── Utilities ────────────────────────────────────────────────────────────────
@@ -1637,63 +1637,6 @@ export function DebateModule({ content, isStudentView, tutorNotes }: { content: 
             ))}
           </ul>
         </div>
-      </div>
-      {!isStudentView && tutorNotes && <TutorNote note={tutorNotes} />}
-    </div>
-  )
-}
-
-// ─── Your Turn ────────────────────────────────────────────────────────────────
-
-export function YourTurnAskModule({ content, isStudentView, tutorNotes }: { content: YourTurnAskContent; isStudentView?: boolean; tutorNotes?: string }) {
-  return (
-    <div className="space-y-3">
-      <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Answer these questions. Use vocabulary and phrases from the lesson in your responses.</p>
-      {(content.questions || []).map((q, i) => (
-        <div key={i} className="flex gap-3 items-start">
-          <span className="font-bold text-brand-primary flex-shrink-0">{i + 1}.</span>
-          <p className="text-gray-900 dark:text-white">{q}</p>
-        </div>
-      ))}
-      {content.note && <p className="text-xs text-gray-400 dark:text-gray-500 italic">{content.note}</p>}
-      {!isStudentView && tutorNotes && <TutorNote note={tutorNotes} />}
-    </div>
-  )
-}
-
-export function YourTurnAnswerModule({ content, isStudentView, tutorNotes }: { content: YourTurnAnswerContent; isStudentView?: boolean; tutorNotes?: string }) {
-  return (
-    <div className="space-y-3">
-      <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Answer these questions about yourself using the language from this lesson.</p>
-      {(content.questions || []).map((q, i) => (
-        <div key={i} className="flex gap-3 items-start">
-          <span className="font-bold text-brand-primary flex-shrink-0">{i + 1}.</span>
-          <p className="text-gray-900 dark:text-white">{q}</p>
-        </div>
-      ))}
-      {content.note && <p className="text-xs text-gray-400 dark:text-gray-500 italic">{content.note}</p>}
-      {!isStudentView && tutorNotes && <TutorNote note={tutorNotes} />}
-    </div>
-  )
-}
-
-export function YourTurnTellModule({ content, isStudentView, tutorNotes }: { content: YourTurnTellContent; isStudentView?: boolean; tutorNotes?: string }) {
-  // Normalize: AI sometimes generates a single 'prompt' string instead of 'prompts' array
-  const rawContent = content as unknown as { prompt?: string }
-  const prompts = content.prompts?.length ? content.prompts : (rawContent.prompt ? [rawContent.prompt] : [])
-  return (
-    <div className="space-y-3">
-      <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Talk about yourself. Use as much of the lesson language as you can.</p>
-      {content.example && (
-        <p className="text-xs text-gray-400 dark:text-gray-500 italic border-l-2 border-gray-200 dark:border-gray-600 pl-3">Example: &ldquo;{content.example}&rdquo;</p>
-      )}
-      <div className="space-y-2">
-        {prompts.map((p, i) => (
-          <div key={i} className="flex gap-3 items-start">
-            <span className="font-bold text-brand-primary flex-shrink-0">{i + 1}.</span>
-            <p className="text-gray-900 dark:text-white">{p}</p>
-          </div>
-        ))}
       </div>
       {!isStudentView && tutorNotes && <TutorNote note={tutorNotes} />}
     </div>

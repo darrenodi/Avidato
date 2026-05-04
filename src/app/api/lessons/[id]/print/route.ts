@@ -440,7 +440,7 @@ function renderModule(mod: Record<string, any>, idx: number, studentName: string
   }
 
   // ── Discussion / further-discussion ──
-  else if (['discussion', 'further-discussion', 'your-turn-answer', 'your-turn-tell', 'your-turn-ask'].includes(type)) {
+  else if (['discussion', 'further-discussion'].includes(type)) {
     const qs: string[] = Array.isArray(c.questions) ? c.questions : (Array.isArray(c.points) ? c.points : [])
     if (c.instructions) body += `<p class="italic">${e(c.instructions)}</p>`
     qs.forEach((q, i) => { body += numberedQ(i + 1, q) })

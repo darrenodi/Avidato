@@ -36,9 +36,6 @@ export type ModuleType =
   | 'discussion'
   | 'further-discussion'
   | 'debate'
-  | 'your-turn-ask'
-  | 'your-turn-answer'
-  | 'your-turn-tell'
   | 'homework-writing'
 
 // ─── Module Content Interfaces ──────────────────────────────────────────────
@@ -268,21 +265,6 @@ export interface DebateContent {
   instructions?: string
 }
 
-export interface YourTurnAskContent {
-  questions: string[]
-  note?: string
-}
-
-export interface YourTurnAnswerContent {
-  questions: string[]
-  note?: string
-}
-
-export interface YourTurnTellContent {
-  prompts: string[]
-  example?: string
-}
-
 export interface HomeworkWritingContent {
   task: string
   prompts: string[]
@@ -328,9 +310,6 @@ export type ModuleContent =
   | DiscussionContent
   | FurtherDiscussionContent
   | DebateContent
-  | YourTurnAskContent
-  | YourTurnAnswerContent
-  | YourTurnTellContent
   | HomeworkWritingContent
 
 // ─── Core Lesson Structure ───────────────────────────────────────────────────

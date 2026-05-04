@@ -14,7 +14,7 @@ import {
   ListeningPredictionsModule, ListeningMainIdeaModule, ListeningTrueFalseModule,
   ListeningMCQModule, ListeningSpecificInfoModule, ListeningTableModule, ListeningComprehensionModule,
   RoleplayModule, TalkingPointModule, DiscussionModule, FurtherDiscussionModule, DebateModule,
-  YourTurnAskModule, YourTurnAnswerModule, YourTurnTellModule, HomeworkWritingModule,
+  HomeworkWritingModule,
 } from './ModularLessonComponents'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -54,9 +54,6 @@ const MODULE_MAP: Record<ModuleType, React.ComponentType<{ content: any; isStude
   'discussion': DiscussionModule,
   'further-discussion': FurtherDiscussionModule,
   'debate': DebateModule,
-  'your-turn-ask': YourTurnAskModule,
-  'your-turn-answer': YourTurnAnswerModule,
-  'your-turn-tell': YourTurnTellModule,
   'homework-writing': HomeworkWritingModule,
 }
 

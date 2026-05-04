@@ -254,7 +254,6 @@ CRITICAL SCHEMA RULES — exact shapes required or UI breaks:
 - language-in-context → phrases MUST be objects [{phrase, function, example?}] NEVER 'analysis' key
 - dialogue → MUST have: setting, characters:[{name,role?}], dialogue:[{character,text}]. NEVER a 'text' blob
 - roleplay → roles MUST be objects [{name, description, keyPoints?}] NEVER strings. Use 'situation' not 'scenario'
-- your-turn-tell → MUST use 'prompts' array NEVER singular 'prompt'
 - reading-article → text must be 3-5 substantial paragraphs separated by \\n\\n. Minimum 300 words. Include a title.
 - image-discussion → one imagePlaceholder with detailed visual description for AI image generation
 
@@ -307,8 +306,6 @@ talking-point         → { studentA:{title,questions:string[3-4]}, studentB:{ti
   BOTH studentA and studentB are REQUIRED — omitting studentB is a schema error. studentA = student discusses the topic from their own perspective. studentB = student takes the tutor's perspective or a different stakeholder viewpoint on the same topic. Each card must have a distinct title and 3-4 different questions. Questions must be experiential ("Tell me about a time...", "Have you ever..."), never analytical ("Why is X important?").
 discussion            → { questions:string[4-6] }
 debate                → { topic, sideA:{label,points:string[3-5]}, sideB:{label,points:string[3-5]} }
-your-turn-ask         → { questions:string[4-6] }
-your-turn-tell        → { prompts:string[3-5], example? }
 homework-writing      → { task, prompts:string[3-5], wordCount?, instructions? }
   wordCount must always include the unit: "approximately 150 words" or "150-200 words" — NEVER just "approximately 150" or "150-200" without "words".
 
