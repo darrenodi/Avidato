@@ -201,17 +201,55 @@ function renderModule(mod: Record<string, any>, idx: number, studentName: string
   // ── Vocabulary match ──
   else if (type === 'vocabulary-match') {
     const groups: unknown[] = Array.isArray(c.groups) ? c.groups : []
-    body = groups.map((g) => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const gg = g as Record<string, any>
-      const pairs: unknown[] = Array.isArray(gg.pairs) ? gg.pairs : []
-      const rows = pairs.map((p, i) => {
+    if (tutorCopy) {
+      // Tutor copy: show term + definition side by side
+      body = groups.map((g) => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const pp = p as Record<string, any>
-        return `<tr><td class="match-num">${i + 1}</td><td class="match-term">${e(pp.term || pp.word || '')}</td><td class="match-def">${e(pp.definition || pp.match || '')}</td></tr>`
+        const gg = g as Record<string, any>
+        const pairs: unknown[] = Array.isArray(gg.pairs) ? gg.pairs : []
+        const rows = pairs.map((p, i) => {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const pp = p as Record<string, any>
+          return `<tr><td class="match-num">${i + 1}</td><td class="match-term">${e(pp.term || pp.word || '')}</td><td class="match-def">${e(pp.definition || pp.match || '')}</td></tr>`
+        }).join('')
+        return `<div class="match-group-label">${e(gg.label || '')}</div><table class="match-table">${rows}</table>`
       }).join('')
-      return `<div class="match-group-label">${e(gg.label || '')}</div><table class="match-table">${rows}</table>`
-    }).join('')
+    } else {
+      // Student copy: terms numbered, definitions lettered and rotated — student writes matching letter
+      body = groups.map((g) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const gg = g as Record<string, any>
+        const pairs: unknown[] = Array.isArray(gg.pairs) ? gg.pairs : []
+        const n = pairs.length
+        // Rotate definitions by 2 positions so term 1 ≠ definition A
+        const offset = 2
+        const scrambledDefs = pairs.map((_, i) => {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const pp = pairs[(i + offset) % n] as Record<string, any>
+          return pp.definition || pp.match || ''
+        })
+        const termRows = pairs.map((p, i) => {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const pp = p as Record<string, any>
+          return `<tr><td class="match-num">${i + 1}</td><td class="match-term">${e(pp.term || pp.word || '')}</td><td style="width:28px;text-align:center;color:#9CA3AF;border:0.5px solid #E5E7EB">___</td></tr>`
+        }).join('')
+        const defRows = scrambledDefs.map((def, i) => {
+          const letter = String.fromCharCode(65 + i)
+          return `<tr><td class="match-num" style="color:#92400E">${letter}</td><td class="match-def" colspan="2">${e(def)}</td></tr>`
+        }).join('')
+        return `<div class="match-group-label">${e(gg.label || '')}</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px">
+  <div>
+    <div style="font-size:8pt;color:#9CA3AF;margin-bottom:4px;text-transform:uppercase;letter-spacing:.04em">Terms — write the matching letter</div>
+    <table class="match-table">${termRows}</table>
+  </div>
+  <div>
+    <div style="font-size:8pt;color:#9CA3AF;margin-bottom:4px;text-transform:uppercase;letter-spacing:.04em">Definitions</div>
+    <table class="match-table">${defRows}</table>
+  </div>
+</div>`
+      }).join('')
+    }
   }
 
   // ── Useful phrases / useful language / useful expressions / language-in-context ──
@@ -280,7 +318,9 @@ function renderModule(mod: Record<string, any>, idx: number, studentName: string
 
   // ── Comprehension / matching-qa ──
   else if (['comprehension', 'matching-qa', 'skim-main-idea', 'reading-scan', 'listening-comprehension'].includes(type)) {
-    const qs: unknown[] = Array.isArray(c.questions) ? c.questions : []
+    // matching-qa uses c.pairs; other types use c.questions
+    const rawPairs: unknown[] = Array.isArray(c.pairs) ? c.pairs : []
+    const qs: unknown[] = Array.isArray(c.questions) ? c.questions : rawPairs
     qs.forEach((q, i) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const qq = q as Record<string, any>
@@ -383,8 +423,31 @@ function renderModule(mod: Record<string, any>, idx: number, studentName: string
     }
   }
 
-  // ── Discussion / talking-point / debate / further-discussion ──
-  else if (['discussion', 'talking-point', 'further-discussion', 'your-turn-answer', 'your-turn-tell', 'your-turn-ask'].includes(type)) {
+  // ── Talking point (two-card format) ──
+  else if (type === 'talking-point') {
+    const cards = [c.studentA, c.studentB].filter(Boolean)
+    if (cards.length) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      cards.forEach((card: Record<string, any>, ci) => {
+        const cardColor = ci === 0 ? '#EFF6FF' : '#FFFBEB'
+        const borderColor = ci === 0 ? '#2E75B6' : '#F59E0B'
+        const labelColor = ci === 0 ? '#2E75B6' : '#92400E'
+        body += `<div style="background:${cardColor};border:1px solid ${borderColor};border-radius:4px;padding:10px 12px;margin-bottom:8px" class="avoid-break">`
+        if (card.title) body += `<p style="font-size:9pt;font-weight:700;color:${labelColor};text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px">${e(card.title)}</p>`
+        const qs: string[] = Array.isArray(card.questions) ? card.questions : []
+        qs.forEach((q, i) => { body += numberedQ(i + 1, q) })
+        body += `</div>`
+      })
+    } else {
+      // Fallback: flat questions array
+      const qs: string[] = Array.isArray(c.questions) ? c.questions : []
+      if (c.instructions) body += `<p class="italic">${e(c.instructions)}</p>`
+      qs.forEach((q, i) => { body += numberedQ(i + 1, q) })
+    }
+  }
+
+  // ── Discussion / further-discussion ──
+  else if (['discussion', 'further-discussion', 'your-turn-answer', 'your-turn-tell', 'your-turn-ask'].includes(type)) {
     const qs: string[] = Array.isArray(c.questions) ? c.questions : (Array.isArray(c.points) ? c.points : [])
     if (c.instructions) body += `<p class="italic">${e(c.instructions)}</p>`
     qs.forEach((q, i) => { body += numberedQ(i + 1, q) })
@@ -394,23 +457,29 @@ function renderModule(mod: Record<string, any>, idx: number, studentName: string
   else if (type === 'debate') {
     const topic: string = c.topic || ''
     if (topic) body += `<p class="bold">${e(topic)}</p><div class="spacer"></div>`
-    const sideA: string = c.sideA || c.side_a || 'Side A'
-    const sideB: string = c.sideB || c.side_b || 'Side B'
-    const pointsA: string[] = Array.isArray(c.pointsA) ? c.pointsA : (Array.isArray(c.argumentsA) ? c.argumentsA : [])
-    const pointsB: string[] = Array.isArray(c.pointsB) ? c.pointsB : (Array.isArray(c.argumentsB) ? c.argumentsB : [])
+    // sideA/sideB can be either string labels or {label, points} objects
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const sideAData: any = c.sideA || c.side_a || {}
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const sideBData: any = c.sideB || c.side_b || {}
+    const sideALabel: string = typeof sideAData === 'string' ? sideAData : (sideAData.label || 'Side A')
+    const sideBLabel: string = typeof sideBData === 'string' ? sideBData : (sideBData.label || 'Side B')
+    const pointsA: string[] = Array.isArray(sideAData.points) ? sideAData.points : (Array.isArray(c.pointsA) ? c.pointsA : [])
+    const pointsB: string[] = Array.isArray(sideBData.points) ? sideBData.points : (Array.isArray(c.pointsB) ? c.pointsB : [])
     body += `<div class="debate-grid">
-      <div class="debate-col-a"><div class="debate-label">${e(sideA)}</div>${pointsA.map(p => bulletItem(p)).join('')}</div>
-      <div class="debate-col-b"><div class="debate-label debate-label-b">${e(sideB)}</div>${pointsB.map(p => bulletItem(p)).join('')}</div>
+      <div class="debate-col-a"><div class="debate-label">${e(sideALabel)}</div>${pointsA.map(p => bulletItem(p)).join('')}</div>
+      <div class="debate-col-b"><div class="debate-label debate-label-b">${e(sideBLabel)}</div>${pointsB.map(p => bulletItem(p)).join('')}</div>
     </div>`
   }
 
   // ── Homework ──
   else if (['homework-writing', 'homework'].includes(type)) {
-    const desc: string = c.description || c.taskName || ''
-    if (desc) body += `<p>${e(desc)}</p><div class="spacer"></div>`
-    const steps: string[] = Array.isArray(c.instructions) ? c.instructions : []
+    const task: string = c.task || c.description || c.taskName || ''
+    if (task) body += `<p>${e(task)}</p><div class="spacer"></div>`
     if (typeof c.instructions === 'string') body += `<p>${e(c.instructions)}</p>`
+    const steps: string[] = Array.isArray(c.instructions) ? c.instructions : (Array.isArray(c.prompts) ? c.prompts : [])
     steps.forEach(s => { body += bulletItem(s) })
+    if (c.wordCount) body += `<p class="small-gray" style="margin-top:6px">${e(c.wordCount)}</p>`
   }
 
   // ── Reading article ──
@@ -424,12 +493,50 @@ function renderModule(mod: Record<string, any>, idx: number, studentName: string
     }
   }
 
-  // ── Noticing / ordering / listening variants ── (generic fallback with questions or items)
+  // ── Listening true/false ──
+  else if (type === 'listening-true-false') {
+    const qs: unknown[] = Array.isArray(c.questions) ? c.questions : []
+    qs.forEach((q, i) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const qq = q as Record<string, any>
+      const statement: string = typeof q === 'string' ? q : (qq.statement || '')
+      body += numberedQ(i + 1, statement)
+      if (tutorCopy) {
+        const answer = qq.answer === true ? 'TRUE' : qq.answer === false ? 'FALSE' : ''
+        body += `<div style="padding:1px 0 6px 23px;font-size:8.5pt;color:#9CA3AF">→ ${e(answer)}${qq.note ? ` — ${e(qq.note)}` : ''}</div>`
+      } else {
+        body += `<div style="padding:2px 0 8px 23px;display:flex;gap:16px;font-size:9pt;color:#374151">
+          <span style="display:flex;align-items:center;gap:4px"><span style="display:inline-block;width:13px;height:13px;border:1px solid #9CA3AF;border-radius:2px"></span> True</span>
+          <span style="display:flex;align-items:center;gap:4px"><span style="display:inline-block;width:13px;height:13px;border:1px solid #9CA3AF;border-radius:2px"></span> False</span>
+        </div>`
+      }
+    })
+  }
+
+  // ── Listening MCQ ──
+  else if (type === 'listening-mcq') {
+    const qs: unknown[] = Array.isArray(c.questions) ? c.questions : []
+    qs.forEach((q, i) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const qq = q as Record<string, any>
+      const question: string = typeof q === 'string' ? q : (qq.question || '')
+      const options: string[] = Array.isArray(qq.options) ? qq.options : []
+      body += numberedQ(i + 1, question)
+      options.forEach((opt, oi) => {
+        const letter = String.fromCharCode(65 + oi)
+        const isAnswer = tutorCopy && qq.answer === oi
+        body += `<div style="padding:1px 0 2px 23px;font-size:9pt;color:${isAnswer ? '#166534' : '#374151'};font-weight:${isAnswer ? '700' : '400'}">${letter}. ${e(opt)}</div>`
+      })
+      body += `<div style="height:6px"></div>`
+    })
+  }
+
+  // ── Generic fallback (ordering, noticing, etc.) ──
   else {
     const qs: unknown[] = Array.isArray(c.questions) ? c.questions : (Array.isArray(c.items) ? c.items : [])
     qs.forEach((q, i) => {
-      const text = typeof q === 'string' ? q : JSON.stringify(q)
-      body += numberedQ(i + 1, text)
+      const text = typeof q === 'string' ? q : (typeof q === 'object' && q !== null ? Object.values(q as object).find(v => typeof v === 'string') || '' : '')
+      body += numberedQ(i + 1, text as string)
     })
     const desc: string = c.description || c.instructions || ''
     if (!qs.length && desc) body += `<p>${e(desc)}</p>`
