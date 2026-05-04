@@ -304,6 +304,7 @@ matching-qa           → { pairs:[{question,answer}×4-6] }
   When matching-qa immediately follows a dialogue or reading-article: write 4-6 comprehension questions about that content. Questions must probe character decisions, reasoning, implications, and language choices — NOT trivial recall ("Who said X?"). The answer must be a complete, specific response the tutor can give. Good example: Q: "Why did Marcus push back on the supplier's first offer?" A: "He felt the discount didn't reflect the volume they were committing to and wanted to anchor a better rate."
 roleplay              → { situation, roles:[{name,description,keyPoints?:string[]}×2], phrasesToUse?:string[] }
 talking-point         → { studentA:{title,questions:string[3-4]}, studentB:{title,questions:string[3-4]} }
+  BOTH studentA and studentB are REQUIRED — omitting studentB is a schema error. studentA = student discusses the topic from their own perspective. studentB = student takes the tutor's perspective or a different stakeholder viewpoint on the same topic. Each card must have a distinct title and 3-4 different questions. Questions must be experiential ("Tell me about a time...", "Have you ever..."), never analytical ("Why is X important?").
 discussion            → { questions:string[4-6] }
 debate                → { topic, sideA:{label,points:string[3-5]}, sideB:{label,points:string[3-5]} }
 your-turn-ask         → { questions:string[4-6] }

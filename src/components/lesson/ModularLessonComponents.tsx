@@ -1558,7 +1558,7 @@ export function TalkingPointModule({ content, isStudentView, tutorNotes }: { con
     <div className="space-y-4">
       {content.instructions && <p className="text-sm text-gray-500 dark:text-gray-400 italic">{content.instructions}</p>}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {[content.studentA, content.studentB].map((card, ci) => (
+        {[content.studentA, content.studentB].filter(Boolean).map((card, ci) => (
           <div key={ci} className={`border rounded-lg p-4 ${ci === 0 ? 'border-brand-primary/30 bg-brand-primary/5' : 'border-teal-300/30 dark:border-teal-700/30 bg-teal-50/50 dark:bg-teal-900/10'}`}>
             <p className={`text-xs font-semibold uppercase tracking-wide mb-2 ${ci === 0 ? 'text-brand-primary' : 'text-teal-600 dark:text-teal-400'}`}>{card.title}</p>
             <div className="space-y-2">
