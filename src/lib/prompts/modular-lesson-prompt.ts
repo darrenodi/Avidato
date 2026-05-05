@@ -5,40 +5,71 @@ import { StudentProfile, BlockLesson } from '../../types/lesson-template';
 // Code picks one randomly — the AI never chooses the structure, only fills the content.
 
 const STRUCTURES = {
+  // ── Speaking ─────────────────────────────────────────────────────────────
+  // Each option has a distinct pedagogical shape — not just a cosmetic reshuffle.
   speaking: [
-    ['warm-up', 'vocabulary-match', 'dialogue', 'listening-true-false', 'matching-qa', 'roleplay', 'discussion', 'homework-writing'],
-    ['warm-up', 'useful-language', 'dialogue', 'listening-mcq', 'matching-qa', 'roleplay', 'talking-point', 'homework-writing'],
-    ['warm-up', 'vocabulary-match', 'dialogue', 'listening-true-false', 'matching-qa', 'talking-point', 'homework-writing'],
-    ['warm-up', 'vocabulary-cards', 'dialogue', 'listening-mcq', 'matching-qa', 'roleplay', 'discussion', 'homework-writing'],
-    ['warm-up', 'vocabulary-cards', 'dialogue', 'listening-true-false', 'matching-qa', 'roleplay', 'debate', 'homework-writing'],
+    // S1 — Phrases-led: key phrases introduced before dialogue, then comprehension + roleplay
+    ['warm-up', 'useful-language', 'dialogue', 'listening-true-false', 'matching-qa', 'roleplay', 'homework-writing'],
+    // S2 — Vocabulary + grammar: vocab cards, then dialogue reveals grammar in use
+    ['warm-up', 'vocabulary-cards', 'dialogue', 'listening-mcq', 'grammar-focus', 'discussion', 'homework-writing'],
+    // S3 — Concise: no listening section, debate replaces extended comprehension
+    ['warm-up', 'vocabulary-match', 'dialogue', 'matching-qa', 'debate', 'homework-writing'],
+    // S4 — Expressions & idioms: fixed expressions first, T/F listening, talking-point
+    ['warm-up', 'useful-expressions', 'dialogue', 'listening-true-false', 'talking-point', 'homework-writing'],
+    // S5 — Language in context + production: functional phrases, vocab cards, then roleplay
+    ['warm-up', 'language-in-context', 'vocabulary-cards', 'dialogue', 'matching-qa', 'roleplay', 'homework-writing'],
   ],
+  // ── Reading ───────────────────────────────────────────────────────────────
   reading: [
+    // R1 — Scan + skim + discuss
     ['warm-up', 'vocabulary-match', 'reading-article', 'reading-scan', 'skim-main-idea', 'discussion', 'homework-writing'],
-    ['warm-up', 'vocabulary-cards', 'reading-article', 'matching-qa', 'vocabulary-in-text', 'debate', 'homework-writing'],
-    ['warm-up', 'vocabulary-match', 'reading-article', 'reading-scan', 'discussion', 'homework-writing'],
-    ['warm-up', 'vocabulary-match', 'reading-article', 'skim-main-idea', 'reading-scan', 'debate', 'homework-writing'],
-    ['warm-up', 'vocabulary-cards', 'reading-article', 'matching-qa', 'discussion', 'homework-writing'],
+    // R2 — Deep vocabulary in text + debate
+    ['warm-up', 'vocabulary-cards', 'reading-article', 'vocabulary-in-text', 'matching-qa', 'debate', 'homework-writing'],
+    // R3 — Scan + gap-fill (tests vocabulary from text)
+    ['warm-up', 'vocabulary-match', 'reading-article', 'reading-scan', 'gap-fill', 'discussion', 'homework-writing'],
+    // R4 — Phrases first, then skim + scan + roleplay
+    ['warm-up', 'useful-language', 'reading-article', 'skim-main-idea', 'reading-scan', 'roleplay', 'homework-writing'],
+    // R5 — Vocabulary in text + error detection + talking-point
+    ['warm-up', 'vocabulary-cards', 'reading-article', 'vocabulary-in-text', 'find-the-mistake', 'talking-point', 'homework-writing'],
   ],
+  // ── Vocabulary ────────────────────────────────────────────────────────────
   vocabulary: [
+    // V1 — Cards → gap-fill → error detection → functional language
     ['warm-up', 'vocabulary-cards', 'gap-fill', 'find-the-mistake', 'language-in-context', 'discussion', 'homework-writing'],
-    ['warm-up', 'vocabulary-match', 'ordering', 'gap-fill', 'discussion', 'homework-writing'],
-    ['warm-up', 'vocabulary-match', 'gap-fill', 'sentence-correction', 'discussion', 'homework-writing'],
-    ['warm-up', 'phrasal-verbs', 'gap-fill', 'find-the-mistake', 'useful-language', 'discussion', 'homework-writing'],
+    // V2 — Match → ordering → gap-fill → phrases → production
+    ['warm-up', 'vocabulary-match', 'ordering', 'gap-fill', 'useful-language', 'roleplay', 'homework-writing'],
+    // V3 — Match → gap-fill → correction → dialogue (lexis in use)
+    ['warm-up', 'vocabulary-match', 'gap-fill', 'sentence-correction', 'dialogue', 'homework-writing'],
+    // V4 — Phrasal verbs → error detection → expressions → discussion
+    ['warm-up', 'phrasal-verbs', 'gap-fill', 'find-the-mistake', 'useful-expressions', 'discussion', 'homework-writing'],
+    // V5 — Cards → language in context → gap-fill → talking-point
     ['warm-up', 'vocabulary-cards', 'language-in-context', 'gap-fill', 'talking-point', 'homework-writing'],
   ],
+  // ── Grammar ───────────────────────────────────────────────────────────────
   grammar: [
+    // G1 — Cards → grammar explanation → error detection → correction → discuss
     ['warm-up', 'vocabulary-cards', 'grammar-focus', 'find-the-mistake', 'sentence-correction', 'discussion', 'homework-writing'],
-    ['warm-up', 'vocabulary-match', 'grammar-focus', 'gap-fill', 'find-the-mistake', 'discussion', 'homework-writing'],
-    ['warm-up', 'grammar-focus', 'gap-fill', 'sentence-correction', 'roleplay', 'homework-writing'],
+    // G2 — Match → grammar → gap-fill → dialogue to see grammar in action
+    ['warm-up', 'vocabulary-match', 'grammar-focus', 'gap-fill', 'dialogue', 'roleplay', 'homework-writing'],
+    // G3 — Grammar first, then errors, then phrases, then dialogue
+    ['warm-up', 'grammar-focus', 'find-the-mistake', 'useful-language', 'dialogue', 'homework-writing'],
+    // G4 — Cards → grammar → ordering → gap-fill → discuss
     ['warm-up', 'vocabulary-cards', 'grammar-focus', 'ordering', 'gap-fill', 'discussion', 'homework-writing'],
-    ['warm-up', 'language-in-context', 'grammar-focus', 'find-the-mistake', 'gap-fill', 'talking-point', 'homework-writing'],
+    // G5 — Language in context → grammar → correction → gap-fill → talking-point
+    ['warm-up', 'language-in-context', 'grammar-focus', 'sentence-correction', 'gap-fill', 'talking-point', 'homework-writing'],
   ],
+  // ── Professional ─────────────────────────────────────────────────────────
   professional: [
-    ['warm-up', 'useful-language', 'vocabulary-match', 'dialogue', 'listening-true-false', 'matching-qa', 'discussion', 'homework-writing'],
+    // P1 — Comprehensive: phrases + vocab, dialogue, listening, comprehension, roleplay
+    ['warm-up', 'useful-language', 'vocabulary-match', 'dialogue', 'listening-true-false', 'matching-qa', 'roleplay', 'homework-writing'],
+    // P2 — Phrases + MCQ listening + roleplay + discuss
     ['warm-up', 'useful-language', 'dialogue', 'listening-mcq', 'matching-qa', 'roleplay', 'discussion', 'homework-writing'],
-    ['warm-up', 'useful-language', 'dialogue', 'listening-true-false', 'matching-qa', 'debate', 'homework-writing'],
-    ['warm-up', 'vocabulary-match', 'dialogue', 'listening-mcq', 'matching-qa', 'roleplay', 'debate', 'homework-writing'],
-    ['warm-up', 'language-in-context', 'dialogue', 'listening-true-false', 'matching-qa', 'roleplay', 'discussion', 'homework-writing'],
+    // P3 — Vocab match → phrases → dialogue → debate (no listening)
+    ['warm-up', 'vocabulary-match', 'useful-language', 'dialogue', 'matching-qa', 'debate', 'homework-writing'],
+    // P4 — Expressions/idioms → dialogue → T/F → roleplay
+    ['warm-up', 'useful-expressions', 'dialogue', 'listening-true-false', 'matching-qa', 'roleplay', 'homework-writing'],
+    // P5 — Language in context → dialogue → comprehension → talking-point
+    ['warm-up', 'language-in-context', 'dialogue', 'matching-qa', 'roleplay', 'talking-point', 'homework-writing'],
   ],
 } as const
 
@@ -50,9 +81,9 @@ function selectStructure(communicativeNeed: string): { category: string; modules
     category = 'grammar'
   } else if (/read|article|text|comprehens|passage|report/.test(need)) {
     category = 'reading'
-  } else if (/vocabular|word|idiom|phrase|expression|collocat|phrasal/.test(need)) {
+  } else if (/vocabular|terminolog|word|idiom|phrase|expression|collocat|phrasal/.test(need)) {
     category = 'vocabulary'
-  } else if (/email|present|negotiat|pitch|report|meeting|professional|business/.test(need)) {
+  } else if (/email|present|negotiat|pitch|meeting|professional|business|communicat|colleague|stakeholder|client|proposal|brief/.test(need)) {
     category = 'professional'
   } else {
     category = 'speaking'
@@ -125,9 +156,15 @@ CORRECT APPROACH — anchor the personal question to this lesson's specific scen
 - Lesson "Writing Lab Reports": "What part of writing a report do you usually find takes the longest?" (topic-specific: report writing, time)
 Notice: you cannot swap these questions across lessons without the question becoming meaningless. That is the standard every warm-up question must meet.
 
-BANNED question type — non-expert framing: NEVER ask the student to explain their work to a non-expert, layperson, or non-technical person in ANY form — not direct ("How would you explain X to a layperson?") and not as a story prompt ("Tell me about a time you had to explain X to a non-expert"). This ban applies to warm-up AND discussion questions.
+BANNED question type — non-expert framing: NEVER ask the student to explain, justify, or defend their work to a non-expert, layperson, non-technical manager, or anyone without a background in the student's field. The ban covers every surface form:
+- Direct: "How would you explain X to a layperson?"
+- Story reframe: "Have you ever had to explain X to someone without a technical background?"
+- Justification form: "Have you ever had to justify using X to a non-technical manager?" ← exact example, still banned
+- Simplification form: "How do you make X accessible to non-specialists?"
+If the question contains "non-technical", "layperson", "non-expert", "without a background", "justify to a manager", or "make it understandable to" — it is banned. No exceptions, no reframes.
 BANNED question types (these are dead on arrival — replace with anything else):
 - Generic social filler: "How was your commute?", "How was your weekend?", "Did you get any time off?" — these belong in the dialogue's small talk section, not the warm-up. The dialogue already has a small talk opener; the warm-up must not duplicate it.
+- Misconception framing: "What's one common misconception about X?" or "What do people often get wrong about X?" — the student is asked to judge others' understanding rather than share their own experience. Dead.
 - Personalization theater: NEVER use workplace names, company names, facility names, or location names from the student profile in a warm-up question — questions must be answerable by any professional doing a similar job, not only by this exact student at this exact location this exact week.
 - Abstract synthesis: "Considering X's global nature, how do you ensure Y across different cultural interpretations of Z?" — Harvard essay prompt, not a conversation starter.
 - Procedural/audit framing: "How do you decide whether X is Y?", "What is your process for Z?", "What is the first thought that goes through your mind when X?"
