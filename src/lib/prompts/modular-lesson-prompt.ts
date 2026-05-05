@@ -76,8 +76,8 @@ const STRUCTURES = {
     ['warm-up', 'useful-language', 'sentence-correction', 'writing-task', 'homework-writing'],
     // W2 — Grammar-led: master the structure, then write using it
     ['warm-up', 'grammar-focus', 'find-the-mistake', 'writing-task', 'homework-writing'],
-    // W3 — Read and write: study a model text, extract language patterns, then write
-    ['warm-up', 'vocabulary-cards', 'reading-article', 'language-in-context', 'writing-task', 'homework-writing'],
+    // W3 — Critique and write: analyse weak examples, learn the conventions, then write
+    ['warm-up', 'find-the-mistake', 'language-in-context', 'writing-task', 'homework-writing'],
     // W4 — Correction-led: study common errors in this writing type, then write accurately
     ['warm-up', 'sentence-correction', 'useful-language', 'gap-fill', 'writing-task', 'homework-writing'],
     // W5 — Cold open: language patterns straight away, then write
@@ -124,6 +124,14 @@ export function buildModularLessonPrompt(
     ? [modules[0], ...modules.slice(1, -1).slice(0, 3), 'homework-writing']
     : modules
 
+  const writingLessonRules = category === 'writing' ? `
+WRITING LESSON DISCIPLINE — applies to every module in this lesson:
+- vocabulary-cards: The student is ${student.level}, background in ${student.occupation || 'their professional field'}. Include ONLY field-specific terminology they would encounter in real professional documentation — precise terms that a native speaker at ${student.level} would need to look up or deliberately learn. NEVER include basic professional words they would have known before their first week in the role. Ask yourself: "Would a ${student.level} professional already know this word?" If yes, replace it with something more precise and domain-specific.
+- language-in-context: Documentation-register phrases ONLY — the kind written inside real documents, not spoken in meetings. Correct type: "This method is intentionally...", "Note: this behaviour is by design because...", "Deprecated as of version...", "See also:", "This parameter is required when...", "For reference:", "This value defaults to...", "As of [version]..." — phrasing a writer uses in the document itself. BANNED: generic business phrases ("fosters collaboration", "reduces the barrier to", "provides context", "adds value", "ensures clarity") — these are filler, not writing conventions.
+- find-the-mistake: Sentences must demonstrate errors in WRITING QUALITY specific to the document type — wrong register, over-vague explanation, unexplained abbreviations, passive where direct is needed, hedging language inappropriate for documentation, unnecessary preamble. NOT generic grammar mistakes.
+- writing-task: Specify the exact document type, format, and technical audience. The student must produce something they could realistically submit or commit to a real project. Include specific professional constraints (word count, format, target reader). Planning notes must be actionable steps toward that specific output.
+` : ''
+
   return `Expert ${student.targetLanguage} instructor. Generate a modular lesson as JSON.
 
 STUDENT: ${student.name}, ${student.level}, ${student.ageGroup}
@@ -137,6 +145,7 @@ CONTENT RULES:
 - NO em dashes (—). BANNED words: "resonate","navigate","landscape","leverage","dynamics","paradigm","mitigate","jeopardize","escalate","bottleneck","trade-off","iron out","flag","stakeholder","circle back"
 - Real names only in dialogues — NEVER bracket placeholders
 
+${writingLessonRules}
 MODULE TYPE DISCIPLINE — no mixing:
 - vocabulary-cards = SINGLE WORDS only. No phrases, no compound nouns, no collocations. One word, one entry.
 - vocabulary-match = LEXICAL ITEMS only — single words, collocations, idioms, or phrasal verbs. The item must be teachable as a unit of MEANING, not as a unit of discourse. NEVER discourse markers ("Firstly", "Moving on to", "In conclusion", "Furthermore"), sentence starters or frames ("A significant finding is", "This refers to", "By X I mean", "The data shows"), causal connectors ("leads to", "results in", "due to", "as a result"), or presentation signposting phrases of any kind. Those belong in useful-language. NEVER appears in the same lesson as vocabulary-cards — they would duplicate the same words. If the structure includes both, generate only vocabulary-match and omit vocabulary-cards entirely.

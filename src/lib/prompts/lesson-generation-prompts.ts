@@ -120,8 +120,21 @@ export function buildBlockPlanPrompt(
   const isWorkplace = !!(student.occupation && !['student','n/a'].includes(student.occupation.toLowerCase()))
   const isGrammarFocused = ['grammar','accuracy','exam'].some(k => student.endGoals.toLowerCase().includes(k))
 
-  const skillFocusSection = skillFocus && skillFocus.length > 0
-    ? `\nSKILL FOCUS (tutor instruction — highest priority):\nThe tutor has selected these skill areas: ${skillFocus.join(', ')}.\n- Weight the topic blocks and lesson titles toward these skills. If "Writing" is selected, at least 1 full block must be writing-focused.\n- For any writing lesson, the communicativeNeed MUST begin with an explicit writing verb: "Write", "Draft", "Compose", "Document", or "Compile". This is mandatory — do NOT use speaking/discussion verbs for writing lessons.\n- If "Grammar" is selected, include at least 1 block with PPP methodology and explicit grammar drill lessons.\n- Other skills (Speaking, Reading, Vocabulary, Listening) should each have dedicated lessons within relevant blocks if selected.\n`
+  // Auto-infer skill focus from student goals; passed-in skillFocus overrides
+  function inferSkillsFromGoals(goals: string): string[] {
+    const g = goals.toLowerCase()
+    const skills: string[] = []
+    if (/\bwrit|\bdraft|\breport|\bemail|\bdocumentation/.test(g)) skills.push('Writing')
+    if (/\bread|\bcomprehension/.test(g)) skills.push('Reading')
+    if (/\bgrammar|\baccuracy|\bexam/.test(g)) skills.push('Grammar')
+    if (/\bvocabulary|\bterminology|\blexis/.test(g)) skills.push('Vocabulary')
+    if (/\blistening|\bhear/.test(g)) skills.push('Listening')
+    return skills
+  }
+  const effectiveSkills = (skillFocus && skillFocus.length > 0) ? skillFocus : inferSkillsFromGoals(student.endGoals)
+
+  const skillFocusSection = effectiveSkills.length > 0
+    ? `\nSKILL FOCUS (derived from student goals):\nPriority skill areas: ${effectiveSkills.join(', ')}.\n- Weight the topic blocks and lesson titles toward these skills. If "Writing" is included, at least 1 full block must be writing-focused.\n- For any writing lesson, the communicativeNeed MUST begin with an explicit writing verb: "Write", "Draft", "Compose", "Document", or "Compile". This is mandatory — do NOT use speaking/discussion verbs for writing lessons.\n- If "Grammar" is included, at least 1 block should use PPP methodology with explicit grammar drill lessons.\n- Other skills (Speaking, Reading, Vocabulary, Listening) should have dedicated lessons within relevant blocks.\n`
     : '';
 
   return `Expert language curriculum designer. Generate a structured learning plan as JSON.

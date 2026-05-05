@@ -9,6 +9,7 @@ interface InstantLessonParams {
   topic: string;
   description?: string;
   duration: 25 | 50;
+  skillFocus?: string;
   studentName?: string;
   endGoals?: string;
   occupation?: string;
@@ -51,13 +52,16 @@ export async function generateInstantLesson(params: InstantLessonParams): Promis
 }
 
 function buildInstantLessonPrompt(params: InstantLessonParams): string {
-  const { targetLanguage, nativeLanguage, level, topic, description, duration, studentName = 'Student', endGoals, occupation, interests, weaknesses } = params;
+  const { targetLanguage, nativeLanguage, level, topic, description, duration, skillFocus, studentName = 'Student', endGoals, occupation, interests, weaknesses } = params;
   const is50 = duration === 50;
   const taskPrepTime = is50 ? 10 : 8;
   const taskPerfTime = is50 ? 20 : 8;
   const postTaskTime = is50 ? 10 : 2;
   const hwTime = is50 ? 5 : 2;
-  const additionalContext = description ? `\nContext: ${description}` : '';
+  const additionalContext = [
+    description ? `Context: ${description}` : '',
+    skillFocus ? `Skill focus: emphasise ${skillFocus} skills in this lesson` : '',
+  ].filter(Boolean).map(s => `\n${s}`).join('');
 
   const bioLines = [
     endGoals && `Goals: ${endGoals}`,

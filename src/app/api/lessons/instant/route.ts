@@ -33,6 +33,7 @@ export async function POST(request: NextRequest) {
       topic,
       description,
       duration,
+      skillFocus,
       targetLanguage,
       nativeLanguage,
       level
@@ -69,6 +70,7 @@ export async function POST(request: NextRequest) {
       topic,
       description,
       duration: Number(duration) as 25 | 50,
+      skillFocus: skillFocus || undefined,
       studentName: student.name,
       endGoals: student.endGoals || undefined,
       occupation: student.occupation || undefined,
