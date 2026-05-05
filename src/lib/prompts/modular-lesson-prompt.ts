@@ -85,19 +85,19 @@ const STRUCTURES = {
   ],
 } as const
 
-function selectStructure(communicativeNeed: string): { category: string; modules: string[] } {
-  const need = communicativeNeed.toLowerCase()
+function selectStructure(communicativeNeed: string, lessonTitle?: string): { category: string; modules: string[] } {
+  const combined = `${communicativeNeed} ${lessonTitle ?? ''}`.toLowerCase()
   let category: keyof typeof STRUCTURES
 
-  if (/\bwrit[ei]|\bdraft|\bcompos[ei]/.test(need)) {
+  if (/\bwrit[ei]|\bdraft|\bcompos[ei]|\bdocument\b|\bsummariz|\brecord\b|\bcompil[ei]|\bannotat|\breport\b/.test(combined)) {
     category = 'writing'
-  } else if (/grammar|tense|structure|clause|verb form|syntax|accuracy/.test(need)) {
+  } else if (/grammar|tense|structure|clause|verb form|syntax|accuracy/.test(combined)) {
     category = 'grammar'
-  } else if (/read|article|text|comprehens|passage|report/.test(need)) {
+  } else if (/read|article|text|comprehens|passage/.test(combined)) {
     category = 'reading'
-  } else if (/vocabular|terminolog|word|idiom|phrase|expression|collocat|phrasal/.test(need)) {
+  } else if (/vocabular|terminolog|word|idiom|phrase|expression|collocat|phrasal/.test(combined)) {
     category = 'vocabulary'
-  } else if (/email|present|negotiat|pitch|meeting|professional|business|communicat|colleague|stakeholder|client|proposal|brief/.test(need)) {
+  } else if (/email|present|negotiat|pitch|meeting|professional|business|communicat|colleague|stakeholder|client|proposal|brief/.test(combined)) {
     category = 'professional'
   } else {
     category = 'speaking'
@@ -117,7 +117,7 @@ export function buildModularLessonPrompt(
   cefrVocabGuide: string,
   vocabularyContextSection: string
 ): string {
-  const { category, modules } = selectStructure(lesson.communicativeNeed)
+  const { category, modules } = selectStructure(lesson.communicativeNeed, lesson.title)
 
   // For 25-min lessons: trim to first + 3 middle + homework-writing
   const selectedModules = duration === 25

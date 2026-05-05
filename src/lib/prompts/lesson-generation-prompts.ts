@@ -109,7 +109,8 @@ RETURN ONLY VALID JSON, NO EXPLANATION.`;
 export function buildBlockPlanPrompt(
   student: StudentProfile,
   roles: string[],
-  existingBlocks: TopicBlock[] = []
+  existingBlocks: TopicBlock[] = [],
+  skillFocus?: string[]
 ): string {
   const previousBlocksContext = existingBlocks.length > 0
     ? `\nPREVIOUS BLOCKS (do NOT repeat):\n${existingBlocks.map(b => `Block ${b.blockNumber}: ${b.title}`).join('\n')}\nGenerate the NEXT blocks building on these.`
@@ -119,13 +120,17 @@ export function buildBlockPlanPrompt(
   const isWorkplace = !!(student.occupation && !['student','n/a'].includes(student.occupation.toLowerCase()))
   const isGrammarFocused = ['grammar','accuracy','exam'].some(k => student.endGoals.toLowerCase().includes(k))
 
+  const skillFocusSection = skillFocus && skillFocus.length > 0
+    ? `\nSKILL FOCUS (tutor instruction — highest priority):\nThe tutor has selected these skill areas: ${skillFocus.join(', ')}.\n- Weight the topic blocks and lesson titles toward these skills. If "Writing" is selected, at least 1 full block must be writing-focused.\n- For any writing lesson, the communicativeNeed MUST begin with an explicit writing verb: "Write", "Draft", "Compose", "Document", or "Compile". This is mandatory — do NOT use speaking/discussion verbs for writing lessons.\n- If "Grammar" is selected, include at least 1 block with PPP methodology and explicit grammar drill lessons.\n- Other skills (Speaking, Reading, Vocabulary, Listening) should each have dedicated lessons within relevant blocks if selected.\n`
+    : '';
+
   return `Expert language curriculum designer. Generate a structured learning plan as JSON.
 
 STUDENT: ${student.name}, ${student.targetLanguage} (native: ${student.nativeLanguage}), ${student.level}, ${student.ageGroup}
 Goals: ${student.endGoals} | Occupation: ${student.occupation || 'Not specified'} | Weaknesses: ${student.weaknesses || 'Not specified'} | Interests: ${student.interests || 'Not specified'}
 Roles available: ${roles.join(', ')}
 ${previousBlocksContext}
-
+${skillFocusSection}
 METHODOLOGY GUIDE:
 - TBLT: workplace interactions, real-world tasks. Student performs a task, then language is reviewed.
 - PPP: specific grammar points, accuracy work. Present → drill → free use.

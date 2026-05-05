@@ -370,10 +370,10 @@ CRITICAL: This exercise must appear as Exercise 5 in the exercises array. ALL se
   }
 
   // Generate block-structured learning plan (Preply TBLT format)
-  async generateBlockPlan(student: StudentProfile, existingBlocks: TopicBlock[] = []): Promise<BlockLearningPlan> {
+  async generateBlockPlan(student: StudentProfile, existingBlocks: TopicBlock[] = [], skillFocus?: string[]): Promise<BlockLearningPlan> {
     const { roles } = getSuggestedRolesAndScenarios(student.occupation);
 
-    const prompt = buildBlockPlanPrompt(student, roles, existingBlocks);
+    const prompt = buildBlockPlanPrompt(student, roles, existingBlocks, skillFocus);
 
     try {
       const { rawText: text } = await generateWithFailover({

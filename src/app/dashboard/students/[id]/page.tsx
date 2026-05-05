@@ -83,6 +83,10 @@ export default function StudentProfilePage() {
   const [selectedLessons, setSelectedLessons] = useState<Set<string>>(new Set())
   const [isDeletingLessons, setIsDeletingLessons] = useState(false)
   
+  // Skill focus modal state
+  const [showSkillFocusModal, setShowSkillFocusModal] = useState(false)
+  const [selectedSkills, setSelectedSkills] = useState<string[]>([])
+
   // Instant Lesson Generator State
   const [instantGrammarTopic, setInstantGrammarTopic] = useState('')
   const [instantLessonDescription, setInstantLessonDescription] = useState('')
@@ -265,12 +269,12 @@ export default function StudentProfilePage() {
   }, [session])
 
   // Handle AI learning plan generation (block format)
-  const handleGenerateLearningPlan = async () => {
+  const handleGenerateLearningPlan = async (skills: string[]) => {
     if (!student || isGeneratingPlan) return
-
+    setShowSkillFocusModal(false)
     setIsGeneratingPlan(true)
     try {
-      const result = await generateBlockLearningPlan(student.id)
+      const result = await generateBlockLearningPlan(student.id, skills.length > 0 ? skills : undefined)
       if (result.success && result.data) {
         setCurrentBlockPlan(result.data)
         setCurrentLearningPlan(null)
@@ -869,7 +873,7 @@ export default function StudentProfilePage() {
                           </button>
                         )}
                         <button
-                          onClick={handleGenerateLearningPlan}
+                          onClick={() => setShowSkillFocusModal(true)}
                           disabled={isGeneratingPlan || (generationStats.remaining !== -1 && generationStats.remaining <= 0)}
                           className="bg-brand-primary text-white px-4 py-2 rounded-lg hover:bg-brand-accent transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 text-sm"
                         >
@@ -893,8 +897,8 @@ export default function StudentProfilePage() {
                           Generate an AI-powered learning plan based on {student.name}&apos;s profile
                         </p>
                         <div className="mt-6">
-                          <button 
-                            onClick={handleGenerateLearningPlan}
+                          <button
+                            onClick={() => setShowSkillFocusModal(true)}
                             disabled={generationStats.remaining !== -1 && generationStats.remaining <= 0}
                             className="bg-brand-primary text-white px-4 py-2 rounded-lg hover:bg-brand-accent transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                           >
@@ -1494,6 +1498,47 @@ export default function StudentProfilePage() {
           </div>
         )}
       </div>
+
+      {/* Skill Focus Modal */}
+      {showSkillFocusModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-sm mx-4 p-6">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">Skill Focus</h2>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-5">Choose which skills to emphasise in this plan. Leave all unselected for a balanced mix.</p>
+            <div className="grid grid-cols-2 gap-2 mb-6">
+              {['Speaking', 'Writing', 'Reading', 'Vocabulary', 'Grammar', 'Listening'].map(skill => (
+                <button
+                  key={skill}
+                  onClick={() => setSelectedSkills(prev =>
+                    prev.includes(skill) ? prev.filter(s => s !== skill) : [...prev, skill]
+                  )}
+                  className={`px-4 py-2.5 rounded-lg border text-sm font-medium transition-colors ${
+                    selectedSkills.includes(skill)
+                      ? 'bg-brand-primary text-white border-brand-primary'
+                      : 'border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
+                  }`}
+                >
+                  {skill}
+                </button>
+              ))}
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={() => { setShowSkillFocusModal(false); setSelectedSkills([]) }}
+                className="flex-1 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleGenerateLearningPlan(selectedSkills)}
+                className="flex-1 px-4 py-2 rounded-lg bg-brand-primary text-white text-sm font-medium hover:bg-brand-accent transition-colors"
+              >
+                Generate
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </DashboardLayout>
   )
 }

@@ -436,7 +436,7 @@ export async function getStudentLearningPlan(studentId: string): Promise<{
 }
 
 // Generate block-structured learning plan (Preply TBLT format)
-export async function generateBlockLearningPlan(studentId: string): Promise<{
+export async function generateBlockLearningPlan(studentId: string, skillFocus?: string[]): Promise<{
   success: boolean;
   data?: BlockLearningPlan;
   planId?: string;
@@ -470,7 +470,7 @@ export async function generateBlockLearningPlan(studentId: string): Promise<{
     };
 
     const lessonAIService = await getLessonAIService(await resolveProvider(session.user.id));
-    const blockPlan = await lessonAIService.generateBlockPlan(studentProfile);
+    const blockPlan = await lessonAIService.generateBlockPlan(studentProfile, [], skillFocus);
 
     const savedPlan = await prisma.learningPlan.create({
       data: {
