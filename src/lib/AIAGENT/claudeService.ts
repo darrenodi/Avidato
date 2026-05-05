@@ -10,8 +10,7 @@ import { extractJSONFromText, cleanAndParseJSON } from '../utils/json-parser';
 import { enforceSynonymConstraints } from '../utils/vocabulary-validator';
 import { enforceDialogueStructure } from '../utils/dialogue-validator';
 import { generateModularLessonWithGuard } from '../utils/modular-lesson-generation-guard';
-import { buildLessonGenerationPrompt, buildBlockPlanPrompt, buildTBLTLessonPrompt } from '../prompts/lesson-generation-prompts';
-import { buildPPPLessonPrompt, buildCLTLessonPrompt } from '../prompts/ppp-clt-prompts';
+import { buildLessonGenerationPrompt, buildBlockPlanPrompt } from '../prompts/lesson-generation-prompts';
 import { buildModularLessonPrompt } from '../prompts/modular-lesson-prompt';
 import { generateWithProviderFailover } from '../ai/generate-with-provider-failover';
 
@@ -274,65 +273,6 @@ Format: { "type": "grammar", "title": "Exercise 5: Find the Mistake", "content":
     } catch (error) {
       console.error('Claude: Error generating block plan:', error);
       throw new Error('Failed to generate learning plan. Please try again.');
-    }
-  }
-
-  async generateTBLTLesson(student: StudentProfile, lesson: BlockLesson, duration: 25 | 50 = 50): Promise<GeneratedLesson> {
-    const { roles } = getSuggestedRolesAndScenarios(student.occupation);
-    const prompt = buildTBLTLessonPrompt(
-      student, lesson, duration, roles,
-      this.getLevelVocabularyGuide(student.level),
-      this.getCEFRModule(student.level).getVocabularyGuide(),
-      ''
-    );
-
-    try {
-      const text = await this.generate(prompt);
-      const jsonStr = extractJSONFromText(text);
-      const parsedResponse = cleanAndParseJSON<GeneratedLesson>(jsonStr);
-
-      try { enforceSynonymConstraints(parsedResponse, student.level); } catch (err) {
-        console.warn('Claude: Failed to sanitize synonyms:', err);
-      }
-
-      return parsedResponse;
-    } catch (error) {
-      console.error('Claude: Error generating TBLT lesson:', error);
-      throw new Error('Failed to generate lesson. Please try again.');
-    }
-  }
-
-  async generatePPPLesson(student: StudentProfile, lesson: BlockLesson, duration: 25 | 50 = 50): Promise<GeneratedLesson> {
-    const prompt = buildPPPLessonPrompt(
-      student, lesson, duration,
-      this.getLevelVocabularyGuide(student.level),
-      this.getCEFRModule(student.level).getVocabularyGuide(),
-      ''
-    );
-
-    try {
-      const text = await this.generate(prompt);
-      return cleanAndParseJSON<GeneratedLesson>(extractJSONFromText(text));
-    } catch (error) {
-      console.error('Claude: Error generating PPP lesson:', error);
-      throw new Error('Failed to generate lesson. Please try again.');
-    }
-  }
-
-  async generateCLTLesson(student: StudentProfile, lesson: BlockLesson, duration: 25 | 50 = 50): Promise<GeneratedLesson> {
-    const prompt = buildCLTLessonPrompt(
-      student, lesson, duration,
-      this.getLevelVocabularyGuide(student.level),
-      this.getCEFRModule(student.level).getVocabularyGuide(),
-      ''
-    );
-
-    try {
-      const text = await this.generate(prompt);
-      return cleanAndParseJSON<GeneratedLesson>(extractJSONFromText(text));
-    } catch (error) {
-      console.error('Claude: Error generating CLT lesson:', error);
-      throw new Error('Failed to generate lesson. Please try again.');
     }
   }
 

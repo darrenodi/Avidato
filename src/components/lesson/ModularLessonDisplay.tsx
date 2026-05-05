@@ -4,23 +4,21 @@ import React from 'react'
 import { ModularLessonContent, ModuleType, LessonModule } from '@/types/module-lesson'
 import { EditButton } from './EditSectionModal'
 import {
-  WarmUpModule, ImageDiscussionModule,
+  WarmUpModule,
   VocabularyCardsModule, VocabularyMatchModule, UsefulExpressionsModule, UsefulLanguageModule,
   LanguageInContextModule, PhrasalVerbsModule,
-  GapFillModule, CompleteTheSentenceModule, FindTheMistakeModule, OrderingModule,
-  FillInBlanksDialogueModule, SentenceCorrectionModule, GrammarFocusModule,
+  GapFillModule, FindTheMistakeModule, OrderingModule,
+  SentenceCorrectionModule, GrammarFocusModule,
   DialogueModule, ReadingArticleModule, ReadingScanModule, VocabularyInTextModule,
-  ReadingSectionPredictionModule, SkimMainIdeaModule, MatchingQAModule, NoticingModule,
-  ListeningPredictionsModule, ListeningMainIdeaModule, ListeningTrueFalseModule,
-  ListeningMCQModule, ListeningSpecificInfoModule, ListeningTableModule, ListeningComprehensionModule,
-  RoleplayModule, TalkingPointModule, DiscussionModule, FurtherDiscussionModule, DebateModule,
+  SkimMainIdeaModule, MatchingQAModule,
+  ListeningTrueFalseModule, ListeningMCQModule,
+  RoleplayModule, TalkingPointModule, DiscussionModule, DebateModule,
   HomeworkWritingModule,
 } from './ModularLessonComponents'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const MODULE_MAP: Record<ModuleType, React.ComponentType<{ content: any; isStudentView?: boolean; tutorNotes?: string }>> = {
   'warm-up': WarmUpModule,
-  'image-discussion': ImageDiscussionModule,
   'vocabulary-cards': VocabularyCardsModule,
   'vocabulary-match': VocabularyMatchModule,
   'useful-expressions': UsefulExpressionsModule,
@@ -28,39 +26,26 @@ const MODULE_MAP: Record<ModuleType, React.ComponentType<{ content: any; isStude
   'language-in-context': LanguageInContextModule,
   'phrasal-verbs': PhrasalVerbsModule,
   'gap-fill': GapFillModule,
-  'complete-the-sentence': CompleteTheSentenceModule,
   'find-the-mistake': FindTheMistakeModule,
   'ordering': OrderingModule,
-  'fill-in-blanks-dialogue': FillInBlanksDialogueModule,
   'sentence-correction': SentenceCorrectionModule,
   'grammar-focus': GrammarFocusModule,
   'dialogue': DialogueModule,
   'reading-article': ReadingArticleModule,
   'reading-scan': ReadingScanModule,
   'vocabulary-in-text': VocabularyInTextModule,
-  'reading-section-prediction': ReadingSectionPredictionModule,
   'skim-main-idea': SkimMainIdeaModule,
   'matching-qa': MatchingQAModule,
-  'noticing': NoticingModule,
-  'listening-predictions': ListeningPredictionsModule,
-  'listening-main-idea': ListeningMainIdeaModule,
   'listening-true-false': ListeningTrueFalseModule,
   'listening-mcq': ListeningMCQModule,
-  'listening-specific-info': ListeningSpecificInfoModule,
-  'listening-table': ListeningTableModule,
-  'listening-comprehension': ListeningComprehensionModule,
   'roleplay': RoleplayModule,
   'talking-point': TalkingPointModule,
   'discussion': DiscussionModule,
-  'further-discussion': FurtherDiscussionModule,
   'debate': DebateModule,
   'homework-writing': HomeworkWritingModule,
 }
 
 function ModuleRenderer({ module, isStudentView }: { module: LessonModule; isStudentView?: boolean }) {
-  if (module.type === 'image-discussion') {
-    return <ImageDiscussionModule content={module.content as never} isStudentView={isStudentView} tutorNotes={isStudentView ? undefined : module.tutorNotes} />
-  }
   const Component = MODULE_MAP[module.type]
   if (!Component) return <p className="text-sm text-gray-400 italic">Unknown module: {module.type}</p>
   return <Component content={module.content} isStudentView={isStudentView} tutorNotes={isStudentView ? undefined : module.tutorNotes} />

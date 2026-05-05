@@ -18,7 +18,6 @@ import type {
   MatchingQAContent,
   WarmUpContent,
   DiscussionContent,
-  FurtherDiscussionContent,
   RoleplayContent,
   DialogueContent,
   HomeworkWritingContent,
@@ -407,7 +406,7 @@ function checkWarmUpQuestions(mod: LessonModule, hardViolations: string[]): void
 }
 
 function checkDiscussionQuestions(mod: LessonModule, hardViolations: string[]): void {
-  const content = mod.content as DiscussionContent | FurtherDiscussionContent
+  const content = mod.content as DiscussionContent
   if (!content?.questions) return
   const banned: string[] = []
   for (const q of content.questions) {
@@ -486,7 +485,6 @@ export function validateModularLesson(lesson: unknown): ValidationResult {
         checkWarmUpQuestions(mod, hardViolations)
         break
       case 'discussion':
-      case 'further-discussion':
         checkDiscussionQuestions(mod, hardViolations)
         break
       case 'dialogue':

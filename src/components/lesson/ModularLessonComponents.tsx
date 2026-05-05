@@ -1,15 +1,14 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import {
-  WarmUpContent, ImageDiscussionContent, VocabularyCardsContent, VocabularyMatchContent,
+  WarmUpContent, VocabularyCardsContent, VocabularyMatchContent,
   UsefulExpressionsContent, UsefulLanguageContent, LanguageInContextContent, PhrasalVerbsContent,
-  GapFillContent, CompleteTheSentenceContent, FindTheMistakeContent, OrderingContent,
-  FillInBlanksDialogueContent, SentenceCorrectionContent, GrammarFocusContent, DialogueContent,
-  ReadingArticleContent, ReadingScanContent, VocabularyInTextContent, ReadingSectionPredictionContent,
-  SkimMainIdeaContent, MatchingQAContent, NoticingContent,
-  ListeningPredictionsContent, ListeningMainIdeaContent, ListeningTrueFalseContent,
-  ListeningMCQContent, ListeningSpecificInfoContent, ListeningTableContent, ListeningComprehensionContent,
+  GapFillContent, FindTheMistakeContent, OrderingContent,
+  SentenceCorrectionContent, GrammarFocusContent, DialogueContent,
+  ReadingArticleContent, ReadingScanContent, VocabularyInTextContent,
+  SkimMainIdeaContent, MatchingQAContent,
+  ListeningTrueFalseContent, ListeningMCQContent,
   RoleplayContent, TalkingPointContent, DiscussionContent, DebateContent,
   HomeworkWritingContent,
 } from '@/types/module-lesson'
@@ -73,87 +72,6 @@ export function WarmUpModule({ content, isStudentView, tutorNotes }: { content: 
           <p className="text-gray-900 dark:text-white">{q}</p>
         </div>
       ))}
-      {!isStudentView && tutorNotes && <TutorNote note={tutorNotes} />}
-    </div>
-  )
-}
-
-// ─── Image Discussion ─────────────────────────────────────────────────────────
-
-export function ImageDiscussionModule({ content, isStudentView, tutorNotes }: { content: ImageDiscussionContent; isStudentView?: boolean; tutorNotes?: string }) {
-  const [pexelsImage, setPexelsImage] = useState<{ url: string; photographer: string; pexelsUrl: string } | null>(null)
-  const [imgLoading, setImgLoading] = useState(false)
-
-  const placeholder = content.imagePlaceholders?.[0]
-
-  useEffect(() => {
-    if (content.imageData || !placeholder?.label) return
-    // Convert hyphenated label to search query, fall back to description keywords
-    const query = placeholder.label.replace(/-/g, ' ')
-    setImgLoading(true)
-    fetch(`/api/pexels?q=${encodeURIComponent(query)}`)
-      .then(r => r.ok ? r.json() : null)
-      .then(data => { if (data?.url) setPexelsImage(data) })
-      .catch(() => null)
-      .finally(() => setImgLoading(false))
-  }, [placeholder?.label, content.imageData])
-
-  const imageUrl = content.imageData || pexelsImage?.url
-
-  return (
-    <div className="space-y-4">
-      {imgLoading && (
-        <div className="w-full h-56 rounded-xl bg-gray-100 dark:bg-gray-800 animate-pulse flex items-center justify-center">
-          <svg className="w-8 h-8 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-          </svg>
-        </div>
-      )}
-      {!imgLoading && imageUrl && (
-        <div className="relative">
-          <img
-            src={imageUrl}
-            alt={placeholder?.label || 'Discussion image'}
-            className="w-full rounded-xl object-cover max-h-72"
-          />
-          {pexelsImage && (
-            <a
-              href={pexelsImage.pexelsUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="absolute bottom-2 right-2 text-[10px] text-white/70 hover:text-white bg-black/40 hover:bg-black/60 px-2 py-0.5 rounded transition-colors"
-            >
-              Photo by {pexelsImage.photographer} on Pexels
-            </a>
-          )}
-        </div>
-      )}
-      {!imgLoading && !imageUrl && placeholder && (
-        <div className="border-2 border-dashed border-amber-200 dark:border-amber-700 rounded-xl p-5 bg-amber-50 dark:bg-amber-900/10">
-          <div className="flex items-start gap-3">
-            <svg className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-            <div className="flex-1">
-              <p className="text-xs font-semibold text-amber-700 dark:text-amber-400 uppercase tracking-wide mb-1">
-                {isStudentView ? 'Image' : 'Tutor: source an image before the lesson'}
-              </p>
-              <p className="text-sm font-medium text-amber-800 dark:text-amber-300">{placeholder.label}</p>
-              {placeholder.description && (
-                <p className="text-xs text-amber-600 dark:text-amber-500 italic mt-1">{placeholder.description}</p>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-      <div className="space-y-3">
-        {(content.questions || []).map((q, i) => (
-          <div key={i} className="flex gap-3 items-start">
-            <span className="font-bold text-brand-primary flex-shrink-0">{i + 1}.</span>
-            <p className="text-gray-900 dark:text-white">{q}</p>
-          </div>
-        ))}
-      </div>
       {!isStudentView && tutorNotes && <TutorNote note={tutorNotes} />}
     </div>
   )
@@ -726,61 +644,6 @@ export function GapFillModule({ content, isStudentView, tutorNotes }: { content:
   )
 }
 
-// ─── Complete the Sentence (MCQ) ──────────────────────────────────────────────
-
-export function CompleteTheSentenceModule({ content, isStudentView, tutorNotes }: { content: CompleteTheSentenceContent; isStudentView?: boolean; tutorNotes?: string }) {
-  const [selected, setSelected] = useState<Record<number, number>>({})
-
-  return (
-    <div className="space-y-4">
-      <p className="text-sm text-gray-600 dark:text-gray-300">{content.instructions}</p>
-      {(content.questions || []).map((q, i) => (
-        <div key={i} className="space-y-2">
-          <div className="flex gap-2 text-sm font-medium text-gray-900 dark:text-white">
-            <span className="text-brand-primary flex-shrink-0">{i + 1}.</span>
-            <span>{q.stem}</span>
-          </div>
-          <div className="flex flex-wrap gap-2 pl-5">
-            {q.options.map((opt, j) => {
-              const isCorrect = j === q.answer
-              const isChosen = selected[i] === j
-              let cls = 'px-3 py-1.5 text-sm rounded-lg border transition-colors '
-              if (!isStudentView) {
-                cls += isCorrect
-                  ? 'bg-green-50 dark:bg-green-900/20 border-green-300 dark:border-green-700 text-green-700 dark:text-green-300'
-                  : 'border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-400'
-              } else if (isChosen) {
-                cls += isCorrect
-                  ? 'bg-green-50 dark:bg-green-900/20 border-green-300 dark:border-green-700 text-green-700 dark:text-green-300'
-                  : 'bg-red-50 dark:bg-red-900/20 border-red-300 dark:border-red-700 text-red-600 dark:text-red-400 line-through'
-              } else {
-                cls += 'border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-brand-primary hover:text-brand-primary cursor-pointer'
-              }
-              return (
-                <button
-                  key={j}
-                  className={cls}
-                  onClick={() => isStudentView && selected[i] === undefined && setSelected(prev => ({ ...prev, [i]: j }))}
-                  disabled={!isStudentView || selected[i] !== undefined}
-                >
-                  {String.fromCharCode(97 + j)}. {opt}
-                </button>
-              )
-            })}
-          </div>
-          {!isStudentView && q.explanation && (
-            <p className="pl-5 text-xs text-gray-400 dark:text-gray-500 italic">{q.explanation}</p>
-          )}
-          {isStudentView && selected[i] !== undefined && q.explanation && (
-            <p className="pl-5 text-xs text-gray-400 dark:text-gray-500 italic">{q.explanation}</p>
-          )}
-        </div>
-      ))}
-      {!isStudentView && tutorNotes && <TutorNote note={tutorNotes} />}
-    </div>
-  )
-}
-
 // ─── Find the Mistake ─────────────────────────────────────────────────────────
 
 export function FindTheMistakeModule({ content, isStudentView, tutorNotes }: { content: FindTheMistakeContent; isStudentView?: boolean; tutorNotes?: string }) {
@@ -856,48 +719,6 @@ export function OrderingModule({ content, isStudentView, tutorNotes }: { content
           </div>
         </div>
       ))}
-      {!isStudentView && tutorNotes && <TutorNote note={tutorNotes} />}
-    </div>
-  )
-}
-
-// ─── Fill in Blanks Dialogue ──────────────────────────────────────────────────
-
-export function FillInBlanksDialogueModule({ content, isStudentView, tutorNotes }: { content: FillInBlanksDialogueContent; isStudentView?: boolean; tutorNotes?: string }) {
-  return (
-    <div className="space-y-4">
-      {content.context && <p className="text-sm text-gray-500 dark:text-gray-400 italic">{content.context}</p>}
-      {(content.characters?.length ?? 0) > 0 && (
-        <div className="flex flex-wrap gap-2">
-          {(content.characters || []).map((c, i) => (
-            <span key={i} className="text-xs px-2 py-1 rounded-full border border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400">
-              {c.name}{c.role ? ` — ${c.role}` : ''}
-            </span>
-          ))}
-        </div>
-      )}
-      <div className="space-y-3">
-        {(content.dialogue || []).map((line, i) => {
-          const answer = line.blankIndex !== undefined ? content.answers[String(line.blankIndex)] : undefined
-          const text = line.blankIndex !== undefined
-            ? line.text.replace('___', isStudentView ? '___' : `(${answer})`)
-            : line.text
-          return (
-            <div key={i} className="flex gap-3">
-              <span className="font-medium text-brand-primary flex-shrink-0 w-20 text-sm">{line.character}</span>
-              <p className="text-sm text-gray-900 dark:text-white flex-1">{text}</p>
-            </div>
-          )
-        })}
-      </div>
-      <div>
-        <SectionLabel text="Answer pool" />
-        <div className="flex flex-wrap gap-2">
-          {(content.answerPool || []).map((w, i) => (
-            <span key={i} className="px-2 py-1 text-sm border border-gray-200 dark:border-gray-600 rounded text-gray-700 dark:text-gray-300">{w}</span>
-          ))}
-        </div>
-      </div>
       {!isStudentView && tutorNotes && <TutorNote note={tutorNotes} />}
     </div>
   )
@@ -1186,38 +1007,6 @@ export function VocabularyInTextModule({ content, isStudentView, tutorNotes }: {
   )
 }
 
-// ─── Reading Section Prediction ───────────────────────────────────────────────
-
-export function ReadingSectionPredictionModule({ content, isStudentView, tutorNotes }: { content: ReadingSectionPredictionContent; isStudentView?: boolean; tutorNotes?: string }) {
-  return (
-    <div className="space-y-4">
-      {content.instructions && <p className="text-sm text-gray-500 dark:text-gray-400 italic">{content.instructions}</p>}
-      <div>
-        <SectionLabel text="Sections" />
-        {(content.sections || []).map((s, i) => (
-          <div key={i} className="flex gap-2 text-sm text-gray-700 dark:text-gray-300 mb-1">
-            <span className="font-medium text-brand-primary">{String.fromCharCode(65 + i)}.</span>
-            <span>{s.heading}</span>
-          </div>
-        ))}
-      </div>
-      <div>
-        <SectionLabel text="Which section contains this information?" />
-        {(content.items || []).map((item, i) => (
-          <div key={i} className="flex gap-2 text-sm mb-2">
-            <span className="text-brand-primary font-medium flex-shrink-0">{i + 1}.</span>
-            <div>
-              <p className="text-gray-900 dark:text-white">{item.content}</p>
-              {!isStudentView && <p className="text-green-600 dark:text-green-400 text-xs mt-0.5">Section {String.fromCharCode(65 + item.answer)}</p>}
-            </div>
-          </div>
-        ))}
-      </div>
-      {!isStudentView && tutorNotes && <TutorNote note={tutorNotes} />}
-    </div>
-  )
-}
-
 // ─── Skim Main Idea ───────────────────────────────────────────────────────────
 
 export function SkimMainIdeaModule({ content, isStudentView, tutorNotes }: { content: SkimMainIdeaContent; isStudentView?: boolean; tutorNotes?: string }) {
@@ -1303,68 +1092,6 @@ export function MatchingQAModule({ content, isStudentView, tutorNotes }: { conte
   )
 }
 
-// ─── Noticing ─────────────────────────────────────────────────────────────────
-
-export function NoticingModule({ content, isStudentView, tutorNotes }: { content: NoticingContent; isStudentView?: boolean; tutorNotes?: string }) {
-  return (
-    <div className="space-y-3">
-      <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3">
-        <p className="text-sm font-medium text-amber-800 dark:text-amber-300 mb-1">{content.instruction}</p>
-        {content.targetPattern && <p className="text-xs text-amber-700 dark:text-amber-400 italic">{content.targetPattern}</p>}
-      </div>
-      {content.examples && content.examples.length > 0 && (
-        <div className="space-y-1">
-          <SectionLabel text="Examples" />
-          {(content.examples || []).map((ex, i) => (
-            <p key={i} className="text-sm text-gray-700 dark:text-gray-300 italic">&ldquo;{ex}&rdquo;</p>
-          ))}
-        </div>
-      )}
-      {!isStudentView && tutorNotes && <TutorNote note={tutorNotes} />}
-    </div>
-  )
-}
-
-// ─── Listening: Predictions ───────────────────────────────────────────────────
-
-export function ListeningPredictionsModule({ content, isStudentView, tutorNotes }: { content: ListeningPredictionsContent; isStudentView?: boolean; tutorNotes?: string }) {
-  return (
-    <div className="space-y-3">
-      <AudioNote />
-      <p className="text-sm text-gray-600 dark:text-gray-300">{content.instructions}</p>
-      {(content.items || []).map((item, i) => (
-        <div key={i} className="flex items-start gap-3 text-sm">
-          <div className={`w-4 h-4 mt-0.5 flex-shrink-0 border-2 rounded ${!isStudentView && item.willBeMentioned ? 'border-green-500 bg-green-500' : 'border-gray-300 dark:border-gray-500'}`} />
-          <span className="text-gray-900 dark:text-white">{item.statement}</span>
-          {!isStudentView && <span className={`ml-auto text-xs flex-shrink-0 ${item.willBeMentioned ? 'text-green-600 dark:text-green-400' : 'text-gray-400'}`}>{item.willBeMentioned ? '✓' : '✗'}</span>}
-        </div>
-      ))}
-      {!isStudentView && tutorNotes && <TutorNote note={tutorNotes} />}
-    </div>
-  )
-}
-
-// ─── Listening: Main Idea ─────────────────────────────────────────────────────
-
-export function ListeningMainIdeaModule({ content, isStudentView, tutorNotes }: { content: ListeningMainIdeaContent; isStudentView?: boolean; tutorNotes?: string }) {
-  const [chosen, setChosen] = useState<number | null>(null)
-  return (
-    <div className="space-y-3">
-      <AudioNote />
-      <p className="text-sm text-gray-600 dark:text-gray-300">Listen and choose the best summary.</p>
-      {(content.options || []).map((opt, i) => {
-        const isCorrect = i === content.answer
-        let cls = 'w-full text-left px-3 py-2 text-sm rounded-lg border transition-colors '
-        if (!isStudentView) cls += isCorrect ? 'bg-green-50 dark:bg-green-900/20 border-green-300 dark:border-green-700 text-green-700 dark:text-green-300' : 'border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-400'
-        else if (chosen === i) cls += isCorrect ? 'bg-green-50 dark:bg-green-900/20 border-green-300 dark:border-green-700 text-green-700 dark:text-green-300' : 'bg-red-50 dark:bg-red-900/20 border-red-300 dark:border-red-700 text-red-600 dark:text-red-400'
-        else cls += 'border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-brand-primary cursor-pointer'
-        return <button key={i} className={cls} onClick={() => isStudentView && chosen === null && setChosen(i)} disabled={!isStudentView || chosen !== null}>{String.fromCharCode(49 + i)}. {opt}</button>
-      })}
-      {!isStudentView && tutorNotes && <TutorNote note={tutorNotes} />}
-    </div>
-  )
-}
-
 // ─── Listening: True/False ────────────────────────────────────────────────────
 
 export function ListeningTrueFalseModule({ content, isStudentView, tutorNotes }: { content: ListeningTrueFalseContent; isStudentView?: boolean; tutorNotes?: string }) {
@@ -1412,86 +1139,6 @@ export function ListeningMCQModule({ content, isStudentView, tutorNotes }: { con
               else cls += 'border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-brand-primary cursor-pointer'
               return <button key={j} className={cls} onClick={() => isStudentView && selected[i] === undefined && setSelected(p => ({ ...p, [i]: j }))} disabled={!isStudentView || selected[i] !== undefined}>{String.fromCharCode(97 + j)}. {opt}</button>
             })}
-          </div>
-        </div>
-      ))}
-      {!isStudentView && tutorNotes && <TutorNote note={tutorNotes} />}
-    </div>
-  )
-}
-
-// ─── Listening: Specific Info ─────────────────────────────────────────────────
-
-export function ListeningSpecificInfoModule({ content, isStudentView, tutorNotes }: { content: ListeningSpecificInfoContent; isStudentView?: boolean; tutorNotes?: string }) {
-  return (
-    <div className="space-y-3">
-      <AudioNote />
-      <p className="text-sm font-medium text-gray-900 dark:text-white">{content.question}</p>
-      {content.options && (
-        <div className="flex flex-wrap gap-2">
-          {(content.options || []).map((opt, i) => (
-            <span key={i} className="px-3 py-1 text-sm border border-gray-200 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300">{opt}</span>
-          ))}
-        </div>
-      )}
-      {!isStudentView && <p className="text-green-600 dark:text-green-400 text-sm font-medium">{content.answer}</p>}
-      {!isStudentView && tutorNotes && <TutorNote note={tutorNotes} />}
-    </div>
-  )
-}
-
-// ─── Listening: Table ─────────────────────────────────────────────────────────
-
-export function ListeningTableModule({ content, isStudentView, tutorNotes }: { content: ListeningTableContent; isStudentView?: boolean; tutorNotes?: string }) {
-  return (
-    <div className="space-y-3">
-      <AudioNote />
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm border-collapse">
-          <thead>
-            <tr>
-              <th className="text-left px-3 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-medium"></th>
-              {content.headers.map((h, i) => (
-                <th key={i} className="text-left px-3 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-medium">{h}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {content.rows.map((row, i) => (
-              <tr key={i}>
-                <td className="px-3 py-2 border border-gray-200 dark:border-gray-600 font-medium text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700">{row.label}</td>
-                {row.cells.map((cell, j) => {
-                  const key = `${i}-${j}`
-                  const answer = content.answers[key]
-                  return (
-                    <td key={j} className="px-3 py-2 border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white min-w-[100px]">
-                      {cell !== null ? cell : (!isStudentView && answer ? <span className="text-green-600 dark:text-green-400">{answer}</span> : <span className="text-gray-300 dark:text-gray-600">___</span>)}
-                    </td>
-                  )
-                })}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      {!isStudentView && tutorNotes && <TutorNote note={tutorNotes} />}
-    </div>
-  )
-}
-
-// ─── Listening: Comprehension (speaker ID) ────────────────────────────────────
-
-export function ListeningComprehensionModule({ content, isStudentView, tutorNotes }: { content: ListeningComprehensionContent; isStudentView?: boolean; tutorNotes?: string }) {
-  return (
-    <div className="space-y-3">
-      <AudioNote />
-      <p className="text-sm text-gray-600 dark:text-gray-300">Write the correct speaker: {(content.speakers || []).map((s, i, arr) => <span key={i} className="font-medium">{s}{i < arr.length - 1 ? ', ' : ''}</span>)}</p>
-      {(content.questions || []).map((q, i) => (
-        <div key={i} className="flex gap-2 text-sm">
-          <span className="text-brand-primary font-medium flex-shrink-0">{i + 1}.</span>
-          <div className="flex-1">
-            <p className="text-gray-900 dark:text-white">{q.statement}</p>
-            {!isStudentView && <p className="text-green-600 dark:text-green-400 text-xs mt-0.5 font-medium">{q.answer}</p>}
           </div>
         </div>
       ))}
@@ -1580,23 +1227,6 @@ export function TalkingPointModule({ content, isStudentView, tutorNotes }: { con
 // ─── Discussion ───────────────────────────────────────────────────────────────
 
 export function DiscussionModule({ content, isStudentView, tutorNotes }: { content: DiscussionContent; isStudentView?: boolean; tutorNotes?: string }) {
-  return (
-    <div className="space-y-3">
-      {content.instructions && <p className="text-sm text-gray-500 dark:text-gray-400 italic">{content.instructions}</p>}
-      {(content.questions || []).map((q, i) => (
-        <div key={i} className="flex gap-3 items-start">
-          <span className="font-bold text-brand-primary flex-shrink-0">{i + 1}.</span>
-          <p className="text-gray-900 dark:text-white">{q}</p>
-        </div>
-      ))}
-      {!isStudentView && tutorNotes && <TutorNote note={tutorNotes} />}
-    </div>
-  )
-}
-
-// ─── Further Discussion ───────────────────────────────────────────────────────
-
-export function FurtherDiscussionModule({ content, isStudentView, tutorNotes }: { content: DiscussionContent; isStudentView?: boolean; tutorNotes?: string }) {
   return (
     <div className="space-y-3">
       {content.instructions && <p className="text-sm text-gray-500 dark:text-gray-400 italic">{content.instructions}</p>}

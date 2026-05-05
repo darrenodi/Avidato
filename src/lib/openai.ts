@@ -12,8 +12,7 @@ import { extractJSONFromText, cleanAndParseJSON } from './utils/json-parser';
 import { enforceSynonymConstraints } from './utils/vocabulary-validator';
 import { enforceDialogueStructure } from './utils/dialogue-validator';
 import { generateModularLessonWithGuard } from './utils/modular-lesson-generation-guard';
-import { buildLessonGenerationPrompt, buildBlockPlanPrompt, buildTBLTLessonPrompt } from './prompts/lesson-generation-prompts';
-import { buildPPPLessonPrompt, buildCLTLessonPrompt } from './prompts/ppp-clt-prompts';
+import { buildLessonGenerationPrompt, buildBlockPlanPrompt } from './prompts/lesson-generation-prompts';
 import { buildModularLessonPrompt } from './prompts/modular-lesson-prompt';
 
 if (!process.env.OPENAI_API_KEY) {
@@ -379,99 +378,6 @@ CRITICAL: This exercise must appear as Exercise 5 in the exercises array. ALL se
     } catch (error) {
       console.error('Error generating block plan:', error);
       throw new Error('Failed to generate learning plan. Please try again.');
-    }
-  }
-
-  // Generate a TBLT lesson from a BlockLesson
-  async generateTBLTLesson(
-    student: StudentProfile,
-    lesson: BlockLesson,
-    duration: 25 | 50 = 50
-  ): Promise<GeneratedLesson> {
-    const { roles } = getSuggestedRolesAndScenarios(student.occupation);
-    const prompt = buildTBLTLessonPrompt(
-      student,
-      lesson,
-      duration,
-      roles,
-      this.getLevelVocabularyGuide(student.level),
-      this.getCEFRModule(student.level).getVocabularyGuide(),
-      ''
-    );
-
-    try {
-      const response = await openai.chat.completions.create({
-        model: this.model,
-        messages: [{ role: 'user', content: prompt }],
-        temperature: 0.1,
-        max_tokens: 16384,
-      });
-      const text = response.choices[0]?.message?.content || '';
-      const jsonStr = extractJSONFromText(text);
-      const parsedResponse = cleanAndParseJSON<GeneratedLesson>(jsonStr);
-
-      try {
-        enforceSynonymConstraints(parsedResponse, student.level);
-      } catch (err) {
-        console.warn('Failed to sanitize synonyms:', err);
-      }
-
-      return parsedResponse;
-    } catch (error) {
-      console.error('Error generating TBLT lesson:', error);
-      throw new Error('Failed to generate lesson. Please try again.');
-    }
-  }
-
-  // Generate a PPP lesson from a BlockLesson
-  async generatePPPLesson(
-    student: StudentProfile,
-    lesson: BlockLesson,
-    duration: 25 | 50 = 50
-  ): Promise<GeneratedLesson> {
-    const prompt = buildPPPLessonPrompt(
-      student, lesson, duration,
-      this.getLevelVocabularyGuide(student.level),
-      this.getCEFRModule(student.level).getVocabularyGuide(),
-      ''
-    );
-    try {
-      const response = await openai.chat.completions.create({
-        model: this.model,
-        messages: [{ role: 'user', content: prompt }],
-        temperature: 0.1,
-        max_tokens: 16384,
-      });
-      return cleanAndParseJSON<GeneratedLesson>(extractJSONFromText(response.choices[0]?.message?.content || ''));
-    } catch (error) {
-      console.error('Error generating PPP lesson:', error);
-      throw new Error('Failed to generate lesson. Please try again.');
-    }
-  }
-
-  // Generate a CLT lesson from a BlockLesson
-  async generateCLTLesson(
-    student: StudentProfile,
-    lesson: BlockLesson,
-    duration: 25 | 50 = 50
-  ): Promise<GeneratedLesson> {
-    const prompt = buildCLTLessonPrompt(
-      student, lesson, duration,
-      this.getLevelVocabularyGuide(student.level),
-      this.getCEFRModule(student.level).getVocabularyGuide(),
-      ''
-    );
-    try {
-      const response = await openai.chat.completions.create({
-        model: this.model,
-        messages: [{ role: 'user', content: prompt }],
-        temperature: 0.1,
-        max_tokens: 16384,
-      });
-      return cleanAndParseJSON<GeneratedLesson>(extractJSONFromText(response.choices[0]?.message?.content || ''));
-    } catch (error) {
-      console.error('Error generating CLT lesson:', error);
-      throw new Error('Failed to generate lesson. Please try again.');
     }
   }
 

@@ -1,4 +1,4 @@
-import { StudentProfile, LearningTopic, BlockLesson, TopicBlock } from '../../types/lesson-template';
+import { StudentProfile, LearningTopic, TopicBlock } from '../../types/lesson-template';
 
 export function buildLessonGenerationPrompt(
   student: StudentProfile,
@@ -160,107 +160,6 @@ JSON OUTPUT:
       ]
     }
   ]
-}
-
-RETURN ONLY VALID JSON, NO EXPLANATION.`;
-}
-
-export function buildTBLTLessonPrompt(
-  student: StudentProfile,
-  lesson: BlockLesson,
-  duration: 25 | 50,
-  roles: string[],
-  levelGuide: string,
-  cefrVocabGuide: string,
-  vocabularyContextSection: string
-): string {
-  const is50min = duration === 50;
-
-  return `Expert ${student.targetLanguage} instructor. Generate a TBLT lesson as JSON.
-
-STUDENT: ${student.name}, ${student.level}, ${student.ageGroup}, Goals: ${student.endGoals}, Occupation: ${student.occupation || 'Professional'}
-LESSON: ${lesson.title} | Objective: ${lesson.communicativeNeed} | Vocabulary seed: ${lesson.keyVocabulary.join(', ')} | Grammar: ${lesson.grammarFocus} | Activity: ${lesson.mainActivity}
-Roles: ${roles.join(', ')}
-${vocabularyContextSection}
-
-RULES:
-- ALL content in ${student.targetLanguage} (JSON keys and type values stay in English)
-- NO em dashes (—). BANNED: "resonate","navigate","landscape","leverage","dynamics","paradigm","mitigate","jeopardize","escalate","bottleneck","trade-off","iron out","flag","stakeholder","circle back"
-- VOCABULARY (Part A of Task Prep): SINGLE WORDS only. No phrases, no compounds. Each word must appear in the model dialogue.
-- KEY PHRASES (Part B of Task Prep): MULTI-WORD PHRASES only — minimum 2 words. These must be functional chunks specific to this lesson's exact scenario. NEVER generic phrases usable in any professional lesson ("Can you clarify that?", "Let's move on", "I'd like to discuss" — all banned as too generic). If a phrase would work in a completely different lesson, replace it.
-- SMALL TALK in model dialogue: The dialogue MUST open with at least 2 turns of genuine off-topic conversation (commute, weather, something noticed, a minor personal detail) BEFORE any mention of the main lesson topic. This is non-negotiable. "How's the project?" is NOT small talk.
-
-STRUCTURE (${duration} min):
-${is50min ? `1. Lead-in (5 min)\n2. Task Prep — Vocab + Phrases + Dialogue (15 min)\n3. Task Performance — Roleplay (20 min)\n4. Post-task — Grammar focus (8 min)\n5. Homework (2 min)` : `1. Lead-in (5 min)\n2. Task Prep — Vocab + Phrases + Dialogue (10 min)\n3. Post-task — Grammar focus (8 min)\n4. Homework (2 min)`}
-
----
-
-**Exercise 1: Lead-in** (5 min)
-EXACTLY 3 questions. LEAD-IN = personal story or memory. MAX 15 words each. No student name.
-TOPIC-SPECIFIC REQUIREMENT — CRITICAL: Every question MUST be anchored to the specific lesson ("${lesson.title}" / "${lesson.communicativeNeed}"). Before submitting each question, apply this test: "Could this exact question appear in a lesson on a completely different topic for the same student?" If yes, it is too generic and MUST be rewritten.
-PERMANENTLY BANNED questions — these four (and any close paraphrase) are forbidden in every lesson:
-- "What do you enjoy/like most about working in [field/role]?" — topic-agnostic, banned
-- "Have you ever had a stressful situation at work? What happened?" — topic-agnostic, banned
-- "What skills do you think matter most for doing your job well?" — topic-agnostic, banned
-- "How do you handle it when things get hectic/busy at work?" — topic-agnostic, banned
-Q1: personal experience tied to this lesson's topic. Q2: personal familiarity with the specific scenario. Q3: story/memory about a time the student had to do the lesson's specific task. NEVER "What is important?" NEVER "How can...", "Why is...", analytical.
-BANNED question type — non-expert framing: NEVER ask the student to explain their work to a non-expert, layperson, or non-technical person in ANY form — direct ("How would you explain X to a layperson?") OR storytelling reframe ("Tell me about a time you had to explain X to a non-expert").
-Format: { "type": "lead-in", "title": "[Lead-in in ${student.targetLanguage}]", "content": { "questions": ["Q1","Q2","Q3"], "instructions": "[in ${student.targetLanguage}]" }, "timeMinutes": 5 }
-
-**Exercise 2: Task Prep** (${is50min ? 15 : 10} min)
-PART A — Vocabulary: EXACTLY 6 SINGLE WORDS, domain-specific. No phrases. No expressions array. Each word must appear in Part C.
-PART B — Key Phrases: 4-6 MULTI-WORD PHRASES relevant to this lesson's activity (${lesson.mainActivity}). Build on the vocabulary seed (${lesson.keyVocabulary.join(', ')}) and grammar focus (${lesson.grammarFocus}). Minimum 2 words each. NEVER single words. Each phrase must be specific to this lesson's scenario — if it could appear unchanged in a completely different lesson, replace it. NEVER write "[name]", "[student]", or any bracket placeholder in a phrase — use the real name ${student.name} or remove the direct address. Each phrase: { phrase, function (what it communicates — 5-10 words), usage (when to use), example }.
-Write PART A and PART B first. Then write PART C around them.
-PART C — Model Dialogue: 8-12 turns total, ${student.name} speaks first. Design a situation that REQUIRES every vocabulary word and every key phrase to arise naturally — do not insert them into an unrelated story. LANGUAGE QUALITY: Characters must use colloquial expressions, idioms, and phrasal verbs throughout — not just in small talk. Examples of the register: "that caught me off guard", "I'll be honest with you", "we're not quite there yet", "that's on me", "I'd push back on that", "it slipped through the cracks", "to be fair", "let's not get ahead of ourselves". This is how real professionals speak — not because the lesson is about these expressions, but because that is the natural register. OPEN with at least 2 turns of genuine small talk (off-topic: commute, weather, personal detail) before any mention of the main topic. Include one imperfect moment (misunderstanding, forgotten detail, correction). Other person pushes back once. One genuine emotional reaction. Contractions throughout. End at a natural pause, not a tidy resolution. No info dumps.
-Format:
-{
-  "type": "task-prep",
-  "title": "[Task Preparation in ${student.targetLanguage}]",
-  "content": {
-    "vocabulary": [{ "word": "word", "partOfSpeech": "[in ${student.targetLanguage}]", "phonetics": "/ipa/", "definition": "[in ${student.targetLanguage}]", "example": "[in ${student.targetLanguage}]", "synonym": "[or empty]", "expressions": [] }],
-    "keyPhrases": [{ "phrase": "[in ${student.targetLanguage}]", "function": "[what this phrase communicates/signals — 5-10 words in ${student.targetLanguage}]", "usage": "[when to use, in ${student.targetLanguage}]", "example": "[in context, in ${student.targetLanguage}]" }],
-    "modelDialogue": {
-      "setting": "[max 150 chars in ${student.targetLanguage}]",
-      "characters": [{ "name": "${student.name}", "role": "[role]" }, { "name": "[Other]", "role": "[role]" }],
-      "dialogue": [{ "character": "${student.name}", "text": "[in ${student.targetLanguage}]" }],
-      "comprehensionQuestions": {
-        "gist": ["[big-picture Q1 in ${student.targetLanguage}]", "[big-picture Q2]", "[big-picture Q3]"],
-        "detail": ["[specific Q1 in ${student.targetLanguage}]", "[specific Q2]", "[specific Q3]", "[specific Q4]"]
-      },
-      "noticingTask": "[one instruction: find a specific language pattern in the dialogue, e.g. 'Find all the phrases that soften a request', in ${student.targetLanguage}]"
-    }
-  },
-  "timeMinutes": ${is50min ? 15 : 10}
-}
-
-${is50min ? `**Exercise 3: Task Performance** (20 min)
-New scenario, same communicative task. Student performs → gets feedback → repeats with improvements.
-Format: { "type": "task-performance", "title": "[Task Performance in ${student.targetLanguage}]", "content": { "scenario": "[max 150 chars in ${student.targetLanguage}]", "roles": [{ "name": "${student.name}", "description": "[role in ${student.targetLanguage}]", "keyPoints": ["step1","step2","step3"] }, { "name": "Tutor", "description": "[how to respond in ${student.targetLanguage}]", "keyPoints": ["react naturally","push back once","ask follow-up"] }], "instructions": "[perform, feedback, repeat in ${student.targetLanguage}]", "phrasesToUse": ["phrase1","phrase2","phrase3"] }, "timeMinutes": 20 }
-
-**Exercise 4: Post-task** (8 min)` : `**Exercise 3: Post-task** (8 min)`}
-1 grammar point from the lesson's communicative need. 3-4 plausible errors a ${student.level} student would make. Clear rule + corrected examples.
-${levelGuide}
-${cefrVocabGuide}
-Format: { "type": "post-task", "title": "[Language Focus in ${student.targetLanguage}]", "content": { "grammarFocus": "[topic in ${student.targetLanguage}]", "explanation": "[rule in ${student.targetLanguage}]", "examples": ["[example in ${student.targetLanguage}]"], "corrections": [{ "error": "[error in ${student.targetLanguage}]", "correction": "[fixed]", "rule": "[short rule in ${student.targetLanguage}]" }] }, "timeMinutes": 8 }
-
-**Exercise ${is50min ? 5 : 4}: Homework** (2 min)
-Specific real-world task tied to the lesson. Observation or practice. Produces something to discuss next session.
-Format: { "type": "homework", "title": "[Homework in ${student.targetLanguage}]", "content": { "taskName": "[short name in ${student.targetLanguage}]", "description": "[what to do and why, in ${student.targetLanguage}]", "instructions": "[step-by-step in ${student.targetLanguage}]" }, "timeMinutes": 2 }
-
-JSON OUTPUT:
-{
-  "title": "${lesson.title}",
-  "lessonType": "interactive",
-  "objective": "[By the end of this lesson, you'll be able to ${lesson.communicativeNeed} — MAX 120 chars in ${student.targetLanguage}]",
-  "difficulty": ${student.level === 'beginner' ? '3' : student.level === 'elementary' ? '4' : student.level === 'intermediate' ? '6' : '8'},
-  "duration": ${duration},
-  "skills": ["Speaking","Listening","Vocabulary"],
-  "vocabulary": [],
-  "context": "${lesson.communicativeNeed}",
-  "exercises": [/* ${is50min ? '5' : '4'} exercises in order */],
-  "homework": "",
-  "materials": [],
-  "teachingNotes": "[tutor notes in ${student.targetLanguage}]"
 }
 
 RETURN ONLY VALID JSON, NO EXPLANATION.`;

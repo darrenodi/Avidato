@@ -12,6 +12,9 @@ function e(s: unknown): string {
     .replace(/'/g, '&#39;')
 }
 
+// ── Inline logo ───────────────────────────────────────────────────────────────
+const LOGO_WHITE = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 328 326" width="30" height="30" style="flex-shrink:0;vertical-align:middle"><path fill="none" d="M-0.5-0.5h328v326h-328z"/><path fill="#fff" d="M 46.5,299.5 C 41.9898,299.884 37.6565,300.551 33.5,301.5C 30.8333,301.5 28.1667,301.5 25.5,301.5C 20.9677,301.818 16.6344,301.485 12.5,300.5C 72.4733,204.184 132.473,107.851 192.5,11.5C 205.162,29.0046 217.662,46.6712 230,64.5C 230.667,65.5 230.667,66.5 230,67.5C 193,127.167 156,186.833 119,246.5C 102.045,273.945 77.8783,291.611 46.5,299.5 Z"/><path fill="#fff" d="M 245.5,87.5 C 246.496,87.4142 247.329,87.7476 248,88.5C 258.386,101.931 266.719,116.597 273,132.5C 276.256,142.943 277.256,153.609 276,164.5C 274.861,167.583 273.528,170.583 272,173.5C 271.097,174.701 269.931,175.535 268.5,176C 242.494,176.833 216.494,176.667 190.5,175.5C 208.86,146.149 227.193,116.816 245.5,87.5 Z"/><path fill="#fff" d="M 231.5,199.5 C 257.522,198.843 283.188,199.509 308.5,201.5C 295.453,231.388 276.453,256.888 251.5,278C 228.946,294.769 203.613,304.602 175.5,307.5C 132.997,307.832 90.6634,307.499 48.5,306.5C 72.4088,304.148 93.7421,295.648 112.5,281C 124.107,270.399 134.607,258.899 144,246.5C 163.777,223.029 188.61,207.863 218.5,201C 222.848,200.535 227.181,200.035 231.5,199.5 Z"/></svg>`
+
 // ── CSS ──────────────────────────────────────────────────────────────────────
 const CSS = `
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -30,12 +33,30 @@ body {
 }
 
 /* Cover */
-.cover { background: #1a3a5c; color: white; padding: 16px 18px 14px; border-radius: 4px; margin-bottom: 14px; }
-.cover-title { font-size: 20pt; font-weight: 700; color: white; line-height: 1.25; margin-bottom: 6px; }
-.cover-meta { font-size: 10pt; color: #BDD7EE; }
+.cover { background: #1a3a5c; color: white; padding: 14px 16px 14px; border-radius: 4px; margin-bottom: 12px; }
+.cover-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.cover-brand { display: flex; align-items: center; gap: 8px; }
+.cover-brand-name { font-size: 10.5pt; font-weight: 700; letter-spacing: .1em; color: white; text-transform: uppercase; }
+.copy-badge { background: rgba(255,255,255,0.15); color: white; font-size: 7.5pt; font-weight: 700; padding: 3px 10px; border-radius: 10px; text-transform: uppercase; letter-spacing: .07em; white-space: nowrap; }
+.cover-title { font-size: 19pt; font-weight: 700; color: white; line-height: 1.25; margin-bottom: 6px; }
+.cover-meta { font-size: 9.5pt; color: #BDD7EE; }
 
 /* Objective box */
-.objective-box { background: #F3F4F6; border: 1px solid #DEEAF1; padding: 10px 13px; border-radius: 4px; margin-bottom: 10px; font-size: 9.5pt; color: #374151; }
+.objective-box { background: #F3F4F6; border: 1px solid #DEEAF1; padding: 9px 13px; border-radius: 4px; margin-bottom: 12px; font-size: 9.5pt; color: #374151; }
+
+/* Info table */
+.info-table { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
+.info-table td { padding: 5px 10px; font-size: 9pt; border: 0.5px solid #DEEAF1; vertical-align: middle; }
+.info-label { font-weight: 700; color: #1a3a5c; background: #F0F4F8; width: 22%; }
+
+/* Timing table */
+.timing-table { width: 100%; border-collapse: collapse; margin-bottom: 14px; }
+.timing-table thead tr th { background: #1a3a5c; color: white; font-size: 8.5pt; padding: 5px 10px; text-align: left; font-weight: 600; letter-spacing: .03em; }
+.timing-table td { padding: 5px 10px; font-size: 9pt; border-bottom: 0.5px solid #E5E7EB; }
+.timing-table tr:nth-child(even) td { background: #F9FAFB; }
+.timing-row-num { color: #9CA3AF; font-size: 8.5pt; text-align: center; width: 24px; }
+.timing-row-total td { font-weight: 700; background: #EBF3FA !important; border-top: 1.5px solid #1a3a5c; }
+.timing-right { text-align: right !important; white-space: nowrap; }
 
 /* Section header */
 .section-header { width: 100%; border-collapse: collapse; border: 1px solid #DEEAF1; border-radius: 4px; overflow: hidden; margin-bottom: 10px; }
@@ -76,6 +97,14 @@ body {
 /* Phrases */
 .phrase-item { color: #1D4ED8; font-weight: 700; font-style: italic; font-size: 9.5pt; padding: 2px 0 2px 14px; line-height: 1.5; }
 .phrase-fn { color: #374151; font-style: normal; font-weight: 400; font-size: 8.5pt; margin-left: 4px; }
+
+/* Expression drill table */
+.expr-drill-table { width: 100%; border-collapse: collapse; margin-bottom: 8px; }
+.expr-drill-table thead th { background: #1a3a5c; color: white; font-size: 8.5pt; padding: 6px 10px; text-align: left; font-weight: 600; letter-spacing: .03em; }
+.expr-drill-table tbody td { padding: 8px 10px; border-bottom: 0.5px solid #E5E7EB; font-size: 9.5pt; vertical-align: middle; }
+.expr-drill-table tbody tr:nth-child(odd) td { background: #F9FAFB; }
+.expr-stem { color: #1D4ED8; font-weight: 700; font-style: italic; }
+.expr-write { border-bottom: 1px solid #D1D5DB; min-height: 18px; display: block; }
 
 /* Numbered questions */
 .numbered-q { display: grid; grid-template-columns: 18px 1fr; gap: 5px; padding: 4px 0; align-items: start; }
@@ -118,7 +147,26 @@ body {
 .italic { font-style: italic; font-size: 9.5pt; color: #374151; margin-bottom: 8px; }
 .bold { font-weight: 700; font-size: 9.5pt; margin-bottom: 5px; }
 .small-gray { font-size: 8.5pt; color: #9CA3AF; }
-.page-footer { margin-top: 20px; padding-top: 10px; border-top: 1px solid #DEEAF1; font-size: 8pt; color: #9CA3AF; text-align: center; }
+
+/* Post-lesson notes (tutor only) */
+.notes-section { border: 1px solid #DEEAF1; border-radius: 4px; overflow: hidden; margin-top: 20px; }
+.notes-section-hdr { background: #1a3a5c; color: white; font-size: 10pt; font-weight: 700; padding: 8px 14px; }
+.notes-row { padding: 10px 14px; border-bottom: 0.5px solid #DEEAF1; }
+.notes-row:last-child { border-bottom: none; }
+.notes-row-label { font-size: 8pt; font-weight: 700; color: #1a3a5c; margin-bottom: 8px; text-transform: uppercase; letter-spacing: .05em; }
+
+/* Phrase reference card */
+.phrase-ref-section { border: 1px solid #DBEAFE; border-radius: 4px; overflow: hidden; margin-top: 0; }
+.phrase-ref-hdr { background: #2E75B6; color: white; font-size: 10pt; font-weight: 700; padding: 8px 14px; }
+.phrase-ref-grid { display: grid; grid-template-columns: 1fr 1fr; }
+.phrase-ref-item { padding: 6px 12px; font-size: 9pt; border-bottom: 0.5px solid #DBEAFE; }
+.phrase-ref-item:nth-child(odd) { border-right: 0.5px solid #DBEAFE; }
+.phrase-ref-phrase { color: #1D4ED8; font-weight: 700; font-style: italic; }
+.phrase-ref-note { color: #6B7280; font-size: 8pt; font-weight: 400; font-style: normal; display: block; margin-top: 1px; }
+
+/* Footer */
+.page-footer { margin-top: 20px; padding-top: 10px; border-top: 1px solid #DEEAF1; font-size: 8pt; color: #9CA3AF; display: flex; justify-content: space-between; align-items: center; }
+.footer-brand { font-weight: 700; color: #1a3a5c; letter-spacing: .06em; font-size: 8pt; }
 `
 
 // ── Primitive helpers ─────────────────────────────────────────────────────────
@@ -166,9 +214,103 @@ function dialogueRow(speaker: string, text: string, isStudent: boolean): string 
 </div>`
 }
 
-// ── Write line ────────────────────────────────────────────────────────────────
 function writeLine(): string {
   return `<div style="border-bottom:1px solid #D1D5DB;margin:4px 0 10px;height:18px"></div>`
+}
+
+// ── Timing table (tutor only) ─────────────────────────────────────────────────
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function buildTimingTable(modules: Record<string, any>[]): string {
+  let rows = ''
+  let cumulative = 0
+  modules.forEach((mod, i) => {
+    const time: number = mod.timeMinutes || 0
+    cumulative += time
+    rows += `<tr>
+      <td class="timing-row-num">${i + 1}</td>
+      <td>${e(mod.title || mod.type || '')}</td>
+      <td class="timing-right">${time} min</td>
+      <td class="timing-right" style="color:#9CA3AF">${cumulative} min</td>
+    </tr>`
+  })
+  return `<div class="avoid-break" style="margin-bottom:16px">
+    <div style="font-size:8.5pt;font-weight:700;color:#1a3a5c;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">Lesson Timing</div>
+    <table class="timing-table">
+      <thead><tr><th>#</th><th>Module</th><th style="text-align:right">Time</th><th style="text-align:right">Cumulative</th></tr></thead>
+      <tbody>${rows}
+        <tr class="timing-row-total">
+          <td colspan="2" style="font-size:9pt">Total</td>
+          <td class="timing-right" style="font-size:9pt">${cumulative} min</td>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>`
+}
+
+// ── Phrase reference card ─────────────────────────────────────────────────────
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function buildPhraseRefCard(modules: Record<string, any>[]): string {
+  const items: { text: string; note: string }[] = []
+
+  for (const mod of modules) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const c: Record<string, any> = mod.content || {}
+    const type: string = mod.type || ''
+
+    if (['useful-language', 'useful-phrases'].includes(type)) {
+      const list: unknown[] = Array.isArray(c.phrases) ? c.phrases : []
+      list.forEach((p) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const pp = p as Record<string, any>
+        const text: string = typeof p === 'string' ? p : (pp.phrase || pp.expression || '')
+        const note: string = typeof p === 'object' && p !== null ? (pp.usage || pp.function || pp.example || '') : ''
+        if (text) items.push({ text, note })
+      })
+    } else if (type === 'useful-expressions') {
+      const list: unknown[] = Array.isArray(c.expressions) ? c.expressions : []
+      list.forEach((p) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const pp = p as Record<string, any>
+        const text: string = typeof p === 'string' ? p : (pp.full || pp.expression || pp.phrase || '')
+        if (text) items.push({ text, note: '' })
+      })
+    } else if (type === 'language-in-context') {
+      const list: unknown[] = Array.isArray(c.phrases) ? c.phrases : []
+      list.forEach((p) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const pp = p as Record<string, any>
+        const text: string = typeof p === 'string' ? p : (pp.phrase || '')
+        const note: string = typeof p === 'object' && p !== null ? (pp.function || '') : ''
+        if (text) items.push({ text, note })
+      })
+    } else if (type === 'phrasal-verbs') {
+      const list: unknown[] = Array.isArray(c.pairs) ? c.pairs : []
+      list.forEach((p) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const pp = p as Record<string, any>
+        if (pp.verb) items.push({ text: pp.verb, note: pp.meaning || '' })
+      })
+    }
+  }
+
+  if (items.length === 0) return ''
+
+  // Pad to even count for grid
+  if (items.length % 2 !== 0) items.push({ text: '', note: '' })
+
+  const rows = items.map(item =>
+    item.text
+      ? `<div class="phrase-ref-item"><span class="phrase-ref-phrase">${e(item.text)}</span>${item.note ? `<span class="phrase-ref-note">${e(item.note)}</span>` : ''}</div>`
+      : `<div class="phrase-ref-item"></div>`
+  ).join('')
+
+  return `<div class="pagebreak">
+  <div class="phrase-ref-section">
+    <div class="phrase-ref-hdr">Key Language Reference</div>
+    <div class="phrase-ref-grid">${rows}</div>
+  </div>
+</div>`
 }
 
 // ── Module renderers ──────────────────────────────────────────────────────────
@@ -210,13 +352,11 @@ function renderModule(mod: Record<string, any>, idx: number, studentName: string
       const n = pairs.length
       if (n === 0) return ''
       const offset = 2
-      // scrambledDefs[j] = definition that appears at letter (A+j)
       const scrambledDefs = pairs.map((_, j) => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const pp = pairs[(j + offset) % n] as Record<string, any>
         return pp.definition || pp.match || ''
       })
-      // For each term i, the answer letter index is (i - offset + n) % n
       const termRows = pairs.map((p, i) => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const pp = p as Record<string, any>
@@ -245,11 +385,39 @@ function renderModule(mod: Record<string, any>, idx: number, studentName: string
     }).join('')
   }
 
-  // ── Useful phrases / useful language / useful expressions / language-in-context ──
-  else if (['useful-language', 'useful-expressions', 'useful-phrases', 'language-in-context', 'phrasal-verbs'].includes(type)) {
+  // ── Useful expressions (stem-completion drill) ──
+  // Same table layout for both copies — tutor sees full answer, student sees blank.
+  else if (type === 'useful-expressions') {
+    const context: string = c.context || ''
+    if (context) body += `<p class="italic">${e(context)}</p><div class="spacer"></div>`
+    const expressions: unknown[] = Array.isArray(c.expressions) ? c.expressions : []
+    body += `<table class="expr-drill-table">
+      <thead><tr>
+        <th>Complete the expression</th>
+        <th style="width:38%">${tutorCopy ? 'Answer' : 'Finish writing it here'}</th>
+      </tr></thead>
+      <tbody>`
+    expressions.forEach((exp) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const ex = exp as Record<string, any>
+      const stem: string = ex.stem || ex.full || ''
+      const full: string = ex.full || ex.expression || ''
+      // Extract only the completion part (text after the stem up to the end)
+      const stemBase = stem.replace(/\.+$/, '').trim()
+      const completion = full.length > stemBase.length ? full.slice(stemBase.length).trim() : full
+      body += `<tr>
+        <td><span class="expr-stem">${e(stem)}</span></td>
+        <td>${tutorCopy ? `<span style="color:#166534;font-weight:700">${e(completion || full)}</span>` : '<span class="expr-write"></span>'}</td>
+      </tr>`
+    })
+    body += `</tbody></table>`
+  }
+
+  // ── Useful phrases / useful language / language-in-context / phrasal-verbs ──
+  else if (['useful-language', 'useful-phrases', 'language-in-context', 'phrasal-verbs'].includes(type)) {
     const context: string = c.context || ''
     if (context) body += `<p class="italic">${e(context)}</p>`
-    const phrases: unknown[] = Array.isArray(c.phrases) ? c.phrases : (Array.isArray(c.expressions) ? c.expressions : [])
+    const phrases: unknown[] = Array.isArray(c.phrases) ? c.phrases : (Array.isArray(c.pairs) ? c.pairs : [])
     phrases.forEach((p) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const pp = p as Record<string, any>
@@ -309,9 +477,8 @@ function renderModule(mod: Record<string, any>, idx: number, studentName: string
     }
   }
 
-  // ── Comprehension / matching-qa ──
+  // ── Comprehension / matching-qa / skim / reading-scan / listening-comprehension ──
   else if (['comprehension', 'matching-qa', 'skim-main-idea', 'reading-scan', 'listening-comprehension'].includes(type)) {
-    // matching-qa uses c.pairs; other types use c.questions
     const rawPairs: unknown[] = Array.isArray(c.pairs) ? c.pairs : []
     const qs: unknown[] = Array.isArray(c.questions) ? c.questions : rawPairs
     qs.forEach((q, i) => {
@@ -325,8 +492,8 @@ function renderModule(mod: Record<string, any>, idx: number, studentName: string
     })
   }
 
-  // ── Sentence correction / find-the-mistake ──
-  else if (['sentence-correction', 'find-the-mistake'].includes(type)) {
+  // ── Sentence correction ──
+  else if (type === 'sentence-correction') {
     const sentences: unknown[] = Array.isArray(c.sentences) ? c.sentences : []
     if (tutorCopy) {
       body = `<table class="correction-table"><thead><tr><th>#</th><th>Incorrect</th><th>Correct</th><th>Error type</th></tr></thead><tbody>`
@@ -347,9 +514,29 @@ function renderModule(mod: Record<string, any>, idx: number, studentName: string
     }
   }
 
+  // ── Find the mistake ──
+  // Same table layout for both copies — tutor sees answers, student sees blank cells.
+  else if (type === 'find-the-mistake') {
+    const sentences: unknown[] = Array.isArray(c.sentences) ? c.sentences : []
+    body = `<table class="correction-table"><thead><tr><th>#</th><th>Find and correct the mistake</th><th>${tutorCopy ? 'Correct' : 'Your correction'}</th>${tutorCopy ? '<th>Explanation</th>' : ''}</tr></thead><tbody>`
+    sentences.forEach((s, i) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const ss = s as Record<string, any>
+      const incorrectCell = `<td>${e(ss.incorrect || ss.sentence || '')}</td>`
+      const correctCell = tutorCopy
+        ? `<td><span class="correct-text">${e(ss.correct || ss.correction || '')}</span></td>`
+        : `<td>&nbsp;</td>`
+      const explanationCell = tutorCopy
+        ? `<td class="error-type">${e(ss.explanation || ss.errorType || '')}</td>`
+        : ''
+      body += `<tr><td class="q-num">${i + 1}</td>${incorrectCell}${correctCell}${explanationCell}</tr>`
+    })
+    body += '</tbody></table>'
+  }
+
   // ── Grammar focus / post-task ──
   else if (['grammar-focus', 'post-task'].includes(type)) {
-    const focus: string = c.grammarFocus || c.grammar_focus || ''
+    const focus: string = c.grammarFocus || c.grammar_focus || c.topic || ''
     const explanation: string = c.explanation || ''
     if (focus) body += `<p class="bold">${e(focus)}</p>`
     if (explanation) body += `<p class="italic">${e(explanation)}</p>`
@@ -376,6 +563,27 @@ function renderModule(mod: Record<string, any>, idx: number, studentName: string
     const examples: string[] = Array.isArray(c.examples) ? c.examples : []
     if (examples.length) {
       examples.forEach(ex => { body += `<div class="bullet-item">• ${e(ex)}</div>` })
+    }
+    // grammar-focus table
+    if (c.table && Array.isArray(c.table.headers) && Array.isArray(c.table.rows)) {
+      body += `<table class="correction-table" style="margin-top:8px"><thead><tr>${c.table.headers.map((h: string) => `<th>${e(h)}</th>`).join('')}</tr></thead><tbody>`
+      c.table.rows.forEach((row: string[]) => {
+        body += `<tr>${row.map((cell: string) => `<td>${e(cell)}</td>`).join('')}</tr>`
+      })
+      body += `</tbody></table>`
+    }
+    // practice questions
+    if (c.practice && Array.isArray(c.practice.questions)) {
+      body += `<p class="bold" style="margin-top:8px">Practice</p>`
+      c.practice.questions.forEach((q: Record<string, unknown>, i: number) => {
+        const stem = String(q.stem || '')
+        const options: string[] = Array.isArray(q.options) ? q.options as string[] : []
+        body += numberedQ(i + 1, stem)
+        options.forEach((opt, oi) => {
+          const isAnswer = tutorCopy && q.answer === oi
+          body += `<div style="padding:1px 0 2px 23px;font-size:9pt;color:${isAnswer ? '#166534' : '#374151'};font-weight:${isAnswer ? '700' : '400'}">${String.fromCharCode(65 + oi)}. ${e(opt)}</div>`
+        })
+      })
     }
   }
 
@@ -432,7 +640,6 @@ function renderModule(mod: Record<string, any>, idx: number, studentName: string
         body += `</div>`
       })
     } else {
-      // Fallback: flat questions array
       const qs: string[] = Array.isArray(c.questions) ? c.questions : []
       if (c.instructions) body += `<p class="italic">${e(c.instructions)}</p>`
       qs.forEach((q, i) => { body += numberedQ(i + 1, q) })
@@ -450,7 +657,6 @@ function renderModule(mod: Record<string, any>, idx: number, studentName: string
   else if (type === 'debate') {
     const topic: string = c.topic || ''
     if (topic) body += `<p class="bold">${e(topic)}</p><div class="spacer"></div>`
-    // sideA/sideB can be either string labels or {label, points} objects
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const sideAData: any = c.sideA || c.side_a || {}
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -478,7 +684,13 @@ function renderModule(mod: Record<string, any>, idx: number, studentName: string
   // ── Reading article ──
   else if (type === 'reading-article') {
     const text: string = c.text || c.article || c.content || ''
-    if (text) body += `<p style="font-size:9.5pt;line-height:1.65;color:#374151">${e(text)}</p>`
+    if (c.title) body += `<p class="bold">${e(c.title)}</p>`
+    if (text) {
+      const paragraphs = text.split(/\n\n+/)
+      paragraphs.forEach(para => {
+        if (para.trim()) body += `<p style="font-size:9.5pt;line-height:1.65;color:#374151;margin-bottom:8px">${e(para.trim())}</p>`
+      })
+    }
     const qs: string[] = Array.isArray(c.questions) ? c.questions : []
     if (qs.length) {
       body += `<p class="bold" style="margin-top:8px">Questions</p>`
@@ -524,7 +736,7 @@ function renderModule(mod: Record<string, any>, idx: number, studentName: string
     })
   }
 
-  // ── Generic fallback (ordering, noticing, etc.) ──
+  // ── Generic fallback ──
   else {
     const qs: unknown[] = Array.isArray(c.questions) ? c.questions : (Array.isArray(c.items) ? c.items : [])
     qs.forEach((q, i) => {
@@ -555,21 +767,41 @@ function buildHTML(lesson: {
   const teachingNotes: string = c.teachingNotes || ''
   const homework: string = c.homework || ''
   const duration: number = c.duration || 50
+  const skills: string[] = Array.isArray(c.skills) ? c.skills : []
   const formattedDate = new Date(createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
+  const copyLabel = tutorCopy ? 'Tutor Copy' : 'Student Worksheet'
 
-  // Determine modules array (modular vs exercises format)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const rawModules: Record<string, any>[] = Array.isArray(c.modules) ? c.modules : (Array.isArray(c.exercises) ? c.exercises : [])
 
   const modulesHTML = rawModules.map((mod, idx) => renderModule(mod, idx, student.name, tutorCopy)).join('')
 
-  // Standalone homework section if not already in a module
   const hasHomeworkModule = rawModules.some(m => ['homework-writing', 'homework'].includes(m.type || ''))
   const homeworkSection = (!hasHomeworkModule && homework) ? `
   <div class="avoid-break" style="margin-bottom:18px">
     ${sectionHeader(rawModules.length + 1, 'Homework', 2)}
     <div style="padding:2px 0 6px"><p style="font-size:9.5pt;color:#374151">${e(homework)}</p></div>
   </div>` : ''
+
+  // Post-lesson notes (tutor only)
+  const postLessonNotes = tutorCopy ? `
+  <div class="notes-section avoid-break">
+    <div class="notes-section-hdr">Post-Lesson Notes</div>
+    <div class="notes-row">
+      <div class="notes-row-label">Grammar errors noticed</div>
+      ${writeLine()}${writeLine()}${writeLine()}
+    </div>
+    <div class="notes-row">
+      <div class="notes-row-label">Strong moments</div>
+      ${writeLine()}${writeLine()}
+    </div>
+    <div class="notes-row">
+      <div class="notes-row-label">Focus for next lesson</div>
+      ${writeLine()}${writeLine()}
+    </div>
+  </div>` : ''
+
+  const phraseRefCard = buildPhraseRefCard(rawModules)
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -583,11 +815,36 @@ function buildHTML(lesson: {
 
   <!-- Cover -->
   <div class="cover avoid-break">
+    <div class="cover-top">
+      <div class="cover-brand">
+        ${LOGO_WHITE}
+        <span class="cover-brand-name">Avidato</span>
+      </div>
+      <span class="copy-badge">${copyLabel}</span>
+    </div>
     <div class="cover-title">${e(title)}</div>
-    <div class="cover-meta">${e(student.name)} &nbsp;·&nbsp; ${e(student.level.toUpperCase())} &nbsp;·&nbsp; ${duration} min &nbsp;·&nbsp; ${tutorCopy ? 'Tutor Copy' : 'Student Worksheet'}</div>
+    <div class="cover-meta">${e(student.name)} &nbsp;·&nbsp; ${e(student.level.toUpperCase())} &nbsp;·&nbsp; ${e(student.targetLanguage)} &nbsp;·&nbsp; ${duration} min</div>
   </div>
 
+  <!-- Lesson info -->
+  <table class="info-table avoid-break">
+    <tr>
+      <td class="info-label">Student</td><td>${e(student.name)}</td>
+      <td class="info-label">Language</td><td>${e(student.targetLanguage)}</td>
+    </tr>
+    <tr>
+      <td class="info-label">Level</td><td>${e(student.level)}</td>
+      <td class="info-label">Duration</td><td>${duration} minutes</td>
+    </tr>
+    ${skills.length ? `<tr><td class="info-label">Skills</td><td colspan="3">${e(skills.join(' · '))}</td></tr>` : ''}
+    <tr>
+      <td class="info-label">Date</td><td colspan="3">${e(formattedDate)}</td>
+    </tr>
+  </table>
+
   ${objective ? `<div class="objective-box"><strong>Objective:</strong> ${e(objective)}</div>` : ''}
+
+  ${tutorCopy && rawModules.length > 0 ? buildTimingTable(rawModules) : ''}
 
   <!-- Modules -->
   ${modulesHTML}
@@ -595,8 +852,13 @@ function buildHTML(lesson: {
 
   ${tutorCopy && teachingNotes ? `<div class="avoid-break" style="margin-top:8px">${noteBox('Teaching notes', teachingNotes)}</div>` : ''}
 
+  ${postLessonNotes}
+
+  ${phraseRefCard}
+
   <div class="page-footer">
-    Generated by Avidato &nbsp;·&nbsp; ${e(formattedDate)} &nbsp;·&nbsp; ${tutorCopy ? 'Tutor Copy' : 'Student Worksheet'}
+    <span class="footer-brand">AVIDATO</span>
+    <span>${e(formattedDate)} &nbsp;·&nbsp; ${copyLabel}</span>
   </div>
 
   <script>window.onload = function(){ window.print(); }</script>

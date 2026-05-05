@@ -2,7 +2,6 @@
 
 export type ModuleType =
   | 'warm-up'
-  | 'image-discussion'
   | 'vocabulary-cards'
   | 'vocabulary-match'
   | 'useful-expressions'
@@ -10,31 +9,21 @@ export type ModuleType =
   | 'language-in-context'
   | 'phrasal-verbs'
   | 'gap-fill'
-  | 'complete-the-sentence'
   | 'find-the-mistake'
   | 'ordering'
-  | 'fill-in-blanks-dialogue'
   | 'sentence-correction'
   | 'grammar-focus'
   | 'dialogue'
   | 'reading-article'
   | 'reading-scan'
   | 'vocabulary-in-text'
-  | 'reading-section-prediction'
   | 'skim-main-idea'
   | 'matching-qa'
-  | 'noticing'
-  | 'listening-predictions'
-  | 'listening-main-idea'
   | 'listening-true-false'
   | 'listening-mcq'
-  | 'listening-specific-info'
-  | 'listening-table'
-  | 'listening-comprehension'
   | 'roleplay'
   | 'talking-point'
   | 'discussion'
-  | 'further-discussion'
   | 'debate'
   | 'homework-writing'
 
@@ -43,12 +32,6 @@ export type ModuleType =
 export interface WarmUpContent {
   questions: string[]
   instructions?: string
-}
-
-export interface ImageDiscussionContent {
-  imagePlaceholders: { label: string; description: string }[]
-  questions: string[]
-  imageData?: string // base64 data URL populated after Imagen generation
 }
 
 export interface VocabularyCardsContent {
@@ -63,14 +46,14 @@ export interface VocabularyCardsContent {
 }
 
 export interface VocabularyMatchPair {
-  sentence: string       // full example sentence with the term used naturally in context
-  term: string           // the key word/phrase appearing in the sentence (will be bolded)
-  definition: string     // what the term means
+  sentence: string
+  term: string
+  definition: string
 }
 
 export interface VocabularyMatchContent {
   groups?: { label: string; pairs: VocabularyMatchPair[] }[]
-  pairs?: VocabularyMatchPair[]  // backward compat - flat list
+  pairs?: VocabularyMatchPair[]
   instructions?: string
 }
 
@@ -103,16 +86,6 @@ export interface GapFillContent {
   wordBank?: string[]
 }
 
-export interface CompleteTheSentenceContent {
-  instructions: string
-  questions: {
-    stem: string
-    options: string[]
-    answer: number
-    explanation?: string
-  }[]
-}
-
 export interface FindTheMistakeContent {
   instructions: string
   sentences: { incorrect: string; correct: string; explanation?: string }[]
@@ -121,14 +94,6 @@ export interface FindTheMistakeContent {
 export interface OrderingContent {
   instructions: string
   sentences: { scrambled: string; correct: string }[]
-}
-
-export interface FillInBlanksDialogueContent {
-  context?: string
-  characters: { name: string; role?: string }[]
-  dialogue: { character: string; text: string; blankIndex?: number }[]
-  answerPool: string[]
-  answers: Record<string, string>
 }
 
 export interface SentenceCorrectionContent {
@@ -177,12 +142,6 @@ export interface VocabularyInTextContent {
   items: { definition: string; answer: string; paragraph?: number; partOfSpeech?: string }[]
 }
 
-export interface ReadingSectionPredictionContent {
-  sections: { heading: string }[]
-  items: { content: string; answer: number }[]
-  instructions?: string
-}
-
 export interface SkimMainIdeaContent {
   options: string[]
   answer: number
@@ -194,45 +153,12 @@ export interface MatchingQAContent {
   distractors?: string[]
 }
 
-export interface NoticingContent {
-  instruction: string
-  targetPattern: string
-  examples?: string[]
-}
-
-export interface ListeningPredictionsContent {
-  instructions: string
-  items: { statement: string; willBeMentioned: boolean }[]
-}
-
-export interface ListeningMainIdeaContent {
-  options: string[]
-  answer: number
-}
-
 export interface ListeningTrueFalseContent {
   questions: { statement: string; answer: boolean; note?: string }[]
 }
 
 export interface ListeningMCQContent {
   questions: { question: string; options: string[]; answer: number }[]
-}
-
-export interface ListeningSpecificInfoContent {
-  question: string
-  options?: string[]
-  answer: string
-}
-
-export interface ListeningTableContent {
-  headers: string[]
-  rows: { label: string; cells: (string | null)[] }[]
-  answers: Record<string, string>
-}
-
-export interface ListeningComprehensionContent {
-  speakers: string[]
-  questions: { statement: string; answer: string }[]
 }
 
 export interface RoleplayContent {
@@ -249,11 +175,6 @@ export interface TalkingPointContent {
 }
 
 export interface DiscussionContent {
-  questions: string[]
-  instructions?: string
-}
-
-export interface FurtherDiscussionContent {
   questions: string[]
   instructions?: string
 }
@@ -276,7 +197,6 @@ export interface HomeworkWritingContent {
 
 export type ModuleContent =
   | WarmUpContent
-  | ImageDiscussionContent
   | VocabularyCardsContent
   | VocabularyMatchContent
   | UsefulExpressionsContent
@@ -284,31 +204,21 @@ export type ModuleContent =
   | LanguageInContextContent
   | PhrasalVerbsContent
   | GapFillContent
-  | CompleteTheSentenceContent
   | FindTheMistakeContent
   | OrderingContent
-  | FillInBlanksDialogueContent
   | SentenceCorrectionContent
   | GrammarFocusContent
   | DialogueContent
   | ReadingArticleContent
   | ReadingScanContent
   | VocabularyInTextContent
-  | ReadingSectionPredictionContent
   | SkimMainIdeaContent
   | MatchingQAContent
-  | NoticingContent
-  | ListeningPredictionsContent
-  | ListeningMainIdeaContent
   | ListeningTrueFalseContent
   | ListeningMCQContent
-  | ListeningSpecificInfoContent
-  | ListeningTableContent
-  | ListeningComprehensionContent
   | RoleplayContent
   | TalkingPointContent
   | DiscussionContent
-  | FurtherDiscussionContent
   | DebateContent
   | HomeworkWritingContent
 
