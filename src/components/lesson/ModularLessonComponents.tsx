@@ -11,6 +11,7 @@ import {
   ListeningTrueFalseContent, ListeningMCQContent,
   RoleplayContent, TalkingPointContent, DiscussionContent, DebateContent,
   HomeworkWritingContent,
+  WritingTaskContent,
 } from '@/types/module-lesson'
 
 // ─── Utilities ────────────────────────────────────────────────────────────────
@@ -1274,6 +1275,47 @@ export function DebateModule({ content, isStudentView, tutorNotes }: { content: 
 }
 
 // ─── Homework Writing ─────────────────────────────────────────────────────────
+
+// ─── Writing Task ──────────────────────────────────────────────────────────────
+
+export function WritingTaskModule({ content, isStudentView, tutorNotes }: { content: WritingTaskContent; isStudentView?: boolean; tutorNotes?: string }) {
+  return (
+    <div className="space-y-4">
+      <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+        <p className="text-xs font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wide mb-1">
+          {content.format ? content.format : 'Your task'}
+        </p>
+        <p className="text-sm text-blue-900 dark:text-blue-100">{content.brief}</p>
+      </div>
+      {(content.planningNotes?.length ?? 0) > 0 && (
+        <div>
+          <SectionLabel text="Plan your writing" />
+          <ul className="space-y-1">
+            {(content.planningNotes || []).map((note, i) => (
+              <li key={i} className="flex gap-2 text-sm text-gray-700 dark:text-gray-300">
+                <span className="text-brand-primary mt-0.5">•</span>{note}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+      {content.modelText && (
+        <div>
+          <SectionLabel text="Model text" />
+          <div className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-3">
+            <p className="text-sm text-gray-600 dark:text-gray-300 italic leading-relaxed">{content.modelText}</p>
+          </div>
+        </div>
+      )}
+      {content.wordCount && (
+        <p className="text-xs text-gray-500 dark:text-gray-400">Target: {content.wordCount}</p>
+      )}
+      {!isStudentView && tutorNotes && <TutorNote note={tutorNotes} />}
+    </div>
+  )
+}
+
+// ─── Homework Writing ──────────────────────────────────────────────────────────
 
 export function HomeworkWritingModule({ content, isStudentView, tutorNotes }: { content: HomeworkWritingContent; isStudentView?: boolean; tutorNotes?: string }) {
   return (

@@ -70,13 +70,28 @@ const STRUCTURES = {
     // P5 — Cold open with language-in-context: functional patterns first, then apply
     ['language-in-context', 'dialogue', 'matching-qa', 'roleplay', 'talking-point', 'homework-writing'],
   ],
+  // ── Writing ───────────────────────────────────────────────────────────────
+  writing: [
+    // W1 — Phrases-led: study the target language, correct it, then produce
+    ['warm-up', 'useful-language', 'sentence-correction', 'writing-task', 'homework-writing'],
+    // W2 — Grammar-led: master the structure, then write using it
+    ['warm-up', 'grammar-focus', 'find-the-mistake', 'writing-task', 'homework-writing'],
+    // W3 — Read and write: study a model text, extract language patterns, then write
+    ['warm-up', 'vocabulary-cards', 'reading-article', 'language-in-context', 'writing-task', 'homework-writing'],
+    // W4 — Correction-led: study common errors in this writing type, then write accurately
+    ['warm-up', 'sentence-correction', 'useful-language', 'gap-fill', 'writing-task', 'homework-writing'],
+    // W5 — Cold open: language patterns straight away, then write
+    ['language-in-context', 'grammar-focus', 'sentence-correction', 'writing-task', 'homework-writing'],
+  ],
 } as const
 
 function selectStructure(communicativeNeed: string): { category: string; modules: string[] } {
   const need = communicativeNeed.toLowerCase()
   let category: keyof typeof STRUCTURES
 
-  if (/grammar|tense|structure|clause|verb form|syntax|accuracy/.test(need)) {
+  if (/\bwrit[ei]|\bdraft|\bcompos[ei]/.test(need)) {
+    category = 'writing'
+  } else if (/grammar|tense|structure|clause|verb form|syntax|accuracy/.test(need)) {
     category = 'grammar'
   } else if (/read|article|text|comprehens|passage|report/.test(need)) {
     category = 'reading'
@@ -258,6 +273,7 @@ grammar-focus → "Grammar Focus"
 phrasal-verbs → "Phrasal Verbs"
 vocabulary-in-text → "Contextual Vocabulary"
 homework-writing → "Homework"
+writing-task → "Writing Task"
 listening-true-false → "Listen and Decide: True or False?"
 listening-mcq → "Listening Comprehension"
 
@@ -344,6 +360,12 @@ discussion            → { questions:string[4-6] }
 debate                → { topic, sideA:{label,points:string[3-5]}, sideB:{label,points:string[3-5]} }
 homework-writing      → { task, prompts:string[3-5], wordCount?, instructions? }
   wordCount must always include the unit: "approximately 150 words" or "150-200 words" — NEVER just "approximately 150" or "150-200" without "words".
+writing-task          → { brief, planningNotes?:string[3-5], modelText?:string, wordCount?:string, format?:string }
+  brief = exact task: what to produce, for whom, in what register (e.g. "Write a README section explaining how to set up the service, addressed to a new developer joining the team")
+  planningNotes = 3-5 bullet points guiding what to include — each should be specific to this task's content, not generic advice
+  modelText = OPTIONAL — only for A2-B1 or highly specific formats. Max 80 words. Omit for B2+.
+  wordCount = target with unit: "150-200 words"
+  format = document type: "README file", "technical specification", "email", "memo", "report section" etc.
 
 JSON OUTPUT:
 {

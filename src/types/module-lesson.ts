@@ -26,8 +26,17 @@ export type ModuleType =
   | 'discussion'
   | 'debate'
   | 'homework-writing'
+  | 'writing-task'
 
 // ─── Module Content Interfaces ──────────────────────────────────────────────
+
+export interface WritingTaskContent {
+  brief: string
+  planningNotes?: string[]
+  modelText?: string
+  wordCount?: string
+  format?: string
+}
 
 export interface WarmUpContent {
   questions: string[]

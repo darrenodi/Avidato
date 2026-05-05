@@ -14,6 +14,7 @@ import {
   ListeningTrueFalseModule, ListeningMCQModule,
   RoleplayModule, TalkingPointModule, DiscussionModule, DebateModule,
   HomeworkWritingModule,
+  WritingTaskModule,
 } from './ModularLessonComponents'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -43,6 +44,7 @@ const MODULE_MAP: Record<ModuleType, React.ComponentType<{ content: any; isStude
   'discussion': DiscussionModule,
   'debate': DebateModule,
   'homework-writing': HomeworkWritingModule,
+  'writing-task': WritingTaskModule,
 }
 
 function ModuleRenderer({ module, isStudentView }: { module: LessonModule; isStudentView?: boolean }) {

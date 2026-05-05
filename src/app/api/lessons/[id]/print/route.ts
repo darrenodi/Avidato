@@ -671,6 +671,37 @@ function renderModule(mod: Record<string, any>, idx: number, studentName: string
     </div>`
   }
 
+  // ── Writing task ──
+  else if (type === 'writing-task') {
+    const brief: string = c.brief || ''
+    const format: string = c.format || 'Writing Task'
+    const planningNotes: string[] = Array.isArray(c.planningNotes) ? c.planningNotes : []
+    const modelText: string = c.modelText || ''
+    if (brief) {
+      body += `<div style="background:#EFF6FF;border:1px solid #BFDBFE;border-radius:6px;padding:10px 12px;margin-bottom:10px">
+        <div style="font-size:8pt;font-weight:700;color:#1D4ED8;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">${e(format)}</div>
+        <div style="font-size:9.5pt;color:#1E3A5F">${e(brief)}</div>
+      </div>`
+    }
+    if (planningNotes.length) {
+      body += `<div style="margin-bottom:8px"><div style="font-size:8pt;font-weight:700;color:#9CA3AF;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px">Plan your writing</div>`
+      planningNotes.forEach(n => { body += bulletItem(n) })
+      body += `</div>`
+    }
+    if (modelText) {
+      body += `<div style="background:#F9FAFB;border:1px solid #E5E7EB;border-radius:4px;padding:10px 12px;margin-bottom:8px">
+        <div style="font-size:8pt;font-weight:700;color:#9CA3AF;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px">Model text</div>
+        <div style="font-size:9pt;color:#6B7280;font-style:italic;line-height:1.6">${e(modelText)}</div>
+      </div>`
+    }
+    if (c.wordCount) body += `<p class="small-gray" style="margin-bottom:8px">Target: ${e(c.wordCount)}</p>`
+    if (!tutorCopy) {
+      body += `<div style="margin-top:4px">`
+      for (let i = 0; i < 8; i++) { body += writeLine() }
+      body += `</div>`
+    }
+  }
+
   // ── Homework ──
   else if (['homework-writing', 'homework'].includes(type)) {
     const task: string = c.task || c.description || c.taskName || ''
