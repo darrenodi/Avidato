@@ -6,70 +6,69 @@ import { StudentProfile, BlockLesson } from '../../types/lesson-template';
 
 const STRUCTURES = {
   // ── Speaking ─────────────────────────────────────────────────────────────
-  // Each option has a distinct pedagogical shape — not just a cosmetic reshuffle.
   speaking: [
-    // S1 — Phrases-led: key phrases introduced before dialogue, then comprehension + roleplay
+    // S1 — Warm then phrases-led: ease in, then key phrases before dialogue
     ['warm-up', 'useful-language', 'dialogue', 'listening-true-false', 'matching-qa', 'roleplay', 'homework-writing'],
-    // S2 — Vocabulary + grammar: vocab cards, then dialogue reveals grammar in use
-    ['warm-up', 'vocabulary-cards', 'dialogue', 'listening-mcq', 'grammar-focus', 'discussion', 'homework-writing'],
-    // S3 — Concise: no listening section, debate replaces extended comprehension
+    // S2 — Cold open with vocab: dive straight into vocabulary cards, no warm-up
+    ['vocabulary-cards', 'dialogue', 'listening-mcq', 'grammar-focus', 'discussion', 'homework-writing'],
+    // S3 — Warm then lean: no listening, straight to debate after comprehension
     ['warm-up', 'vocabulary-match', 'dialogue', 'matching-qa', 'debate', 'homework-writing'],
-    // S4 — Expressions & idioms: fixed expressions first, T/F listening, talking-point
-    ['warm-up', 'useful-expressions', 'dialogue', 'listening-true-false', 'talking-point', 'homework-writing'],
-    // S5 — Language in context + production: functional phrases, vocab cards, then roleplay
+    // S4 — Cold open with expressions: idioms first, then the dialogue that uses them
+    ['useful-expressions', 'dialogue', 'listening-true-false', 'talking-point', 'homework-writing'],
+    // S5 — Warm then language-in-context: functional phrases, then vocab, then production
     ['warm-up', 'language-in-context', 'vocabulary-cards', 'dialogue', 'matching-qa', 'roleplay', 'homework-writing'],
   ],
   // ── Reading ───────────────────────────────────────────────────────────────
   reading: [
-    // R1 — Scan + skim + discuss
+    // R1 — Warm then scan + skim
     ['warm-up', 'vocabulary-match', 'reading-article', 'reading-scan', 'skim-main-idea', 'discussion', 'homework-writing'],
-    // R2 — Deep vocabulary in text + debate
-    ['warm-up', 'vocabulary-cards', 'reading-article', 'vocabulary-in-text', 'matching-qa', 'debate', 'homework-writing'],
-    // R3 — Scan + gap-fill (tests vocabulary from text)
+    // R2 — Cold open: vocab cards before reading, then deep in-text vocabulary work
+    ['vocabulary-cards', 'reading-article', 'vocabulary-in-text', 'matching-qa', 'debate', 'homework-writing'],
+    // R3 — Warm then scan + gap-fill
     ['warm-up', 'vocabulary-match', 'reading-article', 'reading-scan', 'gap-fill', 'discussion', 'homework-writing'],
-    // R4 — Phrases first, then skim + scan + roleplay
-    ['warm-up', 'useful-language', 'reading-article', 'skim-main-idea', 'reading-scan', 'roleplay', 'homework-writing'],
-    // R5 — Vocabulary in text + error detection + talking-point
+    // R4 — Cold open with phrases: see the language first, then encounter it in the article
+    ['useful-language', 'reading-article', 'skim-main-idea', 'reading-scan', 'roleplay', 'homework-writing'],
+    // R5 — Warm then in-text vocabulary + error detection
     ['warm-up', 'vocabulary-cards', 'reading-article', 'vocabulary-in-text', 'find-the-mistake', 'talking-point', 'homework-writing'],
   ],
   // ── Vocabulary ────────────────────────────────────────────────────────────
   vocabulary: [
-    // V1 — Cards → gap-fill → error detection → functional language
+    // V1 — Warm then cards → gap-fill → error detection → functional language
     ['warm-up', 'vocabulary-cards', 'gap-fill', 'find-the-mistake', 'language-in-context', 'discussion', 'homework-writing'],
-    // V2 — Match → ordering → gap-fill → phrases → production
-    ['warm-up', 'vocabulary-match', 'ordering', 'gap-fill', 'useful-language', 'roleplay', 'homework-writing'],
-    // V3 — Match → gap-fill → correction → dialogue (lexis in use)
+    // V2 — Cold open: straight into vocabulary match, then ordering and production
+    ['vocabulary-match', 'ordering', 'gap-fill', 'useful-language', 'roleplay', 'homework-writing'],
+    // V3 — Warm then match → gap-fill → correction → dialogue (lexis in real use)
     ['warm-up', 'vocabulary-match', 'gap-fill', 'sentence-correction', 'dialogue', 'homework-writing'],
-    // V4 — Phrasal verbs → error detection → expressions → discussion
+    // V4 — Warm then phrasal verbs → error detection → expressions → discuss
     ['warm-up', 'phrasal-verbs', 'gap-fill', 'find-the-mistake', 'useful-expressions', 'discussion', 'homework-writing'],
-    // V5 — Cards → language in context → gap-fill → talking-point
-    ['warm-up', 'vocabulary-cards', 'language-in-context', 'gap-fill', 'talking-point', 'homework-writing'],
+    // V5 — Cold open: cards immediately, then language-in-context shows them in use
+    ['vocabulary-cards', 'language-in-context', 'gap-fill', 'talking-point', 'homework-writing'],
   ],
   // ── Grammar ───────────────────────────────────────────────────────────────
   grammar: [
-    // G1 — Cards → grammar explanation → error detection → correction → discuss
+    // G1 — Warm then cards → grammar → error detection → correction
     ['warm-up', 'vocabulary-cards', 'grammar-focus', 'find-the-mistake', 'sentence-correction', 'discussion', 'homework-writing'],
-    // G2 — Match → grammar → gap-fill → dialogue to see grammar in action
-    ['warm-up', 'vocabulary-match', 'grammar-focus', 'gap-fill', 'dialogue', 'roleplay', 'homework-writing'],
-    // G3 — Grammar first, then errors, then phrases, then dialogue
+    // G2 — Cold open with grammar: encounter the structure cold, then apply in dialogue
+    ['grammar-focus', 'find-the-mistake', 'gap-fill', 'dialogue', 'discussion', 'homework-writing'],
+    // G3 — Warm then grammar → errors → phrases → dialogue
     ['warm-up', 'grammar-focus', 'find-the-mistake', 'useful-language', 'dialogue', 'homework-writing'],
-    // G4 — Cards → grammar → ordering → gap-fill → discuss
+    // G4 — Warm then cards → grammar → ordering → gap-fill
     ['warm-up', 'vocabulary-cards', 'grammar-focus', 'ordering', 'gap-fill', 'discussion', 'homework-writing'],
-    // G5 — Language in context → grammar → correction → gap-fill → talking-point
-    ['warm-up', 'language-in-context', 'grammar-focus', 'sentence-correction', 'gap-fill', 'talking-point', 'homework-writing'],
+    // G5 — Cold open with language-in-context: see patterns in use before the grammar rule
+    ['language-in-context', 'grammar-focus', 'sentence-correction', 'gap-fill', 'talking-point', 'homework-writing'],
   ],
   // ── Professional ─────────────────────────────────────────────────────────
   professional: [
-    // P1 — Comprehensive: phrases + vocab, dialogue, listening, comprehension, roleplay
+    // P1 — Warm + comprehensive: phrases + vocab, dialogue, listening, roleplay
     ['warm-up', 'useful-language', 'vocabulary-match', 'dialogue', 'listening-true-false', 'matching-qa', 'roleplay', 'homework-writing'],
-    // P2 — Phrases + MCQ listening + roleplay + discuss
-    ['warm-up', 'useful-language', 'dialogue', 'listening-mcq', 'matching-qa', 'roleplay', 'discussion', 'homework-writing'],
-    // P3 — Vocab match → phrases → dialogue → debate (no listening)
+    // P2 — Cold open with phrases: see the professional language before context
+    ['useful-language', 'dialogue', 'listening-mcq', 'matching-qa', 'roleplay', 'discussion', 'homework-writing'],
+    // P3 — Warm then vocab → phrases → dialogue → debate (no listening)
     ['warm-up', 'vocabulary-match', 'useful-language', 'dialogue', 'matching-qa', 'debate', 'homework-writing'],
-    // P4 — Expressions/idioms → dialogue → T/F → roleplay
+    // P4 — Warm then expressions → dialogue → T/F → roleplay
     ['warm-up', 'useful-expressions', 'dialogue', 'listening-true-false', 'matching-qa', 'roleplay', 'homework-writing'],
-    // P5 — Language in context → dialogue → comprehension → talking-point
-    ['warm-up', 'language-in-context', 'dialogue', 'matching-qa', 'roleplay', 'talking-point', 'homework-writing'],
+    // P5 — Cold open with language-in-context: functional patterns first, then apply
+    ['language-in-context', 'dialogue', 'matching-qa', 'roleplay', 'talking-point', 'homework-writing'],
   ],
 } as const
 
