@@ -277,19 +277,22 @@ function PhraseMatchingGame({ phrases }: { phrases: PhraseItem[] }) {
 // Helper components
 // ---------------------------------------------------------------------------
 
-function StageHeader({ num, label, time, onEdit }: { num: number | string; label: string; time: string; onEdit?: () => void }) {
+function StageCard({ num, label, time, onEdit, children }: { num: number | string; label: string; time: string; onEdit?: () => void; children: React.ReactNode }) {
   return (
-    <div className="flex items-center gap-3 mb-4">
-      <span className="flex items-center justify-center w-8 h-8 rounded-full bg-brand-primary text-white text-sm font-bold shrink-0">
-        {num}
-      </span>
-      <div className="flex-1 min-w-0">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{label}</h3>
+    <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
+      <div className="flex items-stretch border-b border-gray-200 dark:border-gray-700">
+        <div className="flex items-center justify-center w-12 bg-[#1a3a5c] flex-shrink-0">
+          <span className="text-white font-bold text-base">{num}</span>
+        </div>
+        <div className="flex-1 flex items-center justify-between px-5 py-3">
+          <h3 className="font-bold text-[#1a3a5c] dark:text-blue-300 text-lg leading-snug">{label}</h3>
+          <div className="flex items-center gap-2 flex-shrink-0">
+            {onEdit && <EditButton onClick={onEdit} label="Edit" />}
+            <span className="text-xs text-gray-400 dark:text-gray-500 tabular-nums whitespace-nowrap">{time}</span>
+          </div>
+        </div>
       </div>
-      {onEdit && <EditButton onClick={onEdit} label="Edit" />}
-      <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 whitespace-nowrap">
-        {time}
-      </span>
+      <div className="px-6 py-5">{children}</div>
     </div>
   )
 }
@@ -736,47 +739,33 @@ export default function YouTubeToLessonPage() {
 
             {/* ---- STAGE 1: Warm-Up ---- */}
             {result.warmUp.length > 0 && (
-              <Card>
-                <StageHeader num={1} label="Warm-Up" time="5 min" onEdit={() => setEditingStage('warmUp')} />
-                <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
-                  Ask these BEFORE watching. Get the student talking about the topic.
-                </p>
-                <div className="space-y-3">
+              <StageCard num={1} label="Warm-Up" time="5 min" onEdit={() => setEditingStage('warmUp')}>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">Ask these BEFORE watching. Get the student talking about the topic.</p>
+                <div className="divide-y divide-gray-100 dark:divide-gray-700">
                   {result.warmUp.map((q) => (
-                    <div key={q.id} className="p-3 rounded-lg">
-                      <p className="text-gray-900 dark:text-white">{q.id}. {formatText(q.question)}</p>
+                    <div key={q.id} className="py-3">
+                      <p className="text-sm text-gray-900 dark:text-white">{q.id}. {formatText(q.question)}</p>
                     </div>
                   ))}
                 </div>
-              </Card>
+              </StageCard>
             )}
 
             {/* ---- STAGE 2: Pre-Teach Vocabulary ---- */}
             {result.preTeach.length > 0 && (
-              <Card>
-                <StageHeader num={2} label="Pre-Teach Vocabulary" time="5-7 min" onEdit={() => setEditingStage('preTeach')} />
-                <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
-                  Teach these BEFORE watching. They&apos;re essential for understanding the video.
-                </p>
-                <div className="space-y-4">
+              <StageCard num={2} label="Pre-Teach Vocabulary" time="5-7 min" onEdit={() => setEditingStage('preTeach')}>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">Teach these BEFORE watching. Essential for understanding the video.</p>
+                <div className="divide-y divide-gray-100 dark:divide-gray-700">
                   {result.preTeach.map((item, i) => (
-                    <div key={`pt-${i}`} className="p-4 rounded-lg">
+                    <div key={`pt-${i}`} className="py-4">
                       <div className="flex items-baseline gap-2 mb-1">
-                        <span className="font-bold text-blue-600 dark:text-blue-400 text-lg">{item.term}</span>
-                        {item.synonym && (
-                          <span className="text-xs text-gray-500 dark:text-gray-400 italic"><sub>{item.synonym}</sub></span>
-                        )}
+                        <span className="font-bold text-[#1a3a5c] dark:text-blue-400 text-base">{item.term}</span>
+                        {item.synonym && <span className="text-xs text-gray-500 dark:text-gray-400 italic">{item.synonym}</span>}
                       </div>
                       <div className="flex items-center gap-3 mb-2">
-                        <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400">
-                          {item.type}
-                        </span>
-                        <button
-                          onClick={() => playAudio(item.term)}
-                          disabled={loadingWord === item.term}
-                          className="text-gray-400 dark:text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 transition-colors disabled:opacity-50"
-                          aria-label={`Play audio for ${item.term}`}
-                        >
+                        <span className="text-xs px-2 py-0.5 rounded bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400">{item.type}</span>
+                        <button onClick={() => playAudio(item.term)} disabled={loadingWord === item.term}
+                          className="text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors disabled:opacity-50" aria-label={`Play audio for ${item.term}`}>
                           {playingWord === item.term ? (
                             <svg className="w-4 h-4 animate-pulse" fill="currentColor" viewBox="0 0 24 24"><path d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 14.142M9 9a3 3 0 000 6h4a1 1 0 001-1v-4a1 1 0 00-1-1H9z" /></svg>
                           ) : loadingWord === item.term ? (
@@ -785,174 +774,129 @@ export default function YouTubeToLessonPage() {
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 14.142M9 9a3 3 0 000 6h4a1 1 0 001-1v-4a1 1 0 00-1-1H9z" /></svg>
                           )}
                         </button>
-                        {item.phonetics && (
-                          <span className="text-orange-600 dark:text-orange-400 font-mono text-sm">{item.phonetics}</span>
-                        )}
+                        {item.phonetics && <span className="text-orange-600 dark:text-orange-400 font-mono text-sm">{item.phonetics}</span>}
                       </div>
-                      <p className="text-sm text-gray-700 dark:text-gray-300 mb-1">
-                        {formatText(item.definition)}
-                      </p>
-                      <p className="text-sm text-gray-600 dark:text-gray-400 italic">
-                        {formatText(item.exampleSentence)}
-                      </p>
+                      <p className="text-sm text-gray-700 dark:text-gray-300 mb-1">{formatText(item.definition)}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400 italic">{formatText(item.exampleSentence)}</p>
                       {item.expressions && item.expressions.length > 0 && (
-                        <div className="mt-2 pt-2 border-t border-gray-200 dark:border-gray-700">
-                          <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Useful phrases:</span>
-                          <div className="flex flex-wrap gap-1.5 mt-1">
-                            {item.expressions.map((expr, ei) => (
-                              <span key={ei} className="px-2 py-0.5 text-xs bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded">{expr}</span>
-                            ))}
-                          </div>
+                        <div className="flex flex-wrap gap-1.5 mt-2">
+                          {item.expressions.map((expr, ei) => (
+                            <span key={ei} className="px-2 py-0.5 text-xs bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 rounded border border-blue-100 dark:border-blue-800">{expr}</span>
+                          ))}
                         </div>
                       )}
                     </div>
                   ))}
                 </div>
-              </Card>
+              </StageCard>
             )}
 
             {/* ---- STAGE 3: Watch & Comprehend ---- */}
-            <Card>
-              <StageHeader num={3} label="Watch & Comprehend" time="8-10 min" onEdit={() => setEditingStage('detailQuestions')} />
+            <StageCard num={3} label="Watch & Comprehend" time="8-10 min" onEdit={() => setEditingStage('detailQuestions')}>
               <YouTubeEmbed videoId={result.videoId} instruction="Play the video. The student watches once and answers the comprehension questions below." />
-
-              {/* Detail questions */}
               {result.detailQuestions.length > 0 && (
                 <div>
-                  <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">After Watching — Detail Questions</h4>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
-                    Ask these AFTER the video. Check specific comprehension.
-                  </p>
-                  <div className="space-y-3">
+                  <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1 mt-2">After watching — comprehension questions</p>
+                  <div className="divide-y divide-gray-100 dark:divide-gray-700">
                     {result.detailQuestions.map((q) => (
-                      <div key={q.id} className="p-3 rounded-lg">
-                        <p className="text-gray-900 dark:text-white mb-1">{q.id}. {formatText(q.question)}</p>
+                      <div key={q.id} className="py-3">
+                        <p className="text-sm text-gray-900 dark:text-white">{q.id}. {formatText(q.question)}</p>
                         {showAnswers && (
-                          <p className="text-sm text-gray-600 dark:text-gray-400 mt-2 pt-2 border-t border-gray-200 dark:border-gray-700">
-                            <span className="font-medium">Answer:</span> {formatText(q.answer)}
-                          </p>
+                          <p className="text-sm text-green-700 dark:text-green-400 mt-1"><span className="font-medium">A:</span> {formatText(q.answer)}</p>
                         )}
                       </div>
                     ))}
                   </div>
                 </div>
               )}
-            </Card>
+            </StageCard>
 
             {/* ---- STAGE 4: Discussion ---- */}
             {result.discussion.length > 0 && (
-              <Card>
-                <StageHeader num={4} label="Discussion" time="8-10 min" onEdit={() => setEditingStage('discussion')} />
-                <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
-                  Encourage the student to use the vocabulary from Stage 2.
-                </p>
-                <div className="space-y-4">
+              <StageCard num={4} label="Discussion" time="8-10 min" onEdit={() => setEditingStage('discussion')}>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">Encourage the student to use vocabulary from Stage 2.</p>
+                <div className="divide-y divide-gray-100 dark:divide-gray-700">
                   {result.discussion.map((q) => (
-                    <div key={q.id} className="p-4 rounded-lg">
-                      <p className="text-gray-900 dark:text-white font-medium">{q.id}. {formatText(q.question)}</p>
-                      {showAnswers && (
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
-                          <span className="font-medium">Follow-up:</span> {formatText(q.followUp)}
-                        </p>
-                      )}
+                    <div key={q.id} className="py-3">
+                      <p className="text-sm text-gray-900 dark:text-white">{q.id}. {formatText(q.question)}</p>
+                      {showAnswers && <p className="text-sm text-green-700 dark:text-green-400 mt-1"><span className="font-medium">Follow-up:</span> {formatText(q.followUp)}</p>}
                     </div>
                   ))}
                 </div>
-              </Card>
+              </StageCard>
             )}
 
-            {/* ---- STAGE 5: Language Focus — Matching, Fill-in-the-Blanks & Speaking ---- */}
+            {/* ---- STAGE 5: Language Focus ---- */}
             {result.phrases && result.phrases.length > 0 && (
-              <Card>
-                <StageHeader num={5} label="Language Focus: Idioms & Expressions" time="12-15 min" onEdit={() => setEditingStage('phrases')} />
-                <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
-                  Idioms, phrasal verbs, collocations and fixed expressions from the video. These make the student sound more natural.
-                </p>
+              <StageCard num={5} label="Language Focus: Idioms & Expressions" time="12-15 min" onEdit={() => setEditingStage('phrases')}>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">Idioms, phrasal verbs, collocations and fixed expressions from the video.</p>
 
-                {/* 5a — Matching exercise */}
-                <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">5a — Match Phrase to Meaning</h4>
+                <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3">5a — Match phrase to meaning</p>
                 <PhraseMatchingGame phrases={result.phrases} />
 
-                {/* 5b — Fill-in-the-blanks */}
                 {result.fillBlanks && result.fillBlanks.length > 0 && (
                   <div className="mt-8">
-                    <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">5b — Fill in the Blanks</h4>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
-                      Use the phrases from the word box to complete each sentence. You may have to change the form of the word.
-                    </p>
-
-                    {/* Word box — shuffled so answers aren't in sentence order */}
-                    <div className="flex flex-wrap gap-2 mb-5 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
+                    <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">5b — Fill in the blanks</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">Use the word box to complete each sentence. You may need to change the form.</p>
+                    <div className="flex flex-wrap gap-2 mb-4 p-3 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700">
                       {shuffledWordBox.map((word, i) => (
-                        <span key={`wb-${i}`} className="text-sm px-3 py-1.5 rounded-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-800 dark:text-gray-200 font-medium">
+                        <span key={`wb-${i}`} className="text-sm px-3 py-1 rounded bg-white dark:bg-gray-700 border border-amber-300 dark:border-amber-600 text-gray-800 dark:text-gray-200 font-medium shadow-sm">
                           {showAnswers ? word : '•••'}
                         </span>
                       ))}
                     </div>
-
-                    {/* Sentences */}
-                    <div className="space-y-3">
+                    <div className="divide-y divide-gray-100 dark:divide-gray-700">
                       {result.fillBlanks.map((fb) => (
-                        <div key={`fb-${fb.id}`} className="p-3 rounded-lg">
-                          <p className="text-gray-900 dark:text-white">{fb.id}. {formatText(fb.sentence)}</p>
-                          {showAnswers && (
-                            <p className="text-sm text-gray-600 dark:text-gray-400 mt-2 pt-2 border-t border-gray-200 dark:border-gray-700">
-                              <span className="font-medium">Answer:</span> {formatText(fb.answer)}
-                            </p>
-                          )}
+                        <div key={`fb-${fb.id}`} className="py-3">
+                          <p className="text-sm text-gray-900 dark:text-white">{fb.id}. {formatText(fb.sentence)}</p>
+                          {showAnswers && <p className="text-sm text-green-700 dark:text-green-400 mt-1"><span className="font-medium">A:</span> {formatText(fb.answer)}</p>}
                         </div>
                       ))}
                     </div>
                   </div>
                 )}
 
-                {/* 5c — Speaking Practice using phrases */}
                 {result.speakingPractice && result.speakingPractice.length > 0 && (
                   <div className="mt-8">
-                    <div className="flex items-center gap-2 mb-3">
-                      <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">5c — Speaking Practice</h4>
+                    <div className="flex items-center gap-2 mb-2">
+                      <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">5c — Speaking practice</p>
                       <EditButton onClick={() => setEditingStage('speakingPractice')} label="Edit" />
                     </div>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
-                      Discuss these questions. Try to use the phrases and idioms from Stage 5 in your answers.
-                    </p>
-                    <div className="space-y-3">
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">Use the phrases and idioms from Stage 5 in your answers.</p>
+                    <div className="divide-y divide-gray-100 dark:divide-gray-700">
                       {result.speakingPractice.map((sp) => (
-                        <div key={`sp-${sp.id}`} className="p-3 rounded-lg">
-                          <p className="text-gray-900 dark:text-white">{sp.id}. {formatText(sp.question)}</p>
+                        <div key={`sp-${sp.id}`} className="py-3">
+                          <p className="text-sm text-gray-900 dark:text-white">{sp.id}. {formatText(sp.question)}</p>
                         </div>
                       ))}
                     </div>
                   </div>
                 )}
-              </Card>
+              </StageCard>
             )}
 
             {/* ---- STAGE 6: Wrap-Up ---- */}
             {(result.wrapUp.length > 0 || result.homework?.task) && (
-              <Card>
-                <StageHeader num={6} label="Wrap-Up" time="3-5 min" onEdit={() => setEditingStage('wrapUp')} />
+              <StageCard num={6} label="Wrap-Up & Homework" time="3-5 min" onEdit={() => setEditingStage('wrapUp')}>
                 {result.wrapUp.length > 0 && (
-                  <div className="space-y-3 mb-4">
+                  <div className="divide-y divide-gray-100 dark:divide-gray-700 mb-4">
                     {result.wrapUp.map((r) => (
-                      <div key={r.id} className="p-3 rounded-lg border border-gray-200 dark:border-gray-700">
-                        <p className="text-gray-900 dark:text-white">{r.id}. {formatText(r.prompt)}</p>
+                      <div key={r.id} className="py-3">
+                        <p className="text-sm text-gray-900 dark:text-white">{r.id}. {formatText(r.prompt)}</p>
                       </div>
                     ))}
                   </div>
                 )}
                 {result.homework?.task && (
-                  <div className="p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">📝 Optional Homework</span>
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400">
-                        {result.homework.type}
-                      </span>
+                  <div className="p-4 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 mt-2">
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <span className="text-sm font-semibold text-amber-900 dark:text-amber-200">Homework</span>
+                      <span className="text-xs px-2 py-0.5 rounded bg-amber-100 dark:bg-amber-800 text-amber-700 dark:text-amber-300">{result.homework.type}</span>
                     </div>
-                    <p className="text-sm text-gray-700 dark:text-gray-300">{formatText(result.homework.task)}</p>
+                    <p className="text-sm text-amber-900 dark:text-amber-200">{formatText(result.homework.task)}</p>
                   </div>
                 )}
-              </Card>
+              </StageCard>
             )}
 
           </div>

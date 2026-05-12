@@ -560,9 +560,15 @@ function renderModule(mod: Record<string, any>, idx: number, studentName: string
         body += '</tbody></table>'
       }
     }
-    const examples: string[] = Array.isArray(c.examples) ? c.examples : []
+    const examples: unknown[] = Array.isArray(c.examples) ? c.examples : []
     if (examples.length) {
-      examples.forEach(ex => { body += `<div class="bullet-item">• ${e(ex)}</div>` })
+      examples.forEach(ex => {
+        // examples is {label, sentence} in modular lessons; plain string in legacy
+        const text = typeof ex === 'object' && ex !== null
+          ? `<strong>${e((ex as Record<string,string>).label || '')}</strong> ${e((ex as Record<string,string>).sentence || '')}`
+          : e(String(ex))
+        body += `<div class="bullet-item">• ${text}</div>`
+      })
     }
     // grammar-focus table
     if (c.table && Array.isArray(c.table.headers) && Array.isArray(c.table.rows)) {

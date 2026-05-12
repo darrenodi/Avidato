@@ -4,7 +4,7 @@ import { StudentProfile, BlockLesson } from '../../types/lesson-template';
 // Each category has 5 preset module sequences.
 // Code picks one randomly — the AI never chooses the structure, only fills the content.
 
-const STRUCTURES = {
+export const STRUCTURES = {
   // ── Speaking ─────────────────────────────────────────────────────────────
   speaking: [
     // S1 — Warm then phrases-led: ease in, then key phrases before dialogue
@@ -85,7 +85,7 @@ const STRUCTURES = {
   ],
 } as const
 
-function selectStructure(communicativeNeed: string, lessonTitle?: string): { category: string; modules: string[] } {
+export function selectStructure(communicativeNeed: string, lessonTitle?: string): { category: string; modules: string[] } {
   const combined = `${communicativeNeed} ${lessonTitle ?? ''}`.toLowerCase()
   let category: keyof typeof STRUCTURES
 
@@ -115,9 +115,11 @@ export function buildModularLessonPrompt(
   roles: string[],
   levelGuide: string,
   cefrVocabGuide: string,
-  vocabularyContextSection: string
+  vocabularyContextSection: string,
+  /** Test-only: force a specific structure instead of random selection */
+  _testStructure?: { category: string; modules: string[] }
 ): string {
-  const { category, modules } = selectStructure(lesson.communicativeNeed, lesson.title)
+  const { category, modules } = _testStructure ?? selectStructure(lesson.communicativeNeed, lesson.title)
 
   // For 25-min lessons: trim to first + 3 middle + homework-writing
   const selectedModules = duration === 25
