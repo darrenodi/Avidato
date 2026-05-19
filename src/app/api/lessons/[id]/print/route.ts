@@ -134,9 +134,9 @@ body {
 .role-navy { color: #1a3a5c; }
 
 /* Debate / two-col */
-.debate-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
-.debate-col-a { background: #EFF6FF; border: 1px solid #2E75B6; border-radius: 4px; padding: 10px 12px; }
-.debate-col-b { background: #FFFBEB; border: 1px solid #F59E0B; border-radius: 4px; padding: 10px 12px; }
+.debate-grid { width: 100%; border-collapse: separate; border-spacing: 8px 0; margin-bottom: 8px; display: table; }
+.debate-col-a { display: table-cell; width: 50%; background: #EFF6FF; border: 1px solid #2E75B6; border-radius: 4px; padding: 10px 12px; vertical-align: top; }
+.debate-col-b { display: table-cell; width: 50%; background: #FFFBEB; border: 1px solid #F59E0B; border-radius: 4px; padding: 10px 12px; vertical-align: top; }
 .debate-label { font-size: 9pt; font-weight: 700; color: #2E75B6; margin-bottom: 6px; }
 .debate-label-b { color: #92400E; }
 
@@ -158,9 +158,9 @@ body {
 /* Phrase reference card */
 .phrase-ref-section { border: 1px solid #DBEAFE; border-radius: 4px; overflow: hidden; margin-top: 0; }
 .phrase-ref-hdr { background: #2E75B6; color: white; font-size: 10pt; font-weight: 700; padding: 8px 14px; }
-.phrase-ref-grid { display: grid; grid-template-columns: 1fr 1fr; }
-.phrase-ref-item { padding: 6px 12px; font-size: 9pt; border-bottom: 0.5px solid #DBEAFE; }
-.phrase-ref-item:nth-child(odd) { border-right: 0.5px solid #DBEAFE; }
+.phrase-ref-table { width: 100%; border-collapse: collapse; }
+.phrase-ref-item { width: 50%; padding: 6px 12px; font-size: 9pt; border-bottom: 0.5px solid #DBEAFE; vertical-align: top; }
+.phrase-ref-item:first-child { border-right: 0.5px solid #DBEAFE; }
 .phrase-ref-phrase { color: #1D4ED8; font-weight: 700; font-style: italic; }
 .phrase-ref-note { color: #6B7280; font-size: 8pt; font-weight: 400; font-style: normal; display: block; margin-top: 1px; }
 
@@ -296,19 +296,23 @@ function buildPhraseRefCard(modules: Record<string, any>[]): string {
 
   if (items.length === 0) return ''
 
-  // Pad to even count for grid
+  // Pad to even count for table rows
   if (items.length % 2 !== 0) items.push({ text: '', note: '' })
 
-  const rows = items.map(item =>
+  const cell = (item: { text: string; note: string }) =>
     item.text
-      ? `<div class="phrase-ref-item"><span class="phrase-ref-phrase">${e(item.text)}</span>${item.note ? `<span class="phrase-ref-note">${e(item.note)}</span>` : ''}</div>`
-      : `<div class="phrase-ref-item"></div>`
-  ).join('')
+      ? `<td class="phrase-ref-item"><span class="phrase-ref-phrase">${e(item.text)}</span>${item.note ? `<span class="phrase-ref-note">${e(item.note)}</span>` : ''}</td>`
+      : `<td class="phrase-ref-item"></td>`
+
+  let tableRows = ''
+  for (let i = 0; i < items.length; i += 2) {
+    tableRows += `<tr>${cell(items[i])}${cell(items[i + 1])}</tr>`
+  }
 
   return `<div class="pagebreak">
   <div class="phrase-ref-section">
     <div class="phrase-ref-hdr">Key Language Reference</div>
-    <div class="phrase-ref-grid">${rows}</div>
+    <table class="phrase-ref-table">${tableRows}</table>
   </div>
 </div>`
 }
@@ -372,16 +376,18 @@ function renderModule(mod: Record<string, any>, idx: number, studentName: string
         return `<tr><td class="match-num" style="color:#92400E">${letter}</td><td class="match-def" colspan="2">${e(def)}</td></tr>`
       }).join('')
       return `<div class="match-group-label">${e(gg.label || '')}</div>
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px">
-  <div>
-    <div style="font-size:8pt;color:#9CA3AF;margin-bottom:4px;text-transform:uppercase;letter-spacing:.04em">Terms — ${tutorCopy ? 'answer key' : 'write the matching letter'}</div>
-    <table class="match-table">${termRows}</table>
-  </div>
-  <div>
-    <div style="font-size:8pt;color:#9CA3AF;margin-bottom:4px;text-transform:uppercase;letter-spacing:.04em">Definitions</div>
-    <table class="match-table">${defRows}</table>
-  </div>
-</div>`
+<table style="width:100%;border-collapse:collapse;margin-bottom:10px">
+  <tr>
+    <td style="width:50%;vertical-align:top;padding-right:8px">
+      <div style="font-size:8pt;color:#9CA3AF;margin-bottom:4px;text-transform:uppercase;letter-spacing:.04em">Terms — ${tutorCopy ? 'answer key' : 'write the matching letter'}</div>
+      <table class="match-table">${termRows}</table>
+    </td>
+    <td style="width:50%;vertical-align:top;padding-left:8px">
+      <div style="font-size:8pt;color:#9CA3AF;margin-bottom:4px;text-transform:uppercase;letter-spacing:.04em">Definitions</div>
+      <table class="match-table">${defRows}</table>
+    </td>
+  </tr>
+</table>`
     }).join('')
   }
 
@@ -784,7 +790,7 @@ function renderModule(mod: Record<string, any>, idx: number, studentName: string
     if (!qs.length && desc) body += `<p>${e(desc)}</p>`
   }
 
-  return `<div class="avoid-break" style="margin-bottom:18px">
+  return `<div style="margin-bottom:18px">
   ${sectionHeader(idx + 1, title, time)}
   <div style="padding:2px 0 6px">${body}</div>
 </div>`
