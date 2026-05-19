@@ -46,8 +46,8 @@ export const STRUCTURES = {
   ],
   // ── Grammar ───────────────────────────────────────────────────────────────
   grammar: [
-    // G1 — Warm then cards → grammar → error detection → correction
-    ['warm-up', 'vocabulary-cards', 'grammar-focus', 'find-the-mistake', 'sentence-correction', 'discussion', 'homework-writing'],
+    // G1 — Warm then cards → grammar → gap-fill → correction
+    ['warm-up', 'vocabulary-cards', 'grammar-focus', 'gap-fill', 'sentence-correction', 'discussion', 'homework-writing'],
     // G2 — Cold open with grammar: encounter the structure cold, then apply in dialogue
     ['grammar-focus', 'find-the-mistake', 'gap-fill', 'dialogue', 'discussion', 'homework-writing'],
     // G3 — Warm then grammar → errors → phrases → dialogue
