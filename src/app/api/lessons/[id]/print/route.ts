@@ -369,7 +369,17 @@ function renderModule(mod: Record<string, any>, idx: number, studentName: string
         const answerCell = tutorCopy
           ? `<td style="width:28px;text-align:center;font-weight:700;color:#166534;border:0.5px solid #E5E7EB">${answerLetter}</td>`
           : `<td style="width:28px;text-align:center;color:#9CA3AF;border:0.5px solid #E5E7EB">___</td>`
-        return `<tr><td class="match-num">${i + 1}</td><td class="match-term">${e(pp.term || pp.word || '')}</td>${answerCell}</tr>`
+        const rawSentence: string = pp.sentence || pp.term || pp.word || ''
+        const rawTerm: string = pp.term || pp.word || ''
+        let display: string
+        if (rawSentence && rawTerm && rawSentence !== rawTerm) {
+          const esc = e(rawSentence)
+          const escTerm = e(rawTerm).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+          display = esc.replace(new RegExp(escTerm, 'i'), m => `<strong style="color:#1a3a5c">${m}</strong>`)
+        } else {
+          display = e(rawSentence)
+        }
+        return `<tr><td class="match-num">${i + 1}</td><td style="font-size:9pt;padding:6px 8px;border:0.5px solid #E5E7EB">${display}</td>${answerCell}</tr>`
       }).join('')
       const defRows = scrambledDefs.map((def, j) => {
         const letter = String.fromCharCode(65 + j)
@@ -378,11 +388,11 @@ function renderModule(mod: Record<string, any>, idx: number, studentName: string
       return `<div class="match-group-label">${e(gg.label || '')}</div>
 <table style="width:100%;border-collapse:collapse;margin-bottom:10px">
   <tr>
-    <td style="width:50%;vertical-align:top;padding-right:8px">
-      <div style="font-size:8pt;color:#9CA3AF;margin-bottom:4px;text-transform:uppercase;letter-spacing:.04em">Terms — ${tutorCopy ? 'answer key' : 'write the matching letter'}</div>
+    <td style="width:65%;vertical-align:top;padding-right:8px">
+      <div style="font-size:8pt;color:#9CA3AF;margin-bottom:4px;text-transform:uppercase;letter-spacing:.04em">Sentences — ${tutorCopy ? 'answer key' : 'write the matching letter'}</div>
       <table class="match-table">${termRows}</table>
     </td>
-    <td style="width:50%;vertical-align:top;padding-left:8px">
+    <td style="width:35%;vertical-align:top;padding-left:8px">
       <div style="font-size:8pt;color:#9CA3AF;margin-bottom:4px;text-transform:uppercase;letter-spacing:.04em">Definitions</div>
       <table class="match-table">${defRows}</table>
     </td>
