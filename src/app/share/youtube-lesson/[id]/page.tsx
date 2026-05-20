@@ -395,8 +395,15 @@ function SharedYouTubeLessonContent() {
           [class*="bg-"] { background: white !important; }
           [class*="border-"] { border-color: #ddd !important; }
 
-          /* Stage sections: clean separation, avoid page break mid-section */
-          .space-y-6 > div { page-break-inside: avoid; break-inside: avoid; margin-bottom: 1.5rem !important; border: none !important; border-bottom: 1px solid #ddd !important; padding-bottom: 1.5rem !important; }
+          /* Stage sections: clean separation, let content flow naturally across pages */
+          .space-y-6 > div { margin-bottom: 1rem !important; border: none !important; border-bottom: 1px solid #eee !important; padding-bottom: 1rem !important; }
+
+          /* Prevent orphaned section headers */
+          h3 { page-break-after: avoid; break-after: avoid; }
+
+          /* Tighten question/item padding so they don't balloon with whitespace */
+          .space-y-3 > div, .space-y-4 > div { padding: 2px 0 !important; }
+          .p-3, .p-4 { padding: 4px 0 !important; }
 
           /* StageHeader: strip the colored circle, keep bold label */
           .rounded-full { border-radius: 0 !important; background: transparent !important; border: none !important; padding: 0 !important; }
