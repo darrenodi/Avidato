@@ -87,6 +87,15 @@ function YouTubeEmbed({ videoId, instruction }: { videoId: string; instruction: 
   return (
     <div className="mb-4">
       <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">{instruction}</p>
+      <div className="mb-4 overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700">
+        <Image
+          src={`https://img.youtube.com/vi/${videoId}/mqdefault.jpg`}
+          alt="YouTube video thumbnail"
+          width={640}
+          height={360}
+          className="w-full h-auto object-cover"
+        />
+      </div>
       <div className="relative w-full overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700" style={{ paddingBottom: '56.25%' }}>
         <iframe
           className="absolute inset-0 w-full h-full"
