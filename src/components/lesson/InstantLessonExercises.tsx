@@ -1,17 +1,15 @@
 'use client'
 
-// src/components/lesson/EngooLessonComponents.tsx
+// src/components/lesson/InstantLessonExercises.tsx
 import React, { useState, useRef } from 'react'
 import { formatText } from '@/lib/format-text'
 
 /**
- * Engoo-style Lesson Components
- * Renders lessons in the exact Engoo format with proper vocabulary structure,
- * character dialogues, and exercise layouts
+ * Instant Lesson Exercise Components
+ * Renderers for the instant-lesson tool: vocabulary, warm-up, dialogue,
+ * comprehension, roleplay, discussion, plus the task-based stages
+ * (lead-in, task prep, task performance, post-task, homework).
  */
-
-// Utility: bold formatting handled by formatText from @/lib/format-text
-
 interface VocabularyItem {
   word: string
   partOfSpeech: string
@@ -655,304 +653,385 @@ export function DiscussionExercise({ questions, instructions }: { questions: str
   )
 }
 
-// Useful Expressions Exercise Component
-type MatchState = { [phraseIdx: number]: number | null }
-type MatchFeedback = { [phraseIdx: number]: 'correct' | 'incorrect' | null }
+/**
+ * TBLT Lesson Components (Preply structure)
+ * Lead-in → Task Prep → Task Performance → Post-task → Homework
+ */
 
-export function UsefulExpressionsExercise({
-  expressions,
-}: {
-  expressions: { phrase: string; meaning: string; example?: string }[]
+// ─── Lead-in ───────────────────────────────────────────────────────────────
+
+interface LeadInContent {
+  questions: string[]
   instructions?: string
-}) {
-  const [shuffledMeanings] = useState(() =>
-    expressions.map(e => e.meaning).sort(() => Math.random() - 0.5)
+}
+
+export function LeadInExercise({ content }: { content: LeadInContent }) {
+  return (
+    <div className="space-y-3">
+      {content.questions.map((q, i) => (
+        <div key={i} className="flex gap-3 items-start">
+          <svg className="flex-shrink-0 w-4 h-4 mt-1 text-brand-primary opacity-60" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z" />
+          </svg>
+          <p className="text-gray-900 dark:text-white">{q}</p>
+        </div>
+      ))}
+    </div>
   )
-  const [matches, setMatches] = useState<MatchState>({})
-  const [feedback, setFeedback] = useState<MatchFeedback>({})
-  const [draggedDef, setDraggedDef] = useState<number | null>(null)
-  const [allCorrect, setAllCorrect] = useState(false)
+}
 
-  const progress = Object.keys(matches).length
-  const total = expressions.length
+// ─── Task Prep ─────────────────────────────────────────────────────────────
 
-  const checkAnswers = () => {
-    const fb: MatchFeedback = {}
-    let correct = 0
-    expressions.forEach((expr, i) => {
-      const di = matches[i]
-      if (di !== null && di !== undefined) {
-        if (shuffledMeanings[di] === expr.meaning) { fb[i] = 'correct'; correct++ }
-        else fb[i] = 'incorrect'
-      }
-    })
-    setFeedback(fb)
-    setAllCorrect(correct === total)
-  }
+interface KeyPhrase {
+  phrase: string
+  function?: string
+  usage: string
+  example: string
+}
 
-  const resetGame = () => { setMatches({}); setFeedback({}); setAllCorrect(false); setDraggedDef(null) }
-  const handleDrop = (phraseIdx: number, defIdx: number) => {
-    setMatches(m => ({ ...m, [phraseIdx]: defIdx }))
-    setFeedback(f => ({ ...f, [phraseIdx]: null }))
-    setDraggedDef(null)
+interface TaskPrepContent {
+  vocabulary: {
+    word: string
+    partOfSpeech: string
+    phonetics: string
+    definition: string
+    example: string
+    synonym?: string
+    expressions?: string[]
+  }[]
+  keyPhrases: KeyPhrase[]
+  modelDialogue: {
+    setting: string
+    characters: { name: string; role?: string; avatar?: string }[]
+    dialogue: { character: string; text: string }[]
+    comprehensionQuestions?: { gist: string[]; detail: string[] }
+    noticingTask?: string
   }
-  const clearMatch = (phraseIdx: number) => {
-    setMatches(m => { const n = { ...m }; delete n[phraseIdx]; return n })
-    setFeedback(f => ({ ...f, [phraseIdx]: null }))
-  }
-  const getMatchedDef = (phraseIdx: number) => {
-    const di = matches[phraseIdx]
-    return di !== null && di !== undefined ? shuffledMeanings[di] : null
-  }
-  const isDefMatched = (defIdx: number) => Object.values(matches).includes(defIdx)
+}
+
+export function TaskPrepExercise({ content }: { content: TaskPrepContent }) {
+  const hasDialogue = content.modelDialogue?.dialogue?.length > 0
+  const tabs = [
+    { key: 'vocab' as const, label: 'Vocabulary' },
+    { key: 'phrases' as const, label: 'Key Phrases' },
+    ...(hasDialogue ? [{ key: 'dialogue' as const, label: 'Model Dialogue' }] : []),
+  ]
+  const [section, setSection] = useState<'vocab' | 'phrases' | 'dialogue'>(tabs[0].key)
 
   return (
     <div className="space-y-4">
-      {/* Progress bar */}
-      <div className="flex items-center justify-between">
-        <span className="text-xs font-medium text-gray-500 dark:text-gray-400">{progress}/{total} matched</span>
-        {allCorrect && progress === total && (
-          <span className="text-xs font-semibold text-green-600 dark:text-green-400">✓ Perfect!</span>
-        )}
-      </div>
-      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
-        <div
-          className={`h-1.5 rounded-full transition-all ${allCorrect && progress === total ? 'bg-green-500' : 'bg-brand-primary'}`}
-          style={{ width: `${total > 0 ? (progress / total) * 100 : 0}%` }}
-        />
+      {/* Section tabs */}
+      <div className="flex gap-2 border-b border-gray-200 dark:border-gray-700">
+        {tabs.map((t) => (
+          <button
+            key={t.key}
+            onClick={() => setSection(t.key)}
+            className={`px-3 py-2 text-sm font-medium border-b-2 transition-colors ${
+              section === t.key
+                ? 'border-brand-primary text-brand-primary'
+                : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
+            }`}
+          >
+            {t.label}
+          </button>
+        ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
-        {/* Phrases column */}
-        <div className="lg:col-span-2 space-y-2">
-          {expressions.map((expr, phraseIdx) => {
-            const matched = getMatchedDef(phraseIdx)
-            const isCorrect = feedback[phraseIdx] === 'correct'
-            const isIncorrect = feedback[phraseIdx] === 'incorrect'
-            return (
-              <div
-                key={phraseIdx}
-                onDragOver={e => e.preventDefault()}
-                onDrop={() => draggedDef !== null && handleDrop(phraseIdx, draggedDef)}
-                className={`flex items-start gap-3 p-3 rounded-lg border-2 transition-colors ${
-                  isCorrect ? 'bg-green-50 dark:bg-green-900/20 border-green-300 dark:border-green-700'
-                  : isIncorrect ? 'bg-red-50 dark:bg-red-900/20 border-red-300 dark:border-red-700'
-                  : draggedDef !== null ? 'bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-gray-600'
-                  : 'border-gray-200 dark:border-gray-600'
-                }`}
-              >
-                <div className="flex-shrink-0 min-w-[110px]">
-                  <p className="font-semibold text-gray-900 dark:text-white text-sm">{expr.phrase}</p>
-                </div>
-                <div className="flex-1">
-                  {matched ? (
-                    <div className={`p-2 rounded-lg text-sm transition-colors ${
-                      isCorrect ? 'bg-green-200 dark:bg-green-800 text-green-900 dark:text-green-100 border border-green-400'
-                      : isIncorrect ? 'bg-red-200 dark:bg-red-800 text-red-900 dark:text-red-100 border border-red-400'
-                      : 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-900 dark:text-yellow-100 border border-yellow-300'
-                    }`}>
-                      <div className="flex items-start justify-between gap-2">
-                        <span>{matched}</span>
-                        {!isCorrect && (
-                          <button onClick={() => clearMatch(phraseIdx)} className="text-base hover:opacity-70 flex-shrink-0 leading-none">✕</button>
-                        )}
+      {section === 'vocab' && content.vocabulary?.length > 0 && (
+        <VocabularyExercise vocabulary={content.vocabulary} />
+      )}
+
+      {section === 'phrases' && content.keyPhrases?.length > 0 && (
+        <div className="space-y-3">
+          {content.keyPhrases.map((kp, i) => (
+            <div key={i} className="border-l-2 border-brand-primary pl-3">
+              <p className="font-medium text-gray-900 dark:text-white">&ldquo;{kp.phrase}&rdquo;</p>
+              {kp.function && <p className="text-xs font-medium text-teal-600 dark:text-teal-400 mt-0.5">{kp.function}</p>}
+              {kp.usage && <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">{kp.usage}</p>}
+              {kp.example && <p className="text-xs text-gray-400 dark:text-gray-500 italic mt-0.5">{kp.example}</p>}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {section === 'dialogue' && hasDialogue && (
+        <div className="space-y-4">
+          <DialogueExercise
+            context={content.modelDialogue.setting}
+            characters={content.modelDialogue.characters}
+            dialogue={content.modelDialogue.dialogue}
+          />
+
+          {content.modelDialogue.noticingTask && (
+            <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3">
+              <p className="text-xs font-semibold text-amber-700 dark:text-amber-400 uppercase tracking-wide mb-1">Noticing Task</p>
+              <p className="text-sm text-amber-800 dark:text-amber-300">{content.modelDialogue.noticingTask}</p>
+            </div>
+          )}
+
+          {content.modelDialogue.comprehensionQuestions && (
+            <div className="space-y-4">
+              {(content.modelDialogue.comprehensionQuestions.gist?.length ?? 0) > 0 && (
+                <div>
+                  <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-2">Gist Questions</p>
+                  <div className="space-y-2">
+                    {content.modelDialogue.comprehensionQuestions.gist.map((q, i) => (
+                      <div key={i} className="flex gap-2 text-sm text-gray-700 dark:text-gray-300">
+                        <span className="font-bold text-brand-primary flex-shrink-0">{i + 1}.</span>
+                        <p>{q}</p>
                       </div>
-                    </div>
-                  ) : (
-                    <div className="p-2 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600 text-center text-gray-400 dark:text-gray-500 text-xs">
-                      Drop meaning here
-                    </div>
-                  )}
+                    ))}
+                  </div>
                 </div>
-              </div>
-            )
-          })}
-        </div>
-
-        {/* Meanings column */}
-        <div className="rounded-lg p-3 h-fit border border-gray-200 dark:border-gray-600">
-          <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">Meanings</p>
-          <div className="space-y-2">
-            {shuffledMeanings.map((meaning, defIdx) => {
-              const matched = isDefMatched(defIdx)
-              const isDragging = draggedDef === defIdx
-              return (
-                <div
-                  key={defIdx}
-                  draggable={!matched}
-                  onDragStart={() => !matched && setDraggedDef(defIdx)}
-                  onDragEnd={() => setDraggedDef(null)}
-                  onClick={() => {
-                    if (matched) return
-                    if (draggedDef === defIdx) setDraggedDef(null)
-                    else setDraggedDef(defIdx)
-                  }}
-                  className={`p-2 rounded-lg text-xs leading-relaxed transition-all border-2 select-none ${
-                    isDragging ? 'border-brand-primary bg-brand-primary/10 text-gray-900 dark:text-white scale-105 shadow-lg cursor-grabbing'
-                    : matched ? 'border-gray-200 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed opacity-50'
-                    : 'border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:border-brand-primary/50 hover:shadow cursor-grab'
-                  }`}
-                >
-                  {meaning}
+              )}
+              {(content.modelDialogue.comprehensionQuestions.detail?.length ?? 0) > 0 && (
+                <div>
+                  <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-2">Detail Questions</p>
+                  <div className="space-y-2">
+                    {content.modelDialogue.comprehensionQuestions.detail.map((q, i) => (
+                      <div key={i} className="flex gap-2 text-sm text-gray-700 dark:text-gray-300">
+                        <span className="font-bold text-brand-primary flex-shrink-0">{i + 1}.</span>
+                        <p>{q}</p>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              )
-            })}
-          </div>
+              )}
+            </div>
+          )}
         </div>
-      </div>
-
-      <div className="flex gap-2">
-        <button
-          onClick={checkAnswers}
-          disabled={progress === 0}
-          className="flex-1 py-2 px-4 bg-brand-primary text-white rounded-lg hover:bg-brand-accent disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm font-medium"
-        >
-          Check Answers
-        </button>
-        <button
-          onClick={resetGame}
-          className="flex-1 py-2 px-4 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors text-sm font-medium"
-        >
-          Reset
-        </button>
-      </div>
+      )}
     </div>
   )
 }
 
-// Preparation Exercise Component
-export function PreparationExercise({ 
-  questions, 
-  tips 
-}: { 
-  questions: string[]
-  tips: string[] 
-}) {
-  return (
-    <div className="space-y-6 max-w-4xl">
-      {/* Tips Section */}
-      {tips && tips.length > 0 && (
-        <div>
-          <h4 className="font-semibold text-gray-900 dark:text-white mb-3 flex items-center">
-            <svg className="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M12 20a8 8 0 100-16 8 8 0 000 16z" />
-            </svg>
-            Tips for Success
-          </h4>
-          <ul className="space-y-2">
-            {tips.map((tip, index) => (
-              <li key={index} className="flex items-start space-x-3">
-                <span className="flex-shrink-0 text-green-600 dark:text-green-400 text-sm mt-0.5">✓</span>
-                <span className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed">
-                  {formatText(tip)}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+// ─── Task Performance ──────────────────────────────────────────────────────
 
-      {/* Questions Section */}
-      {questions && questions.length > 0 && (
-        <div>
-          <h4 className="font-semibold text-gray-900 dark:text-white mb-3 flex items-center">
-            <svg className="w-5 h-5 mr-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            Preparation Questions
-          </h4>
+interface TaskPerformanceContent {
+  scenario: string
+  roles: { name: string; description: string; keyPoints?: string[] }[]
+  instructions: string
+  phrasesToUse?: string[]
+}
+
+export function TaskPerformanceExercise({
+  content,
+  studentName,
+  isStudentView = false,
+}: {
+  content: TaskPerformanceContent
+  studentName?: string
+  isStudentView?: boolean
+}) {
+  const [step, setStep] = useState<'prepare' | 'perform' | 'repeat'>('prepare')
+
+  // First role is always the student's role; remaining roles are for the tutor
+  const visibleRoles = isStudentView ? content.roles.slice(0, 1) : content.roles
+  const displayName = (name: string) =>
+    studentName && name === studentName ? 'You' : name
+
+  return (
+    <div className="space-y-4">
+      {/* Step indicator */}
+      <div className="flex gap-1">
+        {(['prepare', 'perform', 'repeat'] as const).map((s) => {
+          const labels = { prepare: '1. Prepare', perform: '2. Perform', repeat: '3. Repeat' }
+          return (
+            <button
+              key={s}
+              onClick={() => setStep(s)}
+              className={`flex-1 py-1.5 text-xs font-medium rounded transition-colors ${
+                step === s
+                  ? 'bg-brand-primary text-white'
+                  : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+              }`}
+            >
+              {labels[s]}
+            </button>
+          )
+        })}
+      </div>
+
+      {step === 'prepare' && (
+        <div className="space-y-4">
+          <div>
+            <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-1">Scenario</p>
+            <p className="text-gray-700 dark:text-gray-300">{content.scenario}</p>
+          </div>
           <div className="space-y-3">
-            {questions.map((question, index) => (
-              <div key={index} className="flex items-start space-x-3">
-                <span className="flex-shrink-0 w-6 h-6 bg-brand-primary text-white rounded-full flex items-center justify-center text-xs font-medium">
-                  {index + 1}
-                </span>
-                <p className="text-gray-900 dark:text-white text-sm leading-relaxed">
-                  {formatText(question)}
-                </p>
+            {visibleRoles.map((role, i) => (
+              <div key={i} className="border-l-2 border-gray-200 dark:border-gray-600 pl-3">
+                <p className="font-medium text-gray-900 dark:text-white mb-0.5">{displayName(role.name)}</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-1.5">{role.description}</p>
+                {role.keyPoints && role.keyPoints.length > 0 && (
+                  <ul className="space-y-1">
+                    {role.keyPoints.map((pt, j) => (
+                      <li key={j} className="flex gap-2 text-sm text-gray-700 dark:text-gray-300">
+                        <span className="text-brand-primary">•</span>
+                        {pt}
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
             ))}
           </div>
+          {content.phrasesToUse && content.phrasesToUse.length > 0 && (
+            <div>
+              <p className="text-xs font-medium text-gray-400 dark:text-gray-500 mb-2">Try to use these phrases:</p>
+              <div className="flex flex-wrap gap-2">
+                {content.phrasesToUse.map((p, i) => (
+                  <span key={i} className="px-2 py-1 rounded-full border border-gray-200 dark:border-gray-600 text-xs text-gray-600 dark:text-gray-300 italic">
+                    &ldquo;{p}&rdquo;
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+          <button
+            onClick={() => setStep('perform')}
+            className="w-full py-2 rounded-lg bg-brand-primary text-white text-sm font-medium hover:bg-brand-accent transition-colors"
+          >
+            Start Roleplay
+          </button>
+        </div>
+      )}
+
+      {step === 'perform' && (
+        <div className="space-y-4">
+          <p className="text-gray-700 dark:text-gray-300">{content.instructions}</p>
+          {content.phrasesToUse && content.phrasesToUse.length > 0 && (
+            <div>
+              <p className="text-xs font-medium text-gray-400 dark:text-gray-500 mb-2">Quick reference:</p>
+              <div className="flex flex-wrap gap-2">
+                {content.phrasesToUse.map((p, i) => (
+                  <span key={i} className="px-2 py-1 rounded-full border border-brand-primary/30 bg-brand-primary/5 text-xs text-brand-primary dark:text-brand-primary italic">
+                    &ldquo;{p}&rdquo;
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+          <button
+            onClick={() => setStep('repeat')}
+            className="w-full py-2 rounded-lg bg-brand-primary text-white text-sm font-medium hover:bg-brand-accent transition-colors"
+          >
+            Done — Get Feedback
+          </button>
+        </div>
+      )}
+
+      {step === 'repeat' && (
+        <div className="space-y-4">
+          <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3">
+            <p className="text-sm font-medium text-amber-800 dark:text-amber-300 mb-1">Now repeat the roleplay</p>
+            <p className="text-sm text-amber-700 dark:text-amber-400">
+              Apply the feedback. Try to use the phrases naturally this time — focus on flow, not perfection.
+            </p>
+          </div>
+          {content.phrasesToUse && content.phrasesToUse.length > 0 && (
+            <div>
+              <p className="text-xs font-medium text-gray-400 dark:text-gray-500 mb-2">Phrases to aim for:</p>
+              <div className="flex flex-wrap gap-2">
+                {content.phrasesToUse.map((p, i) => (
+                  <span key={i} className="px-2 py-1 rounded-full border border-brand-primary/30 bg-brand-primary/5 text-xs text-brand-primary dark:text-brand-primary italic">
+                    &ldquo;{p}&rdquo;
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
   )
 }
 
-// Final Preparation Exercise Component
-export function FinalPrepExercise({ 
-  phrases, 
-  checklist, 
-  confidence 
-}: { 
-  phrases: string[]
-  checklist: string[] 
-  confidence: string[]
+// ─── Post-task ─────────────────────────────────────────────────────────────
+
+interface PostTaskContent {
+  grammarFocus: string
+  explanation: string
+  examples: string[]
+  corrections?: { error: string; correction: string; rule: string }[]
+}
+
+export function PostTaskExercise({
+  content,
+  isStudentView = false,
+}: {
+  content: PostTaskContent
+  isStudentView?: boolean
 }) {
   return (
-    <div className="space-y-6 max-w-4xl">
-      {/* Key Phrases Section */}
-      {phrases && phrases.length > 0 && (
+    <div className="space-y-4">
+      <div className="border-l-2 border-brand-primary pl-3">
+        <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-0.5">Language note</p>
+        <p className="font-medium text-gray-900 dark:text-white">{content.grammarFocus}</p>
+        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{content.explanation}</p>
+      </div>
+
+      {content.examples && content.examples.length > 0 && (
+        <div className="space-y-1.5">
+          {content.examples.map((ex, i) => (
+            <div key={i} className="flex gap-2 text-sm text-gray-700 dark:text-gray-300">
+              <span className="text-green-500 flex-shrink-0">✓</span>
+              <span>{ex}</span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {content.corrections && content.corrections.length > 0 && (
         <div>
-          <h4 className="font-semibold text-gray-900 dark:text-white mb-3 flex items-center">
-            <svg className="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-1l-4 4z" />
-            </svg>
-            Key Phrases to Remember
-          </h4>
-          <div className="space-y-2">
-            {phrases.map((phrase, index) => (
-              <div key={index} className="border-l-2 border-brand-primary pl-3">
-                <span className="text-gray-700 dark:text-gray-300 font-medium text-sm italic">
-                  &ldquo;{formatText(phrase)}&rdquo;
-                </span>
+          <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-2">Watch out for</p>
+          <div className="space-y-3">
+            {content.corrections.map((c, i) => (
+              <div key={i} className="border-l-2 border-red-200 dark:border-red-800 pl-3">
+                <p className="text-sm text-red-500 dark:text-red-400 line-through">{c.error}</p>
+                <p className="text-sm text-green-600 dark:text-green-400">{c.correction}</p>
+                <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">{c.rule}</p>
               </div>
             ))}
           </div>
         </div>
       )}
 
-      {/* Checklist Section */}
-      {checklist && checklist.length > 0 && (
-        <div>
-          <h4 className="font-semibold text-gray-900 dark:text-white mb-3 flex items-center">
-            <svg className="w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-            </svg>
-            Final Checklist
-          </h4>
-          <div className="space-y-2">
-            {checklist.map((item, index) => (
-              <label key={index} className="flex items-start space-x-3 cursor-pointer group">
-                <input type="checkbox" className="mt-1 rounded border-gray-300 text-green-600 focus:ring-green-500" />
-                <span className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed group-hover:text-gray-900 dark:group-hover:text-white">
-                  {formatText(item)}
-                </span>
-              </label>
-            ))}
-          </div>
+      {!isStudentView && (
+        <div className="pt-1 border-t border-gray-100 dark:border-gray-700">
+          <p className="text-xs text-gray-500 dark:text-gray-400">
+            Follow-up idea: send a quick gap-fill or sentence correction exercise on <strong className="text-gray-600 dark:text-gray-300">{content.grammarFocus}</strong>.
+          </p>
         </div>
       )}
+    </div>
+  )
+}
 
-      {/* Confidence Building Section */}
-      {confidence && confidence.length > 0 && (
-        <div>
-          <h4 className="font-semibold text-gray-900 dark:text-white mb-3 flex items-center">
-            <svg className="w-5 h-5 mr-2 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
-            </svg>
-            Confidence Boosters
-          </h4>
-          <ul className="space-y-2">
-            {confidence.map((item, index) => (
-              <li key={index} className="flex items-start space-x-2">
-                <span className="text-yellow-600 dark:text-yellow-400 text-sm mt-0.5">💪</span>
-                <span className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed">
-                  {formatText(item)}
-                </span>
-              </li>
-            ))}
-          </ul>
+// ─── Homework ──────────────────────────────────────────────────────────────
+
+interface HomeworkContent {
+  taskName: string
+  description: string
+  instructions: string
+}
+
+export function HomeworkExercise({
+  content,
+  isStudentView = false,
+}: {
+  content: HomeworkContent
+  isStudentView?: boolean
+}) {
+  return (
+    <div className="space-y-4">
+      <p className="text-gray-700 dark:text-gray-300 whitespace-pre-line">{content.instructions || content.description}</p>
+      {!isStudentView && (
+        <div className="pt-1 border-t border-gray-100 dark:border-gray-700">
+          <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-0.5">To discuss next lesson</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400">
+            Start next lesson by asking: &ldquo;Did you have a chance to try this? What did you notice?&rdquo;
+          </p>
         </div>
       )}
     </div>

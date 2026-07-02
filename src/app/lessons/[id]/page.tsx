@@ -6,31 +6,11 @@ import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import DashboardLayout from '@/components/layout/DashboardLayout'
 import { shareLesson, updateLessonContent, refineLesson } from '@/app/actions/ai-generation'
-import { Under18LessonDisplay } from '@/lib/lesson-displays'
+import { SpecialReportLessonDisplay } from '@/lib/lesson-displays'
 import GrammarLessonDisplay from '@/components/lesson/GrammarLessonDisplay'
 import InstantLessonDisplay from '@/components/lesson/InstantLessonDisplay'
-import {
-  VocabularyExercise,
-  WarmupExercise,
-  DialogueExercise,
-  ComprehensionExercise,
-  RolePlayExercise,
-  DiscussionExercise,
-  PreparationExercise,
-  FinalPrepExercise,
-  UsefulExpressionsExercise,
-} from '@/components/lesson/EngooLessonComponents'
-import {
-  LeadInExercise,
-  TaskPrepExercise,
-  TaskPerformanceExercise,
-  PostTaskExercise,
-  HomeworkExercise,
-} from '@/components/lesson/TBLTLessonComponents'
-import { PresentationExercise, PracticeExercise, ProductionExercise } from '@/components/lesson/PPPLessonComponents'
-import { WarmerExercise, LanguageInputExercise, CommunicativeActivityExercise, WrapUpExercise } from '@/components/lesson/CLTLessonComponents'
-import { SentenceCorrectionRenderer } from '@/lib/lesson-displays'
-import EditSectionModal, { EditButton } from '@/components/lesson/EditSectionModal'
+import EditSectionModal from '@/components/lesson/EditSectionModal'
+import type { SpecialReportLessonContent } from '@/types/module-lesson'
 import ModularLessonDisplay from '@/components/lesson/ModularLessonDisplay'
 
 /**
@@ -79,43 +59,6 @@ interface LessonData {
   }
 }
 
-/**
- * Transform LessonData to Under18Lesson format
- * Maps the API response format to the display component's expected format
- */
-const transformToUnder18Lesson = (lessonData: LessonData) => {
-  return {
-    metadata: {
-      id: lessonData.id,
-      title: lessonData.content.title,
-      level: lessonData.student.level,
-      topic: lessonData.content.title,
-      duration: lessonData.content.duration,
-      difficulty: lessonData.content.difficulty,
-      targetAudience: 'Students Under 18',
-      ageGroup: 'Under 18',
-      targetLanguage: lessonData.student.targetLanguage
-    },
-    learningObjectives: {
-      communicative: [lessonData.content.objective || ''],
-      linguistic: lessonData.content.skills || [],
-      cultural: []
-    },
-    exercises: lessonData.content.exercises.map((exercise, index) => ({
-      id: `exercise-${index}`,
-      number: index + 1,
-      type: exercise.type,
-      title: exercise.title,
-      description: exercise.description,
-      timeMinutes: exercise.timeMinutes,
-      instructions: exercise.description || '',
-      content: (typeof exercise.content === 'object' && exercise.content !== null) 
-        ? (exercise.content as Record<string, unknown>) 
-        : {}
-    }))
-  }
-}
-
 export default function LessonPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
@@ -128,19 +71,10 @@ export default function LessonPage() {
   const [isTaught, setIsTaught] = useState(false)
   const [isMarking, setIsMarking] = useState(false)
   const [editingExerciseIndex, setEditingExerciseIndex] = useState<number | null>(null)
-  const [openEx, setOpenEx] = useState<Set<number>>(new Set([0,1,2,3,4,5,6,7,8,9]))
   const [refineOpen, setRefineOpen] = useState(false)
   const [refineText, setRefineText] = useState('')
   const [isRefining, setIsRefining] = useState(false)
   const [refineError, setRefineError] = useState<string | null>(null)
-
-  const toggleEx = (index: number) => {
-    setOpenEx(prev => {
-      const next = new Set(prev)
-      if (next.has(index)) { next.delete(index) } else { next.add(index) }
-      return next
-    })
-  }
 
   const handleRefine = async () => {
     if (!refineText.trim() || !lesson) return
@@ -255,205 +189,6 @@ export default function LessonPage() {
     window.addEventListener('beforeunload', handleBeforeUnload)
     return () => window.removeEventListener('beforeunload', handleBeforeUnload)
   }, [lessonId])
-
-  const renderExerciseContent = (exercise: { type: string; content: unknown; timeMinutes: number }) => {
-    // Type assertion for content - we know the structure from our AI generation
-    const content = exercise.content as Record<string, unknown>
-
-    switch (exercise.type) {
-      case 'vocabulary':
-        if (content?.vocabulary && Array.isArray(content.vocabulary)) {
-          return <VocabularyExercise vocabulary={content.vocabulary} />
-        }
-        break
-      
-      case 'warmup':
-        if (content?.questions && Array.isArray(content.questions)) {
-          return <WarmupExercise questions={content.questions} instructions={content.instructions as string} />
-        }
-        break
-      
-      case 'dialogue':
-        if (content?.dialogue && Array.isArray(content.dialogue)) {
-          const transformedDialogue = content.dialogue.map((line: Record<string, unknown>) => ({
-            character: (line.speaker || line.character || 'Unknown') as string,
-            text: (line.line || line.text || '') as string
-          }));
-          const characters = content.characters as { name: string; role?: string }[] ||
-            [...new Set(transformedDialogue.map(l => l.character))].map(name => ({ name }))
-          const setting = content.setting as string || content.context as string || '';
-          const castSpeakers = (content.cast as { name: string; gender: 'male' | 'female' }[] | undefined)
-          return (
-            <DialogueExercise
-              context={setting}
-              characters={characters}
-              dialogue={transformedDialogue}
-              instructions={content.instructions as string || ''}
-              speakers={castSpeakers}
-            />
-          )
-        }
-        break
-      
-      case 'useful-expressions':
-        if (content?.expressions && Array.isArray(content.expressions)) {
-          return (
-            <UsefulExpressionsExercise
-              expressions={content.expressions as { phrase: string; meaning: string; example?: string }[]}
-              instructions={content.instructions as string | undefined}
-            />
-          )
-        }
-        break
-
-      case 'useful-phrases':
-        if (content?.phrases && Array.isArray(content.phrases)) {
-          return (
-            <div className="space-y-3">
-              {!!content.context && (
-                <p className="text-sm text-gray-600 dark:text-gray-400 italic">{String(content.context)}</p>
-              )}
-              {(content.phrases as Array<{ phrase: string; usage: string }>).map((item, index) => (
-                <div key={index} className="flex gap-3 p-3 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg border border-indigo-100 dark:border-indigo-800">
-                  <span className="flex-shrink-0 w-7 h-7 bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 rounded-full flex items-center justify-center text-xs font-semibold">
-                    {index + 1}
-                  </span>
-                  <div>
-                    <p className="font-semibold text-gray-900 dark:text-white">{item.phrase}</p>
-                    {item.usage && <p className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">{item.usage}</p>}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )
-        }
-        break
-
-      case 'comprehension':
-        if (content?.questions && Array.isArray(content.questions)) {
-          return <ComprehensionExercise questions={content.questions} />
-        }
-        break
-      
-      case 'roleplay':
-        if (content?.scenario && content?.roles && Array.isArray(content.roles)) {
-          return (
-            <RolePlayExercise
-              scenario={content.scenario as string}
-              roles={content.roles}
-              instructions={content.instructions as string || ''}
-              timeMinutes={exercise.timeMinutes}
-            />
-          )
-        }
-        break
-      
-      case 'discussion':
-        if (content?.questions && Array.isArray(content.questions)) {
-          return <DiscussionExercise questions={content.questions} instructions={content.instructions as string} />
-        }
-        break
-
-      case 'sentence-correction':
-      case 'sentenceCorrection':
-      case 'sentence_correction':
-        if (content?.sentences && Array.isArray(content.sentences)) {
-          return (
-            <SentenceCorrectionRenderer
-              title="Sentence Correction"
-              instructions={(content.instructions as string) || 'Correct the errors in each sentence.'}
-              sentences={content.sentences as Array<{ incorrect: string; correct: string; errorType: string }>}
-              timeMinutes={exercise.timeMinutes || 10}
-              isTutorVersion={isTutorVersion}
-            />
-          )
-        }
-        break
-
-      case 'preparation':
-        if (content?.questions && Array.isArray(content.questions)) {
-          return <PreparationExercise questions={content.questions} tips={content.tips as string[]} />
-        }
-        break
-
-      case 'final-prep':
-      case 'finalPrep':
-      case 'finalprep':
-        return (
-          <FinalPrepExercise
-            phrases={content.phrases as string[] || []}
-            checklist={content.checklist as string[] || []}
-            confidence={content.confidence as string[] || []}
-          />
-        )
-
-      // ── TBLT exercise types ──────────────────────────────────────────────
-      case 'lead-in':
-        if (content?.questions && Array.isArray(content.questions)) {
-          return <LeadInExercise content={{ questions: content.questions as string[], instructions: content.instructions as string }} />
-        }
-        break
-
-      case 'task-prep':
-        return <TaskPrepExercise content={content as unknown as Parameters<typeof TaskPrepExercise>[0]['content']} />
-
-      case 'task-performance':
-        if (content?.scenario && content?.roles) {
-          return <TaskPerformanceExercise content={content as unknown as Parameters<typeof TaskPerformanceExercise>[0]['content']} studentName={lesson?.student?.name} />
-        }
-        break
-
-      case 'post-task':
-        if (content?.grammarFocus) {
-          return <PostTaskExercise content={content as unknown as Parameters<typeof PostTaskExercise>[0]['content']} />
-        }
-        break
-
-      case 'homework':
-        if (content?.taskName) {
-          return <HomeworkExercise content={content as unknown as Parameters<typeof HomeworkExercise>[0]['content']} />
-        }
-        break
-
-      // ── PPP exercise types ───────────────────────────────────────────────
-      case 'presentation':
-        return <PresentationExercise content={content as unknown as Parameters<typeof PresentationExercise>[0]['content']} />
-
-      case 'practice':
-        return <PracticeExercise content={content as unknown as Parameters<typeof PracticeExercise>[0]['content']} />
-
-      case 'production':
-        return <ProductionExercise content={content as unknown as Parameters<typeof ProductionExercise>[0]['content']} />
-
-      // ── CLT exercise types ───────────────────────────────────────────────
-      case 'warmer':
-        return <WarmerExercise content={content as unknown as Parameters<typeof WarmerExercise>[0]['content']} />
-
-      case 'language-input':
-        return <LanguageInputExercise content={content as unknown as Parameters<typeof LanguageInputExercise>[0]['content']} />
-
-      case 'communicative-activity':
-        return <CommunicativeActivityExercise content={content as unknown as Parameters<typeof CommunicativeActivityExercise>[0]['content']} />
-
-      case 'wrap-up':
-        return <WrapUpExercise content={content as unknown as Parameters<typeof WrapUpExercise>[0]['content']} />
-
-      default:
-        // Fallback for other exercise types or malformed content
-        return (
-          <div className="whitespace-pre-wrap text-gray-900 dark:text-white">
-            {typeof exercise.content === 'string' ? exercise.content : JSON.stringify(exercise.content, null, 2)}
-          </div>
-        )
-    }
-
-    // Fallback if content doesn't match expected structure
-    return (
-      <div className="whitespace-pre-wrap text-gray-900 dark:text-white">
-        {typeof exercise.content === 'string' ? exercise.content : JSON.stringify(exercise.content, null, 2)}
-      </div>
-    )
-  }
 
 
   if (status === 'loading') {
@@ -765,7 +500,7 @@ export default function LessonPage() {
                 <span className="px-2.5 py-0.5 rounded-full text-xs border border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400">{lesson.student.level}</span>
                 <span className="px-2.5 py-0.5 rounded-full text-xs border border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400">{lesson.content.duration} min</span>
                 <span className="px-2.5 py-0.5 rounded-full text-xs bg-brand-primary/10 text-brand-primary border border-brand-primary/20 font-medium">
-                  {lesson.content.lessonType === 'Under-18' ? 'kids' : lesson.content.lessonType}
+                  {lesson.content.lessonType}
                 </span>
               </div>
               <h1 className="font-fraunces text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-4 leading-tight">
@@ -796,12 +531,13 @@ export default function LessonPage() {
             </div>
 
             {/* Lesson Exercises */}
-            {lesson.content.lessonType === 'Under-18' ? (
-              <Under18LessonDisplay
-                lesson={transformToUnder18Lesson(lesson)}
-                showObjectives={false}
+            {lesson.content.lessonType === 'special-report' ? (
+              <SpecialReportLessonDisplay
+                lesson={lesson.content as unknown as SpecialReportLessonContent}
+                showObjectives={true}
                 showProgressBar={true}
                 showHeader={false}
+                isTutorView={isTutorVersion}
               />
             ) : (lesson.content as Record<string, unknown>).isGrammarLesson ? (
               <GrammarLessonDisplay lesson={lesson.content as unknown as Record<string, unknown> & {
@@ -812,67 +548,9 @@ export default function LessonPage() {
                 exercises: { type: string; title: string; content: Record<string, unknown> }[]
               }} />
             ) : (
-              <div className="space-y-3">
-                {lesson.content.exercises.map((exercise, index) => {
-                  const badgeColors = ['bg-brand-primary', 'bg-[#b5620b]', 'bg-[#4a3f8f]', 'bg-[#0e7490]', 'bg-[#9d174d]']
-                  const badgeColor = badgeColors[index % badgeColors.length]
-                  const isOpen = openEx.has(index)
-                  return (
-                    <div key={index} className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
-                      <div className="flex items-center gap-4 px-4 py-3 border-b border-gray-100 dark:border-gray-700">
-                        <button
-                          onClick={() => toggleEx(index)}
-                          className="flex items-center gap-3 min-w-0 flex-1 text-left"
-                        >
-                          <span className={`${badgeColor} text-white text-xs font-bold w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 tabular-nums`}>
-                            {String(index + 1).padStart(2, '0')}
-                          </span>
-                          <div className="min-w-0 flex-1">
-                            <h3 className="text-sm font-semibold text-gray-900 dark:text-white truncate">{exercise.title}</h3>
-                            {exercise.type !== 'warmup' && exercise.description && (
-                              <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{exercise.description}</p>
-                            )}
-                          </div>
-                          <svg className={`w-4 h-4 text-gray-400 transition-transform duration-200 flex-shrink-0 ${isOpen ? '' : '-rotate-90'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                          </svg>
-                        </button>
-                        <div className="flex items-center gap-3 flex-shrink-0">
-                          <span className="text-xs text-gray-400 dark:text-gray-500">{exercise.timeMinutes} min</span>
-                          <EditButton onClick={() => setEditingExerciseIndex(index)} label="Edit" />
-                        </div>
-                      </div>
-                      {isOpen && (
-                        <div className="p-4 overflow-x-auto">
-                          {renderExerciseContent(exercise)}
-                        </div>
-                      )}
-                    </div>
-                  )
-                })}
+              <div className="px-4 py-6 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-sm text-gray-600 dark:text-gray-400">
+                This lesson uses a retired format and can no longer be displayed. Please regenerate it from the student&apos;s learning plan.
               </div>
-            )}
-
-            {/* Edit Exercise Modal */}
-            {editingExerciseIndex !== null && lesson && lesson.content.exercises[editingExerciseIndex] && (
-              <EditSectionModal
-                title={`Edit: ${lesson.content.exercises[editingExerciseIndex].title}`}
-                data={lesson.content.exercises[editingExerciseIndex]}
-                onSave={async (updated) => {
-                  const updatedExercises = [...lesson.content.exercises]
-                  updatedExercises[editingExerciseIndex] = updated as typeof updatedExercises[number]
-                  const newContent = { ...lesson.content, exercises: updatedExercises }
-                  const result = await updateLessonContent(lesson.id, newContent as unknown as Record<string, unknown>)
-                  if (result.success) {
-                    setLesson({ ...lesson, content: newContent })
-                    setEditingExerciseIndex(null)
-                  } else {
-                    alert(result.error || 'Failed to save changes')
-                  }
-                }}
-                onCancel={() => setEditingExerciseIndex(null)}
-                hiddenFields={['timeMinutes']}
-              />
             )}
           </div>
             )}

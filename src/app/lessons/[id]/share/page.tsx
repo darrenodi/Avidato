@@ -5,29 +5,10 @@ import { useParams, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import ClientThemeProvider from '@/components/ClientThemeProvider'
-import { Under18LessonDisplay } from '@/lib/lesson-displays/under-18-display'
+import { SpecialReportLessonDisplay } from '@/lib/lesson-displays'
 import InstantLessonDisplay from '@/components/lesson/InstantLessonDisplay'
 import ModularLessonDisplay from '@/components/lesson/ModularLessonDisplay'
-import {
-  VocabularyExercise,
-  WarmupExercise,
-  DialogueExercise,
-  ComprehensionExercise,
-  RolePlayExercise,
-  DiscussionExercise,
-  PreparationExercise,
-  FinalPrepExercise,
-  UsefulExpressionsExercise,
-} from '@/components/lesson/EngooLessonComponents'
-import {
-  LeadInExercise,
-  TaskPrepExercise,
-  TaskPerformanceExercise,
-  PostTaskExercise,
-  HomeworkExercise,
-} from '@/components/lesson/TBLTLessonComponents'
-import { PresentationExercise, PracticeExercise, ProductionExercise } from '@/components/lesson/PPPLessonComponents'
-import { WarmerExercise, LanguageInputExercise, CommunicativeActivityExercise, WrapUpExercise } from '@/components/lesson/CLTLessonComponents'
+import type { SpecialReportLessonContent } from '@/types/module-lesson'
 
 interface StudentInfo {
   id: string
@@ -511,161 +492,6 @@ function SharedGrammarLesson({ lesson }: { lesson: SharedLessonData }) {
   )
 }
 
-const renderExerciseContent = (exercise: { type: string; content: BaseExerciseContent; timeMinutes: number }, studentName?: string) => {
-  const content = exercise.content || {}
-  switch (exercise.type) {
-    case 'vocabulary':
-      if (Array.isArray(content?.vocabulary)) {
-        return <VocabularyExercise vocabulary={content.vocabulary} />
-      }
-      break
-    case 'warmup':
-      if (Array.isArray(content?.questions)) {
-        return <WarmupExercise questions={content.questions} />
-      }
-      break
-    case 'dialogue':
-      if (Array.isArray(content?.dialogue)) {
-        const rawDialogue = content.dialogue as Array<Record<string, unknown>>
-        const transformedDialogue = rawDialogue.map((l) => ({
-          character: (l.speaker || l.character || 'Unknown') as string,
-          text: (l.line || l.text || '') as string,
-        }))
-        const characters = (content.characters as { name: string; role?: string }[]) ||
-          [...new Set(transformedDialogue.map(l => l.character))].map(name => ({ name }))
-        const setting = (content.setting as string) || (content.context as string) || ''
-        const castSpeakers = content.cast as { name: string; gender: 'male' | 'female' }[] | undefined
-        return (
-          <DialogueExercise context={setting} characters={characters} dialogue={transformedDialogue} instructions={(content.instructions as string) || ''} speakers={castSpeakers} />
-        )
-      }
-      break
-    case 'useful-expressions':
-      if (Array.isArray(content?.expressions)) {
-        return (
-          <UsefulExpressionsExercise
-            expressions={content.expressions as { phrase: string; meaning: string; example?: string }[]}
-            instructions={content.instructions as string | undefined}
-          />
-        )
-      }
-      break
-    case 'useful-phrases':
-      if (Array.isArray(content?.phrases)) {
-        return (
-          <div className="space-y-3">
-            {!!content.context && (
-              <p className="text-sm text-gray-600 dark:text-gray-400 italic">{String(content.context)}</p>
-            )}
-            {(content.phrases as Array<{ phrase: string; usage: string }>).map((item, index) => (
-              <div key={index} className="flex gap-3 p-3 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg border border-indigo-100 dark:border-indigo-800">
-                <span className="flex-shrink-0 w-7 h-7 bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 rounded-full flex items-center justify-center text-xs font-semibold">
-                  {index + 1}
-                </span>
-                <div>
-                  <p className="font-semibold text-gray-900 dark:text-white">{item.phrase}</p>
-                  {item.usage && <p className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">{item.usage}</p>}
-                </div>
-              </div>
-            ))}
-          </div>
-        )
-      }
-      break
-    case 'comprehension':
-      if (Array.isArray(content?.questions)) {
-        return <ComprehensionExercise questions={content.questions} hideAnswers={true} />
-      }
-      break
-    case 'roleplay':
-      if (content?.scenario && Array.isArray(content?.roles)) {
-        return (
-          <RolePlayExercise scenario={content.scenario as string} roles={content.roles} instructions={(content.instructions as string) || ''} timeMinutes={exercise.timeMinutes} />
-        )
-      }
-      break
-    case 'discussion':
-      if (Array.isArray(content?.questions)) {
-        return <DiscussionExercise questions={content.questions} instructions={content.instructions as string} />
-      }
-      break
-    case 'preparation':
-      if (Array.isArray(content?.questions)) {
-        return <PreparationExercise questions={content.questions} tips={content.tips as string[]} />
-      }
-      break
-    case 'sentenceCorrection':
-    case 'sentence_correction':
-    case 'sentence-correction':
-      if (Array.isArray(content?.sentences)) {
-        return (
-          <div className="space-y-3">
-            {(content.sentences as Array<{incorrect: string; correct: string; errorType: string}>).map((item, index) => (
-              <div key={index} className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
-                <div className="flex gap-3">
-                  <span className="flex-shrink-0 w-8 h-8 bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 rounded-full flex items-center justify-center text-sm font-semibold">
-                    {index + 1}
-                  </span>
-                  <div className="flex-1">
-                    <p className="text-gray-900 dark:text-white font-medium">
-                      {item.incorrect}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )
-      }
-      break
-    case 'final-prep':
-    case 'finalPrep':
-    case 'finalprep':
-      return (
-        <FinalPrepExercise phrases={(content.phrases as string[]) || []} checklist={(content.checklist as string[]) || []} confidence={(content.confidence as string[]) || []} />
-      )
-    case 'lead-in':
-      if (Array.isArray(content?.questions)) {
-        return <LeadInExercise content={{ questions: content.questions as string[], instructions: content.instructions as string }} />
-      }
-      break
-    case 'task-prep':
-      return <TaskPrepExercise content={content as unknown as Parameters<typeof TaskPrepExercise>[0]['content']} />
-    case 'task-performance':
-      if (content?.scenario && content?.roles) {
-        return <TaskPerformanceExercise content={content as unknown as Parameters<typeof TaskPerformanceExercise>[0]['content']} studentName={studentName} isStudentView={true} />
-      }
-      break
-    case 'post-task':
-      if (content?.grammarFocus) {
-        return <PostTaskExercise content={content as unknown as Parameters<typeof PostTaskExercise>[0]['content']} isStudentView={true} />
-      }
-      break
-    case 'homework':
-      if (content?.taskName) {
-        return <HomeworkExercise content={content as unknown as Parameters<typeof HomeworkExercise>[0]['content']} isStudentView={true} />
-      }
-      break
-    case 'presentation':
-      return <PresentationExercise content={content as unknown as Parameters<typeof PresentationExercise>[0]['content']} />
-    case 'practice':
-      return <PracticeExercise content={content as unknown as Parameters<typeof PracticeExercise>[0]['content']} isStudentView={true} />
-    case 'production':
-      return <ProductionExercise content={content as unknown as Parameters<typeof ProductionExercise>[0]['content']} />
-    case 'warmer':
-      return <WarmerExercise content={content as unknown as Parameters<typeof WarmerExercise>[0]['content']} isStudentView={true} />
-    case 'language-input':
-      return <LanguageInputExercise content={content as unknown as Parameters<typeof LanguageInputExercise>[0]['content']} />
-    case 'communicative-activity':
-      return <CommunicativeActivityExercise content={content as unknown as Parameters<typeof CommunicativeActivityExercise>[0]['content']} isStudentView={true} />
-    case 'wrap-up':
-      return <WrapUpExercise content={content as unknown as Parameters<typeof WrapUpExercise>[0]['content']} isStudentView={true} />
-  }
-  return (
-    <div className="whitespace-pre-wrap text-gray-900 dark:text-white">{typeof exercise.content === 'string' ? exercise.content : JSON.stringify(exercise.content, null, 2)}</div>
-  )
-}
-
 
 export default function SharedLessonPage() {
   const params = useParams()
@@ -705,16 +531,6 @@ export default function SharedLessonPage() {
     }
     fetchLesson()
   }, [lessonId])
-
-  const [openEx, setOpenEx] = useState<Set<number>>(new Set([0,1,2,3,4,5,6,7,8,9]))
-
-  const toggleEx = (index: number) => {
-    setOpenEx(prev => {
-      const next = new Set(prev)
-      next.has(index) ? next.delete(index) : next.add(index)
-      return next
-    })
-  }
 
   return (
     <ClientThemeProvider>
@@ -820,125 +636,17 @@ export default function SharedLessonPage() {
                   isStudentView={true}
                   studentName={lesson.student?.name}
                 />
-              ) : lesson.content?.lessonType === 'Under-18' ? (
-                <Under18LessonDisplay
-                  lesson={{
-                    metadata: {
-                      id: lesson.id,
-                      title: lesson.content.title || '',
-                      level: lesson.student.level,
-                      topic: lesson.content.title || '',
-                      duration: lesson.content.duration || 0,
-                      difficulty: lesson.content.difficulty || 0,
-                      targetAudience: 'Under 18',
-                      ageGroup: 'Under 18',
-                    },
-                    learningObjectives: {
-                      communicative: [lesson.content.objective || ''],
-                      linguistic: lesson.content.skills || [],
-                      cultural: [],
-                    },
-                    exercises: (lesson.content.exercises || []).map((ex: LessonExercise, i: number) => ({
-                      id: `exercise-${i}`,
-                      number: i + 1,
-                      type: ex.type,
-                      title: ex.title || '',
-                      description: ex.description || '',
-                      timeMinutes: ex.timeMinutes || 0,
-                      instructions: ex?.content?.instructions || 'Complete this exercise',
-                      content: (ex?.content as Record<string, unknown>) || {},
-                    })),
-                  }}
+              ) : lesson.content?.lessonType === 'special-report' ? (
+                <SpecialReportLessonDisplay
+                  lesson={lesson.content as unknown as SpecialReportLessonContent}
                   showObjectives={true}
                   showProgressBar={true}
+                  showHeader={true}
                   isTutorView={false}
                 />
               ) : (
-                <div className="xl:flex xl:gap-10">
-                  {/* Progress sidebar dots — xl+ only */}
-                  <aside className="hidden xl:block w-10 flex-shrink-0">
-                    <div className="sticky top-8 flex flex-col items-center gap-3 pt-2">
-                      {(lesson.content.exercises || []).map((_: LessonExercise, i: number) => {
-                        const dotColors = ['bg-[#2d6a4f]', 'bg-[#b5620b]', 'bg-[#4a3f8f]', 'bg-[#0e7490]', 'bg-[#9d174d]']
-                        return (
-                          <button
-                            key={i}
-                            onClick={() => document.getElementById(`ex-${i}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
-                            className={`w-2.5 h-2.5 rounded-full transition-opacity hover:opacity-100 ${dotColors[i % dotColors.length]} ${openEx.has(i) ? 'opacity-80' : 'opacity-30'}`}
-                            aria-label={`Go to exercise ${i + 1}`}
-                          />
-                        )
-                      })}
-                    </div>
-                  </aside>
-
-                  <div className="flex-1 min-w-0">
-                    {/* Hero */}
-                    <div className="mb-8">
-                      <div className="flex flex-wrap gap-2 mb-4">
-                        <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-white border border-gray-200 text-gray-500">{lesson.student.level}</span>
-                        <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-white border border-gray-200 text-gray-500">{lesson.content.duration} min</span>
-                        {lesson.content.lessonType && (
-                          <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-[#2d6a4f]/10 text-[#2d6a4f] border border-[#2d6a4f]/20">{lesson.content.lessonType === 'Under-18' ? 'Kids' : lesson.content.lessonType}</span>
-                        )}
-                      </div>
-                      <h1 className="font-fraunces text-3xl sm:text-4xl font-bold text-gray-900 leading-tight mb-5">{lesson.content.title}</h1>
-                      {lesson.content.objective && (
-                        <div className="border-l-4 border-[#2d6a4f] pl-4 py-0.5 mb-5">
-                          <p className="text-gray-600 leading-relaxed text-sm sm:text-base">
-                            {lesson.content.objective.replace(new RegExp(`\\b${lesson.student.name}\\b`, 'gi'), 'you').replace(/\byou will\b/gi, "you'll")}
-                          </p>
-                        </div>
-                      )}
-                      {Array.isArray(lesson.content.skills) && lesson.content.skills.length > 0 && (
-                        <div className="flex flex-wrap gap-1.5">
-                          {lesson.content.skills.map((s: string) => (
-                            <span key={s} className="px-2.5 py-1 rounded-full text-xs bg-[#2d6a4f]/10 text-[#2d6a4f] font-medium">{s}</span>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Exercise cards */}
-                    <div className="space-y-3">
-                      {(lesson.content.exercises || []).map((exercise: LessonExercise, index: number) => {
-                        const badgeColors = ['bg-[#2d6a4f]', 'bg-[#b5620b]', 'bg-[#4a3f8f]', 'bg-[#0e7490]', 'bg-[#9d174d]']
-                        const badgeColor = badgeColors[index % badgeColors.length]
-                        const isOpen = openEx.has(index)
-                        return (
-                          <div key={index} id={`ex-${index}`} className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100">
-                            <button
-                              onClick={() => toggleEx(index)}
-                              className="w-full flex items-center gap-4 px-5 py-4 text-left hover:bg-gray-50/80 transition-colors"
-                            >
-                              <span className={`${badgeColor} text-white text-xs font-bold w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 tabular-nums`}>
-                                {String(index + 1).padStart(2, '0')}
-                              </span>
-                              <div className="flex-1 min-w-0">
-                                <p className="font-semibold text-gray-900 text-sm">{exercise.title}</p>
-                                {exercise.description && <p className="text-xs text-gray-500 mt-0.5 line-clamp-1">{exercise.description}</p>}
-                              </div>
-                              <div className="flex items-center gap-3 flex-shrink-0">
-                                <span className="text-xs text-gray-400">{exercise.timeMinutes} min</span>
-                                <svg className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${isOpen ? '' : '-rotate-90'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                                </svg>
-                              </div>
-                            </button>
-                            {isOpen && (
-                              <div className="px-5 pb-5 pt-1 border-t border-gray-100 overflow-x-auto">
-                                {renderExerciseContent({ type: exercise.type, content: exercise.content, timeMinutes: exercise.timeMinutes || 0 }, lesson.student.name)}
-                              </div>
-                            )}
-                          </div>
-                        )
-                      })}
-                    </div>
-
-                    <div className="text-center pt-8 pb-4">
-                      <p className="text-gray-400 text-xs">Lesson created with Avidato · {new Date(lesson.createdAt).toLocaleDateString()}</p>
-                    </div>
-                  </div>
+                <div className="px-4 py-6 rounded-lg bg-gray-50 border border-gray-200 text-sm text-gray-600 text-center">
+                  This lesson uses a retired format and is no longer available. Please ask your tutor for an updated version.
                 </div>
               )}
             </>

@@ -70,6 +70,35 @@ export const STRUCTURES = {
     // P5 — Cold open with language-in-context: functional patterns first, then apply
     ['language-in-context', 'dialogue', 'matching-qa', 'roleplay', 'talking-point', 'homework-writing'],
   ],
+  // ── Listening ─────────────────────────────────────────────────────────────
+  // The dialogue is the listening text: tutor reads it aloud (or plays it) while
+  // the student listens with the transcript hidden. Gist pass first, then detail.
+  listening: [
+    // L1 — Classic staged listening: schema → pre-teach → gist → detail → respond
+    ['warm-up', 'vocabulary-cards', 'dialogue', 'skim-main-idea', 'listening-true-false', 'discussion', 'homework-writing'],
+    // L2 — Cold open, detail-heavy: vocab match, then two detail passes and production
+    ['vocabulary-match', 'dialogue', 'listening-mcq', 'gap-fill', 'roleplay', 'homework-writing'],
+    // L3 — Two-pass with language focus: gist, detail, then the phrases heard
+    ['warm-up', 'dialogue', 'skim-main-idea', 'listening-mcq', 'useful-language', 'discussion', 'homework-writing'],
+    // L4 — Phrase-led: hear the expressions in context, then test detail
+    ['warm-up', 'useful-expressions', 'dialogue', 'listening-true-false', 'matching-qa', 'talking-point', 'homework-writing'],
+    // L5 — Cold open, double comprehension: T/F then MCQ on the same dialogue
+    ['vocabulary-cards', 'dialogue', 'listening-true-false', 'listening-mcq', 'discussion', 'homework-writing'],
+  ],
+  // ── Presentation ──────────────────────────────────────────────────────────
+  // Builds toward the student delivering a short spoken presentation in class.
+  presentation: [
+    // PR1 — Signpost-led: study the phrases, see them in a model, then deliver
+    ['warm-up', 'useful-language', 'reading-article', 'matching-qa', 'presentation-task', 'homework-writing'],
+    // PR2 — Structure-led: functional patterns, reorder the outline, then deliver
+    ['warm-up', 'language-in-context', 'ordering', 'useful-language', 'presentation-task', 'homework-writing'],
+    // PR3 — Q&A focus: vocab, then a post-presentation Q&A dialogue, then deliver
+    ['warm-up', 'vocabulary-match', 'dialogue', 'listening-mcq', 'presentation-task', 'homework-writing'],
+    // PR4 — Cold open with a model: signposts, model transcript, gist + gaps, deliver
+    ['useful-language', 'reading-article', 'skim-main-idea', 'gap-fill', 'presentation-task', 'homework-writing'],
+    // PR5 — Delivery-led: expressions for emphasis, a model Q&A scene, then deliver
+    ['warm-up', 'useful-expressions', 'dialogue', 'matching-qa', 'presentation-task', 'homework-writing'],
+  ],
   // ── Writing ───────────────────────────────────────────────────────────────
   writing: [
     // W1 — Phrases-led: study the target language, correct it, then produce
@@ -91,13 +120,17 @@ export function selectStructure(communicativeNeed: string, lessonTitle?: string)
 
   if (/\bwrit[ei]|\bdraft|\bcompos[ei]|\bdocument\b|\bsummariz|\brecord\b|\bcompil[ei]|\bannotat|\breport\b/.test(combined)) {
     category = 'writing'
+  } else if (/\blisten|\bspoken\b|\baudio\b|\bpodcast|\bhear\b|\bunderstand.{0,20}(call|conversation|speaker|accent)/.test(combined)) {
+    category = 'listening'
+  } else if (/\bpresent(ation|ing)?\b|\bpitch|\bslide|\bspeech\b|\bkeynote|\bdemo\b/.test(combined)) {
+    category = 'presentation'
   } else if (/grammar|tense|structure|clause|verb form|syntax|accuracy/.test(combined)) {
     category = 'grammar'
   } else if (/read|article|text|comprehens|passage/.test(combined)) {
     category = 'reading'
   } else if (/vocabular|terminolog|word|idiom|phrase|expression|collocat|phrasal/.test(combined)) {
     category = 'vocabulary'
-  } else if (/email|present|negotiat|pitch|meeting|professional|business|communicat|colleague|stakeholder|client|proposal|brief/.test(combined)) {
+  } else if (/email|negotiat|meeting|professional|business|communicat|colleague|stakeholder|client|proposal|brief/.test(combined)) {
     category = 'professional'
   } else {
     category = 'speaking'
@@ -134,6 +167,38 @@ WRITING LESSON DISCIPLINE — applies to every module in this lesson:
 - writing-task: Specify the exact document type, format, and technical audience. The student must produce something they could realistically submit or commit to a real project. Include specific professional constraints (word count, format, target reader). Planning notes must be actionable steps toward that specific output.
 ` : ''
 
+  const listeningLessonRules = category === 'listening' ? `
+LISTENING LESSON DISCIPLINE — the dialogue is the LISTENING TEXT. The tutor reads it aloud (or plays it) while the student listens WITHOUT seeing the transcript:
+- dialogue: 10-14 turns (longer than usual — it carries the whole lesson). Natural connected speech features: contractions, fillers, false starts, one self-correction. The comprehension modules that follow all test THIS dialogue.
+- skim-main-idea: this is the GIST pass — "What is this conversation mainly about?" with 4 plausible options. Options must require having listened, not world knowledge.
+- listening-true-false / listening-mcq: these are the DETAIL pass — second listen. Target specific facts, numbers, decisions, and speaker attitude from the dialogue.
+- gap-fill: sentences taken VERBATIM from the dialogue with one word blanked — the student listens again and fills what they hear.
+- tutorNotes on the dialogue module must instruct: "Read the dialogue aloud at natural speed (or assign voices). Student keeps the transcript hidden until after the comprehension modules."
+` : ''
+
+  const presentationLessonRules = category === 'presentation' ? `
+PRESENTATION LESSON DISCIPLINE — the lesson builds toward the student DELIVERING a short spoken presentation:
+- useful-language: SIGNPOSTING phrases only — opening ("Today I'd like to walk you through..."), transitioning ("That brings me to..."), emphasising ("The key thing to notice here is..."), closing, and handling questions ("That's a fair question — let me come back to that."). Specific to the student's field, never generic.
+- reading-article: a MODEL PRESENTATION TRANSCRIPT (not an article) — a short presentation from the student's professional field, written as spoken language with signposts visible. Title it "Reading - [presentation title]".
+- ordering: scrambled sentences from a presentation — the student reorders them into a coherent opening→body→close sequence.
+- dialogue: a post-presentation Q&A scene — audience member asks pointed questions, presenter handles them (one difficult question, one clarification).
+- presentation-task: the deliverable. Brief must name the exact topic (from the student's real work), the audience, and the time target. Planning notes map to a structure: opening hook, 2-3 main points, close. Delivery checklist: concrete behaviours ("pause after each main point", "use at least 4 signpost phrases from Key Phrases").
+` : ''
+
+  const isKid = ['child', 'kid', 'teen', 'under 12', 'under 18'].some(k => (student.ageGroup || '').toLowerCase().includes(k))
+  const kidLessonRules = isKid ? `
+YOUNG LEARNER DISCIPLINE — this student is ${student.ageGroup}. Every module must be age-appropriate:
+- TONE: playful, encouraging, energetic. Use emojis generously in questions, instructions, and examples (🌟 🎯 🚀 ⭐ 🎉 🤔 💡 🏆) — but match the module: heavy in warm-up, discussion, roleplay, and homework; light in grammar-focus and gap-fill; keep dialogue lines themselves emoji-free (real speech), only the setting/instructions get emojis.
+- Praise built in: instructions can celebrate ("You've got this! ⭐", "Star challenge 🌟"). Frame harder items as challenges or games, never as tests.
+- TOPICS: school, friends, hobbies, games, sports, animals, family, food — NEVER workplace, business, negotiation, or professional register.
+- Dialogue characters are kids or a kid + teacher/parent. Situations from a young person's real life.
+- Vocabulary: concrete, visual, drawable words. No abstract business vocabulary.
+- Discussion/warm-up questions: short, fun, answerable from a kid's own life ("What's your favourite...? 🎮", "Tell me about a time you...").
+- Roleplay: imaginative scenarios (ordering at a pizza place 🍕, planning a class party 🎈, interviewing a superhero 🦸) with clear simple roles.
+- Homework: small, fun, real-world ("Take a photo of...", "Teach this word to someone at home 🏠").
+- tutorNotes stay professional (no emojis) — they are for the tutor.
+` : ''
+
   return `Expert ${student.targetLanguage} instructor. Generate a modular lesson as JSON.
 
 STUDENT: ${student.name}, ${student.level}, ${student.ageGroup}
@@ -147,7 +212,7 @@ RULES:
 - NO em dashes (—). BANNED words: "resonate","navigate","landscape","leverage","dynamics","paradigm","mitigate","jeopardize","escalate","bottleneck","trade-off","iron out","flag","stakeholder","circle back"
 - Real names only in dialogues — NEVER bracket placeholders
 
-${writingLessonRules}
+${writingLessonRules}${listeningLessonRules}${presentationLessonRules}${kidLessonRules}
 MODULE TYPES:
 - vocabulary-cards: single words, bare headword only ("forthcoming" not "to be forthcoming"). CEFR gate: assign every word its CEFR band — below ${student.level} → replace.
 - vocabulary-match: single words, collocations, idioms, phrasal verbs — teachable meaning units. No discourse markers, connectors, or sentence frames (those go in useful-language). Never in the same lesson as vocabulary-cards.
@@ -213,6 +278,7 @@ phrasal-verbs → "Phrasal Verbs"
 vocabulary-in-text → "Contextual Vocabulary"
 homework-writing → "Homework"
 writing-task → "Writing Task"
+presentation-task → "Presentation Task"
 listening-true-false → "Listen and Decide: True or False?"
 listening-mcq → "Listening Comprehension"
 
@@ -299,6 +365,12 @@ discussion            → { questions:string[4-6] }
 debate                → { topic, sideA:{label,points:string[3-5]}, sideB:{label,points:string[3-5]} }
 homework-writing      → { task, prompts:string[3-5], wordCount?, instructions? }
   wordCount must always include the unit: "approximately 150 words" or "150-200 words" — NEVER just "approximately 150" or "150-200" without "words".
+presentation-task     → { brief, planningNotes:string[3-5], deliveryChecklist?:string[3-5], timeTarget?:string, audience?:string }
+  brief = exact spoken task: what to present, to whom, on what topic from the student's real work (e.g. "Give a 3-minute walkthrough of your team's release process to a new colleague")
+  planningNotes = structure guidance specific to THIS topic: opening hook, 2-3 main points, close
+  deliveryChecklist = concrete observable behaviours ("pause after each main point", "use at least 4 signpost phrases")
+  timeTarget = spoken length with unit: "2-3 minutes"
+  audience = who they are presenting to: "new team member", "prospective client", "department heads"
 writing-task          → { brief, planningNotes?:string[3-5], modelText?:string, wordCount?:string, format?:string }
   brief = exact task: what to produce, for whom, in what register (e.g. "Write a README section explaining how to set up the service, addressed to a new developer joining the team")
   planningNotes = 3-5 bullet points guiding what to include — each should be specific to this task's content, not generic advice

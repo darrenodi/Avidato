@@ -15,10 +15,12 @@ import {
   RoleplayModule, TalkingPointModule, DiscussionModule, DebateModule,
   HomeworkWritingModule,
   WritingTaskModule,
+  PresentationTaskModule,
 } from './ModularLessonComponents'
 
+// Partial: special-report module types are rendered by SpecialReportLessonDisplay, not here
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const MODULE_MAP: Record<ModuleType, React.ComponentType<{ content: any; isStudentView?: boolean; tutorNotes?: string }>> = {
+const MODULE_MAP: Partial<Record<ModuleType, React.ComponentType<{ content: any; isStudentView?: boolean; tutorNotes?: string }>>> = {
   'warm-up': WarmUpModule,
   'vocabulary-cards': VocabularyCardsModule,
   'vocabulary-match': VocabularyMatchModule,
@@ -45,6 +47,7 @@ const MODULE_MAP: Record<ModuleType, React.ComponentType<{ content: any; isStude
   'debate': DebateModule,
   'homework-writing': HomeworkWritingModule,
   'writing-task': WritingTaskModule,
+  'presentation-task': PresentationTaskModule,
 }
 
 function ModuleRenderer({ module, isStudentView }: { module: LessonModule; isStudentView?: boolean }) {

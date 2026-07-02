@@ -7,7 +7,6 @@ import type {
   BlockLesson,
   TopicBlock,
 } from '@/types/lesson-template'
-import { getAIProvider, type AIProvider } from './provider'
 
 export interface LessonAIService {
   generateLearningPlan(student: StudentProfile, existingTopics?: LearningTopic[]): Promise<LearningPlan>
@@ -17,17 +16,7 @@ export interface LessonAIService {
   generateRaw(prompt: string): Promise<string | null>
 }
 
-export async function getLessonAIService(provider: AIProvider = getAIProvider()): Promise<LessonAIService> {
-  if (provider === 'claude') {
-    const loadedService = await import('@/lib/AIAGENT/claudeService')
-    return loadedService.default as LessonAIService
-  }
-
-  if (provider === 'openai') {
-    const loadedService = await import('@/lib/openai')
-    return loadedService.default as LessonAIService
-  }
-
+export async function getLessonAIService(): Promise<LessonAIService> {
   const loadedService = await import('@/lib/AIAGENT/gemini')
   return loadedService.default as LessonAIService
 }

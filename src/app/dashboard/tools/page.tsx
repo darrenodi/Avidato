@@ -42,7 +42,7 @@ const toolGroups: ToolGroup[] = [
     tools: [
       {
         name: 'Instant Lesson',
-        description: 'Generate a complete TBLT lesson on any topic — lead-in, vocabulary, roleplay, grammar note, and homework. Ready in under a minute.',
+        description: 'Generate a complete lesson on any topic and skill focus — speaking, listening, presentation, grammar and more. Ready in under a minute.',
         href: '/dashboard/tools/instant-lesson',
         status: 'available',
         icon: (

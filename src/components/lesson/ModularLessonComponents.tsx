@@ -12,6 +12,7 @@ import {
   RoleplayContent, TalkingPointContent, DiscussionContent, DebateContent,
   HomeworkWritingContent,
   WritingTaskContent,
+  PresentationTaskContent,
 } from '@/types/module-lesson'
 
 // ─── Utilities ────────────────────────────────────────────────────────────────
@@ -1309,6 +1310,49 @@ export function WritingTaskModule({ content, isStudentView, tutorNotes }: { cont
       )}
       {content.wordCount && (
         <p className="text-xs text-gray-500 dark:text-gray-400">Target: {content.wordCount}</p>
+      )}
+      {!isStudentView && tutorNotes && <TutorNote note={tutorNotes} />}
+    </div>
+  )
+}
+
+// ─── Presentation Task ──────────────────────────────────────────────────────
+
+export function PresentationTaskModule({ content, isStudentView, tutorNotes }: { content: PresentationTaskContent; isStudentView?: boolean; tutorNotes?: string }) {
+  return (
+    <div className="space-y-4">
+      <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+        <p className="text-xs font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wide mb-1">
+          {content.audience ? `Present to: ${content.audience}` : 'Your presentation'}
+        </p>
+        <p className="text-sm text-blue-900 dark:text-blue-100">{content.brief}</p>
+      </div>
+      {(content.planningNotes?.length ?? 0) > 0 && (
+        <div>
+          <SectionLabel text="Plan your presentation" />
+          <ul className="space-y-1">
+            {(content.planningNotes || []).map((note, i) => (
+              <li key={i} className="flex gap-2 text-sm text-gray-700 dark:text-gray-300">
+                <span className="text-brand-primary mt-0.5">•</span>{note}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+      {(content.deliveryChecklist?.length ?? 0) > 0 && (
+        <div>
+          <SectionLabel text="Delivery checklist" />
+          <ul className="space-y-1">
+            {(content.deliveryChecklist || []).map((item, i) => (
+              <li key={i} className="flex gap-2 text-sm text-gray-700 dark:text-gray-300">
+                <span className="text-brand-primary mt-0.5">☐</span>{item}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+      {content.timeTarget && (
+        <p className="text-xs text-gray-500 dark:text-gray-400">Target length: {content.timeTarget}</p>
       )}
       {!isStudentView && tutorNotes && <TutorNote note={tutorNotes} />}
     </div>

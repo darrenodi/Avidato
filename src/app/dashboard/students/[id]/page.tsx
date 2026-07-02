@@ -1427,7 +1427,7 @@ export default function StudentProfilePage() {
                             Skill Focus <span className="text-xs text-gray-400 font-normal">(optional)</span>
                           </label>
                           <div className="flex flex-wrap gap-2">
-                            {['Speaking', 'Writing', 'Reading', 'Vocabulary', 'Grammar', 'Listening'].map(skill => (
+                            {['Speaking', 'Listening', 'Reading', 'Writing', 'Vocabulary', 'Grammar', 'Presentation', 'Business'].map(skill => (
                               <button
                                 key={skill}
                                 type="button"

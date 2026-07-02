@@ -1,16 +1,18 @@
 /**
- * Instant (TBLT) lesson tests
+ * Instant lesson tests
  *
- * Tests the TBLT-format instant lesson generator directly.
- * Covers 5 exercise types: lead-in, task-prep, task-performance, post-task, homework.
+ * The instant generator now produces standard MODULAR lessons using the same
+ * structure categories and module library as planned lessons. skillFocus maps
+ * directly to a structure category (here: 'Speaking' → speaking S1-S5).
  *
  * Student: Paul, B2 English, software engineer
- * Topic: Discussing technical debt with your team
+ * Topic: Explaining technical debt to non-engineering stakeholders
  */
 
 import { describe, it, expect, beforeAll } from 'vitest'
 import { generateInstantLesson, saveOutput } from './lesson-gen'
 import { assertNoEmDash, assertNoBannedWords } from './module-validators'
+import { STRUCTURES } from '@/lib/prompts/modular-lesson-prompt'
 
 const INSTANT_PARAMS = {
   targetLanguage: 'English',
@@ -27,7 +29,9 @@ const INSTANT_PARAMS = {
   weaknesses: 'Explaining complex topics simply, handling pushback',
 }
 
-describe('Instant Lesson (TBLT format)', () => {
+const SPEAKING_STRUCTURES: string[][] = STRUCTURES.speaking.map(seq => [...seq])
+
+describe('Instant Lesson (modular format)', () => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let lesson: any
 
@@ -35,107 +39,61 @@ describe('Instant Lesson (TBLT format)', () => {
     lesson = await generateInstantLesson(INSTANT_PARAMS)
     saveOutput('instant-lesson', lesson)
     console.log('\n[Instant] Lesson title:', lesson.title)
-    console.log('[Instant] Exercises:', lesson.exercises?.map((e: { type: string }) => e.type).join(', '))
+    console.log('[Instant] Modules:', lesson.modules?.map((m: { type: string }) => m.type).join(', '))
   })
 
   it('top-level fields are present', () => {
     expect(typeof lesson.title).toBe('string')
     expect(lesson.title.length).toBeGreaterThan(3)
-    expect(lesson.lessonType).toBe('instant')
+    expect(lesson.lessonType).toBe('modular')
     expect(lesson.duration).toBe(50)
     expect(typeof lesson.objective).toBe('string')
-    expect(Array.isArray(lesson.exercises)).toBe(true)
+    expect(Array.isArray(lesson.modules)).toBe(true)
+    expect(lesson.modules.length).toBeGreaterThan(0)
   })
 
-  it('has exactly 5 exercises in TBLT order', () => {
-    expect(lesson.exercises).toHaveLength(5)
-    const types = lesson.exercises.map((e: { type: string }) => e.type)
-    expect(types[0]).toBe('lead-in')
-    expect(types[1]).toBe('task-prep')
-    expect(types[2]).toBe('task-performance')
-    expect(types[3]).toBe('post-task')
-    expect(types[4]).toBe('homework')
+  it('skillFocus "Speaking" produced one of the S1-S5 speaking structures', () => {
+    const types = lesson.modules.map((m: { type: string }) => m.type)
+    const matches = SPEAKING_STRUCTURES.some(
+      seq => seq.length === types.length && seq.every((t, i) => t === types[i])
+    )
+    expect(matches, `module sequence not a speaking structure: ${types.join(' → ')}`).toBe(true)
   })
 
-  it('exercise: lead-in — 3 activation questions', () => {
-    const ex = lesson.exercises.find((e: { type: string }) => e.type === 'lead-in')
-    expect(Array.isArray(ex.content.questions)).toBe(true)
-    expect(ex.content.questions.length).toBe(3)
-    for (const q of ex.content.questions) {
-      expect(typeof q).toBe('string')
-      expect(q.length).toBeGreaterThan(15)
+  it('every module has type, title, timeMinutes, tutorNotes, content', () => {
+    for (const mod of lesson.modules) {
+      expect(typeof mod.type).toBe('string')
+      expect(typeof mod.title).toBe('string')
+      expect(typeof mod.timeMinutes).toBe('number')
+      expect(typeof mod.tutorNotes).toBe('string')
+      expect(mod.content).toBeDefined()
     }
-    expect(ex.timeMinutes).toBe(5)
   })
 
-  it('exercise: task-prep — vocabulary (single words), key phrases, model dialogue', () => {
-    const ex = lesson.exercises.find((e: { type: string }) => e.type === 'task-prep')
-    const c = ex.content
+  it('timeMinutes sum equals 50', () => {
+    const total = lesson.modules.reduce((sum: number, m: { timeMinutes: number }) => sum + m.timeMinutes, 0)
+    expect(total).toBe(50)
+  })
 
-    // vocabulary: 5 single words
-    expect(Array.isArray(c.vocabulary)).toBe(true)
-    expect(c.vocabulary.length).toBe(5)
-    for (const v of c.vocabulary) {
-      expect(typeof v.word).toBe('string')
-      expect(v.word.trim().split(/\s+/).length, `"${v.word}" must be single word`).toBe(1)
-      expect(typeof v.definition).toBe('string')
-      expect(typeof v.translation).toBe('string')
-    }
-
-    // key phrases: 4-5 phrases
-    expect(Array.isArray(c.keyPhrases)).toBe(true)
-    expect(c.keyPhrases.length).toBeGreaterThanOrEqual(4)
-    expect(c.keyPhrases.length).toBeLessThanOrEqual(5)
-
-    // model dialogue: setting, characters with real names, 6-8 lines
-    expect(c.modelDialogue).toBeDefined()
-    expect(typeof c.modelDialogue.setting).toBe('string')
-    expect(Array.isArray(c.modelDialogue.characters)).toBe(true)
-    expect(Array.isArray(c.modelDialogue.dialogue)).toBe(true)
-    expect(c.modelDialogue.dialogue.length).toBeGreaterThanOrEqual(6)
-    expect(c.modelDialogue.dialogue.length).toBeLessThanOrEqual(8)
-
-    // No bracket placeholders in dialogue
-    for (const turn of c.modelDialogue.dialogue) {
+  it('dialogue module: real names, no bracket placeholders, 8-12 turns', () => {
+    const dlg = lesson.modules.find((m: { type: string }) => m.type === 'dialogue')
+    if (!dlg) return // not every speaking structure guarantees dialogue position, but all S1-S5 include it
+    expect(typeof dlg.content.setting).toBe('string')
+    expect(Array.isArray(dlg.content.characters)).toBe(true)
+    expect(Array.isArray(dlg.content.dialogue)).toBe(true)
+    expect(dlg.content.dialogue.length).toBeGreaterThanOrEqual(8)
+    expect(dlg.content.dialogue.length).toBeLessThanOrEqual(12)
+    for (const turn of dlg.content.dialogue) {
       expect(typeof turn.character).toBe('string')
       expect(typeof turn.text).toBe('string')
       expect(turn.text, 'bracket placeholder in dialogue').not.toMatch(/\[.*?\]/)
-      // No [Name] or [Number] etc.
       expect(turn.character, 'bracket placeholder in character name').not.toMatch(/\[.*?\]/)
     }
   })
 
-  it('exercise: task-performance — Paul as first role, 3-4 phrasesToUse', () => {
-    const ex = lesson.exercises.find((e: { type: string }) => e.type === 'task-performance')
-    const c = ex.content
-    expect(typeof c.scenario).toBe('string')
-    expect(Array.isArray(c.roles)).toBe(true)
-    expect(c.roles.length).toBe(2)
-    // Paul must be first role
-    expect(c.roles[0].name).toBe('Paul')
-    // Second role is Tutor
-    expect(c.roles[1].name).toBe('Tutor')
-    // phrasesToUse
-    expect(Array.isArray(c.phrasesToUse)).toBe(true)
-    expect(c.phrasesToUse.length).toBeGreaterThanOrEqual(3)
-    expect(c.phrasesToUse.length).toBeLessThanOrEqual(4)
-  })
-
-  it('exercise: post-task — grammar focus with examples and corrections', () => {
-    const ex = lesson.exercises.find((e: { type: string }) => e.type === 'post-task')
-    const c = ex.content
-    expect(typeof c.grammarFocus).toBe('string')
-    expect(typeof c.explanation).toBe('string')
-    expect(Array.isArray(c.examples)).toBe(true)
-    expect(c.examples.length).toBeGreaterThanOrEqual(3)
-  })
-
-  it('exercise: homework — concrete real-world task', () => {
-    const ex = lesson.exercises.find((e: { type: string }) => e.type === 'homework')
-    const c = ex.content
-    expect(typeof c.taskName).toBe('string')
-    expect(typeof c.description).toBe('string')
-    expect(c.description.length).toBeGreaterThan(20)
+  it('homework-writing module is last', () => {
+    const types = lesson.modules.map((m: { type: string }) => m.type)
+    expect(types[types.length - 1]).toBe('homework-writing')
   })
 
   it('no em dashes in full lesson', () => {

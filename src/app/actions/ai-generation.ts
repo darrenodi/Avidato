@@ -97,35 +97,6 @@ async function getPreviousLessonContext(studentId: string): Promise<PreviousLess
   }
 }
 
-// ─── Provider Selection ───────────────────────────────────────────────────────
-
-/**
- * Returns how many AI generations this user has done today.
- * Uses the existing dailyGenerationCount field (resets automatically each day).
- */
-async function getTodayGenerationCount(userId: string): Promise<number> {
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    select: { dailyGenerationCount: true, lastGenerationDate: true },
-  })
-  if (!user) return 0
-  if (!user.lastGenerationDate || user.lastGenerationDate < today) return 0
-  return user.dailyGenerationCount
-}
-
-/**
- * Pick the AI provider for this generation.
- * First 2 generations per user per day use Claude (if ANTHROPIC_API_KEY is set).
- * All subsequent generations use the default configured provider (Gemini).
- */
-async function resolveProvider(userId: string) {
-  if (!process.env.ANTHROPIC_API_KEY) return undefined
-  const count = await getTodayGenerationCount(userId)
-  return count < 2 ? ('claude' as const) : undefined
-}
-
 // ─── Security ─────────────────────────────────────────────────────────────────
 
 /**
@@ -340,7 +311,7 @@ export async function generateLearningPlan(studentId: string): Promise<{
     };
 
     // Generate learning plan
-    const lessonAIService = await getLessonAIService(await resolveProvider(session.user.id));
+    const lessonAIService = await getLessonAIService();
     const learningPlan = await lessonAIService.generateLearningPlan(studentProfile);
 
     // Save learning plan to database
@@ -469,7 +440,7 @@ export async function generateBlockLearningPlan(studentId: string, skillFocus?: 
       interests: student.interests || undefined,
     };
 
-    const lessonAIService = await getLessonAIService(await resolveProvider(session.user.id));
+    const lessonAIService = await getLessonAIService();
     const blockPlan = await lessonAIService.generateBlockPlan(studentProfile, [], skillFocus);
 
     const savedPlan = await prisma.learningPlan.create({
@@ -552,7 +523,7 @@ export async function generateModularLesson(
         : '',
     ].filter(Boolean).join('\n')
 
-    const lessonAIService = await getLessonAIService(await resolveProvider(session.user.id));
+    const lessonAIService = await getLessonAIService();
     const generatedLesson = await lessonAIService.generateModularLesson(studentProfile, lessonData, duration, modularContext);
 
     // Generate images for any image-discussion modules
@@ -658,7 +629,7 @@ export async function generateMoreLessons(studentId: string): Promise<{
     };
 
     // Generate next 10 lessons
-    const lessonAIService = await getLessonAIService(await resolveProvider(session.user.id));
+    const lessonAIService = await getLessonAIService();
     const newLessons = await lessonAIService.generateLearningPlan(studentProfile, existingTopics);
 
     // Combine existing and new topics
@@ -792,7 +763,7 @@ export async function generateLesson(
     };
 
     // Generate lesson
-    const lessonAIService = await getLessonAIService(await resolveProvider(session.user.id));
+    const lessonAIService = await getLessonAIService();
     const generatedLesson = await lessonAIService.generateLesson(
       studentProfile,
       lessonDataWithContext as LearningTopic,

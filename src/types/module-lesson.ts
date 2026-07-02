@@ -27,6 +27,12 @@ export type ModuleType =
   | 'debate'
   | 'homework-writing'
   | 'writing-task'
+  | 'presentation-task'
+  | 'listening-prediction'
+  | 'listening-details'
+  | 'vocabulary-context'
+  | 'reading-skimming'
+  | 'vocabulary-for-conversation'
 
 // ─── Module Content Interfaces ──────────────────────────────────────────────
 
@@ -36,6 +42,14 @@ export interface WritingTaskContent {
   modelText?: string
   wordCount?: string
   format?: string
+}
+
+export interface PresentationTaskContent {
+  brief: string
+  planningNotes?: string[]
+  deliveryChecklist?: string[]
+  timeTarget?: string
+  audience?: string
 }
 
 export interface WarmUpContent {
@@ -202,6 +216,44 @@ export interface HomeworkWritingContent {
   instructions?: string
 }
 
+export interface ListeningPredictionContent {
+  instructions: string
+  items: { number: string; prediction?: string }[]
+}
+
+export interface ListeningDetailsContent {
+  instructions: string
+  questions: { question: string; answer: string }[]
+}
+
+export interface VocabularyContextContent {
+  instructions: string
+  vocabulary: {
+    word: string
+    partOfSpeech: string
+    definition: string
+    example: string
+  }[]
+  gapFill?: {
+    sentences: { sentence: string; answer: string }[]
+  }
+}
+
+export interface ReadingSkimmingContent {
+  instructions: string
+  paragraphTitles: string[]
+  paragraphs: { title?: string; content: string }[]
+  matches?: { title: string; paragraph: number }[]
+}
+
+export interface VocabularyForConversationContent {
+  phrases: { phrase: string; meaning: string }[]
+  practice: {
+    questions: { question: string }[]
+  }
+  instructions?: string
+}
+
 // ─── Discriminated Union ─────────────────────────────────────────────────────
 
 export type ModuleContent =
@@ -230,6 +282,11 @@ export type ModuleContent =
   | DiscussionContent
   | DebateContent
   | HomeworkWritingContent
+  | ListeningPredictionContent
+  | ListeningDetailsContent
+  | VocabularyContextContent
+  | ReadingSkimmingContent
+  | VocabularyForConversationContent
 
 // ─── Core Lesson Structure ───────────────────────────────────────────────────
 
@@ -250,4 +307,23 @@ export interface ModularLessonContent {
   skills: string[]
   modules: LessonModule[]
   teachingNotes: string
+}
+
+export interface SpecialReportLessonContent {
+  title: string
+  lessonType: 'special-report'
+  courseTitle: string
+  level: string
+  topic: string
+  objective: string
+  duration: number
+  difficulty: number
+  skills: string[]
+  expemoCode?: string
+  modules: LessonModule[]
+  teachingNotes: string
+  metadata?: {
+    source?: string
+    category?: string
+  }
 }

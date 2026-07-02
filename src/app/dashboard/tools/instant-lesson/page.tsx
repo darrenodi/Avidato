@@ -4,40 +4,22 @@ import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import DashboardLayout from '@/components/layout/DashboardLayout'
-import {
-  LeadInExercise,
-  TaskPrepExercise,
-  TaskPerformanceExercise,
-  PostTaskExercise,
-  HomeworkExercise,
-} from '@/components/lesson/TBLTLessonComponents'
+import ModularLessonDisplay from '@/components/lesson/ModularLessonDisplay'
+import type { ModularLessonContent } from '@/types/module-lesson'
 
 const CEFR_LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']
 
-const EXERCISE_COLORS = [
-  'text-blue-600 bg-blue-50 dark:bg-blue-900/20 dark:text-blue-400',
-  'text-purple-600 bg-purple-50 dark:bg-purple-900/20 dark:text-purple-400',
-  'text-green-600 bg-green-50 dark:bg-green-900/20 dark:text-green-400',
-  'text-orange-600 bg-orange-50 dark:bg-orange-900/20 dark:text-orange-400',
-  'text-rose-600 bg-rose-50 dark:bg-rose-900/20 dark:text-rose-400',
-]
-
-interface Exercise {
-  type: string
-  title: string
-  description: string
-  content: Record<string, unknown>
-  timeMinutes: number
-}
-
-interface GeneratedLesson {
-  title: string
-  objective: string
-  skills: string[]
-  duration: number
-  exercises: Exercise[]
-  teachingNotes?: string
-}
+const LESSON_FOCUS_OPTIONS = [
+  'Auto',
+  'Speaking',
+  'Listening',
+  'Reading',
+  'Writing',
+  'Grammar',
+  'Vocabulary',
+  'Presentation',
+  'Business',
+] as const
 
 export default function InstantLessonToolPage() {
   const { status } = useSession()
@@ -56,8 +38,8 @@ export default function InstantLessonToolPage() {
   const [showContext, setShowContext] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [result, setResult] = useState<GeneratedLesson | null>(null)
-  const [openSections, setOpenSections] = useState<Set<number>>(new Set([0, 1, 2, 3, 4]))
+  const [result, setResult] = useState<ModularLessonContent | null>(null)
+  const [lessonFocus, setLessonFocus] = useState<string>('Auto')
 
   useEffect(() => {
     if (status === 'unauthenticated') router.push('/login')
@@ -82,72 +64,18 @@ export default function InstantLessonToolPage() {
           endGoals: endGoals.trim() || undefined,
           occupation: occupation.trim() || undefined,
           interests: interests.trim() || undefined,
+          skillFocus: lessonFocus === 'Auto' ? undefined : lessonFocus.toLowerCase(),
         }),
       })
       if (!res.ok) throw new Error((await res.json()).error || 'Failed to generate')
       const data = await res.json()
       setResult(data.data)
-      setOpenSections(new Set([0, 1, 2, 3, 4]))
       setTimeout(() => resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred')
     } finally {
       setLoading(false)
     }
-  }
-
-  const toggleSection = (i: number) => {
-    setOpenSections((prev) => {
-      const next = new Set(prev)
-      next.has(i) ? next.delete(i) : next.add(i)
-      return next
-    })
-  }
-
-  const renderExercise = (ex: Exercise) => {
-    const content = ex.content as Record<string, unknown>
-    switch (ex.type) {
-      case 'lead-in':
-        if (content?.questions && Array.isArray(content.questions)) {
-          return (
-            <LeadInExercise
-              content={{ questions: content.questions as string[], instructions: content.instructions as string }}
-            />
-          )
-        }
-        break
-      case 'task-prep':
-        return (
-          <TaskPrepExercise
-            content={content as unknown as Parameters<typeof TaskPrepExercise>[0]['content']}
-          />
-        )
-      case 'task-performance':
-        if (content?.scenario && content?.roles) {
-          return (
-            <TaskPerformanceExercise
-              content={content as unknown as Parameters<typeof TaskPerformanceExercise>[0]['content']}
-            />
-          )
-        }
-        break
-      case 'post-task':
-        if (content?.grammarFocus) {
-          return (
-            <PostTaskExercise
-              content={content as unknown as Parameters<typeof PostTaskExercise>[0]['content']}
-            />
-          )
-        }
-        break
-      case 'homework':
-        return (
-          <HomeworkExercise
-            content={content as unknown as Parameters<typeof HomeworkExercise>[0]['content']}
-          />
-        )
-    }
-    return null
   }
 
   if (status === 'loading') {
@@ -166,7 +94,7 @@ export default function InstantLessonToolPage() {
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">Instant Lesson</h1>
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            Generate a complete TBLT lesson on any topic — lead-in, vocabulary, roleplay, grammar note, and homework.
+            Generate a complete lesson on any topic — interview tomorrow, a trip next week, or a skill the student wants right now.
           </p>
         </div>
 
@@ -268,6 +196,28 @@ export default function InstantLessonToolPage() {
                 </div>
               </div>
 
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Lesson focus <span className="text-gray-400 font-normal">(Auto picks from the topic)</span>
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {LESSON_FOCUS_OPTIONS.map((f) => (
+                    <button
+                      key={f}
+                      type="button"
+                      onClick={() => setLessonFocus(f)}
+                      className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-colors ${
+                        lessonFocus === f
+                          ? 'bg-brand-primary text-white border-brand-primary'
+                          : 'border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:border-brand-primary hover:text-brand-primary'
+                      }`}
+                    >
+                      {f}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               {/* Optional learner context */}
               <div className="border-t border-gray-100 dark:border-gray-700 pt-4">
                 <button
@@ -362,71 +312,28 @@ export default function InstantLessonToolPage() {
         {/* Result */}
         {result && !loading && (
           <div ref={resultsRef} className="space-y-4">
-            {/* Lesson header */}
-            <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 p-5">
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex-1">
-                  <h2 className="text-xl font-bold text-gray-900 dark:text-white">{result.title}</h2>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{result.objective}</p>
-                  <div className="flex flex-wrap gap-2 mt-3">
-                    {result.skills?.map((s) => (
-                      <span
-                        key={s}
-                        className="px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300"
-                      >
-                        {s}
-                      </span>
-                    ))}
-                    <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-brand-primary/10 text-brand-primary">
-                      {result.duration} min
-                    </span>
-                    <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300">
-                      {level} · {targetLanguage}
-                    </span>
-                  </div>
-                </div>
-              </div>
+            {/* Lesson meta */}
+            <div className="flex flex-wrap gap-2">
+              {result.skills?.map((s) => (
+                <span
+                  key={s}
+                  className="px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300"
+                >
+                  {s}
+                </span>
+              ))}
+              <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-brand-primary/10 text-brand-primary">
+                {result.duration} min
+              </span>
+              <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300">
+                {level} · {targetLanguage}
+              </span>
             </div>
 
-            {/* Exercises */}
-            {result.exercises?.map((ex, i) => (
-              <div
-                key={i}
-                className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 overflow-hidden"
-              >
-                <button
-                  onClick={() => toggleSection(i)}
-                  className="w-full px-5 py-4 flex items-center justify-between text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
-                >
-                  <div className="flex items-center gap-3">
-                    <span
-                      className={`flex-shrink-0 w-7 h-7 rounded-full text-xs font-bold flex items-center justify-center ${EXERCISE_COLORS[i % EXERCISE_COLORS.length]}`}
-                    >
-                      {i + 1}
-                    </span>
-                    <div className="text-left">
-                      <p className="font-semibold text-gray-900 dark:text-white text-sm">{ex.title}</p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        {ex.timeMinutes} min{ex.description ? ` · ${ex.description}` : ''}
-                      </p>
-                    </div>
-                  </div>
-                  <svg
-                    className={`w-4 h-4 text-gray-400 flex-shrink-0 transition-transform ${openSections.has(i) ? 'rotate-180' : ''}`}
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </button>
-                {openSections.has(i) && (
-                  <div className="px-5 pb-5 border-t border-gray-100 dark:border-gray-700 pt-4">
-                    {renderExercise(ex)}
-                  </div>
-                )}
-              </div>
-            ))}
+            {/* Lesson */}
+            <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 p-5">
+              <ModularLessonDisplay lesson={result} isStudentView={false} />
+            </div>
 
             {/* Teaching notes */}
             {result.teachingNotes && (

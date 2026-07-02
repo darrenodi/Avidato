@@ -724,6 +724,36 @@ function renderModule(mod: Record<string, any>, idx: number, studentName: string
     }
   }
 
+  // ── Presentation task ──
+  else if (type === 'presentation-task') {
+    const brief: string = c.brief || ''
+    const audience: string = c.audience || ''
+    const planningNotes: string[] = Array.isArray(c.planningNotes) ? c.planningNotes : []
+    const deliveryChecklist: string[] = Array.isArray(c.deliveryChecklist) ? c.deliveryChecklist : []
+    if (brief) {
+      body += `<div style="background:#EFF6FF;border:1px solid #BFDBFE;border-radius:6px;padding:10px 12px;margin-bottom:10px">
+        <div style="font-size:8pt;font-weight:700;color:#1D4ED8;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">${e(audience ? `Present to: ${audience}` : 'Presentation Task')}</div>
+        <div style="font-size:9.5pt;color:#1E3A5F">${e(brief)}</div>
+      </div>`
+    }
+    if (planningNotes.length) {
+      body += `<div style="margin-bottom:8px"><div style="font-size:8pt;font-weight:700;color:#9CA3AF;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px">Plan your presentation</div>`
+      planningNotes.forEach(n => { body += bulletItem(n) })
+      body += `</div>`
+    }
+    if (deliveryChecklist.length) {
+      body += `<div style="margin-bottom:8px"><div style="font-size:8pt;font-weight:700;color:#9CA3AF;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px">Delivery checklist</div>`
+      deliveryChecklist.forEach(item => { body += `<div style="font-size:9.5pt;color:#374151;margin-bottom:3px">☐ ${e(item)}</div>` })
+      body += `</div>`
+    }
+    if (c.timeTarget) body += `<p class="small-gray" style="margin-bottom:8px">Target length: ${e(c.timeTarget)}</p>`
+    if (!tutorCopy) {
+      body += `<div style="margin-top:4px">`
+      for (let i = 0; i < 6; i++) { body += writeLine() }
+      body += `</div>`
+    }
+  }
+
   // ── Homework ──
   else if (['homework-writing', 'homework'].includes(type)) {
     const task: string = c.task || c.description || c.taskName || ''

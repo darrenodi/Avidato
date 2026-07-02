@@ -6,8 +6,13 @@ import {
   TaskPerformanceExercise,
   PostTaskExercise,
   HomeworkExercise,
-} from './TBLTLessonComponents'
-import { VocabularyExercise, WarmupExercise, DialogueExercise, ComprehensionExercise, RolePlayExercise, DiscussionExercise } from './EngooLessonComponents'
+  VocabularyExercise,
+  WarmupExercise,
+  DialogueExercise,
+  ComprehensionExercise,
+  RolePlayExercise,
+  DiscussionExercise,
+} from './InstantLessonExercises'
 import { EditButton } from './EditSectionModal'
 
 const TBLT_TYPES = new Set(['lead-in', 'task-prep', 'task-performance', 'post-task', 'homework'])

@@ -9,10 +9,8 @@ import { C1LessonModule } from '../cefr/C1LessonModule';
 import { C2LessonModule } from '../cefr/C2LessonModule';
 import { getSuggestedRolesAndScenarios, getOccupationExclusions } from '../constants/occupation-roles';
 import { extractJSONFromText, cleanAndParseJSON } from '../utils/json-parser';
-import { enforceSynonymConstraints } from '../utils/vocabulary-validator';
-import { enforceDialogueStructure } from '../utils/dialogue-validator';
 import { generateModularLessonWithGuard } from '../utils/modular-lesson-generation-guard';
-import { buildLessonGenerationPrompt, buildBlockPlanPrompt } from '../prompts/lesson-generation-prompts';
+import { buildBlockPlanPrompt } from '../prompts/lesson-generation-prompts';
 import { buildModularLessonPrompt } from '../prompts/modular-lesson-prompt';
 
 if (!process.env.GOOGLE_API_KEY) {
@@ -196,153 +194,32 @@ IMPORTANT:
   }
 
   // Generate individual lesson
+  // Legacy flat-plan topics now generate standard modular lessons
   async generateLesson(
-    student: StudentProfile, 
-    topic: LearningTopic, 
+    student: StudentProfile,
+    topic: LearningTopic,
     duration: 25 | 50 = 50
   ): Promise<GeneratedLesson> {
-  
-  // VOCABULARY FROM LEARNING PLAN: Use pre-generated vocabulary from the learning plan
-  // If vocabulary is provided, use it directly instead of generating new
-  const hasPreGeneratedVocabulary = topic.vocabulary && Array.isArray(topic.vocabulary) && topic.vocabulary.length > 0;
-  
-  let vocabularyGuideSection = '';
-  if (hasPreGeneratedVocabulary) {
-    const vocabList = topic.vocabulary.join(', ');
-    vocabularyGuideSection = `
+    const blockLesson: BlockLesson = {
+      lessonNumber: topic.lessonNumber,
+      title: topic.title,
+      communicativeNeed: topic.objective,
+      keyVocabulary: Array.isArray(topic.vocabulary) ? topic.vocabulary : [],
+      grammarFocus: topic.grammarFocus || 'Whatever structure arises naturally from this topic',
+      mainActivity: topic.context || topic.title,
+      isReview: false,
+      methodology: topic.methodology === 'TTT' ? 'TBLT' : (topic.methodology || 'TBLT'),
+    };
 
-VOCABULARY FOR THIS LESSON (PRE-SELECTED FROM LEARNING PLAN):
-${vocabList}
-
-CRITICAL: You MUST use EXACTLY these 6 vocabulary words for the vocabulary exercise.
-- Do NOT generate new vocabulary
-- Do NOT substitute or replace any words
-- These words were carefully selected to be unique across the entire learning plan
-- Generate detailed definitions, examples, and synonyms for each word
-- Use these words naturally in the dialogue (Exercise 3)`;
-  }
-  
-  // Issue #37: Build vocabulary context section
-  let vocabularyContextSection = '';
-  if (topic.shouldReuseVocabularyInDialogue && topic.previousVocabulary && topic.previousVocabulary.length > 0) {
-    const prevVocabList = topic.previousVocabulary.map(v => `- "${v.word}": ${v.definition}`).join('\n');
-    vocabularyContextSection = `
-
-ISSUE #37 - VOCABULARY CONTINUITY:
-The student has just completed: "${topic.previousLessonTitle}"
-From that lesson, they learned these vocabulary words:
-${prevVocabList}
-
-CRITICAL INSTRUCTION FOR DIALOGUE EXERCISE (Exercise 3):
-- In the dialogue exercise ONLY, naturally incorporate 2-3 of these previously learned words
-- Do NOT re-teach them or explain them in Exercise 1 (Vocabulary exercise)
-- Use them only if contextually appropriate to the current lesson topic
-- Example: If previous lesson was "Business Meetings" with "agenda", and this lesson is "Presentations", 
-  you could naturally use "agenda" in dialogue like: "How will this fit with the meeting agenda?"
-- This reinforces learning through natural context, not explicit re-teaching
-- If these words don't fit naturally into the current lesson's dialogue, OMIT them entirely`;
-  }
-
-  // Special instructions for under-18 students: Add grammar exercise
-  let under18Section = '';
-  if (student.ageGroup === 'child' || student.ageGroup === 'teenager') {
-    const vocabList = topic.vocabulary && Array.isArray(topic.vocabulary) 
-      ? topic.vocabulary.join(', ') 
-      : 'lesson vocabulary';
-    under18Section = `
-
-UNDER-18 STUDENT - GRAMMAR EXERCISE REQUIREMENT:
-This is a student under 18 years old. You MUST include Exercise 5 with the "Find the Mistake" grammar exercise.
-
-**Exercise 5: Find the Mistake (MANDATORY FOR UNDER-18)**
-This exercise focuses on correcting common grammar errors in sentences DIRECTLY RELATED TO THE LESSON TOPIC: "${topic.title}"
-
-IMPORTANT RULES:
-- Create 6-8 sentences ALL ABOUT THE LESSON TOPIC: "${topic.title}"
-- Sentences should use the lesson vocabulary: ${vocabList}
-- Errors should focus on verb tenses, verb forms, and subject-verb agreement
-- Sentences may contain common errors like:
-  * Missing prepositions in phrasal verbs
-  * Incorrect verb tenses (e.g., present simple vs present perfect)
-  * Wrong verb forms (e.g., base form vs past participle)
-  * Subject-verb agreement errors (e.g., singular/plural mismatch)
-  * Incorrect auxiliary verbs (e.g., "are" vs "have" with participles)
-  * Word order issues
-- Do NOT make the same type of error twice - vary the error types
-- Include 2-3 sentences that are grammatically correct (to make it more challenging)
-- ALL sentences must relate to the lesson context: "${topic.context}"
-
-RESPONSE FORMAT FOR EXERCISE 5:
-{
-  "type": "grammar",
-  "title": "Exercise 5: Find the Mistake",
-  "description": "Find and correct the mistake in each sentence. Be careful — not all sentences have a mistake!",
-  "instructions": "Find and correct the mistake in each sentence. Remember to check verb tenses, verb forms, and word order.",
-  "content": {
-    "sentences": [
-      {
-        "incorrect": "A sentence about ${topic.title} with or without a grammar error",
-        "correct": "The same sentence corrected, OR if already correct: 'This is already correct'"
-      },
-      ... (6-8 total items, ALL using vocabulary from: ${vocabList})
-    ]
-  },
-  "timeMinutes": 5
-}
-
-CRITICAL: This exercise must appear as Exercise 5 in the exercises array. ALL sentences must be thematically related to the lesson topic and use the vocabulary being taught.`;
-  }
-
-  const { roles } = getSuggestedRolesAndScenarios(student.occupation);
-
-  // Build the prompt using the extracted template function
-  const prompt = buildLessonGenerationPrompt(
-    student,
-    topic,
-    duration,
-    vocabularyGuideSection + vocabularyContextSection,
-    under18Section,
-    roles,
-    this.getLevelVocabularyGuide(student.level),
-    this.getCEFRModule(student.level).getVocabularyGuide()
-  );
-
-    try {
-      const { rawText: text } = await generateWithFailover({
-        prompt,
-        generationConfig: {
-          temperature: 0.1,
-          topK: 40,
-          topP: 0.95,
-          maxOutputTokens: 8192,
-        },
-      });
-
-      // Extract and parse JSON using imported utilities
-      const jsonStr = extractJSONFromText(text);
-      const parsedResponse = cleanAndParseJSON<GeneratedLesson>(jsonStr);
-
-      // Sanitize and enforce synonym rules based on CEFR level before returning
-      try {
-        enforceSynonymConstraints(parsedResponse, student.level);
-      } catch (err) {
-        // If sanitization fails, log and continue returning raw parsed response
-        console.warn('Failed to sanitize synonyms:', err);
-      }
-
-      // Validate and fix dialogue structure (student speaks after every speaker)
-      try {
-        enforceDialogueStructure(parsedResponse, student.name || 'Student');
-      } catch (err) {
-        // If dialogue validation fails, log and continue
-        console.warn('Failed to validate dialogue structure:', err);
-      }
-
-      return parsedResponse;
-    } catch (error) {
-      console.error('Error generating lesson:', error);
-      throw new Error('Failed to generate lesson. Please try again.');
+    let previousContext = '';
+    if (topic.shouldReuseVocabularyInDialogue && topic.previousVocabulary && topic.previousVocabulary.length > 0) {
+      const prevVocabList = topic.previousVocabulary.map(v => `"${v.word}" (${v.definition})`).join(', ');
+      previousContext = `
+VOCABULARY CONTINUITY: The student just completed "${topic.previousLessonTitle}" and learned: ${prevVocabList}.
+Naturally reuse 2-3 of these words in the dialogue ONLY if they fit the topic. Do not re-teach them. If they don't fit, omit them.`;
     }
+
+    return this.generateModularLesson(student, blockLesson, duration, previousContext);
   }
 
   public getLevelVocabularyGuide(level: string): string {
