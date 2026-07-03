@@ -71,6 +71,18 @@ Create a complete 6-stage lesson plan that a teacher can pick up and follow top-
 Every item must be level-appropriate for CEFR ${level}.
 The student watches the video ONCE only.
 
+READ THE TONE FIRST:
+Before writing anything, decide whether this video is earnest (documentary, tutorial, talk) or
+COMEDY / SATIRE / PARODY (absurd claims, deliberately illogical decisions, jokes played straight).
+If it is comedy: do NOT treat absurd content as earnest fact. Never ask a student to earnestly
+explain something that is only there as a joke ("What is the reason for testing a right angle at
+97 degrees?" has no answer — the absence of a reason IS the joke). Instead:
+  - Comprehension questions target what actually happens and what characters claim or decide.
+  - At least one comprehension or discussion question should engage with the humor directly:
+    what is absurd here, what the sketch is making fun of, what SHOULD have happened.
+  - Discussion connects the satire to real life ("Have you ever been in a meeting like this?").
+Mention the tone in teacherNotes so the teacher isn't caught off guard.
+
 ══════════════════════════════════════════════
 GLOBAL FORMATTING RULES — APPLY TO ALL CONTENT
 ══════════════════════════════════════════════
@@ -212,14 +224,30 @@ Scan the transcript for genuine idioms and phrasal verbs. ONLY idioms and phrasa
 An idiom = non-literal, figurative. A phrasal verb = verb + particle with non-literal meaning.
 
 DO NOT FORCE EXTRACTION:
-- NEVER stretch a literal phrase into an "idiom" to hit the count. "go to the store" is not a
-  teachable phrasal verb; "look at the screen" is not an idiom. A forced item is worse than no item.
+- NEVER stretch a literal phrase into an "idiom" to hit the count. A forced item is worse than no item.
 - Many videos (factual, scripted, simple explainers) genuinely contain few or NO teachable idioms.
   When the transcript yields fewer than 8 genuine items, keep the genuine ones and INVENT the rest:
   natural, common idioms and phrasal verbs a fluent speaker would realistically use when TALKING
   ABOUT this video's topic, pitched at ${level}.
 - All 8 final phrases must pass the same quality bar regardless of origin — the student should
   never be able to tell which came from the transcript and which were supplied.
+
+THE SUBSTITUTION TEST — apply to EVERY phrase before including it:
+Replace each word with its dictionary meaning. If the phrase still makes complete sense, it is
+LITERAL and FAILS — no matter how common or professional it sounds.
+  ✗ FAILS: "give us the latest" (= give us the newest information — fully literal)
+  ✗ FAILS: "function at full capacity" (= operate at maximum — fully literal)
+  ✗ FAILS: "way ahead of schedule" (= far in front of the plan — transparent)
+  ✗ FAILS: "go to the store", "look at the screen"
+  ✓ PASSES: "cut corners" (nothing is being cut; no corners exist)
+  ✓ PASSES: "get something off the ground" (nothing physically lifts off)
+  ✓ PASSES: "back to the drawing board", "in the pipeline", "drop the ball"
+If a phrase would appear in a business textbook as normal prose, it is not an idiom.
+
+TYPE LABELS MUST BE ACCURATE:
+  "idiom" = figurative multi-word expression ("cut corners", "on the back burner").
+  "phrasal verb" = verb + particle with non-literal meaning ("fall behind", "run into", "take off").
+  Labelling a phrasal verb as "idiom" (or vice versa) is an error.
 
 For 5a Matching: each phrase gets one clear meaning (max 12 words).
 For 5b Fill-in-the-Blanks: 6 sentences using 6 of the 8 phrases, set in everyday scenarios unrelated to the video.
