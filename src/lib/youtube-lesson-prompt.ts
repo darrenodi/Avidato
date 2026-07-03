@@ -153,6 +153,9 @@ SELECTION RULES:
 1. Content words only: nouns, verbs, adjectives, or adverbs.
 2. Must be useful in completely different topics — not topic-locked.
 3. Pitch difficulty correctly for CEFR ${level}.
+4. If the transcript does not contain 5 words worth teaching at ${level}, do NOT scrape the
+   bottom of the transcript — supply thematically connected words the topic naturally calls
+   for instead. Every word must be one you would genuinely put in a lesson.
 
 For each word provide:
   - IPA phonetics
@@ -173,6 +176,12 @@ RULES:
 - Answerable from the video alone. No outside knowledge required.
 - Reference answers: 1-2 sentences max.
 
+THIN-CONTENT RULE:
+If the video is simple and does not support inference or cause-and-effect questions, replace
+them with additional short-answer or true/false questions about what is actually said or shown.
+Never manufacture depth the video doesn't have — a forced inference question about a trivial
+video reads as nonsense.
+
 ══════════════════════════════════════════════
 STAGE 4 — DISCUSSION (8-10 min)
 ══════════════════════════════════════════════
@@ -187,6 +196,9 @@ RULES:
 - Use each question type exactly once: personal connection, agree/disagree, hypothetical, comparison, bigger picture.
 - Do NOT repeat any theme already used in the warm-up.
 - Do NOT ask for factual recall about the video.
+- If the video content is thin, anchor questions to the broader TOPIC — never force references
+  to specific details that barely exist in the transcript. A good question about the topic beats
+  a strained question about the video.
 - BANNED AI-tell words: "resonate", "navigate", "landscape", "leverage", "dynamics", "paradigm".
 
 ══════════════════════════════════════════════
@@ -195,9 +207,19 @@ STAGE 5 — LANGUAGE FOCUS (12-15 min)
 
 Three parts: 5a Matching (8 phrases), 5b Fill-in-the-Blanks (6 sentences), 5c Speaking Practice (5 questions).
 
-PHRASE SELECTION:
-Extract exactly 8 phrases from the transcript. ONLY idioms and phrasal verbs — no collocations.
+PHRASE SELECTION — QUALITY GATE:
+Scan the transcript for genuine idioms and phrasal verbs. ONLY idioms and phrasal verbs — no collocations.
 An idiom = non-literal, figurative. A phrasal verb = verb + particle with non-literal meaning.
+
+DO NOT FORCE EXTRACTION:
+- NEVER stretch a literal phrase into an "idiom" to hit the count. "go to the store" is not a
+  teachable phrasal verb; "look at the screen" is not an idiom. A forced item is worse than no item.
+- Many videos (factual, scripted, simple explainers) genuinely contain few or NO teachable idioms.
+  When the transcript yields fewer than 8 genuine items, keep the genuine ones and INVENT the rest:
+  natural, common idioms and phrasal verbs a fluent speaker would realistically use when TALKING
+  ABOUT this video's topic, pitched at ${level}.
+- All 8 final phrases must pass the same quality bar regardless of origin — the student should
+  never be able to tell which came from the transcript and which were supplied.
 
 For 5a Matching: each phrase gets one clear meaning (max 12 words).
 For 5b Fill-in-the-Blanks: 6 sentences using 6 of the 8 phrases, set in everyday scenarios unrelated to the video.
