@@ -140,7 +140,7 @@ export interface GrammarFocusContent {
 
 export interface DialogueContent {
   setting: string
-  characters: { name: string; role?: string }[]
+  characters: { name: string; role?: string; gender?: 'male' | 'female' }[]
   dialogue: { character: string; text: string }[]
   comprehension?: {
     type: 'true-false' | 'short-answer'

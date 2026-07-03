@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
+import { guessGenderFromName } from '@/lib/utils/name-gender'
 import {
   WarmUpContent, VocabularyCardsContent, VocabularyMatchContent,
   UsefulExpressionsContent, UsefulLanguageContent, LanguageInContextContent, PhrasalVerbsContent,
@@ -863,12 +864,16 @@ export function DialogueModule({ content, isStudentView, tutorNotes }: { content
     setLoadingAudio(true)
     setAudioError(null)
     try {
-      // Assign alternating genders by speaker index so voices are distinct
+      // Voice gender: characters' gender field first, then name heuristic,
+      // then alternate so two unknown speakers still sound distinct
       const speakerGenders: Record<string, 'male' | 'female'> = {}
+      for (const c of content.characters || []) {
+        if (c.name && (c.gender === 'male' || c.gender === 'female')) speakerGenders[c.name] = c.gender
+      }
       let genderIdx = 0
       dialogueLines.forEach(l => {
         if (l.character && !(l.character in speakerGenders)) {
-          speakerGenders[l.character] = genderIdx % 2 === 0 ? 'female' : 'male'
+          speakerGenders[l.character] = guessGenderFromName(l.character) ?? (genderIdx % 2 === 0 ? 'female' : 'male')
           genderIdx++
         }
       })

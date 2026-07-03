@@ -289,7 +289,6 @@ export default function YouTubeLessonDetailPage() {
   const [loadingWord, setLoadingWord] = useState<string | null>(null)
   const [shareCopied, setShareCopied] = useState(false)
   const [shareLoading, setShareLoading] = useState(false)
-  const [pdfLoading, setPdfLoading] = useState(false)
   const [editingStage, setEditingStage] = useState<string | null>(null)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [deleting, setDeleting] = useState(false)
@@ -403,42 +402,8 @@ export default function YouTubeLessonDetailPage() {
     }
   }
 
-  const handleDownloadPDF = async () => {
-    if (!result || pdfLoading) return
-    setPdfLoading(true)
-    try {
-      const studentData = {
-        videoId: result.videoId,
-        level: result.level,
-        title: result.title,
-        topic: result.topic,
-        estimatedMinutes: result.estimatedMinutes,
-        warmUp: result.warmUp,
-        preTeach: (result.preTeach || []).map(({ term, type, phonetics, definition, exampleSentence, synonym, expressions }) => ({
-          term, type, phonetics, definition, exampleSentence, ...(synonym && { synonym }), ...(expressions?.length && { expressions }),
-        })),
-        detailQuestions: (result.detailQuestions || []).map(({ id, question }) => ({ id, question })),
-        phrases: (result.phrases || []).map(({ term, type, meaning }) => ({ term, type, meaning })),
-        fillBlanks: (result.fillBlanks || []).map(({ id, sentence }) => ({ id, sentence })),
-        fillBlanksWordBox: (result.fillBlanks || []).map(fb => fb.answer).sort(() => Math.random() - 0.5),
-        speakingPractice: (result.speakingPractice || []).map(({ id, question }) => ({ id, question })),
-        discussion: (result.discussion || []).map(({ id, question }) => ({ id, question })),
-        wrapUp: result.wrapUp,
-      }
-      const res = await fetch('/api/tools/youtube-to-lesson/share', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(studentData),
-      })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error || 'Failed to create share link')
-      window.open(`/share/youtube-lesson/${data.id}?print=1`, '_blank')
-    } catch (err) {
-      console.error('PDF error:', err)
-      setError('Failed to generate PDF. Please try again.')
-    } finally {
-      setPdfLoading(false)
-    }
+  const openPdf = (tutor: boolean) => {
+    window.open(`/api/youtube-lessons/${lessonId}/print${tutor ? '?tutor=1' : ''}`, '_blank')
   }
 
   // Save edits back to the library
@@ -533,14 +498,18 @@ export default function YouTubeLessonDetailPage() {
               <button type="button" onClick={() => setShowAnswers(!showAnswers)} className="text-sm px-4 py-2 rounded-md border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                 {showAnswers ? 'Hide Answers' : 'Show Answers'}
               </button>
-              <button type="button" onClick={handleDownloadPDF} disabled={pdfLoading}
-                className="inline-flex items-center gap-2 text-sm px-4 py-2 rounded-md border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50">
-                {pdfLoading ? (
-                  <><div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-500" />Preparing...</>
-                ) : (
-                  <><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>Download PDF</>
-                )}
-              </button>
+              <div className="inline-flex rounded-md border border-gray-300 dark:border-gray-600 overflow-hidden">
+                <button type="button" onClick={() => openPdf(false)} title="Student worksheet — answers hidden"
+                  className="inline-flex items-center gap-2 text-sm px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                  Student PDF
+                </button>
+                <span className="w-px bg-gray-300 dark:bg-gray-600" />
+                <button type="button" onClick={() => openPdf(true)} title="Tutor copy — answers shown"
+                  className="inline-flex items-center text-sm px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                  Tutor PDF
+                </button>
+              </div>
               <button type="button" onClick={handleShare} disabled={shareLoading}
                 className="inline-flex items-center gap-2 text-sm px-4 py-2 rounded-md border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50">
                 {shareLoading ? (

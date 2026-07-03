@@ -310,7 +310,7 @@ CRITICAL SCHEMA RULES — exact shapes required or UI breaks:
   - Prioritise accuracy over fluency — a precise but plain sentence is better than a polished but technically wrong one.
 - useful-language → phrases MUST be objects [{phrase, example}] NEVER strings
 - language-in-context → phrases MUST be objects [{phrase, function, example?}] NEVER 'analysis' key
-- dialogue → MUST have: setting, characters:[{name,role?}], dialogue:[{character,text}]. NEVER a 'text' blob
+- dialogue → MUST have: setting, characters:[{name,role?,gender}], dialogue:[{character,text}]. NEVER a 'text' blob. Every character MUST have gender: "male" or "female", and it MUST match the character's name (Emma → female, Marcus → male) — audio voices are assigned from it.
 - roleplay → roles MUST be objects [{name, description, keyPoints?}] NEVER strings. Use 'situation' not 'scenario'
 - reading-article → text must be 3-5 substantial paragraphs separated by \\n\\n. Minimum 300 words. Include a title.
 - image-discussion → one imagePlaceholder with detailed visual description for AI image generation
@@ -347,7 +347,7 @@ find-the-mistake      → { instructions, sentences: [{incorrect, correct, expla
 ordering              → { instructions, sentences: [{scrambled, correct}×5-8] }
 sentence-correction   → { sentences: [{incorrect, correct, errorType, explanation}×8-10] }
 grammar-focus         → { topic, explanation, table?:{headers,rows}, examples:[{label,sentence}×3-5], practice:{questions:[{stem,options:string[4],answer:number}×4-6]} }
-dialogue              → { setting, characters:[{name,role?}×2], dialogue:[{character,text}×8-12] }
+dialogue              → { setting, characters:[{name,role?,gender:'male'|'female'}×2], dialogue:[{character,text}×8-12] }
 listening-true-false  → { questions:[{statement, answer:boolean, note?}×6-8] }
   LISTENING T/F: always immediately follows the dialogue it tests. Statements must be about specific facts, decisions, or details from the dialogue — NOT paraphrases of obvious facts. Mix true and false roughly 50/50. The 'note' field (tutor only) explains why the answer is true or false with a brief quote or reference. Title: "Listen and decide: True or False?"
 listening-mcq         → { questions:[{question, options:string[4], answer:number(0-indexed)}×4-6] }

@@ -3,6 +3,7 @@
 // src/components/lesson/InstantLessonExercises.tsx
 import React, { useState, useRef } from 'react'
 import { formatText } from '@/lib/format-text'
+import { guessGenderFromName } from '@/lib/utils/name-gender'
 
 /**
  * Instant Lesson Exercise Components
@@ -287,7 +288,7 @@ export function DialogueExercise({
       const genderMap = Object.fromEntries((speakers || []).map(s => [s.name, s.gender]))
       const lines = dialogue.map(l => ({
         speaker: l.character,
-        gender: genderMap[l.character] || 'male',
+        gender: genderMap[l.character] || guessGenderFromName(l.character) || 'male',
         text: l.text,
       }))
       const res = await fetch('/api/audio/dialogue', {
