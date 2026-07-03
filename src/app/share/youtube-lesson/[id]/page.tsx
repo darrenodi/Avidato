@@ -87,16 +87,16 @@ function YouTubeEmbed({ videoId, instruction }: { videoId: string; instruction: 
   return (
     <div className="mb-4">
       <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">{instruction}</p>
-      <div className="mb-4 overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700">
+      <div className="print-thumb mb-4 overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700">
         <Image
-          src={`https://img.youtube.com/vi/${videoId}/mqdefault.jpg`}
+          src={`https://img.youtube.com/vi/${videoId}/hqdefault.jpg`}
           alt="YouTube video thumbnail"
           width={640}
           height={360}
           className="w-full h-auto object-cover"
         />
       </div>
-      <div className="relative w-full overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700" style={{ paddingBottom: '56.25%' }}>
+      <div className="no-print relative w-full overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700" style={{ paddingBottom: '56.25%' }}>
         <iframe
           className="absolute inset-0 w-full h-full"
           src={`https://www.youtube-nocookie.com/embed/${videoId}?rel=0`}
@@ -354,10 +354,18 @@ function SharedYouTubeLessonContent() {
 
   useEffect(() => {
     if (printMode && !loading && lesson) {
+      setTheme('light') // PDF always prints the light theme
       const t = setTimeout(() => window.print(), 500)
       return () => clearTimeout(t)
     }
-  }, [printMode, loading, lesson])
+  }, [printMode, loading, lesson, setTheme])
+
+  // Cmd+P / browser print: force light theme so dark-mode text doesn't print white
+  useEffect(() => {
+    const toLight = () => setTheme('light')
+    window.addEventListener('beforeprint', toLight)
+    return () => window.removeEventListener('beforeprint', toLight)
+  }, [setTheme])
 
   useEffect(() => {
     const id = params?.id as string | undefined
@@ -387,47 +395,40 @@ function SharedYouTubeLessonContent() {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <style>{`
         @media print {
+          /* Print in full color — keep badges, cards, and accents */
+          * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+
           /* Hide UI chrome */
           .no-print, header, footer, button, iframe { display: none !important; }
 
-          /* White page */
+          /* White page behind the cards */
           body, html, .min-h-screen, .bg-gray-50 { background: white !important; }
-          * { color: black !important; box-shadow: none !important; }
+
+          /* Force light-mode colors even if the student had dark mode on */
+          .dark\\:bg-gray-800, .dark\\:bg-gray-900 { background: white !important; }
 
           /* Full width, no outer padding */
           .max-w-4xl { max-width: 100% !important; padding: 0 !important; margin: 0 !important; }
           main { padding: 0 !important; }
 
-          /* Strip card chrome */
-          [class*="rounded"] { border-radius: 0 !important; }
+          /* Soften shadows for print */
           [class*="shadow"] { box-shadow: none !important; }
-          [class*="bg-"] { background: white !important; }
-          [class*="border-"] { border-color: #ddd !important; }
 
           /* Stage sections: clean separation, let content flow naturally across pages */
-          .space-y-6 > div { margin-bottom: 1rem !important; border: none !important; border-bottom: 1px solid #eee !important; padding-bottom: 1rem !important; }
+          .space-y-6 > div { margin-bottom: 1rem !important; padding-bottom: 1rem !important; }
 
           /* Prevent orphaned section headers */
           h3 { page-break-after: avoid; break-after: avoid; }
 
           /* Tighten question/item padding so they don't balloon with whitespace */
           .space-y-3 > div, .space-y-4 > div { padding: 2px 0 !important; }
-          .p-3, .p-4 { padding: 4px 0 !important; }
-
-          /* StageHeader: strip the colored circle, keep bold label */
-          .rounded-full { border-radius: 0 !important; background: transparent !important; border: none !important; padding: 0 !important; }
+          .p-3, .p-4 { padding: 6px 8px !important; }
 
           /* Time badge: hide it — irrelevant in PDF */
           .text-xs.font-medium.px-2\\.5 { display: none !important; }
 
-          /* Level/duration badges in title card: also hide */
-          .inline-flex.items-center.px-3 { display: none !important; }
-
-          /* Vocabulary cards: remove the colored phonetics/part-of-speech badges */
-          .bg-blue-50, .bg-brand-50, .bg-teal-50, .bg-gray-100 { background: white !important; }
-
-          /* Word box pills in fill-in-blanks: flatten */
-          .flex-wrap.gap-2 span { border: 1px solid #999 !important; padding: 1px 6px !important; background: white !important; display: inline-block !important; }
+          /* Video thumbnail: keep it modest so it doesn't dominate the page */
+          .print-thumb { max-width: 55% !important; margin: 0 auto !important; }
         }
       `}</style>
       {/* ---- Header ---- */}

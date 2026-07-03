@@ -83,6 +83,10 @@ BANNED QUALIFIERS:
   Never use the phrases "big or small", "large or small", "great or small",
   or similar paired qualifiers in any question. Just ask the question directly.
 
+NO DIRECT ADDRESS BY NAME:
+  Never address the student by name inside any question, prompt, or instruction.
+  "Maria, what do you think about...?" is WRONG. Ask directly: "What do you think about...?"
+
 BANNED AI-TELL WORDS (applies to ALL stages):
   Never use these anywhere in any question, prompt, or instruction:
   "resonate", "navigate", "landscape", "leverage", "dynamics", "paradigm",

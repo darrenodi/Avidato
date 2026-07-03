@@ -211,6 +211,7 @@ RULES:
 - ALL content in ${student.targetLanguage} (JSON keys and type values stay in English)
 - NO em dashes (—). BANNED words: "resonate","navigate","landscape","leverage","dynamics","paradigm","mitigate","jeopardize","escalate","bottleneck","trade-off","iron out","flag","stakeholder","circle back"
 - Real names only in dialogues — NEVER bracket placeholders
+- NEVER address the student by name inside any question, prompt, or instruction. "${student.name}, what do you think about...?" is WRONG — ask the question directly: "What do you think about...?". ${student.name} may only appear as a character name in dialogue and roleplay.
 
 ${writingLessonRules}${listeningLessonRules}${presentationLessonRules}${kidLessonRules}
 MODULE TYPES:
@@ -225,7 +226,7 @@ DIALOGUE: natural professional register — idioms, phrasal verbs, colloquial la
 
 WARM-UP: 3-4 questions, easy enough for a tired ${student.level} student to answer in 20 seconds. Every question must be specific to this lesson — test: could it appear unchanged in a lesson on a completely different topic? If yes, rewrite. Banned: topic-agnostic work questions, non-expert framing ("explain X to a layperson"), procedural ("what is your process"), misconception ("what do people get wrong"), survey style ("how do you typically"), presupposed events, learner framing.
 
-DISCUSSION/TALKING-POINT: personal and experiential ("tell me about a time you..."). Answerable using only language already in this lesson. Banned: meta questions about language or the lesson, non-expert framing, abstract synthesis, procedural questions.
+DISCUSSION/TALKING-POINT: personal and experiential ("tell me about a time you..."). Answerable using only language already in this lesson. Banned: meta questions about language or the lesson, non-expert framing, abstract synthesis, procedural questions, addressing the student by name.
 
 GAP-FILL: sentence field = the sentence with ___ only. No hints, no answers inside the sentence.
 DEBATE: 'topic' = one-sentence dilemma. 'sideA'/'sideB' = direct opposites.
