@@ -454,7 +454,7 @@ function renderModule(mod: Record<string, any>, idx: number, studentName: string
       const isStudent = speaker.toLowerCase().includes(studentName.toLowerCase())
       body += dialogueRow(speaker, ll.text || ll.line || '', isStudent)
     })
-    if (c.teachingNotes || dl.noticingTask) {
+    if (tutorCopy && (c.teachingNotes || dl.noticingTask)) {
       body += noteBox('Tutor note', c.teachingNotes || dl.noticingTask || '')
     }
   }
@@ -833,6 +833,45 @@ function renderModule(mod: Record<string, any>, idx: number, studentName: string
       })
       body += `<div style="height:6px"></div>`
     })
+  }
+
+  // ── Ordering ──
+  else if (type === 'ordering') {
+    const sentences: unknown[] = Array.isArray(c.sentences) ? c.sentences : []
+    if (typeof c.instructions === 'string' && c.instructions) body += `<p class="italic">${e(c.instructions)}</p>`
+    sentences.forEach((sn, i) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const ss = sn as Record<string, any>
+      body += numberedQ(i + 1, e(ss.scrambled || ''))
+      if (tutorCopy && ss.correct) body += `<div style="padding:1px 0 5px 23px;font-size:8.5pt;color:#166534">→ ${e(ss.correct)}</div>`
+      else if (!tutorCopy) body += writeLine()
+    })
+  }
+
+  // ── Vocabulary in text ──
+  else if (type === 'vocabulary-in-text') {
+    const items: unknown[] = Array.isArray(c.items) ? c.items : []
+    if (typeof c.instructions === 'string' && c.instructions) body += `<p class="italic">${e(c.instructions)}</p>`
+    items.forEach((it, i) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const ii = it as Record<string, any>
+      const meta = [ii.partOfSpeech, ii.paragraph != null ? `paragraph ${ii.paragraph}` : ''].filter(Boolean).join(' · ')
+      body += numberedQ(i + 1, `${e(ii.definition || '')}${meta ? ` <span class="small-gray">(${e(meta)})</span>` : ''}`)
+      if (tutorCopy && ii.answer) body += `<div style="padding:1px 0 5px 23px;font-size:8.5pt;color:#166534">→ ${e(ii.answer)}</div>`
+      else if (!tutorCopy) body += writeLine()
+    })
+  }
+
+  // ── Skim for main idea ──
+  else if (type === 'skim-main-idea') {
+    const options: string[] = Array.isArray(c.options) ? c.options : []
+    body += `<p class="bold">${e(c.instructions || 'Which option best describes the main idea?')}</p>`
+    options.forEach((opt, oi) => {
+      const letter = String.fromCharCode(65 + oi)
+      const isAnswer = tutorCopy && c.answer === oi
+      body += `<div style="padding:1px 0 2px 14px;font-size:9.5pt;color:${isAnswer ? '#166534' : '#374151'};font-weight:${isAnswer ? '700' : '400'}">${letter}. ${e(opt)}</div>`
+    })
+    if (tutorCopy && c.explanation) body += `<p class="small-gray" style="margin-top:4px">${e(c.explanation)}</p>`
   }
 
   // ── Generic fallback ──

@@ -235,9 +235,43 @@ defended opinion ("Should engineers be able to veto business decisions? Why?", "
 to ship at 75% complete?") — debatable, professional, and answerable with this lesson's language.
 Below B2, keep all questions experiential.
 
+CORRECTION EXERCISES (find-the-mistake, sentence-correction) — REAL LEARNER ERRORS ONLY:
+(Exception: in WRITING lessons the WRITING LESSON DISCIPLINE above overrides this — errors target
+writing quality, not grammar.)
+Every error must be a mistake a real ${student.level} learner with ${student.nativeLanguage} as L1
+actually makes — prioritise known ${student.nativeLanguage}-transfer errors. Never invent unnatural
+errors no learner would produce. One error per sentence; sentences stay on this lesson's topic and
+reuse its vocabulary. Draw from the FULL range — do not default to tense + articles every time.
+ERROR BANK (choose widely, never repeat a type within one module, cover at least 6 categories):
+- Confusable verbs: make/do, say/tell, see/look/watch, hear/listen, bring/take, borrow/lend,
+  come/go, teach/learn, remind/remember, raise/rise, expect/wait/hope, win/earn, lose/miss
+- Tense: past simple vs present perfect ("I have seen him yesterday"), present perfect simple vs
+  continuous, will vs going to, stative verbs in continuous ("I am knowing"), future in time
+  clauses ("when I will arrive"), past perfect misuse
+- Conditionals: will in the if-clause ("If it will rain"), "If I would have known", mixed types
+- Reported speech: missing backshift ("She said she is coming"), "He told that...",
+  question word order ("She asked me where do I live")
+- Prepositions: depend on, married to, arrive at/in, listen to, discuss with no "about",
+  "in the weekend", "explain me the problem", "despite of"
+- Articles: "I am engineer", "the nature is beautiful", "a advice"
+- Countable/uncountable: informations, advices, feedbacks, equipments, "many money", few/little
+- Gerund/infinitive: "enjoy to do", "look forward to see", stop/remember/try + wrong form,
+  "suggest him to go"
+- Word order: adverb placement ("I like very much this project"), indirect questions
+  ("Do you know where is the station?"), frequency adverbs ("I go always there")
+- Comparatives: "more better", "more easier", as...as errors
+- Classics: "I am agree", since/for, during/while, so/such, too/enough, used to vs be used to,
+  "I wish I would know", "How does it look like?", another/other, this/these, question formation
+
 GAP-FILL: sentence field = the sentence with ___ only. No hints, no answers inside the sentence.
 DEBATE: 'topic' = one-sentence dilemma. 'sideA'/'sideB' = direct opposites.
-ROLEPLAY: concrete details (numbers, names, deadlines). Non-student role has ≥3 specific behaviours. phrasesToUse lists only phrases that fit naturally in the scenario.
+ROLEPLAY — CONCISE OR IT FAILS: a roleplay card is scanned in 30 seconds, not read like a brief.
+- situation: ONE paragraph, max 35 words, with the concrete details (numbers, names, deadlines) baked in.
+- each role description: max 20 words — who they are and what they want. Nothing else.
+- keyPoints: max 3 bullets per role, max 8 words each — moves to make, not stage directions.
+- phrasesToUse: max 4, only phrases that fit the scenario naturally.
+- NO teacher-style meta text anywhere in the card ("Encourage the student to...", "The goal of this
+  activity is...") — every word is addressed to the people playing the roles.
 LESSON COHERENCE: dialogue and roleplay demonstrate the target skill successfully — a rapport lesson shows rapport built, a negotiation lesson ends in a successful negotiation.
 
 VOCABULARY LEVEL CALIBRATION — the #1 quality failure is vocabulary that is TOO EASY for the level:
@@ -369,9 +403,14 @@ gap-fill              → { instructions, sentences: [{sentence(use ___ for blan
   GAP-FILL CONTENT: test vocabulary words or grammar structures from this lesson — NEVER the same phrases already listed in a useful-language or useful-expressions module. The blank should target a single word or short form (verb tense, preposition, collocation) — not a complete multi-word phrase the student just read in a phrase list.
 complete-the-sentence → { instructions, questions: [{stem, options:string[4], answer:number(0-indexed)}×4-6] }
 find-the-mistake      → { instructions, sentences: [{incorrect, correct, explanation?}×10] }
-  EXACTLY 10 sentences — no fewer. Every sentence MUST have a real, visible error. Vary error types: tense, preposition, article, subject-verb agreement, word order, collocation, gerund/infinitive, countable/uncountable, conditional, relative clause. Each error type appears at most once. Label sentences 1-10.
+  EXACTLY 10 sentences — no fewer. Every sentence MUST have a real, visible error drawn from the
+  ERROR BANK above (see CORRECTION EXERCISES rules) — at least 6 distinct categories across the 10,
+  each specific error type at most once. Label sentences 1-10.
 ordering              → { instructions, sentences: [{scrambled, correct}×5-8] }
 sentence-correction   → { sentences: [{incorrect, correct, errorType, explanation}×8-10] }
+  Errors come from the ERROR BANK above (see CORRECTION EXERCISES rules) — wide spread of categories,
+  errorType names the specific mistake ("say vs tell", "past simple for present perfect"), and the
+  explanation says WHY in max 15 words.
 grammar-focus         → { topic, explanation, table?:{headers,rows}, examples:[{label,sentence}×3-5], practice:{questions:[{stem,options:string[4],answer:number}×4-6]} }
 dialogue              → { setting, characters:[{name,role?,gender:'male'|'female'}×2], dialogue:[{character,text}×8-12] }
 listening-true-false  → { questions:[{statement, answer:boolean, note?}×6-8] }

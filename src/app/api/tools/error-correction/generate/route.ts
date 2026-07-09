@@ -57,7 +57,16 @@ Rules:
 - The correct version must differ from the incorrect version in only the one error
 - Write sentences in ${language} about the topic "${topic}"
 - Explanations must be brief and clear (max 15 words)
-- Error types: verb tense, subject-verb agreement, article (a/an/the), preposition, word choice, plural/singular, word order, missing word
+- Draw errors from the FULL range of real learner mistakes — do not default to tense + articles:
+  confusable verbs (make/do, say/tell, see/look/watch, hear/listen, bring/take, borrow/lend,
+  teach/learn, remind/remember), past simple vs present perfect, stative verbs in continuous,
+  conditionals (will in the if-clause, "If I would have known"), reported speech (backshift,
+  question order), prepositions (depend on, "explain me", "despite of"), articles,
+  countable/uncountable (informations, advices, "many money"), gerund vs infinitive
+  ("enjoy to do", "look forward to see"), word order (adverb placement, indirect questions),
+  comparatives ("more better"), classics ("I am agree", "How does it look like?"),
+  since/for, too/enough, used to vs be used to
+- Never invent unnatural errors no real learner would produce
 
 Respond with ONLY valid JSON:
 {
