@@ -612,6 +612,17 @@ function renderModule(mod: Record<string, any>, idx: number, studentName: string
   // ── Gap fill ──
   else if (['gap-fill', 'complete-the-sentence'].includes(type)) {
     const sentences: unknown[] = Array.isArray(c.sentences) ? c.sentences : []
+    // Word box: student chooses from the answers (alphabetical so order reveals nothing)
+    const bank: string[] = Array.isArray(c.wordBank) && c.wordBank.length
+      ? c.wordBank
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      : sentences.map(sn => String((sn as Record<string, any>).answer || (sn as Record<string, any>).word || '')).filter(Boolean).sort((a, b) => a.localeCompare(b))
+    if (!tutorCopy && bank.length) {
+      body += `<div style="border:1px solid #DEEAF1;background:#F8FAFC;border-radius:4px;padding:8px 10px;margin-bottom:8px">
+        <div style="font-size:8pt;font-weight:700;color:#1a3a5c;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px">Choose from</div>
+        ${bank.map(w => `<span style="display:inline-block;border:1px solid #BFDBFE;background:white;border-radius:10px;padding:2px 9px;margin:2px 3px 2px 0;font-size:9pt;color:#1D4ED8;font-weight:600">${e(w)}</span>`).join('')}
+      </div>`
+    }
     sentences.forEach((s, i) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const ss = s as Record<string, any>

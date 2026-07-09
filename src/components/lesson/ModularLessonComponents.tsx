@@ -590,13 +590,18 @@ export function GapFillModule({ content, isStudentView, tutorNotes }: { content:
   return (
     <div className="space-y-4">
       {content.instructions && <p className="font-bold text-sm text-gray-800 dark:text-gray-200">{content.instructions}</p>}
-      {(content.wordBank || []).length > 0 && (
-        <div className="flex flex-wrap gap-2 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-          {(content.wordBank || []).map((w, i) => (
-            <span key={i} className="px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded text-gray-700 dark:text-gray-300 font-medium">{w}</span>
-          ))}
-        </div>
-      )}
+      {(() => {
+        const bank = (content.wordBank || []).length > 0
+          ? (content.wordBank || [])
+          : sentences.map(s => s.answer || '').filter(Boolean).sort((a, b) => a.localeCompare(b))
+        return bank.length > 0 ? (
+          <div className="flex flex-wrap gap-2 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+            {bank.map((w, i) => (
+              <span key={i} className="px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded text-gray-700 dark:text-gray-300 font-medium">{w}</span>
+            ))}
+          </div>
+        ) : null
+      })()}
       <div className="space-y-4">
         {sentences.map((s, i) => {
           const val = inputs[i] || ''

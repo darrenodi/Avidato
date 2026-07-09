@@ -240,7 +240,15 @@ CORRECTION EXERCISES (find-the-mistake, sentence-correction) — REAL LEARNER ER
 writing quality, not grammar.)
 Every error must be a mistake a real ${student.level} learner with ${student.nativeLanguage} as L1
 actually makes — prioritise known ${student.nativeLanguage}-transfer errors. Never invent unnatural
-errors no learner would produce. One error per sentence; sentences stay on this lesson's topic and
+errors no learner would produce.
+SIGNIFICANCE — errors must scale with the level: an error the student stopped making two levels ago
+teaches nothing. "We need to discuss about it" challenges A2-B1, not C1. At B2 and above, most errors
+must come from the advanced end: subjunctive after insist/recommend/demand ("insisted that he was
+present" for "be present"), inversion after negative adverbials ("Never we have seen"), mixed and
+inverted conditionals ("Had he known" errors), faulty parallelism ("responsible for planning, testing
+and to deploy"), dangling modifiers ("Having reviewed the contract, the terms were accepted"),
+relative clauses (which/that/whose, stranded prepositions), advanced collocation and register
+mismatches. Simple slips (articles, "despite of") may appear at most twice in a B2+ module. One error per sentence; sentences stay on this lesson's topic and
 reuse its vocabulary. Draw from the FULL range — do not default to tense + articles every time.
 ERROR BANK (choose widely, never repeat a type within one module, cover at least 6 categories):
 - Confusable verbs: make/do, say/tell, see/look/watch, hear/listen, bring/take, borrow/lend,
@@ -264,6 +272,11 @@ ERROR BANK (choose widely, never repeat a type within one module, cover at least
   "I wish I would know", "How does it look like?", another/other, this/these, question formation
 
 GAP-FILL: sentence field = the sentence with ___ only. No hints, no answers inside the sentence.
+Exactly ONE ___ per sentence — never two blanks. The student chooses answers from a word box built
+from all the answers, so run a JUXTAPOSITION CHECK: read all answers as a list — each answer must fit
+its own blank and ONLY its own blank. If two answers are interchangeable in any sentence (both
+grammatically and semantically plausible), replace one. Answers must all be the same kind of unit
+(all single words / all short forms) so no blank is guessable by shape alone.
 DEBATE: 'topic' = one-sentence dilemma. 'sideA'/'sideB' = direct opposites.
 ROLEPLAY — CONCISE OR IT FAILS: a roleplay card is scanned in 30 seconds, not read like a brief.
 - situation: ONE paragraph, max 35 words, with the concrete details (numbers, names, deadlines) baked in.
