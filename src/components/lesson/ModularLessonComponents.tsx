@@ -14,6 +14,7 @@ import {
   HomeworkWritingContent,
   WritingTaskContent,
   PresentationTaskContent,
+  RegisterUpgradeContent,
 } from '@/types/module-lesson'
 
 // ─── Utilities ────────────────────────────────────────────────────────────────
@@ -1316,6 +1317,48 @@ export function WritingTaskModule({ content, isStudentView, tutorNotes }: { cont
       {content.wordCount && (
         <p className="text-xs text-gray-500 dark:text-gray-400">Target: {content.wordCount}</p>
       )}
+      {!isStudentView && tutorNotes && <TutorNote note={tutorNotes} />}
+    </div>
+  )
+}
+
+// ─── Register Upgrade (Say It Better) ────────────────────────────────────────
+
+export function RegisterUpgradeModule({ content, isStudentView, tutorNotes }: { content: RegisterUpgradeContent; isStudentView?: boolean; tutorNotes?: string }) {
+  const [revealed, setRevealed] = useState<Set<number>>(new Set())
+  const toggle = (i: number) => {
+    setRevealed(prev => {
+      const next = new Set(prev)
+      if (next.has(i)) { next.delete(i) } else { next.add(i) }
+      return next
+    })
+  }
+  return (
+    <div className="space-y-3">
+      <p className="text-sm text-gray-600 dark:text-gray-400">
+        {content.instructions || 'Upgrade each basic expression into more sophisticated, professional language. Say your version aloud, then compare.'}
+      </p>
+      {(content.items || []).map((item, i) => (
+        <div key={i} className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+          <div className="flex items-center justify-between gap-3 px-4 py-3">
+            <p className="text-sm text-gray-900 dark:text-white">&quot;{item.basic}&quot;</p>
+            {isStudentView ? (
+              <button
+                onClick={() => toggle(i)}
+                className="text-xs text-brand-primary font-medium whitespace-nowrap hover:underline"
+              >
+                {revealed.has(i) ? 'Hide' : 'Show answer'}
+              </button>
+            ) : null}
+          </div>
+          {(!isStudentView || revealed.has(i)) && (
+            <div className="px-4 py-3 bg-green-50 dark:bg-green-900/20 border-t border-green-200 dark:border-green-800">
+              <p className="text-sm text-green-800 dark:text-green-300 font-medium">&quot;{item.upgraded}&quot;</p>
+              {item.note && <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{item.note}</p>}
+            </div>
+          )}
+        </div>
+      ))}
       {!isStudentView && tutorNotes && <TutorNote note={tutorNotes} />}
     </div>
   )

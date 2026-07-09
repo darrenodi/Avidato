@@ -278,6 +278,58 @@ function checkMatchingQACount(mod: LessonModule, hardViolations: string[]): void
 // ─── Hard violation checks ──────────────────────────────────────────────────
 
 /** Template placeholders in any module title or content text */
+
+// ─── Vocabulary level enforcement ───────────────────────────────────────────
+// Words a B1 learner already knows. In a high-difficulty lesson (B2+/C1/C2,
+// difficulty >= 7) these can never be taught as new vocabulary. Fed back to
+// the model as hard violations so the guard regenerates with better words.
+const BASIC_WORDS = new Set([
+  'goal', 'goals', 'objective', 'objectives', 'priority', 'priorities', 'problem', 'problems',
+  'solution', 'solutions', 'improve', 'improvement', 'team', 'teamwork', 'meeting', 'meetings',
+  'plan', 'planning', 'project', 'task', 'tasks', 'deadline', 'deadlines', 'schedule', 'budget',
+  'report', 'manager', 'customer', 'client', 'service', 'product', 'quality', 'important',
+  'success', 'successful', 'fail', 'failure', 'decision', 'decide', 'agree', 'disagree',
+  'discuss', 'discussion', 'idea', 'ideas', 'feedback', 'help', 'support', 'change', 'update',
+  'create', 'build', 'test', 'check', 'review', 'share', 'learn', 'skill', 'skills', 'work',
+  'job', 'career', 'company', 'business', 'market', 'price', 'cost', 'money', 'growth',
+  'strong', 'weak', 'fast', 'slow', 'easy', 'difficult', 'hard', 'question', 'answer',
+  'email', 'process', 'system', 'result', 'results', 'progress', 'experience', 'communicate',
+  'communication', 'organize', 'organise', 'prepare', 'present', 'explain', 'describe',
+  'workflow', 'staff', 'colleague', 'office', 'salary', 'contract', 'strategy', 'target',
+])
+
+function checkVocabularyLevel(lesson: ModularLessonContent, hardViolations: string[]): void {
+  const difficulty = typeof lesson.difficulty === 'number' ? lesson.difficulty : 0
+  if (difficulty < 7) return // only enforce for upper-intermediate and above
+
+  for (const mod of lesson.modules) {
+    if (mod.type === 'vocabulary-cards') {
+      const vocab = (mod.content as { vocabulary?: { word?: string }[] })?.vocabulary || []
+      for (const v of vocab) {
+        const w = (v.word || '').trim().toLowerCase()
+        if (BASIC_WORDS.has(w)) {
+          hardViolations.push(
+            `vocabulary-cards word "${v.word}" is far below this student's level — a learner at this level mastered it years ago. Replace it with a genuinely advanced word (see the calibration anchors in the prompt).`
+          )
+        }
+      }
+    }
+    if (mod.type === 'vocabulary-match') {
+      const groups = (mod.content as VocabularyMatchContent)?.groups || []
+      for (const g of groups) {
+        for (const p of g.pairs || []) {
+          const term = (p.term || '').trim().toLowerCase()
+          if (!term.includes(' ') && BASIC_WORDS.has(term)) {
+            hardViolations.push(
+              `vocabulary-match term "${p.term}" is far below this student's level. Replace it with an advanced word, collocation, or idiom.`
+            )
+          }
+        }
+      }
+    }
+  }
+}
+
 function checkTemplatePlaceholders(lesson: ModularLessonContent, hardViolations: string[]): void {
   const PLACEHOLDER = /\{\{[^}]+\}\}|\[[A-Z][A-Z_ ]+\]|\[topic\]|\[name\]|\[student\]/g
   const lessonText = JSON.stringify(lesson)
@@ -477,6 +529,7 @@ export function validateModularLesson(lesson: unknown): ValidationResult {
   checkRequiredModuleFields(modularLesson, hardViolations)
   checkTemplatePlaceholders(modularLesson, hardViolations)
   checkPhraseCoverage(modularLesson, hardViolations)
+  checkVocabularyLevel(modularLesson, hardViolations)
 
   // Per-module checks (hard violations + soft warnings)
   for (const mod of modularLesson.modules) {

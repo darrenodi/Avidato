@@ -10,7 +10,7 @@ export const STRUCTURES = {
     // S1 — Warm then phrases-led: ease in, then key phrases before dialogue
     ['warm-up', 'useful-language', 'dialogue', 'listening-true-false', 'matching-qa', 'roleplay', 'homework-writing'],
     // S2 — Cold open with vocab: dive straight into vocabulary cards, no warm-up
-    ['vocabulary-cards', 'dialogue', 'listening-mcq', 'grammar-focus', 'discussion', 'homework-writing'],
+    ['vocabulary-cards', 'dialogue', 'listening-mcq', 'register-upgrade', 'discussion', 'homework-writing'],
     // S3 — Warm then lean: no listening, straight to debate after comprehension
     ['warm-up', 'vocabulary-match', 'dialogue', 'matching-qa', 'debate', 'homework-writing'],
     // S4 — Cold open with expressions: idioms first, then the dialogue that uses them
@@ -67,8 +67,8 @@ export const STRUCTURES = {
     ['warm-up', 'vocabulary-match', 'useful-language', 'dialogue', 'matching-qa', 'debate', 'homework-writing'],
     // P4 — Warm then expressions → dialogue → T/F → roleplay
     ['warm-up', 'useful-expressions', 'dialogue', 'listening-true-false', 'matching-qa', 'roleplay', 'homework-writing'],
-    // P5 — Cold open with language-in-context: functional patterns first, then apply
-    ['language-in-context', 'dialogue', 'matching-qa', 'roleplay', 'talking-point', 'homework-writing'],
+    // P5 — Cold open with language-in-context: functional patterns first, then upgrade and apply
+    ['language-in-context', 'dialogue', 'matching-qa', 'register-upgrade', 'roleplay', 'homework-writing'],
   ],
   // ── Listening ─────────────────────────────────────────────────────────────
   // The dialogue is the listening text: tutor reads it aloud (or plays it) while
@@ -90,8 +90,8 @@ export const STRUCTURES = {
   presentation: [
     // PR1 — Signpost-led: study the phrases, see them in a model, then deliver
     ['warm-up', 'useful-language', 'reading-article', 'matching-qa', 'presentation-task', 'homework-writing'],
-    // PR2 — Structure-led: functional patterns, reorder the outline, then deliver
-    ['warm-up', 'language-in-context', 'ordering', 'useful-language', 'presentation-task', 'homework-writing'],
+    // PR2 — Structure-led: functional patterns, upgrade the register, then deliver
+    ['warm-up', 'language-in-context', 'register-upgrade', 'useful-language', 'presentation-task', 'homework-writing'],
     // PR3 — Q&A focus: vocab, then a post-presentation Q&A dialogue, then deliver
     ['warm-up', 'vocabulary-match', 'dialogue', 'listening-mcq', 'presentation-task', 'homework-writing'],
     // PR4 — Cold open with a model: signposts, model transcript, gist + gaps, deliver
@@ -107,8 +107,8 @@ export const STRUCTURES = {
     ['warm-up', 'grammar-focus', 'find-the-mistake', 'writing-task', 'homework-writing'],
     // W3 — Critique and write: analyse weak examples, learn the conventions, then write
     ['warm-up', 'find-the-mistake', 'language-in-context', 'writing-task', 'homework-writing'],
-    // W4 — Correction-led: study common errors in this writing type, then write accurately
-    ['warm-up', 'sentence-correction', 'useful-language', 'gap-fill', 'writing-task', 'homework-writing'],
+    // W4 — Correction-led: fix errors, upgrade the register, then write accurately
+    ['warm-up', 'sentence-correction', 'useful-language', 'register-upgrade', 'writing-task', 'homework-writing'],
     // W5 — Cold open: language patterns straight away, then write
     ['language-in-context', 'grammar-focus', 'sentence-correction', 'writing-task', 'homework-writing'],
   ],
@@ -224,16 +224,36 @@ MODULE TYPES:
 
 DIALOGUE: natural professional register — idioms, phrasal verbs, colloquial language throughout, not just in small talk. Level: ${student.level}. Small talk: ≥2 genuine off-topic turns before the main topic; no sport/weather/weekend defaults. 8-12 turns total, one imperfect moment, one pushback, one emotional beat. Contractions. Varied turn length. ${student.name} drives resolutions — the other character creates pressure. Multi-speaker: ${student.name} speaks after every non-student turn. If useful-language/expressions present: every phrase appears naturally in the dialogue, max 1 per turn, spread across characters.
 
-WARM-UP: 3-4 questions, easy enough for a tired ${student.level} student to answer in 20 seconds. Every question must be specific to this lesson — test: could it appear unchanged in a lesson on a completely different topic? If yes, rewrite. Banned: topic-agnostic work questions, non-expert framing ("explain X to a layperson"), procedural ("what is your process"), misconception ("what do people get wrong"), survey style ("how do you typically"), presupposed events, learner framing.
+WARM-UP: 3-4 questions, easy enough for a tired ${student.level} student to answer in 20 seconds.
+At least one question must ask about the student's real experience PERFORMING this lesson's function
+("When did you last have to report a problem at work? How did you explain it?") — it primes the skill,
+not just the topic. Every question must be specific to this lesson — test: could it appear unchanged in a lesson on a completely different topic? If yes, rewrite. Banned: topic-agnostic work questions, non-expert framing ("explain X to a layperson"), procedural ("what is your process"), misconception ("what do people get wrong"), survey style ("how do you typically"), presupposed events, learner framing.
 
-DISCUSSION/TALKING-POINT: personal and experiential ("tell me about a time you..."). Answerable using only language already in this lesson. Banned: meta questions about language or the lesson, non-expert framing, abstract synthesis, procedural questions, addressing the student by name.
+DISCUSSION/TALKING-POINT: personal and experiential ("tell me about a time you..."). Answerable using only language already in this lesson. Banned: meta questions about language or the lesson, non-expert framing, procedural questions, addressing the student by name.
+LEVEL MIX: at B2 and above, exactly 1-2 of the questions must be POSITION questions that demand a
+defended opinion ("Should engineers be able to veto business decisions? Why?", "Is it ever acceptable
+to ship at 75% complete?") — debatable, professional, and answerable with this lesson's language.
+Below B2, keep all questions experiential.
 
 GAP-FILL: sentence field = the sentence with ___ only. No hints, no answers inside the sentence.
 DEBATE: 'topic' = one-sentence dilemma. 'sideA'/'sideB' = direct opposites.
 ROLEPLAY: concrete details (numbers, names, deadlines). Non-student role has ≥3 specific behaviours. phrasesToUse lists only phrases that fit naturally in the scenario.
 LESSON COHERENCE: dialogue and roleplay demonstrate the target skill successfully — a rapport lesson shows rapport built, a negotiation lesson ends in a successful negotiation.
 
-CEFR FILTER: assign every vocabulary term, idiom, and expression a CEFR band before including it anywhere in the lesson. Below ${student.level} → replace. Applies to dialogue and discussion questions too.
+VOCABULARY LEVEL CALIBRATION — the #1 quality failure is vocabulary that is TOO EASY for the level:
+The test for EVERY word and term: "Would a ${student.level} learner very likely already know this?"
+If yes, REPLACE it. Being professional or topic-relevant does NOT make a word level-appropriate —
+"objectives" is relevant to every business lesson and it is still a B1 word.
+Calibration anchors — single words typical of each level:
+  A2: meeting, order, ticket, plan, agree
+  B1: deadline, improve, objective, priority, schedule, solution, feedback
+  B2: feasible, streamline, allocate, outweigh, hinder, setback, viable, concise
+  C1: entrenched, curtail, bolster, pitfall, concession, overhaul, undermine, scrutinise
+  C2: tacit, exacerbate, nebulous, unequivocal, pernicious, extrapolate
+A ${student.level} lesson teaches words FROM the ${student.level} row or above — never from rows below.
+At C1, "objectives", "priority", "workflow", "teamwork" are all failures: the student knew them years ago.
+This filter applies to vocabulary-cards, vocabulary-match terms, useful-expressions, phrasal-verbs,
+AND the language of dialogue and discussion questions.
 VOCABULARY MATCH terms: must be genuinely non-guessable lexical items. Transparent compounds, descriptive phrases, discourse markers, and sentence frames are all banned.
 TIMING: real classroom time — dialogue: 1.5 min/100 words + 2 min setup; comprehension: 1 min/question; gap-fill: 1 min/sentence; roleplay: min 5 min; warm-up: 1 min/question. Total = ${duration}.
 TUTOR NOTES: every module. No filler. Required: predict a likely error based on ${student.nativeLanguage}, name the language point tested, give a concrete teacher action.
@@ -280,6 +300,7 @@ vocabulary-in-text → "Contextual Vocabulary"
 homework-writing → "Homework"
 writing-task → "Writing Task"
 presentation-task → "Presentation Task"
+register-upgrade → "Say It Better"
 listening-true-false → "Listen and Decide: True or False?"
 listening-mcq → "Listening Comprehension"
 
@@ -331,6 +352,11 @@ useful-expressions    → { context?, expressions: [{full: string, stem: string}
   Every expression must be topic-specific. NEVER reuse any phrase shown in this prompt.
 useful-language       → { phrases: [{phrase:string, stem:string, example:string}×4-6] }
   MULTI-WORD PHRASES only — functional chunks specific to this lesson's scenario. Minimum 2 words per phrase.
+  FUNCTIONAL SPREAD — build a textbook phrase bank, not a random list: the phrases together must
+  cover the DISTINCT moves of this lesson's objective (e.g. for reporting problems: state the issue →
+  quantify impact → propose a fix → confirm ownership; for negotiating: justify → concede → push back →
+  close). No two phrases performing the same move. A student who learns all of them can perform the
+  full function end to end.
   NEVER generic phrases usable in any lesson. NEVER single words.
   stem = phrase with the last 1-3 content words hidden; the stem must contain at least 3 visible words so the student can identify which phrase it is. MINIMUM VISIBLE = 3 words. Examples: "push back the meeting date" → "push back the ….." (3 visible) | "due to unforeseen delays" → "due to unforeseen ….." (3 visible) | "catch up on the backlog" → "catch up on the ….." (4 visible). WRONG: "push back ….." (only 2 visible — student cannot identify the phrase). WRONG: stem that shows fewer words than the rule allows.
   Every phrase must be specific enough that it would sound odd in a completely different lesson.
@@ -366,6 +392,14 @@ discussion            → { questions:string[4-6] }
 debate                → { topic, sideA:{label,points:string[3-5]}, sideB:{label,points:string[3-5]} }
 homework-writing      → { task, prompts:string[3-5], wordCount?, instructions? }
   wordCount must always include the unit: "approximately 150 words" or "150-200 words" — NEVER just "approximately 150" or "150-200" without "words".
+register-upgrade      → { instructions?, items: [{basic, upgraded, note?}×5-6] }
+  Textbook-style register drill. basic = a plain, low-level way to say something relevant to this
+  lesson ("We need this", "It costs too much", "That won't work"). upgraded = the sophisticated
+  ${student.level} version a fluent professional would use ("This is indispensable to achieving our
+  long-term objectives", "The projected expenditure outweighs the anticipated return").
+  note = one short line on WHEN the upgraded form is the right choice.
+  The upgraded version must be pitched exactly at ${student.level} — at B1 it is polite-and-clear,
+  at C1/C2 it is genuinely sophisticated. Every pair must relate to this lesson's function and topic.
 presentation-task     → { brief, planningNotes:string[3-5], deliveryChecklist?:string[3-5], timeTarget?:string, audience?:string }
   brief = exact spoken task: what to present, to whom, on what topic from the student's real work (e.g. "Give a 3-minute walkthrough of your team's release process to a new colleague")
   planningNotes = structure guidance specific to THIS topic: opening hook, 2-3 main points, close

@@ -16,6 +16,7 @@ import {
   HomeworkWritingModule,
   WritingTaskModule,
   PresentationTaskModule,
+  RegisterUpgradeModule,
 } from './ModularLessonComponents'
 
 // Partial: special-report module types are rendered by SpecialReportLessonDisplay, not here
@@ -48,6 +49,7 @@ const MODULE_MAP: Partial<Record<ModuleType, React.ComponentType<{ content: any;
   'homework-writing': HomeworkWritingModule,
   'writing-task': WritingTaskModule,
   'presentation-task': PresentationTaskModule,
+  'register-upgrade': RegisterUpgradeModule,
 }
 
 function ModuleRenderer({ module, isStudentView }: { module: LessonModule; isStudentView?: boolean }) {

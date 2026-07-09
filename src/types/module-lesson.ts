@@ -28,6 +28,7 @@ export type ModuleType =
   | 'homework-writing'
   | 'writing-task'
   | 'presentation-task'
+  | 'register-upgrade'
   | 'listening-prediction'
   | 'listening-details'
   | 'vocabulary-context'
@@ -50,6 +51,11 @@ export interface PresentationTaskContent {
   deliveryChecklist?: string[]
   timeTarget?: string
   audience?: string
+}
+
+export interface RegisterUpgradeContent {
+  instructions?: string
+  items: { basic: string; upgraded: string; note?: string }[]
 }
 
 export interface WarmUpContent {

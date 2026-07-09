@@ -51,10 +51,22 @@ REQUIREMENTS:
 - Each lesson fields:
   - methodology: TBLT / PPP / CLT
   - communicativeNeed: action verb + what they'll do, MAX 120 chars (Learning Objective)
-  - keyVocabulary: exactly 3-5 SINGLE WORDS introduced in this lesson — no phrases, no compounds
+  - keyVocabulary: exactly 3-5 SINGLE WORDS introduced in this lesson — no phrases, no compounds.
+    LEVEL GATE: every word must be genuinely NEW at ${student.level}. Never include words the student
+    mastered two levels ago. At C1, "objectives", "priority", "improve", "deadline" are all B1 words — banned.
   - grammarFocus: exactly 1 grammar point, e.g. "Present Perfect", "Conditional Type 2", "Passive Voice". For CLT/TBLT lessons choose the most relevant structure from the topic. For PPP lessons this is the drill target.
   - mainActivity: short phrase describing the core task, e.g. "Roleplay: project status update", "Gap-fill: reported speech", "Information gap: scheduling"
-- Lesson titles: real interactions, not abstract skills
+
+LESSON TITLES — TEXTBOOK FUNCTIONAL FRAMING:
+Each lesson teaches a named LANGUAGE FUNCTION applied to a real scenario from this student's life —
+like a professional coursebook unit, not a one-off situation. The title names the function; the
+mainActivity supplies the scenario.
+  ✓ GOOD: "Language for Reporting Problems and Suggesting Solutions", "Giving Reasons in Technical
+    Negotiations", "Softening Feedback and Asking for Help", "Hedging and Diplomatic Disagreement",
+    "Clarifying and Confirming in Fast Conversations"
+  ✗ BAD (scenario with no function): "The Monday Standup", "A Trip to the Client's Office", "Talking About Your Job"
+Across each block, functions must build a coherent repertoire (report → suggest → negotiate → decide),
+not a random list of situations.
 - NO em dashes (—)
 
 JSON OUTPUT:

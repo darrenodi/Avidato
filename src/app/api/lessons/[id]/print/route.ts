@@ -724,6 +724,22 @@ function renderModule(mod: Record<string, any>, idx: number, studentName: string
     }
   }
 
+  // ── Register upgrade (Say It Better) ──
+  else if (type === 'register-upgrade') {
+    const items: { basic?: string; upgraded?: string; note?: string }[] = Array.isArray(c.items) ? c.items : []
+    if (typeof c.instructions === 'string' && c.instructions) body += `<p class="italic">${e(c.instructions)}</p>`
+    body += `<table class="correction-table"><thead><tr><th style="width:42%">Basic</th><th>${tutorCopy ? 'Upgraded' : 'Your upgrade'}</th></tr></thead><tbody>`
+    items.forEach(item => {
+      body += `<tr>
+        <td>"${e(item.basic || '')}"</td>
+        <td>${tutorCopy
+          ? `<span class="correct-text">"${e(item.upgraded || '')}"</span>${item.note ? `<div class="error-type" style="margin-top:2px">${e(item.note)}</div>` : ''}`
+          : `<span class="expr-write">&nbsp;</span>`}</td>
+      </tr>`
+    })
+    body += `</tbody></table>`
+  }
+
   // ── Presentation task ──
   else if (type === 'presentation-task') {
     const brief: string = c.brief || ''
