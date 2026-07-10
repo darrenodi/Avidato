@@ -3,33 +3,45 @@ import { StudentProfile, BlockLesson } from '../../types/lesson-template';
 // ─── Lesson structure categories ────────────────────────────────────────────
 // Each category has 5 preset module sequences.
 // Code picks one randomly — the AI never chooses the structure, only fills the content.
+//
+// Every sequence follows the textbook arc:
+//   opener → language input → model (dialogue/reading) → ONE comprehension check
+//   → ONE controlled practice (gap-fill / register-upgrade / find-the-mistake / ordering)
+//   → free production (roleplay / discussion / debate / task) → homework
+// Never two comprehension modules in a row; never skip controlled practice.
 
 export const STRUCTURES = {
   // ── Speaking ─────────────────────────────────────────────────────────────
   speaking: [
-    // S1 — Warm then phrases-led: ease in, then key phrases before dialogue
-    ['warm-up', 'useful-language', 'dialogue', 'listening-true-false', 'matching-qa', 'roleplay', 'homework-writing'],
-    // S2 — Cold open with vocab: dive straight into vocabulary cards, no warm-up
+    // S1 — Phrases-led: key phrases → dialogue → one check → controlled retrieval → produce
+    ['warm-up', 'useful-language', 'dialogue', 'listening-true-false', 'gap-fill', 'roleplay', 'homework-writing'],
+    // S2 — Cold open with vocab: dialogue, detail check, register drill, then discuss
     ['vocabulary-cards', 'dialogue', 'listening-mcq', 'register-upgrade', 'discussion', 'homework-writing'],
-    // S3 — Warm then lean: no listening, straight to debate after comprehension
-    ['warm-up', 'vocabulary-match', 'dialogue', 'matching-qa', 'debate', 'homework-writing'],
-    // S4 — Cold open with expressions: idioms first, then the dialogue that uses them
-    ['useful-expressions', 'dialogue', 'listening-true-false', 'talking-point', 'homework-writing'],
-    // S5 — Warm then language-in-context: functional phrases, then vocab, then production
-    ['warm-up', 'language-in-context', 'vocabulary-cards', 'dialogue', 'matching-qa', 'roleplay', 'homework-writing'],
+    // S3 — Lexis-led: match, dialogue, one check, upgrade the register, then debate
+    ['warm-up', 'vocabulary-match', 'dialogue', 'matching-qa', 'register-upgrade', 'debate', 'homework-writing'],
+    // S4 — Cold open with expressions: idioms first, dialogue, check, controlled, produce
+    ['useful-expressions', 'dialogue', 'listening-true-false', 'gap-fill', 'talking-point', 'homework-writing'],
+    // S5 — Function-led: patterns in context, dialogue, check, controlled retrieval, produce
+    ['warm-up', 'language-in-context', 'dialogue', 'matching-qa', 'gap-fill', 'roleplay', 'homework-writing'],
+    // S6 — ESL Brains style: react to opinions early, then lexis, dialogue, and extended talk
+    ['warm-up', 'discussion', 'vocabulary-match', 'dialogue', 'gap-fill', 'talking-point', 'homework-writing'],
+    // S7 — Linguahouse style: presentation of lexis, stacked short drills, then talking point
+    ['warm-up', 'vocabulary-match', 'useful-expressions', 'gap-fill', 'find-the-mistake', 'talking-point', 'homework-writing'],
   ],
   // ── Reading ───────────────────────────────────────────────────────────────
   reading: [
-    // R1 — Warm then scan + skim
-    ['warm-up', 'vocabulary-match', 'reading-article', 'reading-scan', 'skim-main-idea', 'discussion', 'homework-writing'],
-    // R2 — Cold open: vocab cards before reading, then deep in-text vocabulary work
-    ['vocabulary-cards', 'reading-article', 'vocabulary-in-text', 'matching-qa', 'debate', 'homework-writing'],
-    // R3 — Warm then scan + gap-fill
+    // R1 — Classic: gist first, then detail scan, then discuss
+    ['warm-up', 'vocabulary-match', 'reading-article', 'skim-main-idea', 'reading-scan', 'discussion', 'homework-writing'],
+    // R2 — Cold open: read, find vocab in text (controlled), retrieve with gaps, then debate
+    ['vocabulary-cards', 'reading-article', 'vocabulary-in-text', 'gap-fill', 'debate', 'homework-writing'],
+    // R3 — Detail-led: scan questions, then controlled retrieval, then discuss
     ['warm-up', 'vocabulary-match', 'reading-article', 'reading-scan', 'gap-fill', 'discussion', 'homework-writing'],
-    // R4 — Cold open with phrases: see the language first, then encounter it in the article
-    ['useful-language', 'reading-article', 'skim-main-idea', 'reading-scan', 'roleplay', 'homework-writing'],
-    // R5 — Warm then in-text vocabulary + error detection
+    // R4 — Phrases-led: see the language, meet it in the article, gist check, upgrade, produce
+    ['useful-language', 'reading-article', 'skim-main-idea', 'register-upgrade', 'roleplay', 'homework-writing'],
+    // R5 — Deep lexis: in-text vocabulary, error detection, then talk
     ['warm-up', 'vocabulary-cards', 'reading-article', 'vocabulary-in-text', 'find-the-mistake', 'talking-point', 'homework-writing'],
+    // R6 — ESL Brains style: react to opinions, read, gist check, controlled retrieval, talk
+    ['warm-up', 'discussion', 'reading-article', 'skim-main-idea', 'gap-fill', 'talking-point', 'homework-writing'],
   ],
   // ── Vocabulary ────────────────────────────────────────────────────────────
   vocabulary: [
@@ -59,16 +71,18 @@ export const STRUCTURES = {
   ],
   // ── Professional ─────────────────────────────────────────────────────────
   professional: [
-    // P1 — Warm + comprehensive: phrases + vocab, dialogue, listening, roleplay
-    ['warm-up', 'useful-language', 'vocabulary-match', 'dialogue', 'listening-true-false', 'matching-qa', 'roleplay', 'homework-writing'],
-    // P2 — Cold open with phrases: see the professional language before context
-    ['useful-language', 'dialogue', 'listening-mcq', 'matching-qa', 'roleplay', 'discussion', 'homework-writing'],
-    // P3 — Warm then vocab → phrases → dialogue → debate (no listening)
+    // P1 — Phrases-led: key phrases, dialogue, one check, register drill, roleplay
+    ['warm-up', 'useful-language', 'dialogue', 'listening-true-false', 'register-upgrade', 'roleplay', 'homework-writing'],
+    // P2 — Cold open with phrases: dialogue, detail check, controlled retrieval, produce
+    ['useful-language', 'dialogue', 'listening-mcq', 'gap-fill', 'roleplay', 'homework-writing'],
+    // P3 — Lexis + phrases: dialogue, one check, then debate (no listening)
     ['warm-up', 'vocabulary-match', 'useful-language', 'dialogue', 'matching-qa', 'debate', 'homework-writing'],
-    // P4 — Warm then expressions → dialogue → T/F → roleplay
-    ['warm-up', 'useful-expressions', 'dialogue', 'listening-true-false', 'matching-qa', 'roleplay', 'homework-writing'],
-    // P5 — Cold open with language-in-context: functional patterns first, then upgrade and apply
+    // P4 — Expressions-led: idioms, dialogue, T/F check, controlled retrieval, roleplay
+    ['warm-up', 'useful-expressions', 'dialogue', 'listening-true-false', 'gap-fill', 'roleplay', 'homework-writing'],
+    // P5 — Function-led: patterns in context, dialogue, check, upgrade the register, apply
     ['language-in-context', 'dialogue', 'matching-qa', 'register-upgrade', 'roleplay', 'homework-writing'],
+    // P6 — ESL Brains style: react to workplace opinions, then phrases, dialogue, and produce
+    ['warm-up', 'discussion', 'useful-language', 'dialogue', 'gap-fill', 'roleplay', 'homework-writing'],
   ],
   // ── Listening ─────────────────────────────────────────────────────────────
   // The dialogue is the listening text: tutor reads it aloud (or plays it) while
@@ -229,7 +243,11 @@ At least one question must ask about the student's real experience PERFORMING th
 ("When did you last have to report a problem at work? How did you explain it?") — it primes the skill,
 not just the topic. Every question must be specific to this lesson — test: could it appear unchanged in a lesson on a completely different topic? If yes, rewrite. Banned: topic-agnostic work questions, non-expert framing ("explain X to a layperson"), procedural ("what is your process"), misconception ("what do people get wrong"), survey style ("how do you typically"), presupposed events, learner framing.
 
-DISCUSSION/TALKING-POINT: personal and experiential ("tell me about a time you..."). Answerable using only language already in this lesson. Banned: meta questions about language or the lesson, non-expert framing, procedural questions, addressing the student by name.
+DISCUSSION/TALKING-POINT: personal and experiential ("tell me about a time you...").
+EARLY DISCUSSION: when a discussion module appears BEFORE the dialogue or reading, frame it as
+reacting to opinions (ESL Brains style): 3-4 short, punchy opinion statements about the topic that
+the student agrees or disagrees with and justifies ("It's never acceptable to miss a deadline, even
+by a day."). When it appears AFTER, keep it experiential/position as below. Answerable using only language already in this lesson. Banned: meta questions about language or the lesson, non-expert framing, procedural questions, addressing the student by name.
 LEVEL MIX: at B2 and above, exactly 1-2 of the questions must be POSITION questions that demand a
 defended opinion ("Should engineers be able to veto business decisions? Why?", "Is it ever acceptable
 to ship at 75% complete?") — debatable, professional, and answerable with this lesson's language.
