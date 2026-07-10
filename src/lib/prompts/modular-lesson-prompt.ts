@@ -241,14 +241,21 @@ writing quality, not grammar.)
 Every error must be a mistake a real ${student.level} learner with ${student.nativeLanguage} as L1
 actually makes — prioritise known ${student.nativeLanguage}-transfer errors. Never invent unnatural
 errors no learner would produce.
-SIGNIFICANCE — errors must scale with the level: an error the student stopped making two levels ago
-teaches nothing. "We need to discuss about it" challenges A2-B1, not C1. At B2 and above, most errors
-must come from the advanced end: subjunctive after insist/recommend/demand ("insisted that he was
-present" for "be present"), inversion after negative adverbials ("Never we have seen"), mixed and
-inverted conditionals ("Had he known" errors), faulty parallelism ("responsible for planning, testing
-and to deploy"), dangling modifiers ("Having reviewed the contract, the terms were accepted"),
-relative clauses (which/that/whose, stranded prepositions), advanced collocation and register
-mismatches. Simple slips (articles, "despite of") may appear at most twice in a B2+ module. One error per sentence; sentences stay on this lesson's topic and
+SIGNIFICANCE — errors must sit AT the student's level, at EVERY level: an error the student stopped
+making two levels ago teaches nothing, and one from two levels above just confuses. Pick mostly from
+the ${student.level} row; errors from lower rows at most twice per module:
+  A1-A2: basic tenses ("She go to work"), subject-verb agreement, plurals, basic prepositions
+         (in/on/at), confusable verbs (make/do, come/go), basic articles
+  B1:    past simple vs present perfect, gerund/infinitive ("enjoy to do"), say/tell, "explain me",
+         countable/uncountable, comparatives, "I am agree", question word order, since/for
+  B2:    conditionals 2/3 and "will" in if-clauses, reported speech backshift, passive misuse,
+         relative clauses (which/that/whose), collocation errors, indirect question order,
+         used to vs be used to, wish + tense
+  C1-C2: subjunctive after insist/recommend/demand ("insisted that he was present" for "be present"),
+         inversion after negative adverbials ("Never we have seen"), mixed and inverted conditionals
+         ("Had he known" errors), faulty parallelism ("planning, testing and to deploy"), dangling
+         modifiers ("Having reviewed the contract, the terms were accepted"), stranded prepositions,
+         register mismatches, subtle collocation One error per sentence; sentences stay on this lesson's topic and
 reuse its vocabulary. Draw from the FULL range — do not default to tense + articles every time.
 ERROR BANK (choose widely, never repeat a type within one module, cover at least 6 categories):
 - Confusable verbs: make/do, say/tell, see/look/watch, hear/listen, bring/take, borrow/lend,
