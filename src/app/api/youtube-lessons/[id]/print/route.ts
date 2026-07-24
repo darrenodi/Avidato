@@ -308,7 +308,7 @@ function buildHTML(lesson: { id: string; title: string; level: string; topic: st
     sections += sectionHeader(num, 'Discussion', '8-10 min')
     d.discussion.forEach((q: any, i: number) => {
       sections += numberedQ(i + 1, e(q.question))
-      if (q.followUp) sections += `<div class="q-followup">Follow-up: ${e(q.followUp)}</div>`
+      if (tutorCopy && q.followUp) sections += `<div class="q-followup">${e(q.followUp)}</div>`
     })
   }
 

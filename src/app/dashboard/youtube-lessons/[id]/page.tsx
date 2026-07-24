@@ -644,7 +644,7 @@ export default function YouTubeLessonDetailPage() {
                 {result.discussion.map((q) => (
                   <div key={q.id} className="py-3">
                     <p className="text-sm text-gray-900 dark:text-white">{q.id}. {formatText(q.question)}</p>
-                    {showAnswers && <p className="text-sm text-green-700 dark:text-green-400 mt-1"><span className="font-medium">Follow-up:</span> {formatText(q.followUp)}</p>}
+                    {showAnswers && <p className="text-sm text-green-700 dark:text-green-400 mt-1">{formatText(q.followUp)}</p>}
                   </div>
                 ))}
               </div>
