@@ -174,6 +174,16 @@ function seededShuffleIndices(count: number, seedStr: string): number[] {
     const j = Math.floor(rand() * (i + 1))
     ;[idx[i], idx[j]] = [idx[j], idx[i]]
   }
+  // Derangement: no position may hold its own original index, or that row's
+  // "match" is trivially guessable (the phrase would sit next to its own meaning).
+  if (count > 1) {
+    for (let i = 0; i < count; i++) {
+      if (idx[i] === i) {
+        const swapWith = (i + 1) % count
+        ;[idx[i], idx[swapWith]] = [idx[swapWith], idx[i]]
+      }
+    }
+  }
   return idx
 }
 
@@ -240,29 +250,34 @@ function buildHTML(lesson: { id: string; title: string; level: string; topic: st
     }
   }
 
-  // 4 — Phrases (matching)
+  // 4 — Phrases (matching) — single side-by-side table: phrase | blank | letter | meaning
   if (d.phrases?.length) {
     num++
     sections += sectionHeader(num, 'Phrases from the Video', '5-7 min')
+    // order[i] = index into d.phrases of the MEANING shown on row i (so row i's own meaning is
+    // shuffled to a different row, letter = row position, and no row's meaning matches its phrase)
     const order = seededShuffleIndices(d.phrases.length, lesson.id)
     sections += `<p class="bold">Match each phrase with its meaning. Write the correct letter next to each number.</p>`
-    sections += `<table class="match-table">`
+    sections += `<table class="match-table"><thead><tr>
+      <th style="width:6%"></th>
+      <th style="width:34%">Phrase</th>
+      <th style="width:8%">Match</th>
+      <th style="width:6%"></th>
+      <th>Meaning</th>
+    </tr></thead><tbody>`
     d.phrases.forEach((p: any, i: number) => {
+      const letter = String.fromCharCode(97 + i)
+      const meaningIdx = order[i]
+      const meaning = d.phrases![meaningIdx]?.meaning || ''
       sections += `<tr>
         <td class="match-num">${i + 1}.</td>
         <td class="match-term">${e(p.term)}${p.type ? `<span class="type-pill">${e(p.type)}</span>` : ''}</td>
-        <td class="match-def"><span class="match-blank">&nbsp;</span></td>
+        <td class="match-def" style="text-align:center"><span class="match-blank">&nbsp;</span></td>
+        <td class="match-num">${letter}.</td>
+        <td class="match-def">${e(meaning)}</td>
       </tr>`
     })
-    sections += `</table>`
-    sections += `<table class="match-table">`
-    order.forEach((phraseIdx: number, pos: number) => {
-      sections += `<tr>
-        <td class="match-num">${String.fromCharCode(97 + pos)}.</td>
-        <td class="match-def" colspan="2">${e(d.phrases![phraseIdx].meaning)}</td>
-      </tr>`
-    })
-    sections += `</table>`
+    sections += `</tbody></table>`
     if (tutorCopy) {
       const key = d.phrases.map((_: any, i: number) => `${i + 1}-${String.fromCharCode(97 + order.indexOf(i))}`).join(' &nbsp; ')
       sections += `<div class="answer-key avoid-break"><strong>Answer key:</strong> &nbsp; ${key}</div>`
