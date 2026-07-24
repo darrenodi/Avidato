@@ -239,10 +239,26 @@ LITERAL and FAILS — no matter how common or professional it sounds.
   ✗ FAILS: "function at full capacity" (= operate at maximum — fully literal)
   ✗ FAILS: "way ahead of schedule" (= far in front of the plan — transparent)
   ✗ FAILS: "go to the store", "look at the screen"
+  ✗ FAILS: "read like" (= appears/sounds like — a normal verb sense of "read", not idiomatic)
+  ✗ FAILS: "stop there" (= stop at that point — literal, not a fixed expression at all)
+  ✗ FAILS: "to a large degree" (= to a great extent — transparent intensifier, not figurative)
+  ✗ FAILS: "keep pace with" (= maintain the same speed as — literal comparison, borderline at best;
+    exclude unless clearly figurative in context)
   ✓ PASSES: "cut corners" (nothing is being cut; no corners exist)
   ✓ PASSES: "get something off the ground" (nothing physically lifts off)
   ✓ PASSES: "back to the drawing board", "in the pipeline", "drop the ball"
+  ✓ PASSES: "walled off" (figurative isolation, not a literal wall), "get around something" (evade,
+    not literal movement), "step in" (intervene, not literal stepping)
 If a phrase would appear in a business textbook as normal prose, it is not an idiom.
+
+HARD FLOOR — no minimum count overrides quality:
+The 8-phrase count is a TARGET, not a requirement you fill with weak material. A random word or
+short fragment pulled from the transcript because it "sounds vaguely idiomatic" is NEVER acceptable,
+even under deadline pressure to reach 8. If the transcript has 3 genuine idioms/phrasal verbs, use
+those 3 and INVENT 5 more topic-appropriate ones (per DO NOT FORCE EXTRACTION above) — every one of
+the 5 invented items must independently pass the substitution test just like a transcript item would.
+There is no scenario where a phrase failing the substitution test is included. Re-run the substitution
+test on your own final list of 8 before outputting — discard and replace any failure.
 
 TYPE LABELS MUST BE ACCURATE:
   "idiom" = figurative multi-word expression ("cut corners", "on the back burner").
@@ -252,6 +268,10 @@ TYPE LABELS MUST BE ACCURATE:
 For 5a Matching: each phrase gets one clear meaning (max 12 words).
 For 5b Fill-in-the-Blanks: 6 sentences using 6 of the 8 phrases, set in everyday scenarios unrelated to the video.
 For 5c Speaking Practice: 5 personal questions, each targeting ONE phrase (bolded with **asterisks**), max 15 words each.
+5b and 5c ONLY ever use phrases from the final, substitution-test-passed 8-phrase list. Never pull a
+different word or fragment from the transcript into 5b/5c that wasn't already vetted in 5a — if a
+phrase isn't good enough for the matching exercise, it isn't good enough for a gap-fill blank or a
+speaking prompt either.
 
 ══════════════════════════════════════════════
 STAGE 6 — WRAP-UP (3-5 min)
