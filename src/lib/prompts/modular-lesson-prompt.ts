@@ -417,10 +417,18 @@ vocabulary-cards      → { vocabulary: [{word, partOfSpeech, phonetics, definit
 vocabulary-match      → { instructions, groups: [{label, pairs:[{sentence,term,definition}×5]}×2] }
   Always exactly 2 groups of 5 = 10 pairs total.
   NEVER appears in the same lesson as vocabulary-cards. Terms can be single words or multi-word collocations.
-useful-expressions    → { context?, expressions: [{full: string, stem: string}×6-10] }
+useful-expressions    → { context?, expressions: [{full: string, blank: string}×6-10] }
   FIXED EXPRESSIONS and IDIOMS only — non-literal, multi-word, specific to this lesson topic.
-  stem = the expression up to and including the key idiom, ending with "....." — student completes it.
-  Example format only (never reuse): { full: "She really blew it in that meeting.", stem: "She really blew it ....." }
+  full = a COMPLETE, natural sentence using the idiom in context — realistic, could be said by a
+  fluent speaker, related to this lesson's topic. NEVER a sentence fragment or truncated clause.
+  blank = the exact substring of "full" to hide (the idiom itself, or its most identifying words) —
+  must appear verbatim inside "full" (same casing/spacing) so it can be located and blanked out.
+  The rest of the sentence stays fully visible around the blank — this is a fill-in-the-blank on ONE
+  idiom inside a complete sentence, NOT a "complete the rest of this sentence" guessing game.
+  GOOD: { full: "We need to get our ducks in a row before presenting this plan.", blank: "in a row" }
+  GOOD: { full: "Cutting corners on quality will come back to bite us.", blank: "come back to bite us" }
+  BAD: a stem that cuts the sentence off after 3-4 words with "....." — this produces unnatural,
+  ungrammatical fragments and is no longer used.
   Every expression must be topic-specific. NEVER reuse any phrase shown in this prompt.
 useful-language       → { phrases: [{phrase:string, stem:string, example:string}×4-6] }
   MULTI-WORD PHRASES only — functional chunks specific to this lesson's scenario. Minimum 2 words per phrase.
@@ -466,6 +474,15 @@ roleplay              → { situation, roles:[{name,description,keyPoints?:strin
 talking-point         → { studentA:{title,questions:string[3-4]}, studentB:{title,questions:string[3-4]} }
   BOTH studentA and studentB are REQUIRED — omitting studentB is a schema error. studentA = student discusses the topic from their own perspective. studentB = student takes the tutor's perspective or a different stakeholder viewpoint on the same topic. Each card must have a distinct title and 3-4 different questions. Questions must be experiential ("Tell me about a time...", "Have you ever..."), never analytical ("Why is X important?").
 discussion            → { questions:string[4-6] }
+REUSING IDIOMS/EXPRESSIONS IN LATER MODULES (talking-point, discussion, roleplay, homework-writing):
+Do not force an idiom taught in useful-expressions into a question just to "reinforce" it if the
+result reads unnaturally. A question like "How would you explain the need to 'get our ducks in a
+row' before such a move?" is broken English — nobody talks like that. Either:
+  (a) weave the idiom naturally into the sentence with no quote marks, as a fluent speaker actually
+      would ("A colleague wants to cut inventory by 50% immediately. What would you tell them before
+      they rush into it?" — no idiom forced in), or
+  (b) skip reusing it entirely.
+A natural question with no idiom beats an unnatural one with a forced idiom, every time.
 debate                → { topic, sideA:{label,points:string[3-5]}, sideB:{label,points:string[3-5]} }
 homework-writing      → { task, prompts:string[3-5], wordCount?, instructions? }
   wordCount must always include the unit: "approximately 150 words" or "150-200 words" — NEVER just "approximately 150" or "150-200" without "words".

@@ -416,15 +416,29 @@ function renderModule(mod: Record<string, any>, idx: number, studentName: string
     expressions.forEach((exp) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const ex = exp as Record<string, any>
-      const stem: string = ex.stem || ex.full || ''
       const full: string = ex.full || ex.expression || ''
-      // Extract only the completion part (text after the stem up to the end)
-      const stemBase = stem.replace(/\.+$/, '').trim()
-      const completion = full.length > stemBase.length ? full.slice(stemBase.length).trim() : full
-      body += `<tr>
-        <td><span class="expr-stem">${e(stem)}</span></td>
-        <td>${tutorCopy ? `<span style="color:#166534;font-weight:700">${e(completion || full)}</span>` : '<span class="expr-write"></span>'}</td>
-      </tr>`
+      const blank: string = ex.blank || ''
+      const blankIdx = blank ? full.toLowerCase().indexOf(blank.toLowerCase()) : -1
+
+      if (blankIdx !== -1) {
+        // Preferred: full natural sentence, idiom itself blanked out mid-sentence.
+        const before = full.slice(0, blankIdx)
+        const blankText = full.slice(blankIdx, blankIdx + blank.length)
+        const after = full.slice(blankIdx + blank.length)
+        const sentenceCell = tutorCopy
+          ? `${e(before)}<span class="expr-stem">${e(blankText)}</span>${e(after)}`
+          : `${e(before)}<span class="expr-write" style="display:inline-block;min-width:80px">&nbsp;</span>${e(after)}`
+        body += `<tr><td colspan="2">${sentenceCell}</td></tr>`
+      } else {
+        // Legacy fallback for older lessons: truncated stem + completion column.
+        const stem: string = ex.stem || full
+        const stemBase = stem.replace(/\.+$/, '').trim()
+        const completion = full.length > stemBase.length ? full.slice(stemBase.length).trim() : full
+        body += `<tr>
+          <td><span class="expr-stem">${e(stem)}</span></td>
+          <td>${tutorCopy ? `<span style="color:#166534;font-weight:700">${e(completion || full)}</span>` : '<span class="expr-write"></span>'}</td>
+        </tr>`
+      }
     })
     body += `</tbody></table>`
   }

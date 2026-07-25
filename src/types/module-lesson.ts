@@ -88,7 +88,7 @@ export interface VocabularyMatchContent {
 
 export interface UsefulExpressionsContent {
   context?: string
-  expressions: (string | { full: string; stem: string })[]
+  expressions: (string | { full: string; stem: string; blank?: string })[]
   instructions?: string
 }
 

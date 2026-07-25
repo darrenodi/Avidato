@@ -360,19 +360,49 @@ export function VocabularyMatchModule({ content, isStudentView, tutorNotes }: { 
 
 // ─── Useful Expressions ───────────────────────────────────────────────────────
 
-function PhraseRevealItem({ stem, full, isStudentView }: { stem: string; full: string; isStudentView?: boolean }) {
+// Splits `full` around `blank` (case-insensitive) so the idiom itself can be
+// hidden mid-sentence instead of truncating the sentence after it.
+function splitAroundBlank(full: string, blank?: string): { before: string; blankText: string; after: string } | null {
+  if (!blank) return null
+  const idx = full.toLowerCase().indexOf(blank.toLowerCase())
+  if (idx === -1) return null
+  return { before: full.slice(0, idx), blankText: full.slice(idx, idx + blank.length), after: full.slice(idx + blank.length) }
+}
+
+function ExpressionFillItem({ full, blank, stem, isStudentView }: { full: string; blank?: string; stem?: string; isStudentView?: boolean }) {
   const [revealed, setRevealed] = React.useState(false)
+  const split = splitAroundBlank(full, blank)
+
+  // Preferred rendering: full natural sentence, only the idiom itself blanked.
+  if (split) {
+    return (
+      <div className="border-l-2 border-brand-primary pl-3 py-0.5">
+        <p className="text-gray-900 dark:text-white">
+          {split.before}
+          {revealed
+            ? <span className="font-semibold text-green-700 dark:text-green-400">{split.blankText}</span>
+            : <span className="inline-block min-w-[70px] border-b-2 border-gray-400 dark:border-gray-500">&nbsp;</span>
+          }
+          {split.after}
+        </p>
+        <button onClick={() => setRevealed(r => !r)} className="text-xs text-brand-primary hover:underline mt-0.5">
+          {revealed ? 'Hide' : isStudentView ? 'Reveal' : 'Show answer'}
+        </button>
+      </div>
+    )
+  }
+
+  // Legacy fallback for older lessons stored with only a truncated stem.
+  const fallbackStem = stem || full.trim().split(/\s+/).slice(0, 4).join(' ') + ' .....'
   return (
     <div className="border-l-2 border-brand-primary pl-3 py-0.5">
       {revealed
         ? <p className="font-medium text-green-700 dark:text-green-400">&ldquo;{full}&rdquo;</p>
-        : <>
-            <p className="font-medium text-gray-900 dark:text-white">{stem}</p>
-            <button onClick={() => setRevealed(true)} className="text-xs text-brand-primary hover:underline mt-0.5">
-              {isStudentView ? 'Reveal' : 'Show answer'}
-            </button>
-          </>
+        : <p className="font-medium text-gray-900 dark:text-white">{fallbackStem}</p>
       }
+      <button onClick={() => setRevealed(r => !r)} className="text-xs text-brand-primary hover:underline mt-0.5">
+        {revealed ? 'Hide' : isStudentView ? 'Reveal' : 'Show answer'}
+      </button>
     </div>
   )
 }
@@ -383,15 +413,14 @@ export function UsefulExpressionsModule({ content, isStudentView, tutorNotes }: 
       {content.context && <p className="text-sm text-gray-500 dark:text-gray-400 italic">{content.context}</p>}
       {isStudentView
         ? <p className="text-sm text-gray-500 dark:text-gray-400 italic">Complete each expression.</p>
-        : <p className="text-sm text-blue-700 dark:text-blue-400 font-medium">Read the stem aloud. Ask your student to complete the expression, then show the answer to check.</p>
+        : <p className="text-sm text-blue-700 dark:text-blue-400 font-medium">Read each sentence aloud. Ask your student to complete the blank, then show the answer to check.</p>
       }
       <div className="space-y-2">
         {(content.expressions || []).map((expr, i) => {
           const full = typeof expr === 'string' ? expr : expr.full
-          const stem = typeof expr === 'string'
-            ? full.trim().split(/\s+/).slice(0, 4).join(' ') + ' .....'
-            : (expr.stem || full.trim().split(/\s+/).slice(0, 4).join(' ') + ' .....')
-          return <PhraseRevealItem key={i} stem={stem} full={full} isStudentView={isStudentView} />
+          const blank = typeof expr === 'string' ? undefined : expr.blank
+          const stem = typeof expr === 'string' ? undefined : expr.stem
+          return <ExpressionFillItem key={i} full={full} blank={blank} stem={stem} isStudentView={isStudentView} />
         })}
       </div>
       {!isStudentView && tutorNotes && <TutorNote note={tutorNotes} />}
@@ -420,7 +449,7 @@ export function UsefulLanguageModule({ content, isStudentView, tutorNotes }: { c
             const showCount = Math.max(3, words.length - 2)
             return words.slice(0, showCount).join(' ') + ' .....'
           })()
-          return <PhraseRevealItem key={i} stem={stem} full={p.phrase} isStudentView={isStudentView} />
+          return <ExpressionFillItem key={i} stem={stem} full={p.phrase} isStudentView={isStudentView} />
         })}
       </div>
       {!isStudentView && tutorNotes && <TutorNote note={tutorNotes} />}
