@@ -158,7 +158,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const prompt = buildTranscriptPrompt(resolvedTranscriptText, level, context, videoDurationSeconds)
+    const prompt = buildTranscriptPrompt(resolvedTranscriptText, level, context)
 
     const aiResult = await generateWithProviderFailover({
       prompt,
@@ -181,15 +181,6 @@ export async function POST(request: NextRequest) {
       teacherNotes: parsed.teacherNotes || '',
       estimatedMinutes: parsed.estimatedMinutes || 50,
       videoDurationSeconds,
-      ...(videoDurationSeconds > 4.5 * 60 && {
-        videoBreak: {
-          splitAtSeconds: Math.min(
-            videoDurationSeconds - 30,
-            Math.max(30, Number(parsed.videoBreak?.splitAtSeconds) || Math.round(videoDurationSeconds / 2)),
-          ),
-          rationale: typeof parsed.videoBreak?.rationale === 'string' ? parsed.videoBreak.rationale : 'Split at the nearest safe midpoint.',
-        },
-      }),
       warmUp: Array.isArray(parsed.warmUp) ? parsed.warmUp : [],
       preTeach: Array.isArray(parsed.preTeach) ? parsed.preTeach : [],
       detailQuestions: Array.isArray(parsed.detailQuestions) ? parsed.detailQuestions : [],
