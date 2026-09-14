@@ -86,7 +86,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Valid CEFR level is required' }, { status: 400 })
     }
 
-    const videoDurationSeconds = await getYouTubeVideoDuration(youtubeUrl)
+    const videoDurationSeconds = transcriptText ? 0 : await getYouTubeVideoDuration(youtubeUrl)
     if (videoDurationSeconds > MAX_YOUTUBE_VIDEO_DURATION_SECONDS) {
       return NextResponse.json(
         { error: 'Video is too long. Maximum supported duration is 7 minutes.' },
