@@ -49,6 +49,7 @@ export class YouTubeTranscriptError extends Error {
 
 const YOUTUBE_ID_REGEX = /^[a-zA-Z0-9_-]{11}$/
 const MAX_TRANSCRIPT_CHARS = 18_000
+export const MAX_YOUTUBE_VIDEO_DURATION_SECONDS = 7 * 60
 
 // Public InnerTube API key (used by youtube.com itself, not secret)
 const INNERTUBE_API_KEY = 'AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8'
@@ -408,6 +409,41 @@ async function getTranscriptViaNodeJS(videoId: string): Promise<{ segments: Tran
 
 function getDurationSeconds(segments: TranscriptSegment[]): number {
   return segments.reduce((max, s) => Math.max(max, s.start + s.duration), 0)
+}
+
+function extractPlayerResponse(html: string): Record<string, unknown> {
+  const match =
+    html.match(/var\s+ytInitialPlayerResponse\s*=\s*(\{.+?\})\s*;\s*var\s/) ||
+    html.match(/ytInitialPlayerResponse\s*=\s*(\{[\s\S]*?\})\s*;/)
+
+  if (!match?.[1]) throw new YouTubeTranscriptError('Could not find player response in page HTML.')
+
+  try {
+    return JSON.parse(match[1]) as Record<string, unknown>
+  } catch {
+    throw new YouTubeTranscriptError('Failed to parse ytInitialPlayerResponse.')
+  }
+}
+
+export async function getYouTubeVideoDuration(input: string): Promise<number> {
+  const videoId = extractYouTubeVideoId(input)
+  if (!videoId) throw new YouTubeTranscriptError('Invalid YouTube URL or video ID.')
+
+  const response = await fetch(`https://www.youtube.com/watch?v=${videoId}&hl=en`, {
+    headers: DEFAULT_HEADERS,
+    cache: 'no-store',
+  })
+  if (!response.ok) throw new YouTubeTranscriptError(`YouTube watch page returned ${response.status}`)
+
+  const player = extractPlayerResponse(await response.text())
+  const videoDetails = player.videoDetails as Record<string, unknown> | undefined
+  const durationSeconds = Number(videoDetails?.lengthSeconds)
+
+  if (!Number.isFinite(durationSeconds) || durationSeconds < 0) {
+    throw new YouTubeTranscriptError('Could not determine the YouTube video duration.')
+  }
+
+  return durationSeconds
 }
 
 function buildText(segments: TranscriptSegment[]): string {

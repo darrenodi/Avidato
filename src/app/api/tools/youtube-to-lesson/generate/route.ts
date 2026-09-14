@@ -5,12 +5,19 @@ import { checkGenerationLimit, recordSuccessfulGeneration } from '@/app/actions/
 import { checkYouTubeAccess, recordYouTubeGeneration } from '@/lib/feature-gates'
 import { generateWithProviderFailover } from '@/lib/ai/generate-with-provider-failover'
 import { extractJSONFromText, cleanAndParseJSON } from '@/lib/utils/json-parser'
-import { getYouTubeTranscript, extractYouTubeVideoId, isTranscriptUnavailableError } from '@/lib/youtube-transcript'
+import {
+  extractYouTubeVideoId,
+  getYouTubeTranscript,
+  getYouTubeVideoDuration,
+  isTranscriptUnavailableError,
+  MAX_YOUTUBE_VIDEO_DURATION_SECONDS,
+} from '@/lib/youtube-transcript'
 import { prisma } from '@/lib/prisma'
 import {
   type CEFRLevel,
   type YouTubeLessonData,
   type FillBlankItem,
+  type VideoBreak,
   buildTranscriptPrompt,
   normalizeManualTranscript,
 } from '@/lib/youtube-lesson-prompt'
@@ -27,10 +34,11 @@ interface YouTubeLessonResponse extends YouTubeLessonData {
   sourceUrl: string
   level: CEFRLevel
   generatedAt: string
+  videoDurationSeconds: number
+  videoBreak?: VideoBreak
 }
 
 const CEFR_LEVELS: CEFRLevel[] = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']
-const MAX_VIDEO_DURATION_SECONDS = 5 * 60
 const MAX_TRANSCRIPT_CHARS = 18000
 
 export async function POST(request: NextRequest) {
@@ -78,6 +86,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Valid CEFR level is required' }, { status: 400 })
     }
 
+    const videoDurationSeconds = await getYouTubeVideoDuration(youtubeUrl)
+    if (videoDurationSeconds > MAX_YOUTUBE_VIDEO_DURATION_SECONDS) {
+      return NextResponse.json(
+        { error: 'Video is too long. Maximum supported duration is 7 minutes.' },
+        { status: 400 }
+      )
+    }
+
     let resolvedTranscriptText = ''
     let resolvedVideoId = 'manual'
     let resolvedSourceUrl = ''
@@ -103,13 +119,6 @@ export async function POST(request: NextRequest) {
       }
     } else if (youtubeUrl) {
       const transcriptData = await getYouTubeTranscript(youtubeUrl)
-
-      if (transcriptData.durationSeconds > MAX_VIDEO_DURATION_SECONDS) {
-        return NextResponse.json(
-          { error: 'Video is too long. Maximum supported duration is 5 minutes.' },
-          { status: 400 }
-        )
-      }
 
       resolvedTranscriptText = transcriptData.transcriptText
       resolvedVideoId = transcriptData.videoId
@@ -149,7 +158,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const prompt = buildTranscriptPrompt(resolvedTranscriptText, level, context)
+    const prompt = buildTranscriptPrompt(resolvedTranscriptText, level, context, videoDurationSeconds)
 
     const aiResult = await generateWithProviderFailover({
       prompt,
@@ -171,9 +180,22 @@ export async function POST(request: NextRequest) {
       topic: parsed.topic || '',
       teacherNotes: parsed.teacherNotes || '',
       estimatedMinutes: parsed.estimatedMinutes || 50,
+      videoDurationSeconds,
+      ...(videoDurationSeconds > 4.5 * 60 && {
+        videoBreak: {
+          splitAtSeconds: Math.min(
+            videoDurationSeconds - 30,
+            Math.max(30, Number(parsed.videoBreak?.splitAtSeconds) || Math.round(videoDurationSeconds / 2)),
+          ),
+          rationale: typeof parsed.videoBreak?.rationale === 'string' ? parsed.videoBreak.rationale : 'Split at the nearest safe midpoint.',
+        },
+      }),
       warmUp: Array.isArray(parsed.warmUp) ? parsed.warmUp : [],
       preTeach: Array.isArray(parsed.preTeach) ? parsed.preTeach : [],
       detailQuestions: Array.isArray(parsed.detailQuestions) ? parsed.detailQuestions : [],
+      partOneQuestions: Array.isArray(parsed.partOneQuestions) ? parsed.partOneQuestions : [],
+      midpointDiscussion: Array.isArray(parsed.midpointDiscussion) ? parsed.midpointDiscussion : [],
+      partTwoQuestions: Array.isArray(parsed.partTwoQuestions) ? parsed.partTwoQuestions : [],
       phrases: Array.isArray(parsed.phrases) ? parsed.phrases : [],
       fillBlanks: Array.isArray(parsed.fillBlanks)
         ? parsed.fillBlanks.map((item: FillBlankItem) => {

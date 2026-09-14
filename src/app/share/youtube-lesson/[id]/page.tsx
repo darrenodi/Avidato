@@ -25,6 +25,7 @@ interface PreTeachItem {
 }
 
 interface DetailQuestion { id: number; question: string }
+interface VideoBreak { splitAtSeconds: number; rationale: string }
 
 interface PhraseItem {
   term: string
@@ -51,7 +52,12 @@ interface StudentLesson {
   title: string
   topic: string
   estimatedMinutes: number
+  videoDurationSeconds?: number
+  videoBreak?: VideoBreak
   warmUp: WarmUpQuestion[]
+  partOneQuestions?: DetailQuestion[]
+  midpointDiscussion?: DiscussionQuestion[]
+  partTwoQuestions?: DetailQuestion[]
   preTeach: PreTeachItem[]
   detailQuestions: DetailQuestion[]
   phrases: PhraseItem[]
@@ -82,7 +88,7 @@ function StageHeader({ num, label, time }: { num: number | string; label: string
   )
 }
 
-function YouTubeEmbed({ videoId, instruction }: { videoId: string; instruction: string }) {
+function YouTubeEmbed({ videoId, instruction, startAt, endAt }: { videoId: string; instruction: string; startAt?: number; endAt?: number }) {
   if (!videoId || videoId === 'manual') return null
   return (
     <div className="mb-4">
@@ -99,7 +105,7 @@ function YouTubeEmbed({ videoId, instruction }: { videoId: string; instruction: 
       <div className="no-print relative w-full overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700" style={{ paddingBottom: '56.25%' }}>
         <iframe
           className="absolute inset-0 w-full h-full"
-          src={`https://www.youtube-nocookie.com/embed/${videoId}?rel=0`}
+          src={`https://www.youtube-nocookie.com/embed/${videoId}?rel=0${startAt !== undefined ? `&start=${Math.round(startAt)}` : ''}${endAt !== undefined ? `&end=${Math.round(endAt)}` : ''}`}
           title="YouTube video"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           allowFullScreen
@@ -569,21 +575,53 @@ function SharedYouTubeLessonContent() {
                   <p className="text-sm text-blue-700 underline break-all">https://www.youtube.com/watch?v={lesson.videoId}</p>
                 </div>
               )}
-              <YouTubeEmbed videoId={lesson.videoId} instruction="Watch the video and answer the questions below." />
-
-              {lesson.detailQuestions?.length > 0 && (
-                <div>
-                  <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">
-                    After Watching — Specific Details
-                  </h4>
-                  <div className="space-y-3">
-                    {lesson.detailQuestions.map((q) => (
-                      <div key={q.id} className="p-3 rounded-lg">
-                        <p className="text-gray-900 dark:text-white">{q.id}. {formatText(q.question)}</p>
+              {lesson.videoBreak ? (
+                <div className="space-y-6">
+                  <div>
+                    <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">Part 1 — Watch to the first natural pause</h4>
+                    <YouTubeEmbed videoId={lesson.videoId} instruction="Watch from the beginning until the player stops at the natural pause." endAt={lesson.videoBreak.splitAtSeconds} />
+                    {(lesson.partOneQuestions || []).length > 0 && (
+                      <div className="space-y-3">
+                        {(lesson.partOneQuestions || []).map((q) => (
+                          <div key={q.id} className="p-3 rounded-lg"><p className="text-gray-900 dark:text-white">{q.id}. {formatText(q.question)}</p></div>
+                        ))}
                       </div>
-                    ))}
+                    )}
+                  </div>
+                  {(lesson.midpointDiscussion || []).length > 0 && (
+                    <div className="border-y border-gray-200 dark:border-gray-700 py-5">
+                      <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">Pause and discuss</h4>
+                      {(lesson.midpointDiscussion || []).map((q) => (
+                        <div key={q.id} className="p-3 rounded-lg"><p className="text-gray-900 dark:text-white">{q.id}. {formatText(q.question)}</p></div>
+                      ))}
+                    </div>
+                  )}
+                  <div>
+                    <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">Part 2 — Finish the video</h4>
+                    <YouTubeEmbed videoId={lesson.videoId} instruction="Continue watching from the natural pause to the end." startAt={lesson.videoBreak.splitAtSeconds} />
+                    {(lesson.partTwoQuestions || []).length > 0 && (
+                      <div className="space-y-3">
+                        {(lesson.partTwoQuestions || []).map((q) => (
+                          <div key={q.id} className="p-3 rounded-lg"><p className="text-gray-900 dark:text-white">{q.id}. {formatText(q.question)}</p></div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
+              ) : (
+                <>
+                  <YouTubeEmbed videoId={lesson.videoId} instruction="Watch the video and answer the questions below." />
+                  {lesson.detailQuestions?.length > 0 && (
+                    <div>
+                      <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">After Watching — Specific Details</h4>
+                      <div className="space-y-3">
+                        {lesson.detailQuestions.map((q) => (
+                          <div key={q.id} className="p-3 rounded-lg"><p className="text-gray-900 dark:text-white">{q.id}. {formatText(q.question)}</p></div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </>
               )}
             </Card>
 

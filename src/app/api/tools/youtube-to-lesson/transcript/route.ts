@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/lib/auth'
-import { getYouTubeTranscript } from '@/lib/youtube-transcript'
+import {
+  getYouTubeTranscript,
+  getYouTubeVideoDuration,
+  MAX_YOUTUBE_VIDEO_DURATION_SECONDS,
+} from '@/lib/youtube-transcript'
 
 /**
  * Lightweight endpoint that fetches ONLY the transcript text.
@@ -23,6 +27,15 @@ export async function POST(request: NextRequest) {
 
     if (!youtubeUrl) {
       return NextResponse.json({ error: 'YouTube URL is required' }, { status: 400 })
+    }
+
+    const durationSeconds = await getYouTubeVideoDuration(youtubeUrl)
+
+    if (durationSeconds > MAX_YOUTUBE_VIDEO_DURATION_SECONDS) {
+      return NextResponse.json(
+        { error: 'Video is too long. Maximum supported duration is 7 minutes.' },
+        { status: 400 }
+      )
     }
 
     const result = await getYouTubeTranscript(youtubeUrl)

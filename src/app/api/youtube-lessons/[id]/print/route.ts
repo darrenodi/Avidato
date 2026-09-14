@@ -194,9 +194,14 @@ interface YtData {
   sourceUrl?: string
   teacherNotes?: string
   estimatedMinutes?: number
+  videoDurationSeconds?: number
+  videoBreak?: { splitAtSeconds?: number; rationale?: string }
   warmUp?: any[]
   preTeach?: any[]
   detailQuestions?: any[]
+  partOneQuestions?: any[]
+  midpointDiscussion?: any[]
+  partTwoQuestions?: any[]
   phrases?: any[]
   fillBlanks?: any[]
   speakingPractice?: any[]
@@ -240,7 +245,28 @@ function buildHTML(lesson: { id: string; title: string; level: string; topic: st
         <div class="video-url">${e(videoUrl)}</div>
       </div>`
     }
-    if (d.detailQuestions?.length) {
+    if (d.videoBreak?.splitAtSeconds && d.partOneQuestions?.length) {
+      sections += `<p class="bold">Part 1 — Watch to the first natural pause:</p>`
+      d.partOneQuestions.forEach((q: any, i: number) => {
+        sections += numberedQ(i + 1, e(q.question))
+        if (tutorCopy && q.answer) sections += `<div class="q-answer">✓ ${e(q.answer)}</div>`
+        else sections += writeLine()
+      })
+      if (d.midpointDiscussion?.length) {
+        sections += `<p class="bold pause-heading">Pause and discuss:</p>`
+        d.midpointDiscussion.forEach((q: any, i: number) => {
+          sections += numberedQ(i + 1, e(q.question))
+          if (tutorCopy && q.followUp) sections += `<div class="q-followup">${e(q.followUp)}</div>`
+          else sections += writeLine()
+        })
+      }
+      sections += `<p class="bold pause-heading">Part 2 — Finish the video:</p>`
+      ;(d.partTwoQuestions || []).forEach((q: any, i: number) => {
+        sections += numberedQ(i + 1, e(q.question))
+        if (tutorCopy && q.answer) sections += `<div class="q-answer">✓ ${e(q.answer)}</div>`
+        else sections += writeLine()
+      })
+    } else if (d.detailQuestions?.length) {
       sections += `<p class="bold">Watch the video and answer the questions:</p>`
       d.detailQuestions.forEach((q: any, i: number) => {
         sections += numberedQ(i + 1, e(q.question))
@@ -250,7 +276,17 @@ function buildHTML(lesson: { id: string; title: string; level: string; topic: st
     }
   }
 
-  // 4 — Phrases (matching) — single side-by-side table: phrase | blank | letter | meaning
+  // 4 — Discussion
+  if (d.discussion?.length) {
+    num++
+    sections += sectionHeader(num, 'Discussion', '8-10 min')
+    d.discussion.forEach((q: any, i: number) => {
+      sections += numberedQ(i + 1, e(q.question))
+      if (tutorCopy && q.followUp) sections += `<div class="q-followup">${e(q.followUp)}</div>`
+    })
+  }
+
+  // 5 — Phrases (matching) — single side-by-side table: phrase | blank | letter | meaning
   if (d.phrases?.length) {
     num++
     sections += sectionHeader(num, 'Phrases from the Video', '5-7 min')
@@ -284,7 +320,7 @@ function buildHTML(lesson: { id: string; title: string; level: string; topic: st
     }
   }
 
-  // 5 — Fill in the blanks
+  // 6 — Fill in the blanks
   if (d.fillBlanks?.length) {
     num++
     sections += sectionHeader(num, 'Fill in the Blanks', '5 min')
@@ -294,22 +330,12 @@ function buildHTML(lesson: { id: string; title: string; level: string; topic: st
     })
   }
 
-  // 6 — Speaking practice
+  // 7 — Speaking practice
   if (d.speakingPractice?.length) {
     num++
     sections += sectionHeader(num, 'Speaking Practice', '5-7 min')
     sections += `<p class="bold">Answer each question using the highlighted phrase:</p>`
     d.speakingPractice.forEach((s: any, i: number) => { sections += numberedQ(i + 1, eBold(s.question)) })
-  }
-
-  // 7 — Discussion
-  if (d.discussion?.length) {
-    num++
-    sections += sectionHeader(num, 'Discussion', '8-10 min')
-    d.discussion.forEach((q: any, i: number) => {
-      sections += numberedQ(i + 1, e(q.question))
-      if (tutorCopy && q.followUp) sections += `<div class="q-followup">${e(q.followUp)}</div>`
-    })
   }
 
   // 8 — Wrap-up

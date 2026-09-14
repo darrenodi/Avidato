@@ -27,6 +27,7 @@ interface PreTeachItem {
 }
 
 interface DetailQuestion { id: number; question: string; answer: string }
+interface VideoBreak { splitAtSeconds: number; rationale: string }
 
 interface PhraseItem {
   term: string
@@ -57,7 +58,12 @@ interface YouTubeLessonResult {
   topic: string
   teacherNotes: string
   estimatedMinutes: number
+  videoDurationSeconds?: number
+  videoBreak?: VideoBreak
   warmUp: WarmUpQuestion[]
+  partOneQuestions?: DetailQuestion[]
+  midpointDiscussion?: DiscussionQuestion[]
+  partTwoQuestions?: DetailQuestion[]
   preTeach: PreTeachItem[]
   detailQuestions: DetailQuestion[]
   phrases: PhraseItem[]
@@ -297,7 +303,7 @@ function StageCard({ num, label, time, onEdit, children }: { num: number | strin
   )
 }
 
-function YouTubeEmbed({ videoId, instruction }: { videoId: string; instruction: string }) {
+function YouTubeEmbed({ videoId, instruction, startAt, endAt }: { videoId: string; instruction: string; startAt?: number; endAt?: number }) {
   if (!videoId || videoId === 'manual') return null
   return (
     <div className="mb-4">
@@ -305,7 +311,7 @@ function YouTubeEmbed({ videoId, instruction }: { videoId: string; instruction: 
       <div className="relative w-full overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700" style={{ paddingBottom: '56.25%' }}>
         <iframe
           className="absolute inset-0 w-full h-full"
-          src={`https://www.youtube-nocookie.com/embed/${videoId}?rel=0`}
+          src={`https://www.youtube-nocookie.com/embed/${videoId}?rel=0${startAt !== undefined ? `&start=${Math.round(startAt)}` : ''}${endAt !== undefined ? `&end=${Math.round(endAt)}` : ''}`}
           title="YouTube video"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           allowFullScreen
@@ -398,6 +404,11 @@ export default function YouTubeToLessonPage() {
           term, type, phonetics, definition, exampleSentence, ...(synonym && { synonym }), ...(expressions?.length && { expressions }),
         })),
         detailQuestions: (result.detailQuestions || []).map(({ id, question }) => ({ id, question })),
+        videoDurationSeconds: result.videoDurationSeconds,
+        videoBreak: result.videoBreak,
+        partOneQuestions: (result.partOneQuestions || []).map(({ id, question }) => ({ id, question })),
+        midpointDiscussion: (result.midpointDiscussion || []).map(({ id, question }) => ({ id, question })),
+        partTwoQuestions: (result.partTwoQuestions || []).map(({ id, question }) => ({ id, question })),
         phrases: (result.phrases || []).map(({ term, type, meaning }) => ({
           term, type, meaning,
         })),
@@ -793,21 +804,74 @@ export default function YouTubeToLessonPage() {
 
             {/* ---- STAGE 3: Watch & Comprehend ---- */}
             <StageCard num={3} label="Watch & Comprehend" time="8-10 min" onEdit={() => setEditingStage('detailQuestions')}>
-              <YouTubeEmbed videoId={result.videoId} instruction="Play the video. The student watches once and answers the comprehension questions below." />
-              {result.detailQuestions.length > 0 && (
-                <div>
-                  <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1 mt-2">After watching — comprehension questions</p>
-                  <div className="divide-y divide-gray-100 dark:divide-gray-700">
-                    {result.detailQuestions.map((q) => (
-                      <div key={q.id} className="py-3">
-                        <p className="text-sm text-gray-900 dark:text-white">{q.id}. {formatText(q.question)}</p>
-                        {showAnswers && (
-                          <p className="text-sm text-green-700 dark:text-green-400 mt-1"><span className="font-medium">A:</span> {formatText(q.answer)}</p>
-                        )}
+              {result.videoBreak ? (
+                <div className="space-y-6">
+                  <div>
+                    <div className="flex items-center gap-2 mb-3">
+                      <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Part 1 — Watch to the first natural pause</p>
+                      <EditButton onClick={() => setEditingStage('partOneQuestions')} label="Edit" />
+                    </div>
+                    <YouTubeEmbed videoId={result.videoId} instruction="Watch from the beginning until the player stops at the natural pause." endAt={result.videoBreak.splitAtSeconds} />
+                    {(result.partOneQuestions || []).length > 0 && (
+                      <div className="divide-y divide-gray-100 dark:divide-gray-700">
+                        {(result.partOneQuestions || []).map((q) => (
+                          <div key={q.id} className="py-3">
+                            <p className="text-sm text-gray-900 dark:text-white">{q.id}. {formatText(q.question)}</p>
+                            {showAnswers && <p className="text-sm text-green-700 dark:text-green-400 mt-1"><span className="font-medium">A:</span> {formatText(q.answer)}</p>}
+                          </div>
+                        ))}
                       </div>
-                    ))}
+                    )}
+                  </div>
+                  {(result.midpointDiscussion || []).length > 0 && (
+                    <div className="border-y border-gray-200 dark:border-gray-700 py-5">
+                      <div className="flex items-center gap-2 mb-2">
+                        <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Pause and discuss</p>
+                        <EditButton onClick={() => setEditingStage('midpointDiscussion')} label="Edit" />
+                      </div>
+                      {(result.midpointDiscussion || []).map((q) => (
+                        <div key={q.id} className="py-2">
+                          <p className="text-sm text-gray-900 dark:text-white">{q.id}. {formatText(q.question)}</p>
+                          {showAnswers && <p className="text-sm text-green-700 dark:text-green-400 mt-1"><span className="font-medium">Follow-up:</span> {formatText(q.followUp)}</p>}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  <div>
+                    <div className="flex items-center gap-2 mb-3">
+                      <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Part 2 — Finish the video</p>
+                      <EditButton onClick={() => setEditingStage('partTwoQuestions')} label="Edit" />
+                    </div>
+                    <YouTubeEmbed videoId={result.videoId} instruction="Continue watching from the natural pause to the end." startAt={result.videoBreak.splitAtSeconds} />
+                    {(result.partTwoQuestions || []).length > 0 && (
+                      <div className="divide-y divide-gray-100 dark:divide-gray-700">
+                        {(result.partTwoQuestions || []).map((q) => (
+                          <div key={q.id} className="py-3">
+                            <p className="text-sm text-gray-900 dark:text-white">{q.id}. {formatText(q.question)}</p>
+                            {showAnswers && <p className="text-sm text-green-700 dark:text-green-400 mt-1"><span className="font-medium">A:</span> {formatText(q.answer)}</p>}
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
+              ) : (
+                <>
+                  <YouTubeEmbed videoId={result.videoId} instruction="Play the video. The student watches once and answers the comprehension questions below." />
+                  {result.detailQuestions.length > 0 && (
+                    <div>
+                      <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1 mt-2">After watching — comprehension questions</p>
+                      <div className="divide-y divide-gray-100 dark:divide-gray-700">
+                        {result.detailQuestions.map((q) => (
+                          <div key={q.id} className="py-3">
+                            <p className="text-sm text-gray-900 dark:text-white">{q.id}. {formatText(q.question)}</p>
+                            {showAnswers && <p className="text-sm text-green-700 dark:text-green-400 mt-1"><span className="font-medium">A:</span> {formatText(q.answer)}</p>}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </>
               )}
             </StageCard>
 
@@ -836,7 +900,10 @@ export default function YouTubeToLessonPage() {
 
                 {result.fillBlanks && result.fillBlanks.length > 0 && (
                   <div className="mt-8">
-                    <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">5b — Fill in the blanks</p>
+                    <div className="flex items-center gap-2 mb-2">
+                      <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">5b — Fill in the blanks</p>
+                      <EditButton onClick={() => setEditingStage('fillBlanks')} label="Edit" />
+                    </div>
                     <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">Use the word box to complete each sentence. You may need to change the form.</p>
                     <div className="flex flex-wrap gap-2 mb-4 p-3 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700">
                       {shuffledWordBox.map((word, i) => (
@@ -912,6 +979,9 @@ export default function YouTubeToLessonPage() {
             fillBlanks: 'Fill in the Blanks',
             speakingPractice: 'Speaking Practice Questions',
             discussion: 'Discussion Questions',
+            partOneQuestions: 'Part 1 Comprehension Questions',
+            midpointDiscussion: 'Midpoint Discussion Questions',
+            partTwoQuestions: 'Part 2 Comprehension Questions',
             wrapUp: 'Wrap-Up & Homework',
           }
           // For wrapUp, combine wrapUp + homework into one editable object

@@ -20,6 +20,11 @@ export interface PreTeachItem {
 
 export interface DetailQuestion { id: number; question: string; answer: string }
 
+export interface VideoBreak {
+  splitAtSeconds: number
+  rationale: string
+}
+
 export interface PhraseItem {
   term: string
   type: 'idiom' | 'phrasal verb' | 'collocation' | 'fixed expression'
@@ -37,9 +42,14 @@ export interface YouTubeLessonData {
   topic: string
   teacherNotes: string
   estimatedMinutes: number
+  videoDurationSeconds?: number
+  videoBreak?: VideoBreak
   warmUp: WarmUpQuestion[]
   preTeach: PreTeachItem[]
   detailQuestions: DetailQuestion[]
+  partOneQuestions?: DetailQuestion[]
+  midpointDiscussion?: DiscussionQuestion[]
+  partTwoQuestions?: DetailQuestion[]
   discussion: DiscussionQuestion[]
   phrases: PhraseItem[]
   fillBlanks: FillBlankItem[]
@@ -52,9 +62,29 @@ export function normalizeManualTranscript(input: string): string {
   return input.replace(/\s+/g, ' ').trim()
 }
 
-export function buildTranscriptPrompt(transcriptText: string, level: CEFRLevel, context?: string): string {
+export function buildTranscriptPrompt(
+  transcriptText: string,
+  level: CEFRLevel,
+  context?: string,
+  videoDurationSeconds?: number,
+): string {
   const contextBlock = context
     ? `\n\nTEACHER CONTEXT (use this to inform your choices — vocabulary, question topics, examples, etc.):\n"""\n${context}\n"""\n`
+    : ''
+  const needsVideoBreak = videoDurationSeconds !== undefined && videoDurationSeconds > 4.5 * 60
+  const videoBreakInstructions = needsVideoBreak
+    ? `
+
+VIDEO PAUSING PLAN — THIS VIDEO IS ${Math.round(videoDurationSeconds!)} SECONDS LONG
+Because the video is longer than 4 minutes 30 seconds, divide it into two watchable parts.
+Choose a natural pause at a completed idea, scene, example, or change of topic. Never split
+mid-sentence, during a story, or immediately before the payoff to an important point. The
+split timestamp is approximate because the transcript has no timestamps, so choose the point
+in the transcript that best supports a clean teaching pause and estimate its time in seconds.
+After Part 1, give the student a short set of questions or discussion prompts about Part 1,
+then have them watch Part 2. Give Part 2 its own detail questions. Keep the existing broad
+topic discussion after Part 2.
+`
     : ''
 
   return `You are an expert ESL lesson planner creating a structured 50-minute lesson from a YouTube video transcript.
@@ -66,7 +96,7 @@ TRANSCRIPT:
 ${transcriptText}
 """
 
-TASK:
+TASK:${videoBreakInstructions}
 Create a complete 6-stage lesson plan that a teacher can pick up and follow top-to-bottom.
 Every item must be level-appropriate for CEFR ${level}.
 The student watches the video ONCE only.
@@ -180,7 +210,13 @@ For each word provide:
 STAGE 3 — WATCH & COMPREHEND (8-10 min)
 ══════════════════════════════════════════════
 
-The student watches the video ONCE, then answers 5 detail questions.
+For videos 4 minutes 30 seconds or shorter, the student watches the video ONCE, then answers
+5 detail questions as before.
+
+For longer videos, use the natural pause described above. Generate 2-3 detail questions for
+Part 1, 2 midpoint discussion questions that can be answered after Part 1, and 2-3 detail
+questions for Part 2. These questions must only use information available by that point in
+the video. Do not reveal Part 2 information in the midpoint questions.
 
 RULES:
 - Each question targets ONE specific piece of information. No double-barreled questions.
@@ -298,6 +334,10 @@ OUTPUT JSON ONLY — no markdown, no explanation, no code fences:
     "expressions": ["collocation 1", "collocation 2"]
   }],
   "detailQuestions": [{ "id": 1, "question": "detail question", "answer": "1-2 sentence reference answer" }],
+  "videoBreak": ${needsVideoBreak ? '{ "splitAtSeconds": 165, "rationale": "A completed idea before the speaker introduces the next example." }' : 'null'},
+  "partOneQuestions": ${needsVideoBreak ? '[{ "id": 1, "question": "Part 1 detail question", "answer": "reference answer" }]' : '[]'},
+  "midpointDiscussion": ${needsVideoBreak ? '[{ "id": 1, "question": "Part 1 discussion question", "followUp": "follow-up" }]' : '[]'},
+  "partTwoQuestions": ${needsVideoBreak ? '[{ "id": 1, "question": "Part 2 detail question", "answer": "reference answer" }]' : '[]'},
   "discussion": [{ "id": 1, "question": "discussion question (max 30 words)", "followUp": "follow-up (max 20 words)" }],
   "phrases": [{ "term": "drop the ball", "type": "idiom", "meaning": "to fail at a responsibility" }],
   "fillBlanks": [{ "id": 1, "sentence": "sentence with ________", "answer": "phrase" }],
@@ -309,7 +349,7 @@ OUTPUT JSON ONLY — no markdown, no explanation, no code fences:
 COUNTS (strict — no exceptions):
 - warmUp: exactly 3 items
 - preTeach: exactly 5 items (type: "noun", "verb", "adjective", or "adverb")
-- detailQuestions: exactly 5 items
+- detailQuestions: exactly 5 items for videos 4 minutes 30 seconds or shorter; for longer videos use the Part 1 and Part 2 question arrays instead
 - discussion: exactly 5 items
 - phrases: exactly 8 items (type: "idiom" or "phrasal verb" ONLY)
 - fillBlanks: exactly 6 items
