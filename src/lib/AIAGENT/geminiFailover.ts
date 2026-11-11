@@ -11,16 +11,16 @@ if (!process.env.GOOGLE_API_KEY) {
 
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY)
 
-// Ordered by preference / capability
-// gemini-2.5-flash: paid tier, most stable under load
-// gemini-2.0-flash: reliable paid-tier fallback
-// gemini-3.1-flash-lite-preview: lite/free tier
-// gemini-2.5-flash-lite: lite/free tier last resort
+// Ordered by preference / capability (free-tier availability as of Nov 2026)
+// gemini-3.8-flash: best quality, ~20 free requests/day
+// gemini-3.6-flash: previous-gen Flash fallback
+// gemini-3.5-flash-lite: high free quota (~500 requests/day), no shutdown date
+// gemini-3.1-flash-lite: last resort (shutdown scheduled May 2027)
 export const MODEL_FALLBACK_CHAIN: string[] = [
-  'gemini-2.5-flash',
-  'gemini-2.0-flash',
-  'gemini-3.1-flash-lite-preview',
-  'gemini-2.5-flash-lite',
+  'gemini-3.8-flash',
+  'gemini-3.6-flash',
+  'gemini-3.5-flash-lite',
+  'gemini-3.1-flash-lite',
 ]
 
 export interface FailoverResult {

@@ -2,9 +2,9 @@
  * Speaking lesson tests — structures S1–S4
  *
  * Covered module types (15):
- *   S1 → warm-up, useful-language, dialogue, listening-true-false, matching-qa, roleplay, homework-writing
- *   S2 → vocabulary-cards, listening-mcq, grammar-focus, discussion
- *   S3 → vocabulary-match, debate
+ *   S1 → warm-up, useful-language, dialogue, listening-true-false, gap-fill, roleplay, homework-writing
+ *   S2 → vocabulary-cards, listening-mcq, register-upgrade, discussion
+ *   S3 → vocabulary-match, matching-qa, debate
  *   S4 → useful-expressions, talking-point
  */
 
@@ -15,13 +15,13 @@ import {
   validateWarmUp, validateUsefulLanguage, validateDialogue,
   validateListeningTrueFalse, validateMatchingQA, validateRoleplay,
   validateHomeworkWriting, validateVocabularyCards, validateListeningMCQ,
-  validateGrammarFocus, validateDiscussion, validateVocabularyMatch,
+  validateRegisterUpgrade, validateGapFill, validateDiscussion, validateVocabularyMatch,
   validateDebate, validateUsefulExpressions, validateTalkingPoint,
 } from './module-validators'
 
 // ─── S1: Warm-up | Key Phrases | Dialogue | Listen T/F | Comprehension | Roleplay ───
 
-describe('Speaking S1: warm-up → useful-language → dialogue → listening-true-false → matching-qa → roleplay', () => {
+describe('Speaking S1: warm-up → useful-language → dialogue → listening-true-false → gap-fill → roleplay', () => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let lesson: any
 
@@ -64,10 +64,10 @@ describe('Speaking S1: warm-up → useful-language → dialogue → listening-tr
     expect(mod.title).toBe('Listen and Decide: True or False?')
   })
 
-  it('module: matching-qa (Comprehension)', () => {
-    const mod = findModule(lesson, 'matching-qa')
-    validateMatchingQA(mod.content)
-    expect(mod.title).toBe('Comprehension')
+  it('module: gap-fill', () => {
+    const mod = findModule(lesson, 'gap-fill')
+    validateGapFill(mod.content)
+    expect(mod.title).toBe('Gap Fill')
   })
 
   it('module: roleplay — situation not scenario, roles as objects', () => {
@@ -98,9 +98,9 @@ describe('Speaking S1: warm-up → useful-language → dialogue → listening-tr
   })
 })
 
-// ─── S2: Vocabulary | Dialogue | Listen MCQ | Grammar | Discussion ────────────
+// ─── S2: Vocabulary | Dialogue | Listen MCQ | Say It Better | Discussion ────────────
 
-describe('Speaking S2: vocabulary-cards → dialogue → listening-mcq → grammar-focus → discussion', () => {
+describe('Speaking S2: vocabulary-cards → dialogue → listening-mcq → register-upgrade → discussion', () => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let lesson: any
 
@@ -122,10 +122,10 @@ describe('Speaking S2: vocabulary-cards → dialogue → listening-mcq → gramm
     expect(mod.title).toBe('Listening Comprehension')
   })
 
-  it('module: grammar-focus — examples are objects {label, sentence} not strings', () => {
-    const mod = findModule(lesson, 'grammar-focus')
-    validateGrammarFocus(mod.content)
-    expect(mod.title).toBe('Grammar Focus')
+  it('module: register-upgrade — 5-6 basic/upgraded pairs', () => {
+    const mod = findModule(lesson, 'register-upgrade')
+    validateRegisterUpgrade(mod.content)
+    expect(mod.title).toBe('Say It Better')
   })
 
   it('module: discussion — 4-6 questions, strings not objects', () => {
@@ -135,9 +135,9 @@ describe('Speaking S2: vocabulary-cards → dialogue → listening-mcq → gramm
   })
 })
 
-// ─── S3: Vocabulary Match | Debate ───────────────────────────────────────────
+// ─── S3: Vocabulary Match | Matching Q&A | Debate ───────────────────────────────────────────
 
-describe('Speaking S3: vocabulary-match → debate', () => {
+describe('Speaking S3: vocabulary-match → matching-qa → debate', () => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let lesson: any
 
@@ -154,6 +154,12 @@ describe('Speaking S3: vocabulary-match → debate', () => {
     // vocabulary-cards must NOT also be present (no duplication)
     const hasCards = lesson.modules.some((m: { type: string }) => m.type === 'vocabulary-cards')
     expect(hasCards, 'vocabulary-cards and vocabulary-match both present').toBe(false)
+  })
+
+  it('module: matching-qa (Comprehension)', () => {
+    const mod = findModule(lesson, 'matching-qa')
+    validateMatchingQA(mod.content)
+    expect(mod.title).toBe('Comprehension')
   })
 
   it('module: debate — topic, sideA, sideB with direct-opposite labels', () => {
@@ -175,7 +181,7 @@ describe('Speaking S4: useful-expressions → talking-point', () => {
     console.log('\n[S4] Modules generated:', lesson.modules?.map((m: { type: string }) => m.type).join(', '))
   })
 
-  it('module: useful-expressions — fixed idioms, full + stem format', () => {
+  it('module: useful-expressions — fixed idioms, full + blank format', () => {
     const mod = findModule(lesson, 'useful-expressions')
     validateUsefulExpressions(mod.content)
     expect(mod.title).toBe('Useful Expressions')

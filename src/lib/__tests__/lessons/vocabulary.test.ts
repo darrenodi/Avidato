@@ -106,7 +106,7 @@ describe('Vocabulary V4: warm-up → phrasal-verbs → gap-fill → find-the-mis
     }
   })
 
-  it('module: useful-expressions — fixed idioms with full + stem', () => {
+  it('module: useful-expressions — fixed idioms with full + blank', () => {
     validateUsefulExpressions(findModule(lesson, 'useful-expressions').content)
   })
 

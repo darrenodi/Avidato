@@ -3,7 +3,7 @@
  *
  * Covered module type (1 new):
  *   G1 → sentence-correction
- *   (warm-up, vocabulary-cards, grammar-focus, find-the-mistake, discussion already covered)
+ *   (warm-up, vocabulary-cards, grammar-focus, gap-fill, discussion already covered)
  */
 
 import { describe, it, expect, beforeAll } from 'vitest'
@@ -11,13 +11,13 @@ import { ELENA, GRAMMAR_LESSON, G1 } from './fixtures'
 import { generateTestLesson, findModule, saveOutput } from './lesson-gen'
 import {
   validateWarmUp, validateVocabularyCards, validateGrammarFocus,
-  validateFindTheMistake, validateSentenceCorrection, validateDiscussion,
+  validateGapFill, validateSentenceCorrection, validateDiscussion,
   validateHomeworkWriting,
 } from './module-validators'
 
-// ─── G1: Warm-up | Vocab Cards | Grammar Focus | Find Mistake | Sentence Correction | Discussion ─
+// ─── G1: Warm-up | Vocab Cards | Grammar Focus | Gap Fill | Sentence Correction | Discussion ─
 
-describe('Grammar G1: warm-up → vocabulary-cards → grammar-focus → find-the-mistake → sentence-correction → discussion', () => {
+describe('Grammar G1: warm-up → vocabulary-cards → grammar-focus → gap-fill → sentence-correction → discussion', () => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let lesson: any
 
@@ -49,14 +49,11 @@ describe('Grammar G1: warm-up → vocabulary-cards → grammar-focus → find-th
       expect(typeof ex).toBe('object')
       expect(typeof ex.label).toBe('string')
       expect(typeof ex.sentence).toBe('string')
-      expect(String(ex)).not.toBe('[object Object]')
     }
   })
 
-  it('module: find-the-mistake — exactly 10 sentences', () => {
-    const mod = findModule(lesson, 'find-the-mistake')
-    validateFindTheMistake(mod.content)
-    expect(mod.content.sentences).toHaveLength(10)
+  it('module: gap-fill — 6-10 sentences, each has ___ blank', () => {
+    validateGapFill(findModule(lesson, 'gap-fill').content)
   })
 
   it('module: sentence-correction — 8-10 sentences with errorType', () => {

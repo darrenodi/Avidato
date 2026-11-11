@@ -96,8 +96,10 @@ export function validateUsefulExpressions(content: AnyObj) {
   expect(content.expressions.length, `${label}: max 10 expressions`).toBeLessThanOrEqual(10)
   for (const ex of content.expressions) {
     expect(typeof ex.full, `${label}: full must be string`).toBe('string')
-    expect(typeof ex.stem, `${label}: stem must be string`).toBe('string')
-    expect(ex.full.trim().split(/\s+/).length, `${label}: expression "${ex.full}" must be multi-word`).toBeGreaterThanOrEqual(2)
+    // {full, blank} shape (since Jul 2026): blank is the idiom substring hidden inside full
+    expect(typeof ex.blank, `${label}: blank must be string`).toBe('string')
+    expect(ex.full.includes(ex.blank), `${label}: blank "${ex.blank}" must appear in "${ex.full}"`).toBe(true)
+    expect(ex.blank.trim().split(/\s+/).length, `${label}: expression "${ex.blank}" must be multi-word`).toBeGreaterThanOrEqual(2)
   }
   quality(content, label)
 }
@@ -392,6 +394,19 @@ export function validateWritingTask(content: AnyObj) {
   quality(content, label)
 }
 
+export function validateRegisterUpgrade(content: AnyObj) {
+  const label = 'register-upgrade'
+  expect(Array.isArray(content.items), `${label}: items must be array`).toBe(true)
+  expect(content.items.length, `${label}: need 5-6 items`).toBeGreaterThanOrEqual(5)
+  expect(content.items.length, `${label}: max 6 items`).toBeLessThanOrEqual(6)
+  for (const it of content.items) {
+    expect(typeof it.basic, `${label}: basic must be string`).toBe('string')
+    expect(typeof it.upgraded, `${label}: upgraded must be string`).toBe('string')
+    expect(it.upgraded.trim().toLowerCase(), `${label}: upgraded must differ from basic`).not.toBe(it.basic.trim().toLowerCase())
+  }
+  quality(content, label)
+}
+
 // ─── Dispatcher: validate any module by type ─────────────────────────────────
 
 const VALIDATORS: Record<string, (content: AnyObj) => void> = {
@@ -407,6 +422,7 @@ const VALIDATORS: Record<string, (content: AnyObj) => void> = {
   'ordering': validateOrdering,
   'sentence-correction': validateSentenceCorrection,
   'grammar-focus': validateGrammarFocus,
+  'register-upgrade': validateRegisterUpgrade,
   'dialogue': validateDialogue,
   'reading-article': validateReadingArticle,
   'reading-scan': validateReadingScan,
