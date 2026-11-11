@@ -13,7 +13,7 @@ import {
   validateWarmUp, validateVocabularyMatch, validateReadingArticle,
   validateReadingScan, validateSkimMainIdea, validateDiscussion,
   validateHomeworkWriting, validateVocabularyCards, validateVocabularyInText,
-  validateMatchingQA, validateDebate,
+  validateGapFill, validateDebate,
 } from './module-validators'
 
 // ─── R1: Warm-up | Vocab Match | Article | Scan | Skim | Discussion ──────────
@@ -80,7 +80,7 @@ describe('Reading R1: warm-up → vocabulary-match → reading-article → readi
 
 // ─── R2: Vocab Cards | Article | Vocab in Text | Comprehension | Debate ──────
 
-describe('Reading R2: vocabulary-cards → reading-article → vocabulary-in-text → matching-qa → debate', () => {
+describe('Reading R2: vocabulary-cards → reading-article → vocabulary-in-text → gap-fill → debate', () => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let lesson: any
 
@@ -107,8 +107,8 @@ describe('Reading R2: vocabulary-cards → reading-article → vocabulary-in-tex
     expect(paragraphs.size, 'all vocabulary-in-text items from same paragraph').toBeGreaterThanOrEqual(2)
   })
 
-  it('module: matching-qa', () => {
-    validateMatchingQA(findModule(lesson, 'matching-qa').content)
+  it('module: gap-fill', () => {
+    validateGapFill(findModule(lesson, 'gap-fill').content)
   })
 
   it('module: debate', () => {

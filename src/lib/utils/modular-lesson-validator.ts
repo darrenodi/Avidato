@@ -275,6 +275,112 @@ function checkMatchingQACount(mod: LessonModule, hardViolations: string[]): void
   }
 }
 
+// ─── Item-count checks (spec ranges from the prompt's module schema) ─────────
+// Modules whose counts are checked by a dedicated function above (dialogue,
+// useful-language, matching-qa, vocabulary-match) are not listed here.
+
+type ItemCountRule = { path: string[]; min: number; max: number; noun: string }
+
+const ITEM_COUNT_RULES: Record<string, ItemCountRule[]> = {
+  'vocabulary-cards':     [{ path: ['vocabulary'], min: 6, max: 6, noun: 'words' }],
+  'useful-expressions':   [{ path: ['expressions'], min: 6, max: 10, noun: 'expressions' }],
+  'language-in-context':  [{ path: ['phrases'], min: 4, max: 6, noun: 'phrases' }],
+  'phrasal-verbs':        [{ path: ['pairs'], min: 6, max: 8, noun: 'phrasal verbs' }],
+  'gap-fill':             [{ path: ['sentences'], min: 6, max: 10, noun: 'sentences' }],
+  'complete-the-sentence':[{ path: ['questions'], min: 4, max: 6, noun: 'questions' }],
+  'find-the-mistake':     [{ path: ['sentences'], min: 10, max: 10, noun: 'sentences' }],
+  'ordering':             [{ path: ['sentences'], min: 5, max: 8, noun: 'sentences' }],
+  'sentence-correction':  [{ path: ['sentences'], min: 8, max: 10, noun: 'sentences' }],
+  'grammar-focus':        [
+    { path: ['examples'], min: 3, max: 5, noun: 'examples' },
+    { path: ['practice', 'questions'], min: 4, max: 6, noun: 'practice questions' },
+  ],
+  'listening-true-false': [{ path: ['questions'], min: 6, max: 8, noun: 'statements' }],
+  'listening-mcq':        [{ path: ['questions'], min: 4, max: 6, noun: 'questions' }],
+  'reading-scan':         [{ path: ['questions'], min: 4, max: 8, noun: 'questions' }],
+  'vocabulary-in-text':   [{ path: ['items'], min: 8, max: 10, noun: 'items' }],
+  'discussion':           [{ path: ['questions'], min: 4, max: 6, noun: 'questions' }],
+  'debate':               [
+    { path: ['sideA', 'points'], min: 3, max: 5, noun: 'side A points' },
+    { path: ['sideB', 'points'], min: 3, max: 5, noun: 'side B points' },
+  ],
+  'talking-point':        [
+    { path: ['studentA', 'questions'], min: 3, max: 4, noun: 'student A questions' },
+    { path: ['studentB', 'questions'], min: 3, max: 4, noun: 'student B questions' },
+  ],
+  'homework-writing':     [{ path: ['prompts'], min: 3, max: 5, noun: 'prompts' }],
+  'register-upgrade':     [{ path: ['items'], min: 5, max: 6, noun: 'items' }],
+}
+
+function getPath(obj: unknown, path: string[]): unknown {
+  let cur: unknown = obj
+  for (const key of path) {
+    if (typeof cur !== 'object' || cur === null) return undefined
+    cur = (cur as Record<string, unknown>)[key]
+  }
+  return cur
+}
+
+function checkItemCounts(mod: LessonModule, hardViolations: string[]): void {
+  const rules = ITEM_COUNT_RULES[mod.type]
+  if (!rules || !mod.content) return
+  for (const rule of rules) {
+    const field = rule.path.join('.')
+    const value = getPath(mod.content, rule.path)
+    if (!Array.isArray(value)) {
+      hardViolations.push(`${mod.type} (module: "${mod.title}") has no ${field} array — spec requires ${rule.min === rule.max ? rule.min : `${rule.min}-${rule.max}`} ${rule.noun}.`)
+      continue
+    }
+    const count = value.length
+    if (count < rule.min || count > rule.max) {
+      const spec = rule.min === rule.max ? `exactly ${rule.min}` : `${rule.min}-${rule.max}`
+      hardViolations.push(
+        `${mod.type} (module: "${mod.title}") has ${count} ${rule.noun} — spec requires ${spec}. ` +
+        (count < rule.min ? `Add ${rule.min - count} more.` : `Remove ${count - rule.max}.`)
+      )
+    }
+  }
+}
+
+/** Shape checks for fields the renderers depend on */
+function checkItemShapes(mod: LessonModule, hardViolations: string[]): void {
+  const c = mod.content as Record<string, unknown> | undefined
+  if (!c) return
+  if (mod.type === 'gap-fill' && Array.isArray(c.sentences)) {
+    const missing = (c.sentences as { sentence?: unknown }[])
+      .filter(s => typeof s?.sentence !== 'string' || !s.sentence.includes('___'))
+    if (missing.length > 0) {
+      hardViolations.push(
+        `gap-fill (module: "${mod.title}") has ${missing.length} sentence(s) with no ___ blank. Every sentence must contain ___ where the answer goes.`
+      )
+    }
+  }
+  if (mod.type === 'useful-expressions' && Array.isArray(c.expressions)) {
+    const bad = (c.expressions as { full?: unknown; blank?: unknown }[])
+      .filter(e => typeof e?.full !== 'string' || typeof e?.blank !== 'string' || !e.full.includes(e.blank))
+    if (bad.length > 0) {
+      hardViolations.push(
+        `useful-expressions (module: "${mod.title}") has ${bad.length} item(s) where "blank" is missing or does not appear verbatim inside "full". ` +
+        `Each item must be {full, blank} with blank an exact substring of full.`
+      )
+    }
+  }
+}
+
+/** Auto-fix: vocabulary-in-text paragraph numbers sent as numeric strings ("2" → 2) */
+function fixVocabularyInTextParagraphs(mod: LessonModule, warnings: string[]): void {
+  const items = (mod.content as { items?: { paragraph?: unknown }[] } | undefined)?.items
+  if (!Array.isArray(items)) return
+  let fixed = 0
+  for (const item of items) {
+    if (typeof item?.paragraph === 'string' && /^\s*\d+\s*$/.test(item.paragraph)) {
+      item.paragraph = Number(item.paragraph)
+      fixed++
+    }
+  }
+  if (fixed > 0) warnings.push(`vocabulary-in-text: converted ${fixed} paragraph number(s) from string to number`)
+}
+
 // ─── Hard violation checks ──────────────────────────────────────────────────
 
 /** Template placeholders in any module title or content text */
@@ -522,6 +628,7 @@ export function validateModularLesson(lesson: unknown): ValidationResult {
     switch (mod.type) {
       case 'useful-language': fixUsefulLanguageModule(mod, warnings); break
       case 'homework-writing': fixHomeworkModule(mod, warnings); break
+      case 'vocabulary-in-text': fixVocabularyInTextParagraphs(mod, warnings); break
     }
   }
 
@@ -533,6 +640,8 @@ export function validateModularLesson(lesson: unknown): ValidationResult {
 
   // Per-module checks (hard violations + soft warnings)
   for (const mod of modularLesson.modules) {
+    checkItemCounts(mod, hardViolations)
+    checkItemShapes(mod, hardViolations)
     switch (mod.type) {
       case 'warm-up':
         checkWarmUpQuestions(mod, hardViolations)
